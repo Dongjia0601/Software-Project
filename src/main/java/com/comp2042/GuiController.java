@@ -1,3 +1,4 @@
+// File: src/main/java/com/comp2042/GuiController.java
 package com.comp2042;
 
 import javafx.animation.KeyFrame;
@@ -41,7 +42,7 @@ public class GuiController implements Initializable {
 
     private Rectangle[][] displayMatrix;
 
-    private InputEventListener eventListener;
+    private InputEventListener eventListener; // This is GameController
 
     private Rectangle[][] rectangles;
 
@@ -59,6 +60,7 @@ public class GuiController implements Initializable {
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
+                // Check for pause state before handling movement/rotation
                 if (isPause.getValue() == Boolean.FALSE && isGameOver.getValue() == Boolean.FALSE) {
                     if (keyEvent.getCode() == KeyCode.LEFT || keyEvent.getCode() == KeyCode.A) {
                         refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)));
@@ -76,6 +78,14 @@ public class GuiController implements Initializable {
                         moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
                         keyEvent.consume();
                     }
+                }
+                // Add key handler for pause/unpause (P key)
+                if (keyEvent.getCode() == KeyCode.P) {
+                    // Cast eventListener to GameController to call requestPause
+                    if (eventListener instanceof GameController) {
+                        ((GameController) eventListener).requestPause();
+                    }
+                    keyEvent.consume();
                 }
                 if (keyEvent.getCode() == KeyCode.N) {
                     newGame(null);
@@ -158,7 +168,7 @@ public class GuiController implements Initializable {
 
 
     private void refreshBrick(ViewData brick) {
-        if (isPause.getValue() == Boolean.FALSE) {
+        if (isPause.getValue() == Boolean.FALSE) { // Only update position if not paused
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
             brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
             for (int i = 0; i < brick.getBrickData().length; i++) {
@@ -184,14 +194,18 @@ public class GuiController implements Initializable {
     }
 
     private void moveDown(MoveEvent event) {
+        // Check for pause state before processing down event
         if (isPause.getValue() == Boolean.FALSE) {
             DownData downData = eventListener.onDownEvent(event);
-            if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
-                NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
-                groupNotification.getChildren().add(notificationPanel);
-                notificationPanel.showScore(groupNotification.getChildren());
+            // Check if downData is null (e.g., from PausedState) before processing
+            if (downData != null) {
+                if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
+                    NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
+                    groupNotification.getChildren().add(notificationPanel);
+                    notificationPanel.showScore(groupNotification.getChildren());
+                }
+                refreshBrick(downData.getViewData());
             }
-            refreshBrick(downData.getViewData());
         }
         gamePanel.requestFocus();
     }
@@ -201,25 +215,40 @@ public class GuiController implements Initializable {
     }
 
     public void bindScore(IntegerProperty integerProperty) {
+        // Binding logic might be implemented here if needed based on original code structure
+        // For now, left empty as per original placeholder
     }
 
     public void gameOver() {
-        timeLine.stop();
+        if (timeLine != null) {
+            timeLine.stop(); // Stop automatic movement
+        }
         gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
+        isPause.setValue(Boolean.FALSE); // Ensure pause is off on game over
     }
 
     public void newGame(ActionEvent actionEvent) {
-        timeLine.stop();
+        if (timeLine != null) {
+            timeLine.stop(); // Stop current timeline
+        }
         gameOverPanel.setVisible(false);
-        eventListener.createNewGame();
+        eventListener.createNewGame(); // Delegate to state
         gamePanel.requestFocus();
-        timeLine.play();
+        // Restart timeline after state transition (assuming PlayingState starts the game loop)
+        if (timeLine != null) {
+            timeLine.play(); // Restart automatic movement
+        }
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
     }
 
+    // Modify pauseGame if it's triggered by a button (optional)
     public void pauseGame(ActionEvent actionEvent) {
+        // Call the controller's pause request method
+        if (eventListener instanceof GameController) {
+            ((GameController) eventListener).requestPause();
+        }
         gamePanel.requestFocus();
     }
 }
