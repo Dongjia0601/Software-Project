@@ -127,51 +127,39 @@ public class MatrixOperations {
      * @param matrix The current state of the game board matrix.
      * @return A ClearRow object containing the number of lines removed, the new matrix, and the score bonus.
      */
-    public static ClearRow checkRemoving(final int[][] matrix) {
-        // Temporary matrix to hold the new state after rows are cleared
-        int[][] newMatrix = new int[matrix.length][matrix[0].length];
-        // Deque to efficiently add rows that are not cleared
-        Deque<int[]> rowsToKeep = new ArrayDeque<>();
-        // List to store the indices of rows that were cleared
-        List<Integer> clearedRowIndices = new ArrayList<>();
 
-        // Scan the matrix from top to bottom
-        for (int i = 0; i < matrix.length; i++) {
-            int[] currentRow = new int[matrix[i].length];
-            boolean rowIsFull = true; // Assume the row is full initially
+        // Renamed method
+        public static ClearRow clearCompletedRows(final int[][] matrix) {
+            int[][] tmp = new int[matrix.length][matrix[0].length];
+            Deque<int[]> newRows = new ArrayDeque<>();
+            List<Integer> clearedRows = new ArrayList<>();
 
-            // Check each cell in the current row
-            for (int j = 0; j < matrix[0].length; j++) {
-                if (matrix[i][j] == 0) {
-                    rowIsFull = false; // Found an empty cell, row is not full
+            for (int i = 0; i < matrix.length; i++) {
+                int[] tmpRow = new int[matrix[i].length];
+                boolean rowToClear = true;
+                for (int j = 0; j < matrix[0].length; j++) {
+                    if (matrix[i][j] == 0) {
+                        rowToClear = false;
+                    }
+                    tmpRow[j] = matrix[i][j];
                 }
-                currentRow[j] = matrix[i][j]; // Copy the cell value
+                if (rowToClear) {
+                    clearedRows.add(i);
+                } else {
+                    newRows.add(tmpRow);
+                }
             }
-
-            if (rowIsFull) {
-                clearedRowIndices.add(i); // Mark this row for removal
-            } else {
-                rowsToKeep.add(currentRow); // Keep this row
+            for (int i = matrix.length - 1; i >= 0; i--) {
+                int[] row = newRows.pollLast();
+                if (row != null) {
+                    tmp[i] = row;
+                } else {
+                    break;
+                }
             }
+            int scoreBonus = 50 * clearedRows.size() * clearedRows.size();
+            return new ClearRow(clearedRows.size(), tmp, scoreBonus);
         }
-
-        // Reconstruct the new matrix, placing the kept rows from bottom to top
-        for (int i = matrix.length - 1; i >= 0; i--) {
-            int[] row = rowsToKeep.pollLast(); // Get the next row to place (from the end of the deque)
-            if (row != null) {
-                newMatrix[i] = row; // Place the row in the new matrix
-            } else {
-                // If no more rows to keep, fill the remaining top rows with zeros
-                break;
-            }
-        }
-
-        // Calculate score bonus based on the number of lines cleared (Tetris scoring rule)
-        int scoreBonus = 50 * clearedRowIndices.size() * clearedRowIndices.size();
-
-        // Return the results encapsulated in a ClearRow object
-        return new ClearRow(clearedRowIndices.size(), newMatrix, scoreBonus);
-    }
 
     /**
      * Creates a deep copy of a List containing 2D integer arrays.
