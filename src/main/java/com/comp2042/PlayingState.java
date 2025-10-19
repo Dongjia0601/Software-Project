@@ -3,13 +3,22 @@ package com.comp2042.gameplay;
 import com.comp2042.*;
 
 /**
- * Handles standard gameplay logic.
+ * Represents the state where the game is actively running.
+ * Handles standard gameplay events like moving, rotating, and dropping the brick.
+ * It also manages the core game loop logic such as landing bricks, clearing rows,
+ * updating the score, and checking for game over conditions.
  */
 public class PlayingState implements GameState {
-    private final Board board;
-    private final GuiController guiController;
+    private final Board board; // Reference to the main game board logic
+    private final GuiController guiController; // Reference to update UI (e.g., show game over)
     private final GameController gameController; // For state transitions
 
+    /**
+     * Constructs a PlayingState instance.
+     * @param board The game board instance.
+     * @param guiController The GUI controller instance.
+     * @param gameController The main game controller instance for state transitions.
+     */
     public PlayingState(Board board, GuiController guiController, GameController gameController) {
         this.board = board;
         this.guiController = guiController;
@@ -17,6 +26,13 @@ public class PlayingState implements GameState {
     }
 
     @Override
+    /**
+     * Handles the DOWN event (both user-initiated and automatic descent).
+     * Implements the core game logic: move brick down, land if collision,
+     * merge to background, clear rows, update score, check for game over.
+     * @param event The MoveEvent containing event type and source.
+     * @return DownData containing view and row-clearing information.
+     */
     public DownData onDownEvent(MoveEvent event) {
         boolean canMove = board.moveBrickDown();
         ClearRow clearRow = null;
@@ -41,29 +57,53 @@ public class PlayingState implements GameState {
     }
 
     @Override
+    /**
+     * Handles the LEFT event by attempting to move the brick left.
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the updated brick position and shape.
+     */
     public ViewData onLeftEvent(MoveEvent event) {
         board.moveBrickLeft();
         return board.getViewData();
     }
 
     @Override
+    /**
+     * Handles the RIGHT event by attempting to move the brick right.
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the updated brick position and shape.
+     */
     public ViewData onRightEvent(MoveEvent event) {
         board.moveBrickRight();
         return board.getViewData();
     }
 
     @Override
+    /**
+     * Handles the ROTATE event by attempting to rotate the brick.
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the updated brick position and shape.
+     */
     public ViewData onRotateEvent(MoveEvent event) {
         board.rotateLeftBrick();
         return board.getViewData();
     }
 
     @Override
+    /**
+     * Handles a request to pause the game.
+     * @return A new PausedState instance.
+     */
     public GameState handlePauseRequest() {
         return new PausedState(board, guiController);
     }
 
     @Override
+    /**
+     * Handles a request to start a new game.
+     * Resets the board state and refreshes the background view.
+     * @return A new PlayingState instance initialized for a new game.
+     */
     public GameState handleNewGameRequest() {
         board.newGame();
         guiController.refreshGameBackground(board.getBoardMatrix());

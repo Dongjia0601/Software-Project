@@ -1,4 +1,3 @@
-// File: src/main/java/com/comp2042/GuiController.java
 package com.comp2042;
 
 import javafx.animation.KeyFrame;
@@ -24,35 +23,46 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the JavaFX GUI components.
+ * Handles UI initialization, rendering the game board and brick,
+ * processing keyboard input, managing animations, and updating
+ * the display based on game state changes.
+ */
 public class GuiController implements Initializable {
 
-    private static final int BRICK_SIZE = 20;
+    private static final int BRICK_SIZE = 20; // Size of a single brick cell in pixels
 
     @FXML
-    private GridPane gamePanel;
+    private GridPane gamePanel; // GridPane for the main game board display
 
     @FXML
-    private Group groupNotification;
+    private Group groupNotification; // Group to hold notification panels (e.g., score bonuses)
 
     @FXML
-    private GridPane brickPanel;
+    private GridPane brickPanel; // GridPane for the currently falling brick display
 
     @FXML
-    private GameOverPanel gameOverPanel;
+    private GameOverPanel gameOverPanel; // Panel displayed when the game ends
 
-    private Rectangle[][] displayMatrix;
+    private Rectangle[][] displayMatrix; // Array of rectangles representing the static board background
 
-    private InputEventListener eventListener; // This is GameController
+    private InputEventListener eventListener; // Listener for game events (likely GameController)
 
-    private Rectangle[][] rectangles;
+    private Rectangle[][] rectangles; // Array of rectangles representing the current falling brick
 
-    private Timeline timeLine;
+    private Timeline timeLine; // Timeline for the automatic downward movement of the brick
 
-    private final BooleanProperty isPause = new SimpleBooleanProperty();
+    private final BooleanProperty isPause = new SimpleBooleanProperty(); // Property indicating if the game is paused
 
-    private final BooleanProperty isGameOver = new SimpleBooleanProperty();
+    private final BooleanProperty isGameOver = new SimpleBooleanProperty(); // Property indicating if the game is over
 
     @Override
+    /**
+     * Initializes the GUI components, sets up keyboard input handling,
+     * and applies initial styling.
+     * This method is called after the FXML file has been loaded.
+     */
     public void initialize(URL location, ResourceBundle resources) {
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
         gamePanel.setFocusTraversable(true);
@@ -100,6 +110,13 @@ public class GuiController implements Initializable {
         reflection.setTopOffset(-12);
     }
 
+    /**
+     * Initializes the game view by setting up the visual representation of the board
+     * and the initial falling brick based on the provided board matrix and view data.
+     *
+     * @param boardMatrix The initial state of the game board matrix.
+     * @param brick       The initial view data for the falling brick (shape, position).
+     */
     public void initGameView(int[][] boardMatrix, ViewData brick) {
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
         for (int i = 2; i < boardMatrix.length; i++) {
@@ -132,6 +149,12 @@ public class GuiController implements Initializable {
         timeLine.play();
     }
 
+    /**
+     * Maps integer values from the brick/board matrix to JavaFX Paint objects (colors).
+     *
+     * @param i The integer value representing the brick type or state.
+     * @return The corresponding Paint object (color).
+     */
     private Paint getFillColor(int i) {
         Paint returnPaint;
         switch (i) {
@@ -167,6 +190,11 @@ public class GuiController implements Initializable {
     }
 
 
+    /**
+     * Updates the visual representation of the currently falling brick based on its new position and shape.
+     *
+     * @param brick The ViewData containing the new shape and position of the brick.
+     */
     private void refreshBrick(ViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) { // Only update position if not paused
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
@@ -179,6 +207,11 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Updates the visual representation of the static game board background.
+     *
+     * @param board The updated board matrix.
+     */
     public void refreshGameBackground(int[][] board) {
         for (int i = 2; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
@@ -187,12 +220,24 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Sets the color and styling for a specific rectangle based on its value.
+     *
+     * @param color      The integer value representing the color/state.
+     * @param rectangle  The JavaFX Rectangle object to update.
+     */
     private void setRectangleData(int color, Rectangle rectangle) {
         rectangle.setFill(getFillColor(color));
         rectangle.setArcHeight(9);
         rectangle.setArcWidth(9);
     }
 
+    /**
+     * Handles the automatic downward movement of the brick.
+     * Delegates the 'DOWN' event to the event listener (GameController) and updates the view.
+     *
+     * @param event The MoveEvent representing the automatic downward movement.
+     */
     private void moveDown(MoveEvent event) {
         // Check for pause state before processing down event
         if (isPause.getValue() == Boolean.FALSE) {
@@ -210,15 +255,30 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
     }
 
+    /**
+     * Sets the event listener (likely GameController) for handling input events.
+     *
+     * @param eventListener The InputEventListener instance.
+     */
     public void setEventListener(InputEventListener eventListener) {
         this.eventListener = eventListener;
     }
 
+    /**
+     * Binds the game score property to a GUI element (e.g., a label).
+     * This method is currently a placeholder.
+     *
+     * @param integerProperty The IntegerProperty representing the score.
+     */
     public void bindScore(IntegerProperty integerProperty) {
         // Binding logic might be implemented here if needed based on original code structure
         // For now, left empty as per original placeholder
     }
 
+    /**
+     * Handles the game over state.
+     * Stops the automatic movement timeline and shows the game over panel.
+     */
     public void gameOver() {
         if (timeLine != null) {
             timeLine.stop(); // Stop automatic movement
@@ -228,12 +288,19 @@ public class GuiController implements Initializable {
         isPause.setValue(Boolean.FALSE); // Ensure pause is off on game over
     }
 
+    /**
+     * Handles the request to start a new game.
+     * Stops the timeline, hides the game over panel, requests a new game from the event listener,
+     * and restarts the timeline.
+     *
+     * @param actionEvent The ActionEvent triggering the new game (e.g., from a button).
+     */
     public void newGame(ActionEvent actionEvent) {
         if (timeLine != null) {
             timeLine.stop(); // Stop current timeline
         }
         gameOverPanel.setVisible(false);
-        eventListener.createNewGame(); // Delegate to state
+        eventListener.createNewGame(); // Delegate to state/controller
         gamePanel.requestFocus();
         // Restart timeline after state transition (assuming PlayingState starts the game loop)
         if (timeLine != null) {
@@ -243,7 +310,12 @@ public class GuiController implements Initializable {
         isGameOver.setValue(Boolean.FALSE);
     }
 
-    // Modify pauseGame if it's triggered by a button (optional)
+    /**
+     * Handles the request to pause or unpause the game via a UI button.
+     * Delegates the pause request to the GameController.
+     *
+     * @param actionEvent The ActionEvent triggering the pause/unpause.
+     */
     public void pauseGame(ActionEvent actionEvent) {
         // Call the controller's pause request method
         if (eventListener instanceof GameController) {

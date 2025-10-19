@@ -7,48 +7,82 @@ import com.comp2042.MoveEvent;
 import com.comp2042.ViewData;
 
 /**
- * Handles game logic when paused .
+ * Represents the state where the game is paused.
+ * Input events (except pause/unpause and new game) are generally ignored.
  */
 public class PausedState implements GameState {
-    private final Board board;
-    private final GuiController guiController;
+    private final Board board; // Reference to the main game board logic to get current state
+    private final GuiController guiController; // Reference to update UI (e.g., show pause screen)
 
+    /**
+     * Constructs a PausedState instance.
+     * @param board The game board instance.
+     * @param guiController The GUI controller instance.
+     */
     public PausedState(Board board, GuiController guiController) {
         this.board = board;
         this.guiController = guiController;
     }
 
     @Override
+    /**
+     * Handles the DOWN event. Does nothing during pause.
+     * @param event The MoveEvent containing event type and source.
+     * @return DownData containing the current view data and no row clearing information.
+     */
     public DownData onDownEvent(MoveEvent event) {
         // Do nothing during pause, return current view data
         return new DownData(null, board.getViewData());
     }
 
     @Override
+    /**
+     * Handles the LEFT event. Does nothing during pause.
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the current brick position and shape.
+     */
     public ViewData onLeftEvent(MoveEvent event) {
         // Do nothing during pause
         return board.getViewData();
     }
 
     @Override
+    /**
+     * Handles the RIGHT event. Does nothing during pause.
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the current brick position and shape.
+     */
     public ViewData onRightEvent(MoveEvent event) {
         // Do nothing during pause
         return board.getViewData();
     }
 
     @Override
+    /**
+     * Handles the ROTATE event. Does nothing during pause.
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the current brick position and shape.
+     */
     public ViewData onRotateEvent(MoveEvent event) {
         // Do nothing during pause
         return board.getViewData();
     }
 
     @Override
+    /**
+     * Handles a request to pause or unpause the game. Unpauses the game.
+     * @return A new PlayingState instance.
+     */
     public GameState handlePauseRequest() {
         // Unpause: return a new PlayingState instance
         return new PlayingState(board, guiController, null); // GameController ref not needed here, will be set later
     }
 
     @Override
+    /**
+     * Handles a request to start a new game. Delegates to PlayingState.
+     * @return The state representing the start of a new game (e.g., PlayingState).
+     */
     public GameState handleNewGameRequest() {
         // Start new game: delegate to PlayingState (which needs GameController ref for transitions)
         // This creates a temporary PlayingState just to call handleNewGameRequest, which returns a new PlayingState.

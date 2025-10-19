@@ -1,26 +1,92 @@
 package com.comp2042;
 
+/**
+ * Interface defining the core game logic operations for the Tetris board.
+ * Implementations handle the state of the board grid, the active brick,
+ * movement rules, row clearing, and game state management.
+ */
 public interface Board {
 
+    /**
+     * Attempts to move the currently falling brick one position down.
+     * Checks for collisions with the bottom of the board or other placed bricks.
+     *
+     * @return true if the move was successful, false if a collision occurred (brick lands).
+     */
     boolean moveBrickDown();
 
+    /**
+     * Attempts to move the currently falling brick one position to the left.
+     * Checks for collisions with the left wall or other placed bricks.
+     *
+     * @return true if the move was successful, false if a collision occurred.
+     */
     boolean moveBrickLeft();
 
+    /**
+     * Attempts to move the currently falling brick one position to the right.
+     * Checks for collisions with the right wall or other placed bricks.
+     *
+     * @return true if the move was successful, false if a collision occurred.
+     */
     boolean moveBrickRight();
 
-    boolean rotateLeftBrick();
+    /**
+     * Attempts to rotate the currently falling brick.
+     * Checks for collisions in the new orientation.
+     *
+     * @return true if the rotation was successful, false if a collision occurred.
+     */
+    boolean rotateLeftBrick(); // Note: Method name suggests 'left' rotation logic
 
+    /**
+     * Creates a new brick for the board.
+     * Gets a brick from the generator, sets it in the rotator, positions it at the top/middle,
+     * and checks if this initial position causes a collision (indicating game over).
+     *
+     * @return true if a collision occurs immediately (game over), false otherwise.
+     */
     boolean createNewBrick();
 
+    /**
+     * Gets the current state of the board grid.
+     * The returned matrix represents the occupied/unoccupied cells of the board.
+     *
+     * @return The current board matrix.
+     */
     int[][] getBoardMatrix();
 
+    /**
+     * Gets the current view data (brick shape, position, next brick shape).
+     *
+     * @return A ViewData object containing the necessary information for the GUI.
+     */
     ViewData getViewData();
 
+    /**
+     * Merges the currently falling brick permanently onto the board grid.
+     * This happens when the brick lands after moving down.
+     */
     void mergeBrickToBackground();
 
+    /**
+     * Checks the board for completed rows, removes them, shifts the remaining rows down,
+     * calculates the score bonus, and returns the results.
+     *
+     * @return A ClearRow object containing details about the cleared lines.
+     */
     ClearRow clearRows();
 
+    /**
+     * Gets the current score object.
+     *
+     * @return The Score instance.
+     */
     Score getScore();
 
+    /**
+     * Resets the board state for a new game.
+     * Clears the board matrix, resets the score, and creates the first new brick.
+     */
     void newGame();
 }
