@@ -1,4 +1,3 @@
-// File: src/main/java/com/comp2042/game/themes/SunsetCityTheme.java
 package com.comp2042.game.themes;
 
 import com.comp2042.game.LevelTheme;
