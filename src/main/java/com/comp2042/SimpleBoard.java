@@ -129,7 +129,7 @@ public class SimpleBoard implements Board {
     public boolean createNewBrick() {
         Brick currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
-        currentOffset = new Point(4, 10); // Set initial spawn position (x=4, y=10)
+        currentOffset = new Point(4, 0); // Make sure that the brick falls from the middle of the top.
         // Check if the new brick's initial position collides (game over condition)
         return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
     }
@@ -165,16 +165,24 @@ public class SimpleBoard implements Board {
     }
 
     @Override
-    /**
-     * Checks the board for completed rows, removes them, shifts the remaining rows down,
-     * calculates the score bonus, and updates the internal board matrix.
-     *
-     * @return A ClearRow object containing details about the cleared lines.
-     */
+/**
+ * Checks the board for completed rows, removes them, shifts the remaining rows down,
+ * calculates the score bonus, updates the internal board matrix, and awards the score.
+ *
+ * @return A ClearRow object containing details about the cleared lines.
+ */
     public ClearRow clearRows() {
-        ClearRow clearRow = MatrixOperations.clearCompletedRows(currentGameMatrix); // Assuming renamed method
-        currentGameMatrix = clearRow.getNewMatrix(); // Update internal state with the new matrix
-        return clearRow; // Return the result object
+        // Assuming MatrixOperations.checkRemoving was renamed to clearCompletedRows
+        ClearRow clearRow = MatrixOperations.clearCompletedRows(currentGameMatrix);
+        currentGameMatrix = clearRow.getNewMatrix();
+
+        // CRITICAL FIX: Award the calculated score bonus to the player's score
+        int scoreBonus = clearRow.getScoreBonus();
+        if (scoreBonus > 0) {
+            this.score.add(scoreBonus); // Add the bonus to the SimpleBoard's score instance
+        }
+
+        return clearRow;
     }
 
     @Override
