@@ -365,4 +365,28 @@ public class GuiController implements Initializable {
         }
         gamePanel.requestFocus();
     }
+
+    public void updateProgress(int linesClearedInLevel, int targetLines) {
+    }
+
+    public void updateStarDisplay(int i) {
+    }
+
+    public void updateLevelSpeedDisplay(int levelId) {
+    }
+
+    public void updateScore(int i, int bestScore) {
+    }
+
+    public void updateBestStats(int bestScore, long bestTime) {
+    }
+
+    public void showLevelModeUI() {
+    }
+
+    public void hideLevelModeUI() {
+    }
+
+    public void updateTime(int timeLimitSeconds) {
+    }
 }
