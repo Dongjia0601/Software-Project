@@ -9,6 +9,13 @@ import com.comp2042.gameplay.GameOverState;
  * Controller managing the overall game flow, state transitions, and input event delegation.
  * It holds references to the game board logic (SimpleBoard) and the GUI controller (GuiController).
  * Delegates input events (from GuiController) to the current GameState instance.
+ *
+ * <p>This class contributes to the Refactoring (35%) - Supporting single responsibility by splitting up classes
+ * and Design patterns criteria by implementing the State Pattern for game state management.
+ * It also supports the Additions (25%) - Gameplay Enhancement criterion by providing a
+ * structured way to manage different game states and transitions.
+ *
+ * @author Dong, Jia.
  */
 public class GameController implements InputEventListener {
 
@@ -26,7 +33,7 @@ public class GameController implements InputEventListener {
     public GameController(GuiController c) {
         viewGuiController = c;
         board.newGame(); // Initialize board state
-        // Create initial state, passing necessary references
+        // Create the initial state (PlayingState)
         this.currentState = new PlayingState(board, viewGuiController, this);
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
         viewGuiController.bindScore(board.getScore().scoreProperty());

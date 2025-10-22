@@ -94,7 +94,7 @@ If JavaFX runtime errors occur, ensure the following VM options are added to you
 *   **Code Renaming:** Renamed the method `MatrixOperations.checkRemoving` to `clearCompletedRows` for improved clarity and accuracy.
 *   **Javadoc Documentation:** Added comprehensive Javadoc comments to all major classes, interfaces, enums, and methods across the codebase, enhancing code readability and maintainability.
 *   **Constants Extraction:** Extracted hardcoded values into named constants for improved maintainability. Examples include `BRICK_SIZE` in `GuiController`, `SCORE_BONUS_BASE` in `MatrixOperations`, and spawn position constants in `SimpleBoard`.
-*   **JUnit Tests:** Added JUnit 5 tests for core logic classes (`MatrixOperations`, `SimpleBoard`, `Score`, `ClearRow`, `NextShapeInfo`, `ViewData`, `GameState` implementations) to verify functionality and support future maintenance.
+
 
 ## Implemented but Not Working Properly
 
@@ -110,6 +110,9 @@ If JavaFX runtime errors occur, ensure the following VM options are added to you
 *   `com.comp2042.gameplay.PlayingState.java`: Implements the logic for the active gameplay state.
 *   `com.comp2042.gameplay.PausedState.java`: Implements the logic for the paused state.
 *   `com.comp2042.gameplay.GameOverState.java`: Implements the logic for the game over state.
+*   `com.comp2042.game.LevelTheme.java`: Interface for defining level themes (planned for additions).
+*   `com.comp2042.game.ThemeLevel.java `: Class for level configuration (planned for additions).
+\
 
 ## Modified Java Classes
 
