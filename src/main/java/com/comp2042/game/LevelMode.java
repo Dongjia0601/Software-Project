@@ -1,4 +1,3 @@
-// File: src/main/java/com/comp2042/game/LevelMode.java
 package com.comp2042.game;
 
 /**

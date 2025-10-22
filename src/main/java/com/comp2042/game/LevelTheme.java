@@ -1,4 +1,3 @@
-// File: src/main/java/com/comp2042/game/LevelTheme.java
 package com.comp2042.game;
 
 import java.util.Map;
