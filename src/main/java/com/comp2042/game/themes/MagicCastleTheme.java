@@ -1,4 +1,5 @@
 package com.comp2042.game.themes;
+
 import com.comp2042.game.LevelTheme;
 
 import java.util.Collections;
@@ -6,34 +7,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Concrete implementation of LevelTheme for the "Ancient Temple" theme.
- * Provides specific visual and auditory assets for the Ancient Temple level.
+ * Magic Castle theme implementation.
+ * Features mystical blue and purple tones with magical atmosphere.
  */
-public class AncientTempleTheme implements LevelTheme {
+public class MagicCastleTheme implements LevelTheme {
 
-    private static final String THEME_ID = "ancient_temple";
-    private static final String THEME_NAME = "Ancient Temple";
-    private static final String THEME_DESCRIPTION = "Explore the mysterious ruins of an ancient civilization";
-    private static final String BACKGROUND_IMAGE = "/themes/ancient_temple_bg.jpg";
-    private static final String BACKGROUND_MUSIC = "/themes/ancient_temple_music.mp3";
-    private static final String PRIMARY_COLOR = "#D4AF37"; // Gold
-    private static final String SECONDARY_COLOR = "#8B4513"; // Saddle Brown
-    private static final String ACCENT_COLOR = "#FFD700"; // Bright Gold
-    private static final String GRADIENT_START_COLOR = "#2C1810"; // Dark Brown
-    private static final String GRADIENT_END_COLOR = "#5D4E37"; // Medium Brown
-    private static final String TEXT_COLOR = "#F5E6D3"; // Light Cream
+    private static final String THEME_ID = "magic_castle";
+    private static final String THEME_NAME = "Magic Castle";
+    private static final String THEME_DESCRIPTION = "Ascend to the mystical castle floating among the clouds";
+    private static final String BACKGROUND_IMAGE = "/themes/magic_castle_bg.jpg";
+    private static final String BACKGROUND_MUSIC = "/themes/magic_castle_music.mp3";
+    private static final String PRIMARY_COLOR = "#4169E1"; // Royal Blue
+    private static final String SECONDARY_COLOR = "#8A2BE2"; // Blue Violet
+    private static final String ACCENT_COLOR = "#00BFFF"; // Deep Sky Blue
+    private static final String GRADIENT_START_COLOR = "#1a0f2e"; // Dark Purple
+    private static final String GRADIENT_END_COLOR = "#2d4a7c"; // Dark Blue
+    private static final String TEXT_COLOR = "#E6E6FA"; // Lavender
 
     private final Map<String, String> soundEffects;
 
     /**
-     * Constructs an AncientTempleTheme instance and initializes its sound effects map.
+     * Constructs a MagicCastleTheme instance and initializes its sound effects map.
      */
-    public AncientTempleTheme() {
+    public MagicCastleTheme() {
         Map<String, String> seMap = new HashMap<>();
-        seMap.put("line_clear", "/sounds/ancient_stone_break.wav");
-        seMap.put("block_land", "/sounds/stone_thud.wav");
-        seMap.put("level_complete", "/sounds/ancient_gong.wav");
-        seMap.put("level_fail", "/sounds/ancient_rumble.wav");
+        seMap.put("line_clear", "/sounds/magic_chime.wav");
+        seMap.put("block_land", "/sounds/crystal_tap.wav");
+        seMap.put("level_complete", "/sounds/magic_success.wav");
+        seMap.put("level_fail", "/sounds/magic_dispel.wav");
         this.soundEffects = Collections.unmodifiableMap(seMap);
     }
 
@@ -104,6 +105,6 @@ public class AncientTempleTheme implements LevelTheme {
 
     @Override
     public String getParticleConfig() {
-        return "{\"type\":\"dust\",\"color\":\"#D4AF37\",\"density\":\"low\"}";
+        return "{\"type\":\"sparkle\",\"color\":\"#00BFFF\",\"density\":\"medium\"}";
     }
 }
