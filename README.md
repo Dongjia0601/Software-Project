@@ -1,16 +1,91 @@
-# COMP2042 Coursework: Tetris Refactoring and Extension
+# COMP2042 Coursework: Tetris 
 
-## GitHub
+# Table of Contents
+
+## GitHub Repository
 
 [https://github.com/Dongjia0601/CW2025](https://github.com/Dongjia0601/CW2025)
 
+## Introduction
+
+Welcome to my Developing Maintenance Software coursework project. I am Dong, Jia (Student ID: 20705878), and this project focuses on maintaining and extending a re-implementation of the classic retro game (Tetris). For the best experience, it is recommended to view this README.md file on the [GitHub website](https://github.com/Dongjia0601/CW2025). Navigation links have been embedded throughout the document to facilitate easy access to different sections.
+
+## Project Structure 
 ## Compilation Instructions
 
-1.  Ensure Java Development Kit (JDK) 21 (or a compatible version) is installed.
-2.  Ensure JavaFX SDK 21.0.8 (or a compatible version) is installed and configured in your IDE.
-3.  Import the project as a Maven project into your Integrated Development Environment (IDE), such as IntelliJ IDEA or Eclipse. The project root folder is `CW2025`.
-4.  The project uses Maven for dependency management. The `pom.xml` file contains the necessary JavaFX dependencies.
-5.  Run the `Main` class (`com.comp2042.Main`) to start the application.
+### Prerequisites
+Before you begin, ensure you have the following installed:
+
+- **Java JDK 21**  
+  Required to compile and run the application.  
+  [Download JDK 21](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html) or use OpenJDK.
+
+- **JavaFX SDK 21.0.9**  
+  Required for running the JavaFX application.  
+  [Download JavaFX](https://gluonhq.com/products/javafx/) and configure it in your IDE.
+
+- **IntelliJ IDEA** (or Eclipse)  
+  Recommended IDE for building and running the project.  
+  [Download IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
+
+- **Maven**  
+  Used for dependency management and building the project. IntelliJ IDEA includes a bundled Maven.
+  Alternatively, install it from [Maven’s official site](https://maven.apache.org/download.cgi) and add it to your system PATH.
+
+- **Git**  
+  For cloning the project repository.
+
+---
+
+### Cloning and Importing the Project
+1. Clone the repository:
+    ```bash
+    [git clone https://github.com/Dongjia0601/CW2025]
+    ```
+2. Open **IntelliJ IDEA** → **File > Open...**
+3. Navigate to the cloned project directory containing the `pom.xml` file.
+4. Click **OK** to open it as a Maven project. IntelliJ will automatically import and configure dependencies.
+
+---
+
+### Configuring the JDK in IntelliJ IDEA
+1. Go to **File > Project Structure > Project**
+2. Set **Project SDK** to **JDK 21**
+   - If JDK 21 is not listed, click **New...** and locate your JDK installation folder.
+3. Click **Apply** and **OK**
+
+---
+
+### Setting Up JavaFX and Maven in IntelliJ IDEA
+1. Ensure **JavaFX SDK** is properly configured in your project settings.
+2. If Maven is not detected automatically:
+   - Go to **File > Settings > Build, Execution, Deployment > Build Tools > Maven**
+   - Set the **Maven home directory** to the bundled version or your installed Maven path.
+3. IntelliJ IDEA will automatically download all dependencies defined in `pom.xml`.
+
+---
+
+### Running the Application
+
+#### Option 1: Using Maven Plugin
+1. Open the **Maven** tool window (click the Maven icon on the right sidebar).
+2. Navigate to **Plugins > javafx**
+3. Double-click **javafx:run** to execute the application.
+
+#### Option 2: Using the Main Class
+1. In the **Project** view, locate:
+    ```
+    src/main/java/com/comp2042/Main.java
+    ```
+2. Right-click `Main.java` → **Run 'Main'** to start the application.
+
+---
+
+### VM Options (if needed)
+If JavaFX runtime errors occur, ensure the following VM options are added to your Run Configuration:
+```bash
+--module-path "path\to\javafx-sdk-21.0.9\lib" --add-modules javafx.controls,javafx.fxml
+```
 
 ## Implemented and Working Properly
 
