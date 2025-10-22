@@ -115,9 +115,113 @@ public class GameController implements InputEventListener {
 
     @Override
     /**
+     * Handles the ROTATE_CCW event received from the GUI.
+     * Delegates the event to the current GameState instance.
+     *
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the updated brick position and shape from the state.
+     */
+    public ViewData onRotateCCWEvent(MoveEvent event) {
+        // Delegate to current state
+        return currentState.onRotateEvent(event);
+    }
+
+    @Override
+    /**
+     * Handles the HARD_DROP event received from the GUI.
+     * Delegates the event to the current GameState instance.
+     *
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the updated brick position and shape from the state.
+     */
+    public ViewData onHardDropEvent(MoveEvent event) {
+        // Delegate to current state - hard drop
+        DownData downData = currentState.onDownEvent(event);
+        return downData != null ? downData.getViewData() : null;
+    }
+
+    @Override
+    /**
+     * Handles the SOFT_DROP event received from the GUI.
+     * Delegates the event to the current GameState instance.
+     *
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the updated brick position and shape from the state.
+     */
+    public ViewData onSoftDropEvent(MoveEvent event) {
+        // Delegate to current state - soft drop is essentially a down event
+        DownData downData = currentState.onDownEvent(event);
+        return downData != null ? downData.getViewData() : null;
+    }
+
+    @Override
+    /**
+     * Handles the HOLD event received from the GUI.
+     * Delegates the event to the current GameState instance.
+     *
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the updated brick position and hold state from the state.
+     */
+    public ViewData onHoldEvent(MoveEvent event) {
+        // Delegate to current state
+        return currentState.onRotateEvent(event);
+    }
+
+    @Override
+    /**
+     * Handles the PAUSE event received from the GUI.
+     * Delegates the event to the current GameState instance.
+     *
+     * @param event The MoveEvent containing event type and source.
+     */
+    public void onPauseEvent(MoveEvent event) {
+        // Delegate to current state
+        requestPause();
+    }
+
+    @Override
+    /**
+     * Handles the RESUME event received from the GUI.
+     * Delegates the event to the current GameState instance.
+     *
+     * @param event The MoveEvent containing event type and source.
+     */
+    public void onResumeEvent(MoveEvent event) {
+        // Delegate to current state
+        requestPause(); // Toggle pause state
+    }
+
+    @Override
+    /**
+     * Handles the NEW_GAME event received from the GUI.
+     * Delegates the event to the current GameState instance.
+     *
+     * @param event The MoveEvent containing event type and source.
+     */
+    public void onNewGameEvent(MoveEvent event) {
+        // Delegate to current state
+        this.currentState = currentState.handleNewGameRequest();
+    }
+
+    @Override
+    /**
+     * Handles the QUIT event received from the GUI.
+     * Delegates the event to the current GameState instance.
+     *
+     * @param event The MoveEvent containing event type and source.
+     */
+    public void onQuitEvent(MoveEvent event) {
+        // Handle quit event - could close application or return to main menu
+        System.exit(0);
+    }
+
+    @Override
+    /**
      * Handles the request to start a new game.
      * Delegates the request to the current GameState instance.
+     * @deprecated Use onNewGameEvent(MoveEvent) instead.
      */
+    @Deprecated
     public void createNewGame() {
         // Delegate to current state
         this.currentState = currentState.handleNewGameRequest();
