@@ -25,13 +25,13 @@ public class GameModeFactory {
     public static GameMode createGameMode(GameModeType type, GameService gameService, GuiController guiController) {
         switch (type) {
             case ENDLESS:
-                return new EndlessMode(gameService, guiController);
+                return new EndlessMode();
             case LEVEL:
                 return new LevelGameModeImpl(gameService, guiController, LevelManager.getInstance(), null); // Pass a LevelMode later
             case TWO_PLAYER_VS:
-                return new TwoPlayerVSGameMode(gameService, guiController);
+                return new TwoPlayerVSGameMode();
             case TWO_PLAYER_AI:
-                return new TwoPlayerAIGameMode(gameService, guiController);
+                return new TwoPlayerAIGameMode();
             default:
                 throw new IllegalArgumentException("Unknown game mode type: " + type);
         }
