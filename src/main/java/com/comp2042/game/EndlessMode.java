@@ -3,28 +3,80 @@ package com.comp2042.game;
 import com.comp2042.gameplay.GameMode;
 import com.comp2042.gameplay.GameModeType;
 import com.comp2042.*;
+import com.comp2042.core.GameService;
 
+/**
+ * Implementation of GameMode for endless gameplay.
+ * In endless mode, players can play indefinitely until they lose.
+ * The game continues until the board is filled and no new brick can be placed.
+ * 
+ * <p>This mode supports the Additions (25%) requirement by providing
+ * a new playable game mode with different objectives than level-based play.</p>
+ */
 public class EndlessMode implements GameMode {
+    
+    private final GameService gameService;
+    private final GuiController guiController;
+    
+    private long gameStartTime;
+    private int highScore;
+    private boolean gameOver;
+    private boolean paused;
+    private GameResult gameResult;
+    
+    /**
+     * Constructs a new EndlessMode.
+     * 
+     * @param gameService the core game service for game logic
+     * @param guiController the GUI controller for UI updates
+     */
+    public EndlessMode(GameService gameService, GuiController guiController) {
+        this.gameService = gameService;
+        this.guiController = guiController;
+        this.gameStartTime = 0;
+        this.highScore = 0;
+        this.gameOver = false;
+        this.paused = false;
+        this.gameResult = null;
+    }
     
     @Override
     public void initialize() {
-        // TODO: Implement endless mode initialization
+        // Initialize endless mode state
+        this.gameStartTime = System.currentTimeMillis();
+        this.gameOver = false;
+        this.paused = false;
+        this.gameResult = null;
+        
+        // Start a new game
+        gameService.startNewGame();
+        
+        // Set default drop speed for endless mode (medium difficulty)
+        gameService.setDropSpeed(400);
+        
+        System.out.println("EndlessMode initialized - game started");
     }
 
     @Override
     public void update() {
-        // TODO: Implement endless mode update
+        // Update endless mode logic
+        if (!gameOver && !paused) {
+            // Check if game is over
+            if (gameService.isGameOver()) {
+                endGame();
+            }
+        }
     }
 
     @Override
     public void render() {
-        // TODO: Implement endless mode rendering
+        // Rendering is handled by GuiController
+        // This method can be used for endless mode specific visual effects
     }
 
     @Override
     public GameResult getResult() {
-        // TODO: Implement endless mode result
-        return null;
+        return gameResult;
     }
 
     @Override
@@ -34,58 +86,136 @@ public class EndlessMode implements GameMode {
 
     @Override
     public DownData onDownEvent(MoveEvent event) {
-        // TODO: Implement down event handling
-        return null;
+        if (gameOver || paused) {
+            return null;
+        }
+        
+        // Process down movement through game service
+        DownData downData = gameService.processDownEvent(event);
+        
+        // Check for game over after movement
+        if (gameService.isGameOver()) {
+            endGame();
+        }
+        
+        return downData;
     }
 
     @Override
     public ViewData onLeftEvent(MoveEvent event) {
-        // TODO: Implement left event handling
-        return null;
+        if (gameOver || paused) {
+            return null;
+        }
+        
+        return gameService.processLeftEvent(event);
     }
 
     @Override
     public ViewData onRightEvent(MoveEvent event) {
-        // TODO: Implement right event handling
-        return null;
+        if (gameOver || paused) {
+            return null;
+        }
+        
+        return gameService.processRightEvent(event);
     }
 
     @Override
     public ViewData onRotateEvent(MoveEvent event) {
-        // TODO: Implement rotate event handling
-        return null;
+        if (gameOver || paused) {
+            return null;
+        }
+        
+        return gameService.processRotateEvent(event);
     }
 
     @Override
     public void startNewGame() {
-        // TODO: Implement new game start
+        // Reset endless mode state
+        this.gameStartTime = System.currentTimeMillis();
+        this.gameOver = false;
+        this.paused = false;
+        this.gameResult = null;
+        
+        // Start new game in service
+        gameService.startNewGame();
+        
+        System.out.println("EndlessMode: New game started");
     }
 
     @Override
     public boolean isGameOver() {
-        // TODO: Implement game over check
-        return false;
+        return gameOver;
     }
 
     @Override
     public void pause() {
-        // TODO: Implement pause functionality
+        if (!gameOver) {
+            this.paused = true;
+            System.out.println("EndlessMode: Game paused");
+        }
     }
 
     @Override
     public void resume() {
-        // TODO: Implement resume functionality
+        if (paused && !gameOver) {
+            this.paused = false;
+            System.out.println("EndlessMode: Game resumed");
+        }
     }
 
     @Override
     public int getCurrentScore() {
-        // TODO: Implement current score retrieval
-        return 0;
+        return gameService.getScore().getScore();
     }
 
     @Override
     public int getHighScore() {
-        // TODO: Implement high score retrieval
-        return 0;
+        return highScore;
+    }
+    
+    /**
+     * Ends the current game and calculates final results.
+     */
+    private void endGame() {
+        if (gameOver) {
+            return; // Prevent duplicate end game calls
+        }
+        
+        this.gameOver = true;
+        long playTime = System.currentTimeMillis() - gameStartTime;
+        int finalScore = gameService.getScore().getScore();
+        boolean isNewHighScore = finalScore > highScore;
+        
+        // Update high score if new record
+        if (isNewHighScore) {
+            this.highScore = finalScore;
+        }
+        
+        // Create game result
+        this.gameResult = new GameResult(
+            finalScore,
+            highScore,
+            isNewHighScore,
+            GameModeType.ENDLESS,
+            playTime,
+            getLinesCleared(),
+            0, // No level reached in endless mode
+            false // Endless mode doesn't have "completion" - only game over
+        );
+        
+        System.out.println("EndlessMode: Game ended - Score: " + finalScore + 
+                          ", High Score: " + highScore + 
+                          ", Time: " + (playTime / 1000) + "s");
+    }
+    
+    /**
+     * Gets the number of lines cleared in this game session.
+     * This is a simplified calculation based on score.
+     * 
+     * @return estimated lines cleared
+     */
+    private int getLinesCleared() {
+        // Simplified calculation: assume 100 points per line
+        return gameService.getScore().getScore() / 100;
     }
 }
