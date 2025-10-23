@@ -1,0 +1,240 @@
+/* ===========================
+   TETRIS Enhanced Game Styles
+   =========================== */
+
+/* ============================================================
+   IMPORTANT: JavaFX CSS Specification Notice
+   ============================================================
+   This file uses JavaFX CSS, which requires the -fx- prefix
+   for ALL properties. This is NOT a vendor prefix (like -webkit-
+   or -moz-), but the official JavaFX CSS syntax.
+   
+   Any CSS linter warnings about "vendor prefixes" or "standard
+   properties" can be safely IGNORED as they are false positives.
+   
+   Reference: https://openjfx.io/javadoc/11/javafx.graphics/javafx/scene/doc-files/cssref.html
+   ============================================================ */
+
+/* Root Container - Neon Theme */
+.root-pane {
+    /* Vibrant neon gradient background */
+    -fx-background-color: linear-gradient(to bottom, 
+        #0a0e27 0%, 
+        #1a1a3e 25%, 
+        #2d1b69 50%, 
+        #1a1a3e 75%, 
+        #0f0c29 100%);
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Side Panels - Border color will be set dynamically by theme */
+.side-panel {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-border-color: rgba(138, 43, 226, 0.3);  /* Default, overridden by theme */
+    -fx-border-width: 0 2px 0 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 0);
+}
+
+/* Info Boxes - Border and shadow colors will be set dynamically by theme */
+.info-box {
+    -fx-background-color: rgba(0, 0, 0, 0.7);  /* Dark background */
+    -fx-background-radius: 10px;
+    -fx-padding: 15px;
+    -fx-border-color: rgba(186, 85, 211, 0.4);  /* Default, overridden by theme */
+    -fx-border-radius: 10px;
+    -fx-border-width: 2px;  /* Increased from 1px for better visibility */
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.3), 8, 0, 0, 0);
+}
+
+/* Section Titles - Text color will be set dynamically by theme */
+.section-title {
+    -fx-font-size: 18px;  /* Increased from 16px */
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFD700;  /* Default gold, overridden by theme */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 3, 0, 0, 0);
+    -fx-alignment: center;
+}
+
+/* Game Title */
+.game-title {
+    -fx-font-size: 48px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to right, #FF6BFF, #FFD700, #4DFFFF);
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 15, 0, 0, 0);
+}
+
+/* Game Container - match frame color so rounded corners aren't dark */
+.game-container {
+    -fx-background-color: linear-gradient(to bottom, #851ee5, #4B0082);
+    -fx-background-radius: 12px; /* match .gameBoard radius to cover corners */
+    -fx-padding: 10px;
+}
+
+/* Game Board */
+.gameBoard {
+    /* Layer 1: outer neon frame, Layer 2: inner dark panel */
+    -fx-background-color: linear-gradient(to bottom, #851ee5, #4B0082), rgba(10, 14, 39, 0.96);
+    -fx-background-insets: 0, 12; /* inner panel inset to create frame thickness */
+    -fx-background-radius: 16, 8; /* rounded corners for both layers */
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.85), 18, 0, 0, 0);
+}
+
+/* Game Grid - Critical: Must be visible and receive events */
+.game-grid {
+    -fx-background-color: #0a0e27;
+    -fx-grid-lines-visible: true;
+}
+
+/* Individual grid cells - visible borders for Tetris grid */
+.game-cell {
+    -fx-border-color: rgba(138, 43, 226, 0.15);
+    -fx-border-width: 0.5px;
+}
+
+/* Hold and Next Display Areas - Border color will be set dynamically by theme */
+.hold-display, .next-display {
+    -fx-background-color: rgba(10, 14, 39, 0.8);
+    -fx-border-color: rgba(138, 43, 226, 0.5);  /* Default, overridden by theme */
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px;
+    -fx-min-width: 100px;
+    -fx-min-height: 100px;
+}
+
+/* Labels */
+.stat-label {
+    -fx-font-size: 16px;  /* Increased from 14px for better visibility */
+    -fx-font-weight: bold;  /* Make labels bold */
+    -fx-text-fill: #FFFFFF;  /* Pure white for maximum contrast */
+}
+
+.stat-value {
+    -fx-font-size: 18px;  /* Increased from 16px */
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFD700;  /* Gold for visibility */
+}
+
+/* NEW: Large stat values for level mode objective panel (Phase 3) */
+.stat-value-large {
+    -fx-font-size: 32px;  /* Large for timer and progress */
+    -fx-font-weight: bold;
+    -fx-text-fill: #00FF00;  /* Bright green for countdown */
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 0, 0.8), 8, 0, 0, 0);
+}
+
+.hint-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #888899;
+    -fx-font-style: italic;
+    -fx-alignment: center;
+}
+
+.control-hint {
+    -fx-font-size: 12px;
+    -fx-text-fill: #B0B0C0;
+    -fx-padding: 10px;
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 5px;
+}
+
+/* Score Display */
+.score-display {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to bottom, #f0df81, #e2a533ed);
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 10, 0, 0, 0);
+    -fx-alignment: center;
+}
+
+.high-score-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #C0C0C0;
+    -fx-alignment: center;
+}
+
+.combo-label {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FF6BFF;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 255, 0.8), 8, 0, 0, 0);
+}
+
+/* Buttons */
+.control-button, .game-button {
+    -fx-background-color: linear-gradient(to bottom, #8A2BE2, #6A1BB2);
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 15px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 2);
+    -fx-min-width: 140px;  /* Ensure button is wide enough for text */
+    -fx-max-width: 180px;  /* Prevent buttons from being too wide */
+    -fx-pref-width: 160px;  /* Preferred width */
+    -fx-text-overrun: clip;  /* Don't show ellipsis */
+    -fx-alignment: center;  /* Center text in button */
+}
+
+.control-button:hover, .game-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #9A3BF2, #7A2BC2);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.8), 10, 0, 0, 0);
+}
+
+.control-button:pressed, .game-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #6A1BB2, #5A0BA2);
+    -fx-translate-y: 2px;
+}
+
+/* Animations */
+@keyframes glow {
+    0% { -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.5), 10, 0, 0, 0); }
+    50% { -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 1.0), 20, 0, 0, 0); }
+    100% { -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.5), 10, 0, 0, 0); }
+}
+
+/* Responsive Adjustments */
+.side-panel:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Game Over Panel - Enhanced visibility and styling */
+.game-over-panel {
+    -fx-background-color: rgba(0, 0, 0, 0.95);
+    -fx-border-color: linear-gradient(to right, #FF4D4D, #FF1493);
+    -fx-border-width: 4px;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+    -fx-padding: 40px 60px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 77, 77, 0.8), 20, 0, 0, 0);
+    -fx-min-width: 240px;
+    -fx-min-height: 160px;
+}
+
+.game-over-container {
+    -fx-alignment: center;
+    -fx-spacing: 15px;
+}
+
+.game-over-title {
+    -fx-font-size: 42px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to bottom, #FF6B6B, #FF1493);
+    -fx-effect: dropshadow(gaussian, rgba(255, 20, 147, 0.9), 15, 0, 0, 0);
+    -fx-padding: 10px;
+}
+
+.game-over-subtitle {
+    -fx-font-size: 16px;
+    -fx-font-weight: normal;
+    -fx-text-fill: #FFD700;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.6), 5, 0, 0, 0);
+    -fx-padding: 5px;
+}

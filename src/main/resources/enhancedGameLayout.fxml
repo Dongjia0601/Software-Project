@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.comp2042.GameOverPanel?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+<?import java.net.URL?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" 
+            fx:controller="com.comp2042.GuiController"
+            prefWidth="900" 
+            prefHeight="800"
+            styleClass="root-pane">
+    
+    <!-- Left Panel: Hold Area and Statistics -->
+    <left>
+        <VBox spacing="20" styleClass="side-panel" prefWidth="200">
+            <padding>
+                <Insets top="20" right="15" bottom="20" left="15"/>
+            </padding>
+            
+            <!-- Hold Area -->
+            <VBox spacing="10" styleClass="info-box">
+                <Label text="HOLD" styleClass="section-title"/>
+                <GridPane fx:id="holdPanel" 
+                         hgap="1" 
+                         vgap="1" 
+                         styleClass="hold-display"
+                         alignment="CENTER"/>
+                <Label fx:id="holdHintLabel" 
+                       text="Press SHIFT or C" 
+                       styleClass="hint-label"/>
+            </VBox>
+            
+            <!-- Game Statistics (for non-level modes) -->
+            <VBox fx:id="statisticsBox" spacing="10" styleClass="info-box" managed="true" visible="true">
+                <Label text="STATISTICS" styleClass="section-title"/>
+                <HBox spacing="5">
+                    <Label text="Level:" styleClass="stat-label"/>
+                    <Label fx:id="levelLabel" text="1" styleClass="stat-value"/>
+                </HBox>
+                <HBox spacing="5">
+                    <Label text="Lines:" styleClass="stat-label"/>
+                    <Label fx:id="linesLabel" text="0" styleClass="stat-value"/>
+                </HBox>
+                <HBox spacing="5">
+                    <Label text="Speed:" styleClass="stat-label"/>
+                    <Label fx:id="speedLabel" text="1x" styleClass="stat-value"/>
+                </HBox>
+            </VBox>
+            
+            <!-- Objective (for level mode only) - Moved to left panel -->
+            <VBox fx:id="leftObjectiveBox" spacing="10" styleClass="info-box" managed="false" visible="false">
+                <Label text="OBJECTIVE" styleClass="section-title"/>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label text="Time:" styleClass="stat-label"/>
+                    <Label fx:id="leftTimerLabel" text="3:00" styleClass="stat-value-large"/>
+                </HBox>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label text="Lines:" styleClass="stat-label"/>
+                    <Label fx:id="leftProgressLabel" text="0/4" styleClass="stat-value-large"/>
+                </HBox>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label text="Speed:" styleClass="stat-label"/>
+                    <Label fx:id="leftSpeedLabel" text="1.0x" styleClass="stat-value"/>
+                </HBox>
+                <VBox spacing="5">
+                    <Label text="Stars:" styleClass="stat-label"/>
+                    <HBox fx:id="leftStarDisplay" spacing="8" alignment="CENTER"/>
+                </VBox>
+            </VBox>
+            
+            <!-- Control Buttons -->
+            <VBox spacing="10" styleClass="info-box">
+                <Label text="CONTROLS" styleClass="section-title"/>
+                <Button fx:id="muteButton" 
+                       text="Sound" 
+                       styleClass="control-button"
+                       onAction="#toggleMute"/>
+                <Button fx:id="settingsButton" 
+                       text="Settings" 
+                       styleClass="control-button"
+                       onAction="#showSettings"/>
+                <Button fx:id="helpButton" 
+                       text="Help" 
+                       styleClass="control-button"
+                       onAction="#showHelp"/>
+            </VBox>
+            
+        </VBox>
+    </left>
+    
+    <!-- Center: Game Board - Absolutely centered below title -->
+    <center>
+        <StackPane alignment="CENTER">
+            <VBox alignment="CENTER" spacing="15" fillWidth="false">
+                <padding>
+                    <Insets top="20" bottom="20" left="0" right="0"/>
+                </padding>
+                
+                <!-- Game Title - Centered -->
+                <Label text="TETRIS" styleClass="game-title" alignment="CENTER">
+                    <VBox.margin>
+                        <Insets left="0" right="0"/>
+                    </VBox.margin>
+                </Label>
+                
+                <!-- Game Area Container - Fixed positioning using Pane (not BorderPane) 
+                 Dimensions: 10 columns × 20 visible rows
+                 Each cell: 20px brick + 1px gap = 21px
+                 Grid: 10*20 + 9*1 = 209px width, 20*20 + 19*1 = 419px height
+                 Border: 12px, Padding: 28px left/right, 20px top/bottom (extra bottom clearance)
+                 Total: 209 + 2*12 + 2*28 = 289px width, 419 + 2*12 + 20 + 22 = 485px height -->
+            <Pane styleClass="game-container" prefWidth="289" prefHeight="485">
+                <!-- Background Board (decorative border: 12px) - FIRST (bottom layer) -->
+                <Pane styleClass="gameBoard" layoutX="0" layoutY="0" prefWidth="289" prefHeight="485" mouseTransparent="true"/>
+                
+                <!-- Game Grid - SECOND (game cells) 
+                     Position: 12px (border) + 28px (padding) = 40px from left
+                               12px (border) + 18px (padding) = 30px from top
+                     Size: 10 columns × 20 rows = 209px × 419px
+                     Grid lines created via cell borders in GuiController -->
+                <GridPane fx:id="gamePanel" hgap="1" vgap="1" layoutX="40" layoutY="30" 
+                          prefWidth="209" prefHeight="419"
+                          styleClass="game-grid"/>
+                
+                <!-- Brick Panel (moving piece overlay) - THIRD (middle layer, visible on top)
+                     Initial position set by Java code, max 4×4 brick = 84×84px (4*20px + 3*1px gaps)
+                     CRITICAL: MUST use same gaps as gamePanel for perfect cell alignment! -->
+                <!-- Render moving brick with absolute positioned children to avoid GridPane rounding -->
+                <Pane fx:id="brickPanel" prefWidth="84" prefHeight="84"/>
+                
+                <!-- Ghost Panel (ghost piece preview) - FOURTH (middle layer, below moving brick)
+                     Shows semi-transparent preview of where brick will land -->
+                <Pane fx:id="ghostPanel" prefWidth="84" prefHeight="84"/>
+                
+                <!-- Notification Area (Game Over overlay) - LAST (top layer)
+                     Centered in game board: game board is 209×419px at (40, 30)
+                     Panel is ~240×160px, so center at: X=40+(209-240)/2≈25, Y=30+(419-160)/2≈160 -->
+                <Group fx:id="groupNotification" layoutX="25" layoutY="160">
+                    <VBox alignment="CENTER">
+                        <GameOverPanel fx:id="gameOverPanel"/>
+                    </VBox>
+                </Group>
+            </Pane>
+            
+            <!-- Control Instructions -->
+            <Label text="[← →] Move  [↑ X] Rotate C/W  [Z] Rotate CCW  [Space] Hard Drop  [↓] Soft Drop" 
+                   styleClass="control-hint"/>
+            </VBox>
+        </StackPane>
+    </center>
+    
+    <!-- Right Panel: Next Brick and Score -->
+    <right>
+        <VBox spacing="20" styleClass="side-panel" prefWidth="200">
+            <padding>
+                <Insets top="20" right="15" bottom="20" left="15"/>
+            </padding>
+            
+            <!-- Next Brick Area -->
+            <VBox spacing="10" styleClass="info-box">
+                <Label text="NEXT" styleClass="section-title"/>
+                <GridPane fx:id="nextBrickPanel" 
+                         hgap="1" 
+                         vgap="1" 
+                         styleClass="next-display"
+                         alignment="CENTER"/>
+            </VBox>
+            
+            <!-- Score Display -->
+            <VBox spacing="10" styleClass="info-box">
+                <Label text="SCORE" styleClass="section-title"/>
+                <Label fx:id="scoreLabel" 
+                       text="0" 
+                       styleClass="score-display"/>
+                <!-- Best score and time display for level mode -->
+                <VBox fx:id="bestStatsBox" spacing="5" alignment="CENTER_LEFT" managed="false" visible="false">
+                    <Label fx:id="bestScoreLabel" text="Best Score: 0" styleClass="high-score-label"/>
+                    <Label fx:id="bestTimeLabel" text="Best Time: --:--" styleClass="high-score-label"/>
+                </VBox>
+                <!-- Fallback high score for non-level modes -->
+                <Label fx:id="highScoreLabel" 
+                       text="High: 0" 
+                       styleClass="high-score-label"/>
+            </VBox>
+            
+            <!-- Level Mode Status (visible only in level mode) -->
+            <VBox fx:id="levelStatusBox" spacing="10" styleClass="info-box" managed="false" visible="false">
+                <Label text="OBJECTIVE" styleClass="section-title"/>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label text="Time:" styleClass="stat-label"/>
+                    <Label fx:id="timerLabel" text="3:00" styleClass="stat-value-large"/>
+                </HBox>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label text="Lines:" styleClass="stat-label"/>
+                    <Label fx:id="progressLabel" text="0/20" styleClass="stat-value-large"/>
+                </HBox>
+                <VBox spacing="5">
+                    <Label text="Stars:" styleClass="stat-label"/>
+                    <HBox fx:id="starDisplay" spacing="8" alignment="CENTER"/>
+                </VBox>
+            </VBox>
+            
+            <!-- Game Controls -->
+            <VBox spacing="10" styleClass="info-box">
+                <Label text="GAME" styleClass="section-title"/>
+                <Button text="New Game (N)" 
+                       styleClass="game-button"
+                       onAction="#newGame"/>
+                <Button fx:id="pauseButton" 
+                       text="Pause (P)" 
+                       styleClass="game-button"
+                       onAction="#pauseGame"/>
+                <Button text="Menu" 
+                       styleClass="game-button"
+                       onAction="#returnToMenu"/>
+            </VBox>
+            
+            <!-- Combo removed per user request -->
+            
+        </VBox>
+    </right>
+    
+    <!-- Stylesheets -->
+    <stylesheets>
+        <URL value="@enhancedGameStyle.css"/>
+    </stylesheets>
+</BorderPane>

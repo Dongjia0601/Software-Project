@@ -184,8 +184,8 @@ public class MainMenuController {
      * @throws IOException if the FXML file cannot be loaded
      */
     private void loadGameScene(GuiController guiController) throws IOException {
-        // Load the game layout FXML
-        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("gameLayout.fxml"));
+        // Load the enhanced game layout FXML
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("enhancedGameLayout.fxml"));
         Parent root = loader.load();
         
         // Set the controller
@@ -194,8 +194,8 @@ public class MainMenuController {
             gameController = guiController;
         }
         
-        // Create new scene
-        Scene gameScene = new Scene(root, 300, 510);
+        // Create new scene with enhanced layout size
+        Scene gameScene = new Scene(root, 900, 800);
         
         // Get the current stage and set the new scene
         Stage currentStage = (Stage) endlessModeBtn.getScene().getWindow();
