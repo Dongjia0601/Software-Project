@@ -15,11 +15,25 @@ import java.io.IOException;
 
 /**
  * Controller for the main menu interface.
- * Handles game mode selection and navigation to different game modes.
  * 
+ * <p>This class handles the main menu functionality and provides navigation
+ * to different game modes. It manages the user interface components and
+ * coordinates the transition between the main menu and various game modes.</p>
+ * 
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Initialize main menu UI components</li>
+ *   <li>Handle game mode selection events</li>
+ *   <li>Create and configure game services for different modes</li>
+ *   <li>Manage scene transitions between menu and game</li>
+ * </ul>
+
+ * 
+ * @author Dong, Jia.
  */
 public class MainMenuController {
 
+    // FXML-injected UI components for game mode selection
     @FXML
     private Button endlessModeBtn;
     
@@ -33,12 +47,22 @@ public class MainMenuController {
     private Button twoPlayerAIBtn;
 
     /**
-     * Initializes the main menu controller.
-     * Sets up button text and event handlers.
+     * Initializes the main menu controller after FXML loading.
+     * 
+     * <p>This method is automatically called by JavaFX after the FXML file has been
+     * loaded and all @FXML annotated fields have been injected. It sets up the
+     * initial state of the UI components and prepares them for user interaction.</p>
+     * 
+     * <p>The method performs the following operations:</p>
+     * <ul>
+     *   <li>Sets appropriate text labels for all game mode buttons</li>
+     *   <li>Ensures consistent UI appearance across all buttons</li>
+     *   <li>Prepares the interface for user interaction</li>
+     * </ul>
      */
     @FXML
     public void initialize() {
-        // Set button text for different game modes
+        // Configure button text for different game modes
         endlessModeBtn.setText("Endless Mode");
         levelModeBtn.setText("Level Mode");
         twoPlayerVSBtn.setText("Two Player VS");
@@ -47,7 +71,19 @@ public class MainMenuController {
 
     /**
      * Starts the Endless Mode game.
-     * Creates a new game service and launches the endless mode.
+     * 
+     * <p>This method is called when the user clicks the "Endless Mode" button.
+     * It creates a new game service, initializes the GUI controller, and launches
+     * the endless mode game. Endless mode allows players to play indefinitely
+     * without level progression or time limits.</p>
+     * 
+     * <p>The method performs the following operations:</p>
+     * <ul>
+     *   <li>Creates a new GameService instance for game logic</li>
+     *   <li>Initializes a GuiController for UI management</li>
+     *   <li>Creates an EndlessMode game mode using the factory pattern</li>
+     *   <li>Transitions to the game scene</li>
+     * </ul>
      */
     @FXML
     private void startEndlessMode() {
@@ -57,11 +93,11 @@ public class MainMenuController {
             GameService gameService = new GameServiceImpl();
             GuiController guiController = new GuiController();
             
-            // Create endless mode
+            // Create endless mode using factory pattern
             var gameMode = GameModeFactory.createGameMode(GameModeType.ENDLESS, gameService, guiController);
             gameMode.initialize();
             
-            // Load game layout
+            // Transition to game scene
             loadGameScene(guiController);
             
         } catch (Exception e) {
