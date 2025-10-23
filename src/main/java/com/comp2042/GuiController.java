@@ -44,8 +44,8 @@ public class GuiController implements Initializable {
     // Extracted constants for better readability and maintainability
     private static final int BRICK_SIZE = 20; // Size of a single brick cell in pixels
     private static final int TIMELINE_DURATION_MS = 400; // Duration for automatic brick drop (milliseconds)
-    private static final int LAYOUT_OFFSET_Y = -42; // Vertical layout offset for brick panel
-    private static final int LAYOUT_OFFSET_X = 40; // Horizontal layout offset for brick panel
+    private static final int LAYOUT_OFFSET_Y = 0; // Vertical layout offset for brick panel
+    private static final int LAYOUT_OFFSET_X = 0; // Horizontal layout offset for brick panel
 
     @FXML
     private GridPane gamePanel; // GridPane for the main game board display
@@ -221,9 +221,9 @@ public class GuiController implements Initializable {
             }
         }
 
-        // Set initial position of the brick panel
-        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * 1 + brick.getxPosition() * BRICK_SIZE);
-        brickPanel.setLayoutY(LAYOUT_OFFSET_Y + gamePanel.getLayoutY() + brick.getyPosition() * 1 + brick.getyPosition() * BRICK_SIZE);
+        // Set initial position of the brick panel using original calculation
+        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
+        brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
 
         // Initialize the timeline for automatic brick movement
         timeLine = new Timeline(new KeyFrame(
@@ -281,8 +281,8 @@ public class GuiController implements Initializable {
      */
     private void refreshBrick(ViewData brick) {
         if (!isPause.getValue()) { // Only update position if not paused
-            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * 1 + brick.getxPosition() * BRICK_SIZE);
-            brickPanel.setLayoutY(LAYOUT_OFFSET_Y + gamePanel.getLayoutY() + brick.getyPosition() * 1 + brick.getyPosition() * BRICK_SIZE);
+            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
+            brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);

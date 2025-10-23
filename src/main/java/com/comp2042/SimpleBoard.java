@@ -40,7 +40,7 @@ public class SimpleBoard implements Board {
         
         this.width = width;
         this.height = height;
-        currentGameMatrix = new int[width][height];
+        currentGameMatrix = new int[height][width];
         brickGenerator = new RandomBrickGenerator();
         brickRotator = new BrickRotator();
         score = new Score();
@@ -220,7 +220,7 @@ public class SimpleBoard implements Board {
      * Clears the board matrix, resets the score, and creates the first new brick.
      */
     public void newGame() {
-        currentGameMatrix = new int[width][height]; // Clear the board
+        currentGameMatrix = new int[height][width]; // Clear the board
         score.reset(); // Reset the score
         createNewBrick(); // Start the game by creating the first brick
     }
