@@ -27,7 +27,13 @@ public class GameModeFactory {
             case ENDLESS:
                 return new EndlessMode(gameService, guiController);
             case LEVEL:
-                return new LevelGameModeImpl(gameService, guiController, LevelManager.getInstance(), null); // Pass a LevelMode later
+                // Get the first available level for now
+                LevelManager levelManager = LevelManager.getInstance();
+                var availableLevels = levelManager.getAllLevels();
+                if (availableLevels.isEmpty()) {
+                    throw new IllegalStateException("No levels available");
+                }
+                return new LevelGameModeImpl(gameService, guiController, levelManager, availableLevels.get(0));
             case TWO_PLAYER_VS:
                 // Create two separate game services for VS mode
                 GameService player1Service = new com.comp2042.core.GameServiceImpl();
