@@ -4,10 +4,18 @@ import com.comp2042.*;
 
 /**
  * Implementation of the GameService interface.
- * Provides the core game logic operations by delegating to a Board instance.
  * 
- * <p>This service acts as a facade for the game board operations,
- * providing a clean interface for game mode implementations.</p>
+ * <p>This class provides the core game logic operations by delegating to a Board instance.
+ * It acts as a facade for the game board operations, providing a clean interface for
+ * game mode implementations and ensuring proper separation of concerns.</p>
+ * 
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Delegate game operations to the underlying Board instance</li>
+ *   <li>Handle movement and rotation event processing</li>
+ *   <li>Manage game state transitions and scoring</li>
+ *   <li>Provide clean abstraction for game mode implementations</li>
+ * </ul>
  */
 public class GameServiceImpl implements GameService {
     

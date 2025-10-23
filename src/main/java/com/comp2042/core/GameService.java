@@ -8,8 +8,18 @@ import com.comp2042.MoveEvent;
 
 /**
  * Interface defining the contract for game service operations.
- * This interface provides methods for handling game logic, movement events,
- * and game state management.
+ * 
+ * <p>This interface provides a clean abstraction for game logic operations,
+ * movement event handling, and game state management. It serves as the main
+ * contract between the game controller and the underlying game implementation.</p>
+ * 
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Provide access to game board and score objects</li>
+ *   <li>Handle movement and rotation events</li>
+ *   <li>Manage game state transitions</li>
+ *   <li>Control game timing and speed</li>
+ * </ul>
  */
 public interface GameService {
 
