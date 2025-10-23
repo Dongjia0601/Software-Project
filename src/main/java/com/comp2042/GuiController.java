@@ -10,7 +10,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
-import javafx.scene.effect.Reflection;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -99,11 +99,12 @@ public class GuiController implements Initializable {
         // Initialize game over panel visibility
         gameOverPanel.setVisible(false);
 
-        // Apply visual effects
-        final Reflection reflection = new Reflection();
-        reflection.setFraction(0.8);
-        reflection.setTopOpacity(0.9);
-        reflection.setTopOffset(-12);
+        // Apply visual effects - using DropShadow instead of deprecated Reflection
+        final DropShadow dropShadow = new DropShadow();
+        dropShadow.setRadius(8.0);
+        dropShadow.setOffsetX(0.0);
+        dropShadow.setOffsetY(4.0);
+        dropShadow.setColor(Color.rgb(0, 0, 0, 0.3));
     }
 
     /**
@@ -114,7 +115,7 @@ public class GuiController implements Initializable {
      */
     private void handleKeyPressEvent(KeyEvent keyEvent) {
         // Check for pause state before handling movement/rotation
-        if (isPause.getValue() == Boolean.FALSE && isGameOver.getValue() == Boolean.FALSE) {
+        if (!isPause.getValue() && !isGameOver.getValue()) {
             
             // === Player 1 Controls (WASD Keys) ===
             if (keyEvent.getCode() == KeyCode.A) {
@@ -218,8 +219,8 @@ public class GuiController implements Initializable {
         }
 
         // Set initial position of the brick panel
-        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-        brickPanel.setLayoutY(LAYOUT_OFFSET_Y + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * 1 + brick.getxPosition() * BRICK_SIZE);
+        brickPanel.setLayoutY(LAYOUT_OFFSET_Y + gamePanel.getLayoutY() + brick.getyPosition() * 1 + brick.getyPosition() * BRICK_SIZE);
 
         // Initialize the timeline for automatic brick movement
         timeLine = new Timeline(new KeyFrame(
@@ -276,9 +277,9 @@ public class GuiController implements Initializable {
      * @param brick The ViewData containing the new shape and position of the brick.
      */
     private void refreshBrick(ViewData brick) {
-        if (isPause.getValue() == Boolean.FALSE) { // Only update position if not paused
-            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel.setLayoutY(LAYOUT_OFFSET_Y + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+        if (!isPause.getValue()) { // Only update position if not paused
+            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * 1 + brick.getxPosition() * BRICK_SIZE);
+            brickPanel.setLayoutY(LAYOUT_OFFSET_Y + gamePanel.getLayoutY() + brick.getyPosition() * 1 + brick.getyPosition() * BRICK_SIZE);
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
@@ -320,7 +321,7 @@ public class GuiController implements Initializable {
      */
     private void moveDown(MoveEvent event) {
         // Check for pause state before processing down event
-        if (isPause.getValue() == Boolean.FALSE) {
+        if (!isPause.getValue()) {
             DownData downData = eventListener.onDownEvent(event);
             // Check if downData is null (e.g., from PausedState) before processing
             if (downData != null) {
@@ -364,8 +365,8 @@ public class GuiController implements Initializable {
             timeLine.stop(); // Stop automatic movement
         }
         gameOverPanel.setVisible(true);
-        isGameOver.setValue(Boolean.TRUE);
-        isPause.setValue(Boolean.FALSE); // Ensure pause is off on game over
+        isGameOver.setValue(true);
+        isPause.setValue(false); // Ensure pause is off on game over
     }
 
     /**
@@ -386,8 +387,8 @@ public class GuiController implements Initializable {
         if (timeLine != null) {
             timeLine.play(); // Restart automatic movement
         }
-        isPause.setValue(Boolean.FALSE);
-        isGameOver.setValue(Boolean.FALSE);
+        isPause.setValue(false);
+        isGameOver.setValue(false);
     }
 
     /**
