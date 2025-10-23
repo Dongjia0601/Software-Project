@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane fx:controller="com.comp2042.MainMenuController"
+            xmlns:fx="http://javafx.com/fxml"
+            styleClass="main-menu-background"
+            prefWidth="900.0"
+            prefHeight="800.0"
+            style="-fx-background-color: linear-gradient(to bottom, #1a1a2e, #16213e,rgb(52, 52, 140));">
+    
+    <!-- Main Content Container - Centered -->
+    <VBox fx:id="mainContentContainer" 
+          alignment="CENTER" 
+          AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0"
+          AnchorPane.bottomAnchor="0.0"
+          spacing="40.0">
+        
+        <!-- Title -->
+        <Text fx:id="titleText" 
+              text="TETRIS" 
+              styleClass="title-text"
+              fill="#FF6BFF"
+              textAlignment="CENTER">
+            <font>
+                <Font name="Impact" size="80.0"/>
+            </font>
+            <effect>
+                <DropShadow color="#4DFFFF" radius="20" spread="0.4"/>
+            </effect>
+        </Text>
+        
+        <!-- Subtitle -->
+        <Label text="Choose Your Game Mode" textFill="#cccccc" textAlignment="CENTER">
+            <font>
+                <Font name="Segoe UI" size="18.0" />
+            </font>
+        </Label>
+        
+        <!-- Game Mode Buttons -->
+        <VBox fx:id="modeButtonsContainer" 
+              alignment="CENTER" 
+              spacing="20.0">
+        
+        <Button fx:id="endlessModeBtn" 
+                text="Endless Mode" 
+                styleClass="mode-button"
+                onAction="#startEndlessMode"
+                style="-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-border-color: #FF6BFF; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 20;">
+            <font>
+                <Font name="Segoe UI" size="18.0"/>
+            </font>
+            <effect>
+                <DropShadow color="#FF6BFF" radius="8" spread="0.2"/>
+            </effect>
+        </Button>
+        
+        <Button fx:id="levelModeBtn" 
+                text="Level Mode" 
+                styleClass="mode-button"
+                onAction="#startLevelMode"
+                style="-fx-background-color: #FFD700; -fx-text-fill: #1A0033; -fx-border-color: #FF4D4D; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 20;">
+            <font>
+                <Font name="Segoe UI" size="18.0"/>
+            </font>
+            <effect>
+                <DropShadow color="#FF4D4D" radius="8" spread="0.2"/>
+            </effect>
+        </Button>
+        
+        <Button fx:id="twoPlayerVSBtn" 
+                text="Two Player VS" 
+                styleClass="mode-button"
+                onAction="#startTwoPlayerVS"
+                style="-fx-background-color: #6BFF6B; -fx-text-fill: #1A0033; -fx-border-color: #FF8C00; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 20;">
+            <font>
+                <Font name="Segoe UI" size="18.0"/>
+            </font>
+            <effect>
+                <DropShadow color="#FF8C00" radius="8" spread="0.2"/>
+            </effect>
+        </Button>
+        
+        <Button fx:id="twoPlayerAIBtn" 
+                text="Two Player AI" 
+                styleClass="mode-button"
+                onAction="#startTwoPlayerAI"
+                style="-fx-background-color: #FF6B9D; -fx-text-fill: #1A0033; -fx-border-color: #8A2BE2; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 20;">
+            <font>
+                <Font name="Segoe UI" size="18.0"/>
+            </font>
+            <effect>
+                <DropShadow color="#8A2BE2" radius="8" spread="0.2"/>
+            </effect>
+        </Button>
+        
+        </VBox>
+        
+    </VBox>
+    
+</AnchorPane>
