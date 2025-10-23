@@ -3,10 +3,20 @@ package com.comp2042.gameplay;
 import com.comp2042.*;
 
 /**
- * Represents the state where the game is actively running.
- * Handles standard gameplay events like moving, rotating, and dropping the brick.
- * It also manages the core game loop logic such as landing bricks, clearing rows,
- * updating the score, and checking for game over conditions.
+ * Represents the active playing state of the Tetris game.
+ * 
+ * <p>This class implements the core gameplay logic when the game is actively running.
+ * It handles all player input events (movement, rotation, dropping) and manages the
+ * game progression including brick landing, row clearing, scoring, and game over detection.</p>
+ * 
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Process player input events (move, rotate, drop)</li>
+ *   <li>Manage brick movement and collision detection</li>
+ *   <li>Handle brick landing and merging to background</li>
+ *   <li>Process row clearing and score updates</li>
+ *   <li>Detect game over conditions and trigger state transitions</li>
+ * </ul>
  */
 public class PlayingState implements GameState {
     private final Board board; // Reference to the main game board logic

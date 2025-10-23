@@ -7,8 +7,19 @@ import com.comp2042.MoveEvent;
 import com.comp2042.ViewData;
 
 /**
- * Represents the state where the game is paused.
- * Input events (except pause/unpause and new game) are generally ignored.
+ * Represents the paused state of the Tetris game.
+ * 
+ * <p>This class handles the game when it is in a paused state. During pause,
+ * most input events are ignored except for pause/unpause and new game requests.
+ * The game state is preserved and can be resumed from the exact same position.</p>
+ * 
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Ignore gameplay input events (movement, rotation, dropping)</li>
+ *   <li>Handle pause/unpause toggle requests</li>
+ *   <li>Process new game requests to restart</li>
+ *   <li>Maintain current game state for resumption</li>
+ * </ul>
  */
 public class PausedState implements GameState {
     private final Board board; // Reference to the main game board logic to get current state
