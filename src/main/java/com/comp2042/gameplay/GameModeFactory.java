@@ -25,7 +25,7 @@ public class GameModeFactory {
     public static GameMode createGameMode(GameModeType type, GameService gameService, GuiController guiController) {
         switch (type) {
             case ENDLESS:
-                return new EndlessMode();
+                return new EndlessMode(gameService, guiController);
             case LEVEL:
                 return new LevelGameModeImpl(gameService, guiController, LevelManager.getInstance(), null); // Pass a LevelMode later
             case TWO_PLAYER_VS:
