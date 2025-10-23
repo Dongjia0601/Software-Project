@@ -35,7 +35,7 @@ public class GameServiceImpl implements GameService {
      * Constructs a GameServiceImpl with a default SimpleBoard.
      */
     public GameServiceImpl() {
-        this.board = new SimpleBoard(25, 10);
+        this.board = new SimpleBoard(10, 20);
     }
     
     @Override

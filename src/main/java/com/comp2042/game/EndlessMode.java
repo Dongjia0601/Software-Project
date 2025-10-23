@@ -61,6 +61,17 @@ public class EndlessMode implements GameMode {
         // Set default drop speed for endless mode (medium difficulty)
         gameService.setDropSpeed(400);
         
+        // Initialize UI display
+        if (guiController != null) {
+            guiController.updateScore(0, highScore);
+            guiController.updateLines(0);
+            guiController.updateLevel(1);
+            guiController.updateSpeed(1);
+            
+            // Show EndlessMode UI (if the method exists)
+            // guiController.showEndlessModeUI();
+        }
+        
         System.out.println("EndlessMode initialized - game started");
     }
 
@@ -71,9 +82,42 @@ public class EndlessMode implements GameMode {
             // Check if game is over
             if (gameService.isGameOver()) {
                 endGame();
+            } else {
+                // Update UI with current game state
+                updateUI();
             }
         }
     }
+    
+    /**
+     * Updates the UI with current game state.
+     */
+    private void updateUI() {
+        if (guiController == null) {
+            return;
+        }
+        
+        // Update score display
+        int currentScore = getCurrentScore();
+        guiController.updateScore(currentScore, highScore);
+        
+        // Update lines cleared
+        int linesCleared = getLinesCleared();
+        guiController.updateLines(linesCleared);
+        
+        // Update level (based on lines cleared)
+        int level = Math.max(1, (linesCleared / 10) + 1);
+        guiController.updateLevel(level);
+        
+        // Update speed display
+        int speedLevel = Math.min(10, level);
+        guiController.updateSpeed(speedLevel);
+        
+        // Update next piece display (placeholder for now)
+        // In a full implementation, you would get the next piece from the game service
+        // guiController.updateNextDisplay(nextPieceData);
+    }
+    
 
     @Override
     public void render() {

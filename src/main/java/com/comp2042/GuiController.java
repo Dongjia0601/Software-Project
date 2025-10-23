@@ -8,16 +8,22 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.control.Label;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -54,10 +60,35 @@ public class GuiController implements Initializable {
     private Group groupNotification; // Group to hold notification panels (e.g., score bonuses)
 
     @FXML
-    private GridPane brickPanel; // GridPane for the currently falling brick display
+    private Pane brickPanel; // Pane for the currently falling brick display
+
+    @FXML
+    private Pane ghostPanel; // Pane for the ghost piece display
 
     @FXML
     private GameOverPanel gameOverPanel; // Panel displayed when the game ends
+    
+    // EndlessMode UI components
+    @FXML
+    private Label scoreLabel;
+    
+    @FXML
+    private Label highScoreLabel;
+    
+    @FXML
+    private Label linesLabel;
+    
+    @FXML
+    private Label levelLabel;
+    
+    @FXML
+    private Label speedLabel;
+    
+    @FXML
+    private GridPane holdPanel;
+    
+    @FXML
+    private GridPane nextBrickPanel;
 
     private Rectangle[][] displayMatrix; // Array of rectangles representing the static board background
 
@@ -66,6 +97,12 @@ public class GuiController implements Initializable {
     private Rectangle[][] rectangles; // Array of rectangles representing the current falling brick
 
     private Timeline timeLine; // Timeline for the automatic downward movement of the brick
+    
+    // EndlessMode specific fields
+    private int currentDropSpeed = 400; // Default speed in milliseconds
+    private boolean isMuted = false;
+    private double currentBrickOpacity = 1.0;
+    private boolean ghostEnabled = true; // Whether ghost piece should be displayed
 
     private final BooleanProperty isPause = new SimpleBooleanProperty(); // Property indicating if the game is paused
 
@@ -216,14 +253,17 @@ public class GuiController implements Initializable {
             for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
                 rectangle.setFill(getFillColor(brick.getBrickData()[i][j]));
+                // Set position for each rectangle within the brick panel
+                rectangle.setLayoutX(j * (BRICK_SIZE + 1)); // +1 for gap
+                rectangle.setLayoutY(i * (BRICK_SIZE + 1)); // +1 for gap
                 rectangles[i][j] = rectangle;
-                brickPanel.add(rectangle, j, i);
+                brickPanel.getChildren().add(rectangle);
             }
         }
 
         // Set initial position of the brick panel using original calculation
-        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-        brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * gamePanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
+        brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * gamePanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
 
         // Initialize the timeline for automatic brick movement
         timeLine = new Timeline(new KeyFrame(
@@ -281,8 +321,8 @@ public class GuiController implements Initializable {
      */
     private void refreshBrick(ViewData brick) {
         if (!isPause.getValue()) { // Only update position if not paused
-            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * gamePanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
+            brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * gamePanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
@@ -417,8 +457,6 @@ public class GuiController implements Initializable {
     public void updateLevelSpeedDisplay(int levelId) {
     }
 
-    public void updateScore(int i, int bestScore) {
-    }
 
     public void updateBestStats(int bestScore, long bestTime) {
     }
@@ -430,5 +468,210 @@ public class GuiController implements Initializable {
     }
 
     public void updateTime(int timeLimitSeconds) {
+    }
+    
+    // ==================== EndlessMode UI Update Methods ====================
+    
+    /**
+     * Updates the score display for EndlessMode.
+     * 
+     * @param currentScore the current score
+     * @param highScore the high score
+     */
+    public void updateScore(int currentScore, int highScore) {
+        if (scoreLabel != null) {
+            scoreLabel.setText(String.valueOf(currentScore));
+        }
+        if (highScoreLabel != null) {
+            highScoreLabel.setText("High: " + highScore);
+        }
+    }
+    
+    /**
+     * Updates the lines cleared display for EndlessMode.
+     * 
+     * @param linesCleared the number of lines cleared
+     */
+    public void updateLines(int linesCleared) {
+        if (linesLabel != null) {
+            linesLabel.setText(String.valueOf(linesCleared));
+        }
+    }
+    
+    /**
+     * Updates the level display for EndlessMode.
+     * 
+     * @param level the current level
+     */
+    public void updateLevel(int level) {
+        if (levelLabel != null) {
+            levelLabel.setText(String.valueOf(level));
+        }
+    }
+    
+    /**
+     * Updates the speed display for EndlessMode.
+     * 
+     * @param speedLevel the current speed level
+     */
+    public void updateSpeed(int speedLevel) {
+        if (speedLabel != null) {
+            speedLabel.setText(speedLevel + "x");
+        }
+    }
+    
+    /**
+     * Updates the game speed for EndlessMode.
+     * 
+     * @param newSpeed the new drop speed in milliseconds
+     */
+    public void updateGameSpeed(int newSpeed) {
+        if (timeLine != null) {
+            timeLine.stop();
+            timeLine = new Timeline(new KeyFrame(
+                    Duration.millis(newSpeed),
+                    ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
+            ));
+            timeLine.setCycleCount(Timeline.INDEFINITE);
+            
+            // Only play if game is not paused and not over
+            if (!isPause.getValue() && !isGameOver.getValue()) {
+                timeLine.play();
+            }
+        }
+    }
+    
+    /**
+     * Sets the drop speed for the game.
+     * 
+     * @param speed the new drop speed in milliseconds
+     */
+    public void setDropSpeed(int speed) {
+        this.currentDropSpeed = speed;
+        updateGameSpeed(speed);
+    }
+    
+    /**
+     * Sets the brick opacity for visual effects.
+     * 
+     * @param opacity the opacity value (0.0 to 1.0)
+     */
+    public void setBrickOpacity(double opacity) {
+        this.currentBrickOpacity = Math.max(0.0, Math.min(1.0, opacity));
+    }
+    
+    /**
+     * Sets whether ghost piece should be displayed.
+     * 
+     * @param enabled true to show ghost piece, false to hide it
+     */
+    public void setGhostEnabled(boolean enabled) {
+        this.ghostEnabled = enabled;
+    }
+    
+    /**
+     * Shows a level up notification.
+     * 
+     * @param newLevel the new level number
+     */
+    public void showLevelUpNotification(int newLevel) {
+        // Create level up notification label
+        Label levelUpLabel = new Label("LEVEL UP: " + newLevel);
+        levelUpLabel.setStyle(
+            "-fx-font-size: 48px; " +
+            "-fx-font-weight: bold; " +
+            "-fx-text-fill: #FFD700; " +
+            "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 15, 0, 0, 0);"
+        );
+        
+        // Add to notification group
+        if (groupNotification != null) {
+            groupNotification.getChildren().add(levelUpLabel);
+            
+            // Remove after 3 seconds
+            Timeline removeTimeline = new Timeline(new KeyFrame(
+                Duration.seconds(3),
+                ae -> groupNotification.getChildren().remove(levelUpLabel)
+            ));
+            removeTimeline.play();
+        }
+    }
+    
+    /**
+     * Updates the level display.
+     * 
+     * @param level the current level
+     */
+    public void updateLevelDisplay(int level) {
+        updateLevel(level);
+    }
+    
+    /**
+     * Updates the next piece display for EndlessMode.
+     * 
+     * @param nextBrickData the next brick shape data
+     */
+    public void updateNextDisplay(int[][] nextBrickData) {
+        // This method can be implemented to update the next piece display
+        // For now, it's a placeholder
+    }
+    
+    /**
+     * Updates the hold piece display for EndlessMode.
+     * 
+     * @param holdBrickData the held brick shape data
+     */
+    public void updateHoldDisplay(int[][] holdBrickData) {
+        // This method can be implemented to update the hold piece display
+        // For now, it's a placeholder
+    }
+    
+    /**
+     * Toggles mute state for audio.
+     */
+    @FXML
+    public void toggleMute() {
+        isMuted = !isMuted;
+        System.out.println("Audio " + (isMuted ? "muted" : "unmuted"));
+        // TODO: Implement actual audio muting logic
+    }
+    
+    /**
+     * Shows settings dialog.
+     */
+    @FXML
+    public void showSettings() {
+        System.out.println("Settings dialog requested");
+        // TODO: Implement settings dialog
+    }
+    
+    /**
+     * Shows help dialog.
+     */
+    @FXML
+    public void showHelp() {
+        System.out.println("Help dialog requested");
+        // TODO: Implement help dialog
+    }
+    
+    /**
+     * Returns to main menu.
+     */
+    @FXML
+    public void returnToMenu() {
+        System.out.println("Returning to main menu");
+        try {
+            // Load main menu FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("mainMenu.fxml"));
+            Parent root = loader.load();
+            
+            // Get current stage and set new scene
+            Stage stage = (Stage) gamePanel.getScene().getWindow();
+            Scene scene = new Scene(root, 900, 800);
+            stage.setScene(scene);
+            stage.setTitle("Tetris - Main Menu");
+        } catch (Exception e) {
+            System.err.println("Error loading main menu: " + e.getMessage());
+        }
     }
 }

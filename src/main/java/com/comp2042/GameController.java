@@ -23,7 +23,7 @@ import com.comp2042.gameplay.GameOverState;
  */
 public class GameController implements InputEventListener {
 
-    private Board board = new SimpleBoard(25, 10); // The main game board instance
+    private Board board = new SimpleBoard(10, 20); // The main game board instance (width=10, height=20)
     private final GuiController viewGuiController; // The GUI controller instance
     private GameState currentState; // Hold current state
 
