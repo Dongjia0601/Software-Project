@@ -7,11 +7,18 @@ import com.comp2042.core.GameService;
 
 /**
  * Implementation of GameMode for endless gameplay.
- * In endless mode, players can play indefinitely until they lose.
- * The game continues until the board is filled and no new brick can be placed.
  * 
- * <p>This mode supports the Additions (25%) requirement by providing
- * a new playable game mode with different objectives than level-based play.</p>
+ * <p>In endless mode, players can play indefinitely until they lose. The game
+ * continues until the board is filled and no new brick can be placed. This mode
+ * focuses on achieving the highest possible score without time or level constraints.</p>
+ * 
+ * <p>Key features:</p>
+ * <ul>
+ *   <li>Unlimited gameplay until game over</li>
+ *   <li>Score tracking and high score recording</li>
+ *   <li>Pause and resume functionality</li>
+ *   <li>Game statistics and timing</li>
+ * </ul>
  */
 public class EndlessMode implements GameMode {
     

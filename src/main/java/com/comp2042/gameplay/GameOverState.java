@@ -7,8 +7,19 @@ import com.comp2042.MoveEvent;
 import com.comp2042.ViewData;
 
 /**
- * Represents the state where the game has ended.
- * Input events (except new game) are generally ignored.
+ * Represents the game over state of the Tetris game.
+ * 
+ * <p>This class handles the game when it has ended due to a game over condition.
+ * During this state, most input events are ignored except for new game requests.
+ * The final score and game statistics are preserved and can be displayed to the player.</p>
+ * 
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Ignore all gameplay input events (movement, rotation, dropping)</li>
+ *   <li>Handle new game requests to restart the game</li>
+ *   <li>Maintain final game state and score information</li>
+ *   <li>Display game over screen and final statistics</li>
+ * </ul>
  */
 public class GameOverState implements GameState {
     private final Board board; // Reference to the main game board logic (might be needed for final score display)
