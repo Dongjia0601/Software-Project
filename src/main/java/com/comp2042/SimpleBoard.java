@@ -26,10 +26,18 @@ public class SimpleBoard implements Board {
      * Constructs a SimpleBoard with the specified dimensions.
      * Initializes the board matrix, brick generator, rotator, and score.
      *
-     * @param width  The width of the board.
-     * @param height The height of the board.
+     * @param width  The width of the board (must be positive)
+     * @param height The height of the board (must be positive)
+     * @throws IllegalArgumentException if width or height is not positive
      */
     public SimpleBoard(int width, int height) {
+        if (width <= 0) {
+            throw new IllegalArgumentException("Board width must be positive, got: " + width);
+        }
+        if (height <= 0) {
+            throw new IllegalArgumentException("Board height must be positive, got: " + height);
+        }
+        
         this.width = width;
         this.height = height;
         currentGameMatrix = new int[width][height];
@@ -46,9 +54,19 @@ public class SimpleBoard implements Board {
      * @return true if the move was successful, false if a collision occurred (brick lands).
      */
     public boolean moveBrickDown() {
+        if (currentOffset == null) {
+            return false; // No brick to move
+        }
+        
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
         Point p = new Point(currentOffset);
         p.translate(0, 1); // Move down (increase y)
+        
+        // Check if the new position is valid
+        if (p.getY() < 0 || p.getY() >= height) {
+            return false; // Cannot move down, brick lands
+        }
+        
         boolean conflict = MatrixOperations.intersect(currentMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
         if (conflict) {
             return false; // Cannot move down, brick lands
