@@ -11,6 +11,21 @@ public enum EventSource {
     USER,
     
     /**
+     * Event originated from keyboard input for player 1.
+     */
+    KEYBOARD_PLAYER_1,
+    
+    /**
+     * Event originated from keyboard input for player 2.
+     */
+    KEYBOARD_PLAYER_2,
+    
+    /**
+     * Event originated from keyboard input (generic).
+     */
+    KEYBOARD,
+    
+    /**
      * Event originated from an internal game process (e.g., automatic descent timer).
      */
     THREAD,

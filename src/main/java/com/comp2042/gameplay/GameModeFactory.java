@@ -29,7 +29,10 @@ public class GameModeFactory {
             case LEVEL:
                 return new LevelGameModeImpl(gameService, guiController, LevelManager.getInstance(), null); // Pass a LevelMode later
             case TWO_PLAYER_VS:
-                return new TwoPlayerVSGameMode();
+                // Create two separate game services for VS mode
+                GameService player1Service = new com.comp2042.core.GameServiceImpl();
+                GameService player2Service = new com.comp2042.core.GameServiceImpl();
+                return new TwoPlayerVSGameMode(player1Service, player2Service, guiController);
             case TWO_PLAYER_AI:
                 return new TwoPlayerAIGameMode();
             default:
