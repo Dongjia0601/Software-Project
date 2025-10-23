@@ -27,9 +27,6 @@ import java.io.IOException;
  *   <li>Create and configure game services for different modes</li>
  *   <li>Manage scene transitions between menu and game</li>
  * </ul>
-
- * 
- * @author Dong, Jia.
  */
 public class MainMenuController {
 

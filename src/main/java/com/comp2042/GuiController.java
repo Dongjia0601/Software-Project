@@ -25,16 +25,19 @@ import java.util.ResourceBundle;
 
 /**
  * Controller for the JavaFX GUI components.
- * Handles UI initialization, rendering the game board and brick,
- * processing keyboard input, managing animations, and updating
- * the display based on game state changes.
- *
- * <p>This class contributes to the Refactoring (35%) - Basic maintenance criterion
- * by extracting constants, improving readability, and adding comprehensive Javadocs.
- * It also supports the Additions (25%) - Enhanced UI criterion by providing a
- * clean and well-structured UI controller.
- *
- * @author Dong, Jia.
+ * 
+ * <p>This class manages all user interface interactions for the Tetris game, including
+ * game board rendering, brick display, keyboard input handling, animations, and visual
+ * effects. It serves as the bridge between the game logic and the JavaFX UI framework.</p>
+ * 
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Initialize and manage JavaFX UI components</li>
+ *   <li>Render game board and falling bricks</li>
+ *   <li>Handle keyboard input and user interactions</li>
+ *   <li>Manage animations and visual effects</li>
+ *   <li>Update display based on game state changes</li>
+ * </ul>
  */
 public class GuiController implements Initializable {
 

@@ -7,15 +7,19 @@ import com.comp2042.gameplay.GameOverState;
 
 /**
  * Controller managing the overall game flow, state transitions, and input event delegation.
- * It holds references to the game board logic (SimpleBoard) and the GUI controller (GuiController).
- * Delegates input events (from GuiController) to the current GameState instance.
- *
- * <p>This class contributes to the Refactoring (35%) - Supporting single responsibility by splitting up classes
- * and Design patterns criteria by implementing the State Pattern for game state management.
- * It also supports the Additions (25%) - Gameplay Enhancement criterion by providing a
- * structured way to manage different game states and transitions.
- *
- * @author Dong, Jia.
+ * 
+ * <p>This class serves as the central coordinator for the Tetris game, managing the game board
+ * logic and coordinating between the GUI controller and game states. It implements the State
+ * Pattern to handle different game phases (playing, paused, game over) and delegates input
+ * events to the appropriate state handler.</p>
+ * 
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Manage game board instance and state transitions</li>
+ *   <li>Coordinate between GUI controller and game logic</li>
+ *   <li>Handle input event delegation to current game state</li>
+ *   <li>Manage game state lifecycle (playing, paused, game over)</li>
+ * </ul>
  */
 public class GameController implements InputEventListener {
 
