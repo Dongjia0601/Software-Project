@@ -115,20 +115,58 @@ public class GuiController implements Initializable {
     private void handleKeyPressEvent(KeyEvent keyEvent) {
         // Check for pause state before handling movement/rotation
         if (isPause.getValue() == Boolean.FALSE && isGameOver.getValue() == Boolean.FALSE) {
-            if (keyEvent.getCode() == KeyCode.LEFT || keyEvent.getCode() == KeyCode.A) {
-                refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)));
+            
+            // === Player 1 Controls (WASD Keys) ===
+            if (keyEvent.getCode() == KeyCode.A) {
+                // Player 1: Move left
+                refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_1)));
                 keyEvent.consume();
             }
-            if (keyEvent.getCode() == KeyCode.RIGHT || keyEvent.getCode() == KeyCode.D) {
-                refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.USER)));
+            if (keyEvent.getCode() == KeyCode.D) {
+                // Player 1: Move right
+                refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.KEYBOARD_PLAYER_1)));
                 keyEvent.consume();
             }
-            if (keyEvent.getCode() == KeyCode.UP || keyEvent.getCode() == KeyCode.W) {
-                refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.USER)));
+            if (keyEvent.getCode() == KeyCode.W) {
+                // Player 1: Rotate brick
+                refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.KEYBOARD_PLAYER_1)));
                 keyEvent.consume();
             }
-            if (keyEvent.getCode() == KeyCode.DOWN || keyEvent.getCode() == KeyCode.S) {
-                moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
+            if (keyEvent.getCode() == KeyCode.S) {
+                // Player 1: Move down
+                moveDown(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_1));
+                keyEvent.consume();
+            }
+            if (keyEvent.getCode() == KeyCode.SPACE) {
+                // Player 1: Hard drop
+                moveDown(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_1));
+                keyEvent.consume();
+            }
+            
+            // === Player 2 Controls (Arrow Keys) ===
+            if (keyEvent.getCode() == KeyCode.LEFT) {
+                // Player 2: Move left
+                refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_2)));
+                keyEvent.consume();
+            }
+            if (keyEvent.getCode() == KeyCode.RIGHT) {
+                // Player 2: Move right
+                refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.KEYBOARD_PLAYER_2)));
+                keyEvent.consume();
+            }
+            if (keyEvent.getCode() == KeyCode.UP) {
+                // Player 2: Rotate brick
+                refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.KEYBOARD_PLAYER_2)));
+                keyEvent.consume();
+            }
+            if (keyEvent.getCode() == KeyCode.DOWN) {
+                // Player 2: Move down
+                moveDown(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_2));
+                keyEvent.consume();
+            }
+            if (keyEvent.getCode() == KeyCode.DIGIT0) {
+                // Player 2: Hard drop
+                moveDown(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_2));
                 keyEvent.consume();
             }
         }
