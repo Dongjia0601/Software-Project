@@ -42,6 +42,9 @@ public class MainMenuController {
     
     @FXML
     private Button twoPlayerAIBtn;
+    
+    @FXML
+    private Button settingsBtn;
 
     /**
      * Initializes the main menu controller after FXML loading.
@@ -206,5 +209,41 @@ public class MainMenuController {
         new GameController(gameController);
         
         System.out.println("Game scene loaded successfully");
+    }
+    
+    /**
+     * Handles the settings button click.
+     * Opens the settings page.
+     */
+    @FXML
+    private void openSettings() {
+        try {
+            FXMLLoader settingsLoader = new FXMLLoader(getClass().getResource("/settings.fxml"));
+            // Use same size as main menu for consistency (1000x700)
+            Scene settingsScene = new Scene(settingsLoader.load(), 900, 800);
+            
+            // Get the settings controller and set the stage
+            com.comp2042.ui.SettingsController settingsController = settingsLoader.getController();
+            settingsController.setStage((Stage) endlessModeBtn.getScene().getWindow());
+            settingsController.setSavedGameScene(null); // From main menu, no saved game
+            
+            // CRITICAL FIX: Set up keyboard handling to prevent space key from triggering buttons
+            settingsController.setupKeyboardHandling(settingsScene);
+            
+            // Apply the settings CSS
+            settingsScene.getStylesheets().add(
+                getClass().getResource("/settings.css").toExternalForm()
+            );
+            
+            // Switch to settings scene
+            Stage stage = (Stage) endlessModeBtn.getScene().getWindow();
+            stage.setScene(settingsScene);
+            stage.setTitle("TETRIS - Settings");
+            
+            System.out.println("Settings page loaded successfully");
+        } catch (IOException e) {
+            System.err.println("Error loading settings page: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.comp2042.ui.SettingsController"
+           styleClass="settings-root">
+    
+    <VBox spacing="20" alignment="CENTER" styleClass="settings-container" maxWidth="700" maxHeight="600">
+        <padding>
+            <Insets top="20" right="40" bottom="20" left="40"/>
+        </padding>
+        
+        <!-- Title -->
+        <Text text="SETTINGS" styleClass="settings-title"/>
+        
+        <!-- Settings Content -->
+        <ScrollPane fitToWidth="true" styleClass="settings-scroll" VBox.vgrow="ALWAYS" maxHeight="320">
+            <VBox spacing="18" styleClass="settings-content">
+                
+                <!-- Controls Section -->
+                <VBox spacing="10" styleClass="settings-section">
+                    <Text text="CONTROLS" styleClass="section-title"/>
+                    <Separator styleClass="section-divider"/>
+                    
+                    <GridPane hgap="15" vgap="8" styleClass="controls-grid">
+                        <!-- Movement Controls -->
+                        <Label text="Move Left:" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="control-label"/>
+                        <Label text="← Arrow / A" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="control-value"/>
+                        
+                        <Label text="Move Right:" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="control-label"/>
+                        <Label text="→ Arrow / D" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="control-value"/>
+                        
+                        <Label text="Soft Drop:" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="control-label"/>
+                        <Label text="↓ Arrow / S" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="control-value"/>
+                        
+                        <!-- Rotation Controls -->
+                        <Label text="Rotate Clockwise:" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="control-label"/>
+                        <Label text="↑ Arrow / X / W" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="control-value"/>
+                        
+                        <Label text="Rotate Counter-Clockwise:" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="control-label"/>
+                        <Label text="Z" GridPane.columnIndex="1" GridPane.rowIndex="4" styleClass="control-value"/>
+                        
+                        <!-- Special Controls -->
+                        <Label text="Hard Drop:" GridPane.columnIndex="0" GridPane.rowIndex="5" styleClass="control-label"/>
+                        <Label text="SPACE" GridPane.columnIndex="1" GridPane.rowIndex="5" styleClass="control-value"/>
+                        
+                        <Label text="Hold Piece:" GridPane.columnIndex="0" GridPane.rowIndex="6" styleClass="control-label"/>
+                        <Label text="SHIFT / C" GridPane.columnIndex="1" GridPane.rowIndex="6" styleClass="control-value"/>
+                        
+                        <!-- Game Controls -->
+                        <Label text="Pause/Resume:" GridPane.columnIndex="0" GridPane.rowIndex="7" styleClass="control-label"/>
+                        <Label text="P" GridPane.columnIndex="1" GridPane.rowIndex="7" styleClass="control-value"/>
+                        
+                        <Label text="New Game:" GridPane.columnIndex="0" GridPane.rowIndex="8" styleClass="control-label"/>
+                        <Label text="N" GridPane.columnIndex="1" GridPane.rowIndex="8" styleClass="control-value"/>
+                    </GridPane>
+                </VBox>
+                
+                <!-- Audio Section -->
+                <VBox spacing="10" styleClass="settings-section">
+                    <Text text="AUDIO" styleClass="section-title"/>
+                    <Separator styleClass="section-divider"/>
+                    
+                    <!-- Master Volume -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Master Volume:" styleClass="audio-label" HBox.hgrow="NEVER" minWidth="140"/>
+                        <Slider fx:id="masterVolumeSlider" min="0" max="100" value="70" 
+                                showTickLabels="false" showTickMarks="false" 
+                                styleClass="volume-slider" HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="masterVolumeLabel" text="70%" styleClass="volume-label" minWidth="45"/>
+                    </HBox>
+                    
+                    <!-- Music Volume -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Background Music:" styleClass="audio-label" HBox.hgrow="NEVER" minWidth="140"/>
+                        <Slider fx:id="musicVolumeSlider" min="0" max="100" value="50" 
+                                showTickLabels="false" showTickMarks="false" 
+                                styleClass="volume-slider" HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="musicVolumeLabel" text="50%" styleClass="volume-label" minWidth="45"/>
+                    </HBox>
+                    
+                    <!-- Sound Effects Volume -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Sound Effects:" styleClass="audio-label" HBox.hgrow="NEVER" minWidth="140"/>
+                        <Slider fx:id="sfxVolumeSlider" min="0" max="100" value="80" 
+                                showTickLabels="false" showTickMarks="false" 
+                                styleClass="volume-slider" HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="sfxVolumeLabel" text="80%" styleClass="volume-label" minWidth="45"/>
+                    </HBox>
+                </VBox>
+                
+            </VBox>
+        </ScrollPane>
+        
+        <!-- All Action Buttons in One Row -->
+        <HBox spacing="12" alignment="CENTER" styleClass="all-buttons-container">
+            <Button fx:id="saveButton" text="Save" onAction="#saveSettings" styleClass="settings-button, save-button"/>
+            <Button fx:id="resetButton" text="Reset" onAction="#resetToDefault" styleClass="settings-button, reset-button"/>
+            <Button fx:id="backToGameButton" text="Back to Game" onAction="#backToGame" 
+                   styleClass="settings-button, continue-button" visible="false" managed="false"/>
+            <Button fx:id="backToMenuButton" text="Exit to Menu" onAction="#backToMenu" 
+                   styleClass="settings-button, exit-button"/>
+        </HBox>
+        
+        <!-- Status Message -->
+        <Label fx:id="statusLabel" text="" styleClass="status-label"/>
+        
+    </VBox>
+    
+</StackPane>

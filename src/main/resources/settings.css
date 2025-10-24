@@ -1,0 +1,309 @@
+/* ===========================
+   TETRIS Settings Page Styles
+   =========================== */
+
+/* ============================================================
+   IMPORTANT: JavaFX CSS Specification Notice
+   ============================================================
+   This file uses JavaFX CSS, which requires the -fx- prefix
+   for ALL properties. This is NOT a vendor prefix (like -webkit-
+   or -moz-), but the official JavaFX CSS syntax.
+   ============================================================ */
+
+/* Root Container */
+.settings-root {
+    -fx-background-color: linear-gradient(to bottom, 
+        #0a0e27 0%, 
+        #1a1a3e 25%, 
+        #2d1b69 50%, 
+        #1a1a3e 75%, 
+        #0f0c29 100%);
+}
+
+/* Main Settings Container */
+.settings-container {
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-background-radius: 20px;
+    -fx-border-color: linear-gradient(to right, #8A2BE2, #4DFFFF);
+    -fx-border-width: 3px;
+    -fx-border-radius: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.6), 20, 0, 0, 0);
+    -fx-padding: 20px;
+}
+
+/* Title */
+.settings-title {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-fill: linear-gradient(to right, #FF6BFF, #FFD700, #4DFFFF);
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 12, 0, 0, 0);
+}
+
+/* Scroll Pane */
+.settings-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.settings-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.settings-scroll .scroll-bar:vertical,
+.settings-scroll .scroll-bar:horizontal {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+}
+
+.settings-scroll .scroll-bar .thumb {
+    -fx-background-color: rgba(138, 43, 226, 0.7);
+    -fx-background-radius: 5px;
+}
+
+.settings-scroll .scroll-bar .thumb:hover {
+    -fx-background-color: rgba(138, 43, 226, 0.9);
+}
+
+/* Settings Content */
+.settings-content {
+    -fx-padding: 10px 20px;
+}
+
+/* Settings Sections */
+.settings-section {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 12px;
+    -fx-padding: 15px;
+    -fx-border-color: rgba(138, 43, 226, 0.3);
+    -fx-border-radius: 12px;
+    -fx-border-width: 1px;
+}
+
+/* Section Titles */
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-fill: linear-gradient(to right, #FF6BFF, #4DFFFF);
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.6), 4, 0, 0, 0);
+}
+
+/* Section Divider */
+.section-divider {
+    -fx-background-color: linear-gradient(to right, 
+        transparent 0%, 
+        rgba(138, 43, 226, 0.6) 50%, 
+        transparent 100%);
+    -fx-pref-height: 2px;
+}
+
+/* ===== CONTROLS SECTION ===== */
+
+.controls-grid {
+    -fx-padding: 10px 0;
+}
+
+.control-label {
+    -fx-text-fill: #B0B0C0;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+}
+
+.control-value {
+    -fx-text-fill: #4DFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Consolas", "Monaco", monospace;
+    -fx-background-color: rgba(77, 255, 255, 0.1);
+    -fx-background-radius: 5px;
+    -fx-padding: 5px 12px;
+    -fx-border-color: rgba(77, 255, 255, 0.3);
+    -fx-border-radius: 5px;
+    -fx-border-width: 1px;
+}
+
+/* ===== AUDIO SECTION ===== */
+
+.audio-label, .display-label {
+    -fx-text-fill: #B0B0C0;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+/* Volume Sliders */
+.volume-slider {
+    -fx-pref-width: 300px;
+}
+
+.volume-slider .track {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-background-radius: 5px;
+    -fx-pref-height: 8px;
+}
+
+.volume-slider .thumb {
+    -fx-background-color: linear-gradient(to bottom, #8A2BE2, #6A1BB2);
+    -fx-background-radius: 10px;
+    -fx-pref-width: 20px;
+    -fx-pref-height: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.8), 5, 0, 0, 0);
+}
+
+.volume-slider .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, #9A3BF2, #7A2BC2);
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.volume-slider .thumb:pressed {
+    -fx-background-color: linear-gradient(to bottom, #6A1BB2, #5A0BA2);
+}
+
+.volume-slider:disabled .track {
+    -fx-opacity: 0.3;
+}
+
+.volume-slider:disabled .thumb {
+    -fx-opacity: 0.3;
+}
+
+.volume-label {
+    -fx-text-fill: #FFD700;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-alignment: center-right;
+}
+
+/* Checkboxes */
+.sound-checkbox, .display-checkbox {
+    -fx-text-fill: white;
+}
+
+.sound-checkbox .box, .display-checkbox .box {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-border-color: rgba(138, 43, 226, 0.5);
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.sound-checkbox:selected .box, .display-checkbox:selected .box {
+    -fx-background-color: linear-gradient(to bottom, #8A2BE2, #6A1BB2);
+}
+
+.sound-checkbox .mark, .display-checkbox .mark {
+    -fx-background-color: white;
+    -fx-shape: "M 0,5 L 3,8 L 8,0";
+}
+
+/* ===== BUTTONS ===== */
+
+.all-buttons-container {
+    -fx-padding: 15px 0 5px 0;
+}
+
+.settings-button {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 4, 0, 0, 2);
+    -fx-text-fill: white;
+    -fx-min-width: 120px;
+}
+
+.save-button {
+    -fx-background-color: linear-gradient(to bottom, #28a745, #218838);
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-width: 1px;
+}
+
+.save-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #38b755, #318848);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.save-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #218838, #1e7e34);
+    -fx-translate-y: 2px;
+}
+
+.reset-button {
+    -fx-background-color: linear-gradient(to bottom, #ffc107, #e0a800);
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-width: 1px;
+}
+
+.reset-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ffd117, #f0b810);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.reset-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #e0a800, #d39e00);
+    -fx-translate-y: 2px;
+}
+
+.continue-button {
+    -fx-background-color: linear-gradient(to bottom, #4DFFFF, #2DB8B8);
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(77, 255, 255, 0.6), 8, 0, 0, 0);
+}
+
+.continue-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5DFFFF, #3DC8C8);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(77, 255, 255, 0.9), 12, 0, 0, 0);
+}
+
+.continue-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2DB8B8, #1DA8A8);
+    -fx-translate-y: 2px;
+}
+
+.exit-button {
+    -fx-background-color: linear-gradient(to bottom, #dc3545, #c82333);
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-width: 1px;
+}
+
+.exit-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #ec4555, #d83343);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.exit-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #c82333, #b81323);
+    -fx-translate-y: 2px;
+}
+
+/* Warning Label */
+.warning-label {
+    -fx-text-fill: #FFD700;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 5px;
+    -fx-min-height: 20px;
+    -fx-background-color: rgba(255, 215, 0, 0.1);
+    -fx-background-radius: 5px;
+}
+
+/* Status Label */
+.status-label {
+    -fx-text-fill: #4DFFFF;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px;
+    -fx-min-height: 35px;
+    -fx-alignment: center;
+}
+
+/* Responsive adjustments */
+.settings-section:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-border-color: rgba(138, 43, 226, 0.5);
+}

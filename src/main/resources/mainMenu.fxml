@@ -109,4 +109,22 @@
         
     </VBox>
     
+    <!-- Settings Button - Top Right Corner -->
+    <Button fx:id="settingsBtn" 
+            text="Settings" 
+            layoutX="780.0" 
+            layoutY="20.0"
+            styleClass="settings-button"
+            onAction="#openSettings"
+            prefWidth="100.0"
+            prefHeight="35.0"
+            style="-fx-background-color: linear-gradient(to bottom, #1e3a8a, #1e40af); -fx-text-fill: white; -fx-border-color: #3b82f6; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 8 16;">
+        <font>
+            <Font name="Segoe UI" size="14.0"/>
+        </font>
+        <effect>
+            <DropShadow color="#3b82f6" radius="6" spread="0.3"/>
+        </effect>
+    </Button>
+    
 </AnchorPane>
