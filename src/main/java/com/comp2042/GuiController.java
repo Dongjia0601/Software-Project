@@ -638,11 +638,51 @@ public class GuiController implements Initializable {
     
     /**
      * Shows settings dialog.
+     * Opens the settings page with ability to return to current game.
      */
     @FXML
     public void showSettings() {
-        System.out.println("Settings dialog requested");
-        // TODO: Implement settings dialog
+        System.out.println("Settings dialog requested from game");
+        try {
+            // Save current game scene for returning
+            Scene currentGameScene = gamePanel.getScene();
+            Stage stage = (Stage) currentGameScene.getWindow();
+            
+            // Load settings FXML
+            FXMLLoader settingsLoader = new FXMLLoader(getClass().getResource("/settings.fxml"));
+            Scene settingsScene = new Scene(settingsLoader.load(), 900, 800);
+            
+            // Get the settings controller and configure it
+            com.comp2042.ui.SettingsController settingsController = settingsLoader.getController();
+            settingsController.setStage(stage);
+            settingsController.setSavedGameScene(currentGameScene); // Pass current game scene
+            
+            // Check if game is currently paused
+            boolean isGamePaused = false;
+            if (eventListener instanceof GameController) {
+                // We can't directly access the current state, so we'll assume it's not paused
+                // The settings controller will handle the game state properly
+                isGamePaused = false; // Default to not paused
+            }
+            settingsController.setGameController(this, isGamePaused); // Pass game controller and pause state
+            
+            // Set up keyboard handling to prevent space key conflicts
+            settingsController.setupKeyboardHandling(settingsScene);
+            
+            // Apply settings CSS
+            settingsScene.getStylesheets().add(
+                getClass().getResource("/settings.css").toExternalForm()
+            );
+            
+            // Switch to settings scene
+            stage.setScene(settingsScene);
+            stage.setTitle("TETRIS - Settings");
+            
+            System.out.println("Settings page loaded successfully from game");
+        } catch (Exception e) {
+            System.err.println("Error loading settings page: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     /**
