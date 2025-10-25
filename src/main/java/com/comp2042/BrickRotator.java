@@ -52,6 +52,14 @@ public class BrickRotator {
         this.brick = brick;
         currentShape = 0; // Reset to the first shape of the new brick
     }
-
+    
+    /**
+     * Gets the current brick being managed.
+     *
+     * @return The current Brick instance.
+     */
+    public Brick getBrick() {
+        return brick;
+    }
 
 }

@@ -79,4 +79,17 @@ public interface GameService {
      * @return true if the game is over, false otherwise
      */
     boolean isGameOver();
+    
+    /**
+     * Processes a hold event.
+     * @param event the move event
+     * @return the view data result
+     */
+    ViewData processHoldEvent(MoveEvent event);
+    
+    /**
+     * Gets the next brick shape data.
+     * @return the next brick shape matrix
+     */
+    int[][] getNextBrick();
 }

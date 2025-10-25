@@ -91,6 +91,8 @@ public class GuiController implements Initializable {
     private GridPane nextBrickPanel;
 
     private Rectangle[][] displayMatrix; // Array of rectangles representing the static board background
+    private Rectangle[][] holdDisplayMatrix; // Array of rectangles for hold display
+    private Rectangle[][] nextDisplayMatrix; // Array of rectangles for next piece display
 
     private InputEventListener eventListener; // Listener for game events (likely GameController)
 
@@ -181,6 +183,16 @@ public class GuiController implements Initializable {
             if (keyEvent.getCode() == KeyCode.SPACE) {
                 // Player 1: Hard drop
                 moveDown(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_1));
+                keyEvent.consume();
+            }
+            if (keyEvent.getCode() == KeyCode.SHIFT || keyEvent.getCode() == KeyCode.C) {
+                // Player 1: Hold brick
+                ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_1));
+                if (result != null) {
+                    refreshBrick(result);
+                    // Update hold display with the new hold brick data
+                    updateHoldDisplay(result.getHoldBrickData());
+                }
                 keyEvent.consume();
             }
             
@@ -328,6 +340,11 @@ public class GuiController implements Initializable {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
                 }
             }
+            
+            // Update next piece display
+            if (brick.getNextBrickData() != null) {
+                updateNextDisplay(brick.getNextBrickData());
+            }
         }
     }
 
@@ -410,6 +427,10 @@ public class GuiController implements Initializable {
         gameOverPanel.setVisible(true);
         isGameOver.setValue(true);
         isPause.setValue(false); // Ensure pause is off on game over
+        
+        // Clear hold and next panels when game is over
+        updateHoldDisplay(null);
+        updateNextDisplay(null);
     }
 
     /**
@@ -612,8 +633,42 @@ public class GuiController implements Initializable {
      * @param nextBrickData the next brick shape data
      */
     public void updateNextDisplay(int[][] nextBrickData) {
-        // This method can be implemented to update the next piece display
-        // For now, it's a placeholder
+        if (nextBrickPanel == null) {
+            return;
+        }
+        
+        // Initialize next display matrix if not already done
+        if (nextDisplayMatrix == null) {
+            nextDisplayMatrix = new Rectangle[4][4];
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    Rectangle rectangle = new Rectangle(20, 20);
+                    rectangle.setFill(Color.TRANSPARENT);
+                    rectangle.setArcHeight(9);
+                    rectangle.setArcWidth(9);
+                    nextDisplayMatrix[i][j] = rectangle;
+                    nextBrickPanel.add(rectangle, j, i);
+                }
+            }
+        }
+        
+        // Clear the display
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                nextDisplayMatrix[i][j].setFill(Color.TRANSPARENT);
+            }
+        }
+        
+        // Display the brick if data is provided
+        if (nextBrickData != null) {
+            for (int i = 0; i < nextBrickData.length && i < 4; i++) {
+                for (int j = 0; j < nextBrickData[i].length && j < 4; j++) {
+                    if (nextBrickData[i][j] != 0) {
+                        nextDisplayMatrix[i][j].setFill(getFillColor(nextBrickData[i][j]));
+                    }
+                }
+            }
+        }
     }
     
     /**
@@ -622,8 +677,42 @@ public class GuiController implements Initializable {
      * @param holdBrickData the held brick shape data
      */
     public void updateHoldDisplay(int[][] holdBrickData) {
-        // This method can be implemented to update the hold piece display
-        // For now, it's a placeholder
+        if (holdPanel == null) {
+            return;
+        }
+        
+        // Initialize hold display matrix if not already done
+        if (holdDisplayMatrix == null) {
+            holdDisplayMatrix = new Rectangle[4][4];
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    Rectangle rectangle = new Rectangle(20, 20);
+                    rectangle.setFill(Color.TRANSPARENT);
+                    rectangle.setArcHeight(9);
+                    rectangle.setArcWidth(9);
+                    holdDisplayMatrix[i][j] = rectangle;
+                    holdPanel.add(rectangle, j, i);
+                }
+            }
+        }
+        
+        // Clear the display
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                holdDisplayMatrix[i][j].setFill(Color.TRANSPARENT);
+            }
+        }
+        
+        // Display the brick if data is provided
+        if (holdBrickData != null) {
+            for (int i = 0; i < holdBrickData.length && i < 4; i++) {
+                for (int j = 0; j < holdBrickData[i].length && j < 4; j++) {
+                    if (holdBrickData[i][j] != 0) {
+                        holdDisplayMatrix[i][j].setFill(getFillColor(holdBrickData[i][j]));
+                    }
+                }
+            }
+        }
     }
     
     /**

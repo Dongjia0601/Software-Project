@@ -108,6 +108,21 @@ public class GameServiceImpl implements GameService {
         return false;
     }
     
+    @Override
+    public ViewData processHoldEvent(MoveEvent event) {
+        boolean success = board.holdBrick();
+        return success ? board.getViewData() : null;
+    }
+    
+    @Override
+    public int[][] getNextBrick() {
+        // Get next brick from the board's brick generator
+        if (board instanceof SimpleBoard) {
+            return ((SimpleBoard) board).getNextBrick();
+        }
+        return null;
+    }
+    
     /**
      * Gets the current drop speed.
      * 

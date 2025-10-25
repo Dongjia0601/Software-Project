@@ -167,8 +167,9 @@ public class GameController implements InputEventListener {
      * @return ViewData containing the updated brick position and hold state from the state.
      */
     public ViewData onHoldEvent(MoveEvent event) {
-        // Delegate to current state
-        return currentState.onRotateEvent(event);
+        // Delegate to board
+        boolean success = board.holdBrick();
+        return success ? board.getViewData() : null;
     }
 
     @Override

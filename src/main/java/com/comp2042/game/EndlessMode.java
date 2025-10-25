@@ -113,9 +113,11 @@ public class EndlessMode implements GameMode {
         int speedLevel = Math.min(10, level);
         guiController.updateSpeed(speedLevel);
         
-        // Update next piece display (placeholder for now)
-        // In a full implementation, you would get the next piece from the game service
-        // guiController.updateNextDisplay(nextPieceData);
+        // Update next piece display
+        int[][] nextPieceData = gameService.getNextBrick();
+        if (nextPieceData != null) {
+            guiController.updateNextDisplay(nextPieceData);
+        }
     }
     
 

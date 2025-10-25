@@ -26,8 +26,6 @@ import java.io.IOException;
  * </ul>
  * 
  * @author Dong, Jia.
- * @version 2.0
- * @since 2.0
  */
 public class SettingsController {
     
@@ -211,11 +209,9 @@ public class SettingsController {
     
     /**
      * Sets the GUI controller reference for game state management.
-     * CRITICAL for Phase 3 - enables automatic game resume after settings.
      * 
      * @param guiController the GUI controller managing the game
      * @param wasAlreadyPaused whether the game was paused before opening settings
-     * @since 3.0
      */
     public void setGameController(com.comp2042.GuiController guiController, boolean wasAlreadyPaused) {
         this.guiController = guiController;
@@ -262,7 +258,6 @@ public class SettingsController {
     /**
      * Returns to the game.
      * Restores the saved game scene and resumes gameplay automatically.
-     * FIXED in Phase 3 - now properly resumes game if it wasn't paused before.
      */
     @FXML
     public void backToGame() {

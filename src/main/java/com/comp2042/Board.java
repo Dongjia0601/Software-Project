@@ -1,5 +1,7 @@
 package com.comp2042;
 
+import com.comp2042.logic.bricks.Brick;
+
 /**
  * Interface defining the core game logic operations for the Tetris board.
  * Implementations handle the state of the board grid, the active brick,
@@ -89,4 +91,20 @@ public interface Board {
      * Clears the board matrix, resets the score, and creates the first new brick.
      */
     void newGame();
+    
+    /**
+     * Holds the current brick for later use.
+     * If no brick is currently held, stores the current brick and creates a new one.
+     * If a brick is already held, swaps the current brick with the held brick.
+     * 
+     * @return true if the hold operation was successful, false otherwise
+     */
+    boolean holdBrick();
+    
+    /**
+     * Gets the currently held brick.
+     * 
+     * @return the held brick, or null if no brick is held
+     */
+    Brick getHeldBrick();
 }

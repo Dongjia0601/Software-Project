@@ -21,6 +21,10 @@ public class SimpleBoard implements Board {
     private int[][] currentGameMatrix;           // The current state of the board grid
     private Point currentOffset;                 // The current position (x, y) of the falling brick
     private final Score score;                   // The score tracker
+    
+    // Hold functionality fields
+    private Brick heldBrick = null;
+    private boolean canHold = true; // Prevents multiple holds per brick
 
     /**
      * Constructs a SimpleBoard with the specified dimensions.
@@ -170,7 +174,26 @@ public class SimpleBoard implements Board {
      * @return A ViewData object containing the necessary information for the GUI.
      */
     public ViewData getViewData() {
-        return new ViewData(brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY(), brickGenerator.getNextBrick().getShapeMatrix().get(0));
+        int[][] nextBrickShape = null;
+        int[][] holdBrickShape = null;
+        
+        // Safely get next brick shape
+        try {
+            Brick nextBrick = brickGenerator.getNextBrick();
+            if (nextBrick != null && nextBrick.getShapeMatrix() != null && !nextBrick.getShapeMatrix().isEmpty()) {
+                nextBrickShape = nextBrick.getShapeMatrix().get(0);
+            }
+        } catch (Exception e) {
+            // Handle any potential errors gracefully
+            nextBrickShape = new int[4][4]; // Default empty shape
+        }
+        
+        // Get hold brick shape if available
+        if (heldBrick != null && heldBrick.getShapeMatrix() != null && !heldBrick.getShapeMatrix().isEmpty()) {
+            holdBrickShape = heldBrick.getShapeMatrix().get(0);
+        }
+        
+        return new ViewData(brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY(), nextBrickShape, holdBrickShape);
     }
 
     @Override
@@ -180,6 +203,7 @@ public class SimpleBoard implements Board {
      */
     public void mergeBrickToBackground() {
         currentGameMatrix = MatrixOperations.merge(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
+        enableHold(); // Re-enable hold for next brick
     }
 
     @Override
@@ -214,6 +238,68 @@ public class SimpleBoard implements Board {
     }
 
 
+    /**
+     * Swaps the current brick with the held brick.
+     * 
+     * @return true if hold operation was successful
+     */
+    public boolean holdBrick() {
+        if (!canHold) {
+            return false; // Can only hold once per brick
+        }
+        
+        Brick currentBrick = brickRotator.getBrick();
+        
+        if (heldBrick == null) {
+            // First time holding - store current and generate new
+            heldBrick = currentBrick;
+            createNewBrick();
+        } else {
+            // Swap with held brick
+            Brick temp = heldBrick;
+            heldBrick = currentBrick;
+            brickRotator.setBrick(temp);
+            currentOffset = new Point(3, 0); // Reset position to spawn point
+        }
+        
+        canHold = false; // Disable hold until next brick
+        return true;
+    }
+    
+    /**
+     * Gets the currently held brick.
+     * 
+     * @return the held brick, or null if no brick is held
+     */
+    public Brick getHeldBrick() {
+        return heldBrick;
+    }
+    
+    /**
+     * Gets the next brick shape data.
+     * 
+     * @return the next brick shape matrix
+     */
+    public int[][] getNextBrick() {
+        try {
+            Brick nextBrick = brickGenerator.getNextBrick();
+            if (nextBrick != null && nextBrick.getShapeMatrix() != null && !nextBrick.getShapeMatrix().isEmpty()) {
+                return nextBrick.getShapeMatrix().get(0);
+            }
+        } catch (Exception e) {
+            // Handle any potential errors gracefully
+        }
+        return null;
+    }
+    
+    /**
+     * Re-enables hold functionality when a new brick is created.
+     * Called internally when brick is merged to background.
+     */
+    private void enableHold() {
+        canHold = true;
+    }
+
     @Override
     /**
      * Resets the board state for a new game.
@@ -222,6 +308,8 @@ public class SimpleBoard implements Board {
     public void newGame() {
         currentGameMatrix = new int[height][width]; // Clear the board
         score.reset(); // Reset the score
+        heldBrick = null; // Clear held brick
+        canHold = true;   // Re-enable hold
         createNewBrick(); // Start the game by creating the first brick
     }
 }
