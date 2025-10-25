@@ -16,14 +16,22 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.stage.Stage;
+import javafx.stage.Modality;
+import javafx.geometry.Pos;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.control.Label;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import com.comp2042.config.GameSettings;
@@ -920,12 +928,83 @@ public class GuiController implements Initializable {
     }
     
     /**
-     * Shows help dialog.
+     * Shows help dialog with game mode descriptions.
      */
     @FXML
     public void showHelp() {
         System.out.println("Help dialog requested");
-        // TODO: Implement help dialog
+        
+        try {
+            // Create help dialog
+            Stage helpStage = new Stage();
+            helpStage.setTitle("Gameplay Guide");
+            helpStage.initModality(Modality.APPLICATION_MODAL);
+            helpStage.setResizable(false);
+            
+            // Create main container
+            VBox mainContainer = new VBox(20);
+            mainContainer.setPadding(new Insets(30));
+            mainContainer.setStyle("-fx-background-color: linear-gradient(to bottom, #1A0033, #2D1B69);");
+            
+            // Title
+            Label titleLabel = new Label("Gameplay Guide");
+            titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #4DFFFF; -fx-alignment: center;");
+            titleLabel.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(titleLabel, Priority.ALWAYS);
+            
+            // Game modes table
+            VBox modesContainer = new VBox(15);
+            modesContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+            
+            // Mode descriptions
+            String[][] modeData = {
+                {"Endless Mode", "Play endlessly and aim for the highest score."},
+                {"Level Mode", "Clear levels with increasing difficulty and unlock new themes."},
+                {"AI Mode", "Play against an intelligent AI opponent and test your skills."},
+                {"Two-Player Mode", "Challenge a friend in local two-player battle."}
+            };
+            
+            for (String[] mode : modeData) {
+                HBox modeRow = new HBox(20);
+                modeRow.setAlignment(Pos.CENTER_LEFT);
+                
+                // Mode name
+                Label modeLabel = new Label(mode[0]);
+                modeLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-min-width: 150;");
+                
+                // Mode description
+                Label descLabel = new Label(mode[1]);
+                descLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+                descLabel.setMaxWidth(500);
+                descLabel.setWrapText(true);
+                descLabel.setPrefWidth(500);
+                
+                modeRow.getChildren().addAll(modeLabel, descLabel);
+                modesContainer.getChildren().add(modeRow);
+            }
+            
+            // Close button
+            Button closeButton = new Button("Close");
+            closeButton.setStyle("-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;");
+            closeButton.setOnAction(e -> helpStage.close());
+            
+            // Create HBox for right-aligned close button
+            HBox buttonContainer = new HBox();
+            buttonContainer.setAlignment(Pos.CENTER_RIGHT);
+            buttonContainer.getChildren().add(closeButton);
+            
+            // Add all components
+            mainContainer.getChildren().addAll(titleLabel, modesContainer, buttonContainer);
+            
+            // Create scene and show
+            Scene helpScene = new Scene(mainContainer, 700, 450);
+            helpStage.setScene(helpScene);
+            helpStage.show();
+            
+        } catch (Exception e) {
+            System.err.println("Error showing help dialog: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     /**

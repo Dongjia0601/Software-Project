@@ -112,18 +112,36 @@
     <!-- Settings Button - Top Right Corner -->
     <Button fx:id="settingsBtn" 
             text="Settings" 
-            layoutX="780.0" 
+            layoutX="680.0" 
             layoutY="20.0"
             styleClass="settings-button"
             onAction="#openSettings"
             prefWidth="100.0"
-            prefHeight="35.0"
-            style="-fx-background-color: linear-gradient(to bottom,rgb(30, 59, 138), #1e40af); -fx-text-fill: white; -fx-border-color: #3b82f6; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 8 16;">
+            prefHeight="40.0"
+            style="-fx-background-color: linear-gradient(to bottom,rgba(194, 109, 194, 0.94),rgba(137, 43, 226, 0.69)); -fx-text-fill: #1A0033; -fx-border-color: #FF6BFF; -fx-border-width: 2; -fx-background-radius: 12; -fx-border-radius: 12; -fx-padding: 10 18; -fx-cursor: hand;">
         <font>
-            <Font name="Segoe UI" size="14.0"/>
+            <Font name="Segoe UI" size="14.0" style="bold"/>
         </font>
         <effect>
-            <DropShadow color="#3b82f6" radius="6" spread="0.3"/>
+            <DropShadow color="#FF6BFF" radius="8" spread="0.4"/>
+        </effect>
+    </Button>
+    
+    <!-- Help Button - Top Right Corner -->
+    <Button fx:id="helpBtn" 
+            text="Help" 
+            layoutX="790.0"
+            layoutY="20.0"
+            styleClass="help-button"
+            onAction="#showHelp"
+            prefWidth="100.0"
+            prefHeight="40.0"
+            style="-fx-background-color: linear-gradient(to bottom,rgba(99, 215, 215, 0.73),rgba(23, 127, 161, 0.83)); -fx-text-fill: #1A0033; -fx-border-color: #4DFFFF; -fx-border-width: 2; -fx-background-radius: 12; -fx-border-radius: 12; -fx-padding: 10 16; -fx-cursor: hand;">
+        <font>
+            <Font name="Segoe UI" size="14.0" style="bold"/>
+        </font>
+        <effect>
+            <DropShadow color="#4DFFFF" radius="8" spread="0.4"/>
         </effect>
     </Button>
     

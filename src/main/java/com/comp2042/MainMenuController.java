@@ -45,6 +45,9 @@ public class MainMenuController {
     
     @FXML
     private Button settingsBtn;
+    
+    @FXML
+    private Button helpBtn;
 
     /**
      * Initializes the main menu controller after FXML loading.
@@ -243,6 +246,87 @@ public class MainMenuController {
             System.out.println("Settings page loaded successfully");
         } catch (IOException e) {
             System.err.println("Error loading settings page: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Handles the help button click.
+     * Shows the help dialog with game mode descriptions.
+     */
+    @FXML
+    private void showHelp() {
+        System.out.println("Help dialog requested from main menu");
+        
+        try {
+            // Create help dialog
+            javafx.stage.Stage helpStage = new javafx.stage.Stage();
+            helpStage.setTitle("Gameplay Guide");
+            helpStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            helpStage.setResizable(false);
+            
+            // Create main container
+            javafx.scene.layout.VBox mainContainer = new javafx.scene.layout.VBox(20);
+            mainContainer.setPadding(new javafx.geometry.Insets(30));
+            mainContainer.setStyle("-fx-background-color: linear-gradient(to bottom, #1A0033, #2D1B69);");
+            
+            // Title
+            javafx.scene.control.Label titleLabel = new javafx.scene.control.Label("Gameplay Guide");
+            titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #4DFFFF; -fx-alignment: center;");
+            titleLabel.setMaxWidth(Double.MAX_VALUE);
+            javafx.scene.layout.HBox.setHgrow(titleLabel, javafx.scene.layout.Priority.ALWAYS);
+            
+            // Game modes table
+            javafx.scene.layout.VBox modesContainer = new javafx.scene.layout.VBox(15);
+            modesContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+            
+            // Mode descriptions
+            String[][] modeData = {
+                {"Endless Mode", "Play endlessly and aim for the highest score."},
+                {"Level Mode", "Clear levels with increasing difficulty and unlock new themes."},
+                {"AI Mode", "Play against an intelligent AI opponent and test your skills."},
+                {"Two-Player Mode", "Challenge a friend in local two-player battle."}
+            };
+            
+            for (String[] mode : modeData) {
+                javafx.scene.layout.HBox modeRow = new javafx.scene.layout.HBox(20);
+                modeRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                
+                // Mode name
+                javafx.scene.control.Label modeLabel = new javafx.scene.control.Label(mode[0]);
+                modeLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-min-width: 150;");
+                
+                // Mode description
+                javafx.scene.control.Label descLabel = new javafx.scene.control.Label(mode[1]);
+                descLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+                descLabel.setMaxWidth(500);
+                descLabel.setWrapText(true);
+                descLabel.setPrefWidth(500);
+                
+                modeRow.getChildren().addAll(modeLabel, descLabel);
+                modesContainer.getChildren().add(modeRow);
+            }
+            
+            // Close button
+            javafx.scene.control.Button closeButton = new javafx.scene.control.Button("Close");
+            closeButton.setStyle("-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;");
+            closeButton.setOnAction(e -> helpStage.close());
+            
+            // Create HBox for right-aligned close button
+            javafx.scene.layout.HBox buttonContainer = new javafx.scene.layout.HBox();
+            buttonContainer.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+            buttonContainer.getChildren().add(closeButton);
+            
+            // Add all components
+            mainContainer.getChildren().addAll(titleLabel, modesContainer, buttonContainer);
+            
+            // Create scene and show
+            javafx.scene.Scene helpScene = new javafx.scene.Scene(mainContainer, 700, 450);
+            helpStage.setScene(helpScene);
+            helpStage.show();
+            
+        } catch (Exception e) {
+            System.err.println("Error showing help dialog: " + e.getMessage());
             e.printStackTrace();
         }
     }
