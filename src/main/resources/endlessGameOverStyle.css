@@ -1,0 +1,331 @@
+/* ========================================
+   ENDLESS GAME OVER STYLE SHEET
+   ======================================== */
+
+/* Root Container */
+.endless-gameover-root {
+    -fx-background-color: linear-gradient(to bottom, 
+        #0a0e27 0%, 
+        #1a1a3e 25%, 
+        #2d1b69 50%, 
+        #1a1a3e 75%, 
+        #0f0c29 100%);
+}
+
+/* Title Section */
+.title-section {
+    -fx-alignment: center;
+    -fx-spacing: 2px;
+}
+
+.main-title {
+    -fx-font-size: 48px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to right, #FF6BFF, #FFD700, #4DFFFF);
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 255, 0.8), 15, 0, 0, 0);
+    -fx-alignment: center;
+}
+
+.main-title.new-high-score {
+    -fx-text-fill: linear-gradient(to right, #FFD700, #FFA500, #FFD700);
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 1.0), 20, 0, 0, 0);
+    -fx-font-size: 56px;
+}
+
+.subtitle {
+    -fx-font-size: 16px;
+    -fx-font-weight: normal;
+    -fx-text-fill: #FFD700;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.6), 6, 0, 0, 0);
+    -fx-alignment: center;
+}
+
+.rank-display {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.7), 10, 0, 0, 0);
+    -fx-alignment: center;
+}
+
+/* Center Section */
+.center-section {
+    -fx-alignment: center;
+    -fx-spacing: 8px;
+}
+
+/* Scroll Pane */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(138, 43, 226, 0.3);
+    -fx-background-radius: 5px;
+}
+
+/* Score Card */
+.score-card {
+    -fx-background-color: rgba(138, 43, 226, 0.15);
+    -fx-background-radius: 20px;
+    -fx-border-color: linear-gradient(to right, #8A2BE2, #4DFFFF);
+    -fx-border-radius: 20px;
+    -fx-border-width: 3px;
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.6), 15, 0, 0, 0);
+    -fx-min-width: 350px;
+    -fx-max-width: 450px;
+    -fx-pref-width: 400px;
+    -fx-spacing: 5px;
+    -fx-margin: 3px 0px;
+}
+
+.card-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #B8B8FF;
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.6), 5, 0, 0, 0);
+    -fx-alignment: center;
+}
+
+.final-score {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to bottom, #FFD700, #FFA500);
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 10, 0, 0, 0);
+    -fx-alignment: center;
+}
+
+.stat-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #AAAAAA;
+    -fx-font-weight: normal;
+    -fx-alignment: center;
+}
+
+.stat-value {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFFFFF;
+    -fx-alignment: center;
+}
+
+/* Leaderboard Section */
+.leaderboard-section {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-background-radius: 15px;
+    -fx-border-color: rgba(138, 43, 226, 0.4);
+    -fx-border-radius: 15px;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 0);
+    -fx-min-width: 400px;
+    -fx-max-width: 500px;
+    -fx-pref-width: 450px;
+    -fx-spacing: 5px;
+    -fx-margin: 3px 0px;
+}
+
+.leaderboard-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to right, #8A2BE2, #4DFFFF);
+    -fx-effect: dropshadow(gaussian, rgba(77, 255, 255, 0.6), 6, 0, 0, 0);
+    -fx-alignment: center;
+}
+
+.leaderboard-container {
+    -fx-spacing: 3px;
+}
+
+/* Individual Leaderboard Entry */
+.leaderboard-entry {
+    -fx-background-color: rgba(138, 43, 226, 0.08);
+    -fx-background-radius: 8px;
+    -fx-border-color: rgba(138, 43, 226, 0.25);
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 8px 15px;
+    -fx-min-width: 350px;
+    -fx-max-width: 450px;
+    -fx-pref-width: 400px;
+}
+
+.leaderboard-entry.current-player {
+    -fx-background-color: rgba(255, 215, 0, 0.12);
+    -fx-border-color: rgba(255, 215, 0, 0.5);
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.5), 8, 0, 0, 0);
+}
+
+.rank-badge {
+    -fx-font-size: 24px;
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.5), 5, 0, 0, 0);
+    -fx-min-width: 40px;
+    -fx-alignment: center;
+}
+
+.rank-number {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-min-width: 50px;
+    -fx-alignment: center;
+}
+
+.entry-score {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFFFFF;
+    -fx-min-width: 120px;
+}
+
+.entry-lines {
+    -fx-font-size: 14px;
+    -fx-text-fill: #AAAAAA;
+    -fx-min-width: 80px;
+}
+
+.highlight-indicator {
+    -fx-font-size: 20px;
+    -fx-min-width: 30px;
+    -fx-alignment: center;
+}
+
+.empty-entry {
+    -fx-font-size: 14px;
+    -fx-text-fill: #666666;
+    -fx-font-style: italic;
+    -fx-min-width: 200px;
+}
+
+/* Button Section */
+.button-section {
+    -fx-alignment: center;
+    -fx-spacing: 3px;
+}
+
+.action-button {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-padding: 12px 25px;
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0, 0, 3);
+    -fx-min-width: 180px;
+    -fx-cursor: hand;
+}
+
+/* Try Again Button - Vibrant Green with Gaming Feel */
+.button.try-again-btn {
+    -fx-background-color: #00FF88 !important;
+    -fx-border-color: #00FFAA !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 136, 0.8), 15, 0, 0, 0) !important;
+    -fx-font-family: "Arial Black", Arial, sans-serif !important;
+}
+
+.button.try-again-btn:hover {
+    -fx-background-color: #00FFAA !important;
+    -fx-border-color: #00FFCC !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 170, 1.0), 25, 0, 0, 0) !important;
+    -fx-text-fill: #FFFFFF !important;
+}
+
+.button.try-again-btn:pressed {
+    -fx-background-color: #00CC66 !important;
+    -fx-border-color: #00DD77 !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 204, 102, 0.6), 8, 0, 0, 2) !important;
+}
+
+/* Back to Menu Button - Elegant Purple with Premium Feel */
+.button.menu-btn {
+    -fx-background-color: #8A2BE2 !important;
+    -fx-border-color: #9D4EDD !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.8), 15, 0, 0, 0) !important;
+    -fx-font-family: "Arial Black", Arial, sans-serif !important;
+}
+
+.button.menu-btn:hover {
+    -fx-background-color: #9D4EDD !important;
+    -fx-border-color: #B565F0 !important;
+    -fx-effect: dropshadow(gaussian, rgba(157, 78, 221, 1.0), 25, 0, 0, 0) !important;
+    -fx-text-fill: #FFFFFF !important;
+}
+
+.button.menu-btn:pressed {
+    -fx-background-color: #7B2CBF !important;
+    -fx-border-color: #8A2BE2 !important;
+    -fx-effect: dropshadow(gaussian, rgba(123, 44, 191, 0.6), 8, 0, 0, 2) !important;
+}
+
+.hint-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #AAAAAA;
+    -fx-font-style: italic;
+    -fx-alignment: center;
+}
+
+/* Focus effects for keyboard navigation */
+.action-button:focused {
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.8), 20, 0, 0, 0);
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 4px;
+}
+
+/* Animation Keyframes */
+@keyframes celebrate-pulse {
+    0% { 
+        -fx-scale-x: 1.0;
+        -fx-scale-y: 1.0;
+        -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.5), 10, 0, 0, 0);
+    }
+    50% { 
+        -fx-scale-x: 1.2;
+        -fx-scale-y: 1.2;
+        -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 1.0), 25, 0, 0, 0);
+    }
+    100% { 
+        -fx-scale-x: 1.0;
+        -fx-scale-y: 1.0;
+        -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.5), 10, 0, 0, 0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 800px) {
+    .main-title {
+        -fx-font-size: 48px;
+    }
+    
+    .final-score {
+        -fx-font-size: 42px;
+    }
+    
+    .score-card {
+        -fx-min-width: 300px;
+        -fx-max-width: 400px;
+    }
+    
+    .leaderboard-section {
+        -fx-min-width: 350px;
+        -fx-max-width: 450px;
+    }
+    
+    .leaderboard-entry {
+        -fx-min-width: 300px;
+        -fx-max-width: 400px;
+    }
+}

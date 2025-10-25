@@ -53,6 +53,8 @@ public class PlayingState implements GameState {
             if (dropDistance > 0) {
                 // Add score for hard drop (2 points per row dropped)
                 board.getScore().add(dropDistance * 2);
+                // Update score display immediately for hard drop
+                guiController.updateScore(board.getScore().getScore(), 0);
             }
             canMove = false; // Hard drop always lands the brick
         } else {
@@ -64,19 +66,32 @@ public class PlayingState implements GameState {
             board.mergeBrickToBackground();
             clearRow = board.clearRows();
             if (clearRow.getLinesRemoved() > 0) {
-                board.getScore().add(clearRow.getScoreBonus());
+              
                 // Update lines display in GUI
                 guiController.updateLines(board.getTotalLinesCleared());
+                // Update score display in GUI
+                guiController.updateScore(board.getScore().getScore(), 0); // High score not available in PlayingState
             }
             if (board.createNewBrick()) { // Check for game over after landing/creating new brick
-                guiController.gameOver(); // Notify GUI
-                gameController.transitionToState(new GameOverState(board, guiController)); // Transition state
+                System.out.println("Game Over detected! isEndlessMode: " + guiController.isEndlessMode());
+                // Check if we're in Endless Mode and show appropriate game over screen
+                if (guiController.isEndlessMode()) {
+                    System.out.println("Showing Endless Game Over UI...");
+                    guiController.showEndlessGameOverScene(board);
+                } else {
+                    System.out.println("Showing regular Game Over UI...");
+                    guiController.gameOver(); // Notify GUI
+                    gameController.transitionToState(new GameOverState(board, guiController)); // Transition state
+                }
                 return new DownData(clearRow, board.getViewData()); // Return data before transition
             }
             guiController.refreshGameBackground(board.getBoardMatrix());
         } else { // Move successful
-            if (event.getEventSource() == EventSource.USER) {
+            // Only add score for soft drop (down movement), not for left/right movement
+            if (event.getEventSource() == EventSource.USER && event.getEventType() == EventType.DOWN) {
                 board.getScore().add(1);
+                // Update score display immediately for soft drop
+                guiController.updateScore(board.getScore().getScore(), 0);
             }
         }
         return new DownData(clearRow, board.getViewData());
@@ -145,6 +160,7 @@ public class PlayingState implements GameState {
         board.newGame();
         guiController.refreshGameBackground(board.getBoardMatrix());
         guiController.updateLines(0);
+        guiController.updateScore(0, 0);
         return new PlayingState(board, guiController, gameController); // Return new PlayingState instance
     }
 }

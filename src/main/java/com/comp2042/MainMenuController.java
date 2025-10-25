@@ -100,6 +100,9 @@ public class MainMenuController {
             var gameMode = GameModeFactory.createGameMode(GameModeType.ENDLESS, gameService, guiController);
             gameMode.initialize();
             
+            // Set Endless Mode flag in GUI controller
+            guiController.setEndlessMode(true);
+            
             // Transition to game scene
             loadGameScene(guiController);
             
@@ -198,6 +201,9 @@ public class MainMenuController {
         GuiController gameController = loader.getController();
         if (gameController == null) {
             gameController = guiController;
+        } else {
+            // Copy settings from the original controller to the new one
+            gameController.setEndlessMode(guiController.isEndlessMode());
         }
         
         // Create new scene with enhanced layout size

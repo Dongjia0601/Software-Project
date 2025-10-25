@@ -4,6 +4,7 @@ import com.comp2042.gameplay.GameMode;
 import com.comp2042.gameplay.GameModeType;
 import com.comp2042.*;
 import com.comp2042.core.GameService;
+import javafx.application.Platform;
 
 /**
  * Implementation of GameMode for endless gameplay.
@@ -24,12 +25,15 @@ public class EndlessMode implements GameMode {
     
     private final GameService gameService;
     private final GuiController guiController;
+    private final EndlessModeLeaderboard leaderboard;
     
     private long gameStartTime;
     private int highScore;
     private boolean gameOver;
     private boolean paused;
     private GameResult gameResult;
+    private int currentRank;
+    private boolean isNewHighScore;
     
     /**
      * Constructs a new EndlessMode.
@@ -40,11 +44,14 @@ public class EndlessMode implements GameMode {
     public EndlessMode(GameService gameService, GuiController guiController) {
         this.gameService = gameService;
         this.guiController = guiController;
+        this.leaderboard = EndlessModeLeaderboard.getInstance();
         this.gameStartTime = 0;
-        this.highScore = 0;
+        this.highScore = leaderboard.getHighScore(); // Load from leaderboard
         this.gameOver = false;
         this.paused = false;
         this.gameResult = null;
+        this.currentRank = 0;
+        this.isNewHighScore = false;
     }
     
     @Override
@@ -54,6 +61,11 @@ public class EndlessMode implements GameMode {
         this.gameOver = false;
         this.paused = false;
         this.gameResult = null;
+        this.currentRank = 0;
+        this.isNewHighScore = false;
+        
+        // Load current high score from leaderboard
+        this.highScore = leaderboard.getHighScore();
         
         // Start a new game
         gameService.startNewGame();
@@ -75,7 +87,7 @@ public class EndlessMode implements GameMode {
             // guiController.showEndlessModeUI();
         }
         
-        System.out.println("EndlessMode initialized - game started");
+        System.out.println("EndlessMode initialized - High Score: " + highScore);
     }
 
     @Override
@@ -240,12 +252,16 @@ public class EndlessMode implements GameMode {
         this.gameOver = true;
         long playTime = System.currentTimeMillis() - gameStartTime;
         int finalScore = gameService.getScore().getScore();
-        boolean isNewHighScore = finalScore > highScore;
+        int linesCleared = getLinesCleared();
         
-        // Update high score if new record
-        if (isNewHighScore) {
-            this.highScore = finalScore;
-        }
+        // Check if this is a new high score BEFORE adding to leaderboard
+        this.isNewHighScore = leaderboard.isNewHighScore(finalScore);
+        
+        // Add entry to leaderboard and get rank (0 if not in top 5)
+        this.currentRank = leaderboard.addEntry(finalScore, linesCleared, playTime);
+        
+        // Update high score from leaderboard
+        this.highScore = leaderboard.getHighScore();
         
         // Create game result
         this.gameResult = new GameResult(
@@ -254,14 +270,19 @@ public class EndlessMode implements GameMode {
             isNewHighScore,
             GameModeType.ENDLESS,
             playTime,
-            getLinesCleared(),
+            linesCleared,
             0, // No level reached in endless mode
             false // Endless mode doesn't have "completion" - only game over
         );
         
         System.out.println("EndlessMode: Game ended - Score: " + finalScore + 
                           ", High Score: " + highScore + 
+                          ", Rank: " + (currentRank > 0 ? "#" + currentRank : "Not in Top 5") +
                           ", Time: " + (playTime / 1000) + "s");
+        
+        // Note: Game over is now handled by PlayingState, not by EndlessMode
+        // This method is kept for compatibility but should not be called in the current architecture
+        System.out.println("EndlessMode.endGame() called - this should not happen in current architecture");
     }
     
     /**

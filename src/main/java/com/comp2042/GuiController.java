@@ -77,6 +77,10 @@ public class GuiController implements Initializable {
     @FXML
     private GameOverPanel gameOverPanel; // Panel displayed when the game ends
     
+    
+    // Track current game mode
+    private boolean isEndlessMode = false;
+    
     // EndlessMode UI components
     @FXML
     private Label scoreLabel;
@@ -164,7 +168,7 @@ public class GuiController implements Initializable {
 
         // Initialize game over panel visibility
         gameOverPanel.setVisible(false);
-
+        
         // Apply visual effects - using DropShadow instead of deprecated Reflection
         final DropShadow dropShadow = new DropShadow();
         dropShadow.setRadius(8.0);
@@ -777,12 +781,12 @@ public class GuiController implements Initializable {
         }
         if (keyEvent.getCode() == KeyCode.S) {
             // Soft drop
-            moveDown(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_1));
+            moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.SPACE) {
             // Hard drop
-            moveDown(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_1));
+            moveDown(new MoveEvent(EventType.HARD_DROP, EventSource.USER));
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.SHIFT) {
@@ -1037,6 +1041,174 @@ public class GuiController implements Initializable {
             stage.setTitle("Tetris - Main Menu");
         } catch (Exception e) {
             System.err.println("Error loading main menu: " + e.getMessage());
+        }
+    }
+    
+    
+    /**
+     * Shows the Endless Mode Game Over screen.
+     * Displays final score, leaderboard, and options to retry or return to menu.
+     * 
+     * @param finalScore the final score achieved
+     * @param linesCleared the number of lines cleared
+     * @param playTimeMs the play time in milliseconds
+     * @param isNewHighScore whether this is a new high score
+     * @param rank the player's rank (1-5), or 0 if not in top 5
+     */
+    
+    /**
+     * Checks if the current game is in Endless Mode.
+     * 
+     * @return true if in Endless Mode, false otherwise
+     */
+    public boolean isEndlessMode() {
+        return isEndlessMode;
+    }
+    
+    /**
+     * Sets the current game mode.
+     * 
+     * @param endlessMode true for Endless Mode, false for other modes
+     */
+    public void setEndlessMode(boolean endlessMode) {
+        this.isEndlessMode = endlessMode;
+    }
+    
+    
+    /**
+     * This method loads the endless game over FXML and switches to it.
+     * 
+     * @param board the game board containing final game data
+     */
+    public void showEndlessGameOverScene(Board board) {
+        System.out.println("showEndlessGameOverScene called, isEndlessMode: " + isEndlessMode);
+        if (!isEndlessMode) {
+            System.out.println("Not in endless mode, returning...");
+            return; 
+        }
+        
+        try {
+            // Get final game data from board
+            int finalScore = board.getScore().getScore();
+            int linesCleared = board.getTotalLinesCleared();
+            System.out.println("Final score: " + finalScore + ", Lines cleared: " + linesCleared);
+            
+            // Calculate play time (simplified - we don't have start time here)
+            long playTimeMs = 60000; // 1 minute placeholder
+            
+            // Get leaderboard instance and check for high score
+            com.comp2042.game.EndlessModeLeaderboard leaderboard = 
+                com.comp2042.game.EndlessModeLeaderboard.getInstance();
+            boolean isNewHighScore = leaderboard.isNewHighScore(finalScore);
+            
+            // Add entry to leaderboard and get rank
+            int rank = leaderboard.addEntry(finalScore, linesCleared, playTimeMs);
+            
+            // Load the endless game over FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("endlessGameOver.fxml"));
+            Parent root = loader.load();
+            
+            // Get the controller and set up callbacks
+            EndlessGameOverController controller = loader.getController();
+            controller.setOnTryAgain(() -> {
+                // Start a new Endless Mode game (same as clicking Endless Mode button)
+                try {
+                    com.comp2042.core.GameService gameService = new com.comp2042.core.GameServiceImpl();
+                    GuiController newGuiController = new GuiController();
+                    var gameMode = com.comp2042.gameplay.GameModeFactory.createGameMode(com.comp2042.gameplay.GameModeType.ENDLESS, gameService, newGuiController);
+                    gameMode.initialize();
+                    newGuiController.setEndlessMode(true);
+                    
+                    // Load the new game scene
+                    FXMLLoader gameLoader = new FXMLLoader(getClass().getClassLoader().getResource("enhancedGameLayout.fxml"));
+                    Parent gameRoot = gameLoader.load();
+                    GuiController gameController = gameLoader.getController();
+                    if (gameController == null) {
+                        gameController = newGuiController;
+                    } else {
+                        gameController.setEndlessMode(true);
+                    }
+                    
+                    Scene gameScene = new Scene(gameRoot, 900, 800);
+                    // Get stage from the current game over scene
+                    Stage currentStage = (Stage) root.getScene().getWindow();
+                    if (currentStage != null) {
+                        currentStage.setScene(gameScene);
+                        currentStage.setTitle("Tetris - Game");
+                    } else {
+                        System.err.println("Current stage is null, cannot switch to game scene");
+                    }
+                    
+                    new GameController(gameController);
+                    System.out.println("New Endless Mode game started");
+                } catch (Exception e) {
+                    System.err.println("Error starting new Endless Mode: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+            controller.setOnBackToMenu(() -> {
+                // Return to main menu
+                try {
+                    FXMLLoader menuLoader = new FXMLLoader(getClass().getClassLoader().getResource("mainMenu.fxml"));
+                    Parent menuRoot = menuLoader.load();
+                    Scene menuScene = new Scene(menuRoot, 900, 800);
+                    // Get stage from the current game over scene
+                    Stage currentStage = (Stage) root.getScene().getWindow();
+                    if (currentStage != null) {
+                        currentStage.setScene(menuScene);
+                        currentStage.setTitle("Tetris - Main Menu");
+                    } else {
+                        System.err.println("Current stage is null, cannot switch to menu scene");
+                    }
+                    System.out.println("Returned to main menu");
+                } catch (Exception e) {
+                    System.err.println("Error loading main menu: " + e.getMessage());
+                }
+            });
+            
+            // Show the game over data
+            controller.showGameOver(finalScore, linesCleared, playTimeMs, isNewHighScore, rank);
+            
+            // Create new scene
+            Scene gameOverScene = new Scene(root, 900, 800);
+            
+            // Load CSS stylesheet
+            try {
+                String cssPath = getClass().getClassLoader().getResource("endlessGameOverStyle.css").toExternalForm();
+                if (cssPath != null) {
+                    gameOverScene.getStylesheets().add(cssPath);
+                    System.out.println("CSS loaded: " + cssPath);
+                }
+            } catch (Exception e) {
+                System.err.println("Error loading CSS: " + e.getMessage());
+            }
+            
+            // Set up keyboard handling
+            gameOverScene.setOnKeyPressed(event -> controller.handleKeyPress(event));
+            
+            // Get current stage and switch scene
+            Stage stage = (Stage) gamePanel.getScene().getWindow();
+            if (stage != null) {
+                stage.setScene(gameOverScene);
+                stage.setTitle("Tetris - Game Over");
+            } else {
+                System.err.println("Stage is null, cannot switch to game over scene");
+            }
+            
+            // Stop the game timeline
+            if (timeLine != null) {
+                timeLine.stop();
+            }
+            isGameOver.setValue(true);
+            isPause.setValue(false);
+            
+            System.out.println("Endless Game Over scene loaded successfully");
+            
+        } catch (Exception e) {
+            System.err.println("Error loading Endless Game Over scene: " + e.getMessage());
+            e.printStackTrace();
+            // Fallback to regular game over
+            gameOver();
         }
     }
 }
