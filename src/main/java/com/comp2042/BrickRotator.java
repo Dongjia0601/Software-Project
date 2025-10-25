@@ -25,6 +25,18 @@ public class BrickRotator {
     }
 
     /**
+     * Calculates the potential previous shape and its index if the current brick were to rotate counter-clockwise.
+     * This method does not modify the internal 'currentShape' index of this BrickRotator instance.
+     *
+     * @return A NextShapeInfo object containing the potential previous shape matrix and its index.
+     */
+    public NextShapeInfo calculatePreviousShapeInfo() {
+        int prevShape = currentShape;
+        prevShape = (--prevShape + brick.getShapeMatrix().size()) % brick.getShapeMatrix().size(); // Decrement and wrap around
+        return new NextShapeInfo(brick.getShapeMatrix().get(prevShape), prevShape);
+    }
+
+    /**
      * Gets the matrix representing the current rotation state of the managed brick.
      *
      * @return The current shape matrix.

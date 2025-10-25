@@ -58,6 +58,9 @@ public class LevelGameModeImpl implements GameMode { // Implement the GameMode i
         // Inform the GuiController about the level mode start
         // The GuiController can then update its UI accordingly (timer, progress, best stats)
         if (guiController != null) {
+            // Set single-player mode for keyboard bindings
+            guiController.setGameMode(false); // Single-player mode
+            
             guiController.showLevelModeUI(); // Show level-specific UI elements
             guiController.updateTime(currentLevelMode.getTimeLimitSeconds()); // Set initial timer
             guiController.updateProgress(linesClearedInLevel, currentLevelMode.getTargetLines()); // Set initial progress

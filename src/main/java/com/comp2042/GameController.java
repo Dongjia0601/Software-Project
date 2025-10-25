@@ -127,7 +127,7 @@ public class GameController implements InputEventListener {
      */
     public ViewData onRotateCCWEvent(MoveEvent event) {
         // Delegate to current state
-        return currentState.onRotateEvent(event);
+        return currentState.onRotateCCWEvent(event);
     }
 
     @Override

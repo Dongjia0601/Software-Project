@@ -79,29 +79,29 @@
             </effect>
         </Button>
         
-        <Button fx:id="twoPlayerVSBtn" 
-                text="Two Player VS" 
+        <Button fx:id="aiModeBtn" 
+                text="AI Mode" 
                 styleClass="mode-button"
-                onAction="#startTwoPlayerVS"
-                style="-fx-background-color: #6BFF6B; -fx-text-fill: #1A0033; -fx-border-color: #FF8C00; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 20;">
-            <font>
-                <Font name="Segoe UI" size="18.0"/>
-            </font>
-            <effect>
-                <DropShadow color="#FF8C00" radius="8" spread="0.2"/>
-            </effect>
-        </Button>
-        
-        <Button fx:id="twoPlayerAIBtn" 
-                text="Two Player AI" 
-                styleClass="mode-button"
-                onAction="#startTwoPlayerAI"
+                onAction="#startAIMode"
                 style="-fx-background-color: #FF6B9D; -fx-text-fill: #1A0033; -fx-border-color: #8A2BE2; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 20;">
             <font>
                 <Font name="Segoe UI" size="18.0"/>
             </font>
             <effect>
                 <DropShadow color="#8A2BE2" radius="8" spread="0.2"/>
+            </effect>
+        </Button>
+        
+        <Button fx:id="twoPlayerModeBtn" 
+                text="Two-Player Mode" 
+                styleClass="mode-button"
+                onAction="#startTwoPlayerMode"
+                style="-fx-background-color: #6BFF6B; -fx-text-fill: #1A0033; -fx-border-color: #FF8C00; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 20;">
+            <font>
+                <Font name="Segoe UI" size="18.0"/>
+            </font>
+            <effect>
+                <DropShadow color="#FF8C00" radius="8" spread="0.2"/>
             </effect>
         </Button>
         
@@ -118,7 +118,7 @@
             onAction="#openSettings"
             prefWidth="100.0"
             prefHeight="35.0"
-            style="-fx-background-color: linear-gradient(to bottom, #1e3a8a, #1e40af); -fx-text-fill: white; -fx-border-color: #3b82f6; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 8 16;">
+            style="-fx-background-color: linear-gradient(to bottom,rgb(30, 59, 138), #1e40af); -fx-text-fill: white; -fx-border-color: #3b82f6; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 8 16;">
         <font>
             <Font name="Segoe UI" size="14.0"/>
         </font>

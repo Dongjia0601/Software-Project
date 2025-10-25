@@ -81,6 +81,17 @@ public class GameOverState implements GameState {
 
     @Override
     /**
+     * Handles the ROTATE_CCW event. Does nothing during game over.
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the current brick position and shape.
+     */
+    public ViewData onRotateCCWEvent(MoveEvent event) {
+        // Do nothing during game over
+        return board.getViewData();
+    }
+
+    @Override
+    /**
      * Handles a request to pause the game. Pausing during game over doesn't make sense.
      * @return This GameOverState instance.
      */

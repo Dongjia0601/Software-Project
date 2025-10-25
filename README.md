@@ -8,9 +8,22 @@
 
 ## Introduction
 
-Welcome to my Developing Maintenance Software coursework project. I am Dong, Jia (Student ID: 20705878), and this project focuses on maintaining and extending a re-implementation of the classic retro game (Tetris). For the best experience, it is recommended to view this README.md file on the [GitHub website](https://github.com/Dongjia0601/CW2025). Navigation links have been embedded throughout the document to facilitate easy access to different sections.
+Welcome to my Developing Maintenance Software coursework project. I am Dong, Jia (Student ID: 20705878), and this project focuses on maintaining and extending a re-implementation of the classic retro game (Tetris). This implementation features four distinct game modes: Endless Mode, Level Mode, AI Mode, and Two-Player Mode, providing a comprehensive Tetris gaming experience. For the best experience, it is recommended to view this README.md file on the [GitHub website](https://github.com/Dongjia0601/CW2025). Navigation links have been embedded throughout the document to facilitate easy access to different sections.
+
+### Game Modes
+
+This Tetris implementation includes four distinct game modes:
+
+1. **Endless Mode**: A classic Tetris experience where players aim for the highest score possible without time limits or level restrictions.
+
+2. **Level Mode**: A structured gameplay experience with themed levels, each featuring unique challenges, time limits, and objectives.
+
+3. **AI Mode**: A single-player mode where players can compete against an AI opponent, providing an engaging challenge for solo gameplay.
+
+4. **Two-Player Mode**: A competitive multiplayer mode where two players can play simultaneously, competing for the highest score or last player standing.
 
 ## Project Structure 
+
 ## Compilation Instructions
 
 ### Prerequisites

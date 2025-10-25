@@ -92,6 +92,12 @@ public class GameServiceImpl implements GameService {
     }
     
     @Override
+    public ViewData processRotateCCWEvent(MoveEvent event) {
+        boolean success = board.rotateRightBrick();
+        return success ? board.getViewData() : null;
+    }
+    
+    @Override
     public void setDropSpeed(int speed) {
         this.dropSpeed = Math.max(50, Math.min(2000, speed)); // Clamp between 50ms and 2000ms
     }

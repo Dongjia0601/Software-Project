@@ -18,6 +18,14 @@ public interface Board {
     boolean moveBrickDown();
 
     /**
+     * Instantly drops the currently falling brick to the bottom of the board.
+     * This is the hard drop functionality that moves the brick as far down as possible.
+     *
+     * @return the number of positions the brick was moved down.
+     */
+    int hardDropBrick();
+
+    /**
      * Attempts to move the currently falling brick one position to the left.
      * Checks for collisions with the left wall or other placed bricks.
      *
@@ -40,6 +48,14 @@ public interface Board {
      * @return true if the rotation was successful, false if a collision occurred.
      */
     boolean rotateLeftBrick(); // Note: Method name suggests 'left' rotation logic
+
+    /**
+     * Attempts to rotate the currently falling brick counter-clockwise.
+     * Checks for collisions in the new orientation.
+     *
+     * @return true if the rotation was successful, false if a collision occurred.
+     */
+    boolean rotateRightBrick();
 
     /**
      * Creates a new brick for the board.

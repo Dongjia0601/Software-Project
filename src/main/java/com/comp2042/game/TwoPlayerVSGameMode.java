@@ -57,6 +57,11 @@ public class TwoPlayerVSGameMode implements GameMode {
         this.gameResult = null;
         this.winner = 0;
         
+        // Set two-player mode for keyboard bindings
+        if (guiController != null) {
+            guiController.setGameMode(true); // Two-player mode
+        }
+        
         // Start new games for both players
         player1Service.startNewGame();
         player2Service.startNewGame();

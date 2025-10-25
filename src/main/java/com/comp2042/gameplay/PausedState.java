@@ -81,6 +81,17 @@ public class PausedState implements GameState {
 
     @Override
     /**
+     * Handles the ROTATE_CCW event. Does nothing during pause.
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the current brick position and shape.
+     */
+    public ViewData onRotateCCWEvent(MoveEvent event) {
+        // Do nothing during pause
+        return board.getViewData();
+    }
+
+    @Override
+    /**
      * Handles a request to pause or unpause the game. Unpauses the game.
      * @return A new PlayingState instance.
      */

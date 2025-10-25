@@ -64,6 +64,13 @@ public interface GameService {
     ViewData processRotateEvent(MoveEvent event);
 
     /**
+     * Processes a counter-clockwise rotation event.
+     * @param event the move event
+     * @return the view data result
+     */
+    ViewData processRotateCCWEvent(MoveEvent event);
+
+    /**
      * Sets the drop speed for the game.
      * @param speed the new drop speed in milliseconds
      */

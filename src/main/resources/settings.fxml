@@ -26,38 +26,120 @@
                     <Text text="CONTROLS" styleClass="section-title"/>
                     <Separator styleClass="section-divider"/>
                     
-                    <GridPane hgap="15" vgap="8" styleClass="controls-grid">
-                        <!-- Movement Controls -->
-                        <Label text="Move Left:" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="control-label"/>
-                        <Label text="← Arrow / A" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="control-value"/>
+                    <VBox spacing="20" styleClass="controls-container">
+                        <!-- Single Player Mode Controls -->
+                        <VBox spacing="8" styleClass="control-section">
+                            <Text text="Single Player Controls (Endless Mode / Level Mode / AI Mode)" styleClass="control-section-title"/>
+                            <VBox spacing="4" styleClass="control-list">
+                                <HBox spacing="20" alignment="CENTER_LEFT">
+                                    <Label text="Move Left / Right" styleClass="control-action" minWidth="200"/>
+                                    <Label text="A / D" styleClass="control-key"/>
+                                </HBox>
+                                <HBox spacing="20" alignment="CENTER_LEFT">
+                                    <Label text="Rotate (Clockwise)" styleClass="control-action" minWidth="200"/>
+                                    <Label text="W" styleClass="control-key"/>
+                                </HBox>
+                                <HBox spacing="20" alignment="CENTER_LEFT">
+                                    <Label text="Rotate (Counterclockwise)" styleClass="control-action" minWidth="200"/>
+                                    <Label text="F" styleClass="control-key"/>
+                                </HBox>
+                                <HBox spacing="20" alignment="CENTER_LEFT">
+                                    <Label text="Soft Drop" styleClass="control-action" minWidth="200"/>
+                                    <Label text="S" styleClass="control-key"/>
+                                </HBox>
+                                <HBox spacing="20" alignment="CENTER_LEFT">
+                                    <Label text="Hard Drop" styleClass="control-action" minWidth="200"/>
+                                    <Label text="Space" styleClass="control-key"/>
+                                </HBox>
+                                <HBox spacing="20" alignment="CENTER_LEFT">
+                                    <Label text="Hold Block" styleClass="control-action" minWidth="200"/>
+                                    <Label text="Shift" styleClass="control-key"/>
+                                </HBox>
+                            </VBox>
+                        </VBox>
                         
-                        <Label text="Move Right:" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="control-label"/>
-                        <Label text="→ Arrow / D" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="control-value"/>
-                        
-                        <Label text="Soft Drop:" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="control-label"/>
-                        <Label text="↓ Arrow / S" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="control-value"/>
-                        
-                        <!-- Rotation Controls -->
-                        <Label text="Rotate Clockwise:" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="control-label"/>
-                        <Label text="↑ Arrow / X / W" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="control-value"/>
-                        
-                        <Label text="Rotate Counter-Clockwise:" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="control-label"/>
-                        <Label text="Z" GridPane.columnIndex="1" GridPane.rowIndex="4" styleClass="control-value"/>
-                        
-                        <!-- Special Controls -->
-                        <Label text="Hard Drop:" GridPane.columnIndex="0" GridPane.rowIndex="5" styleClass="control-label"/>
-                        <Label text="SPACE" GridPane.columnIndex="1" GridPane.rowIndex="5" styleClass="control-value"/>
-                        
-                        <Label text="Hold Piece:" GridPane.columnIndex="0" GridPane.rowIndex="6" styleClass="control-label"/>
-                        <Label text="SHIFT / C" GridPane.columnIndex="1" GridPane.rowIndex="6" styleClass="control-value"/>
+                        <!-- Two Player Mode Controls -->
+                        <VBox spacing="8" styleClass="control-section">
+                            <Text text="Two-Player Controls (Two-Player Mode)" styleClass="control-section-title"/>
+                            
+                            <!-- Player 1 -->
+                            <VBox spacing="4" styleClass="player-controls">
+                                <Text text="Player 1" styleClass="player-title"/>
+                                <VBox spacing="4" styleClass="control-list">
+                                    <HBox spacing="20" alignment="CENTER_LEFT">
+                                        <Label text="Move Left / Right" styleClass="control-action" minWidth="200"/>
+                                        <Label text="A / D" styleClass="control-key"/>
+                                    </HBox>
+                                    <HBox spacing="20" alignment="CENTER_LEFT">
+                                        <Label text="Rotate (Clockwise)" styleClass="control-action" minWidth="200"/>
+                                        <Label text="W" styleClass="control-key"/>
+                                    </HBox>
+                                    <HBox spacing="20" alignment="CENTER_LEFT">
+                                        <Label text="Rotate (Counterclockwise)" styleClass="control-action" minWidth="200"/>
+                                        <Label text="F" styleClass="control-key"/>
+                                    </HBox>
+                                    <HBox spacing="20" alignment="CENTER_LEFT">
+                                        <Label text="Soft Drop" styleClass="control-action" minWidth="200"/>
+                                        <Label text="S" styleClass="control-key"/>
+                                    </HBox>
+                                    <HBox spacing="20" alignment="CENTER_LEFT">
+                                        <Label text="Hard Drop" styleClass="control-action" minWidth="200"/>
+                                        <Label text="Space" styleClass="control-key"/>
+                                    </HBox>
+                                    <HBox spacing="20" alignment="CENTER_LEFT">
+                                        <Label text="Hold Block" styleClass="control-action" minWidth="200"/>
+                                        <Label text="Shift" styleClass="control-key"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                            
+                            <!-- Player 2 -->
+                            <VBox spacing="4" styleClass="player-controls">
+                                <Text text="Player 2" styleClass="player-title"/>
+                                <VBox spacing="4" styleClass="control-list">
+                                    <HBox spacing="20" alignment="CENTER_LEFT">
+                                        <Label text="Move Left / Right" styleClass="control-action" minWidth="200"/>
+                                        <Label text="← / →" styleClass="control-key"/>
+                                    </HBox>
+                                    <HBox spacing="20" alignment="CENTER_LEFT">
+                                        <Label text="Rotate (Clockwise)" styleClass="control-action" minWidth="200"/>
+                                        <Label text="↑" styleClass="control-key"/>
+                                    </HBox>
+                                    <HBox spacing="20" alignment="CENTER_LEFT">
+                                        <Label text="Rotate (Counterclockwise)" styleClass="control-action" minWidth="200"/>
+                                        <Label text="Enter" styleClass="control-key"/>
+                                    </HBox>
+                                    <HBox spacing="20" alignment="CENTER_LEFT">
+                                        <Label text="Soft Drop" styleClass="control-action" minWidth="200"/>
+                                        <Label text="↓" styleClass="control-key"/>
+                                    </HBox>
+                                    <HBox spacing="20" alignment="CENTER_LEFT">
+                                        <Label text="Hard Drop" styleClass="control-action" minWidth="200"/>
+                                        <Label text="Ctrl" styleClass="control-key"/>
+                                    </HBox>
+                                    <HBox spacing="20" alignment="CENTER_LEFT">
+                                        <Label text="Hold Block" styleClass="control-action" minWidth="200"/>
+                                        <Label text="Alt" styleClass="control-key"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                        </VBox>
                         
                         <!-- Game Controls -->
-                        <Label text="Pause/Resume:" GridPane.columnIndex="0" GridPane.rowIndex="7" styleClass="control-label"/>
-                        <Label text="P" GridPane.columnIndex="1" GridPane.rowIndex="7" styleClass="control-value"/>
-                        
-                        <Label text="New Game:" GridPane.columnIndex="0" GridPane.rowIndex="8" styleClass="control-label"/>
-                        <Label text="N" GridPane.columnIndex="1" GridPane.rowIndex="8" styleClass="control-value"/>
-                    </GridPane>
+                        <VBox spacing="4" styleClass="control-section">
+                            <Text text="Game Controls" styleClass="control-section-title"/>
+                            <VBox spacing="4" styleClass="control-list">
+                                <HBox spacing="20" alignment="CENTER_LEFT">
+                                    <Label text="Pause/Resume" styleClass="control-action" minWidth="200"/>
+                                    <Label text="P" styleClass="control-key"/>
+                                </HBox>
+                                <HBox spacing="20" alignment="CENTER_LEFT">
+                                    <Label text="New Game" styleClass="control-action" minWidth="200"/>
+                                    <Label text="N" styleClass="control-key"/>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </VBox>
                 </VBox>
                 
                 <!-- Audio Section -->

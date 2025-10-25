@@ -31,7 +31,7 @@
                          styleClass="hold-display"
                          alignment="CENTER"/>
                 <Label fx:id="holdHintLabel" 
-                       text="Press SHIFT or C" 
+                       text="Press SHIFT to Hold" 
                        styleClass="hint-label"/>
             </VBox>
             
@@ -148,8 +148,12 @@
             </Pane>
             
             <!-- Control Instructions -->
-            <Label text="[← →] Move  [↑ X] Rotate C/W  [Z] Rotate CCW  [Space] Hard Drop  [↓] Soft Drop" 
-                   styleClass="control-hint"/>
+            <VBox spacing="2" alignment="CENTER">
+                <Label text="[← →/A D] Move  [↑/W] Rotate  [↓/S] Soft Drop  [Space] Hard Drop"
+                       styleClass="control-hint"/>
+                <Label text="[Shift] Hold  [F] Rotate Counter-Clockwise"
+                       styleClass="control-hint"/>
+            </VBox>
             </VBox>
         </StackPane>
     </center>

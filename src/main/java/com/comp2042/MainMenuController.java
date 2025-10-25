@@ -38,10 +38,10 @@ public class MainMenuController {
     private Button levelModeBtn;
     
     @FXML
-    private Button twoPlayerVSBtn;
+    private Button aiModeBtn;
     
     @FXML
-    private Button twoPlayerAIBtn;
+    private Button twoPlayerModeBtn;
     
     @FXML
     private Button settingsBtn;
@@ -65,8 +65,8 @@ public class MainMenuController {
         // Configure button text for different game modes
         endlessModeBtn.setText("Endless Mode");
         levelModeBtn.setText("Level Mode");
-        twoPlayerVSBtn.setText("Two Player VS");
-        twoPlayerAIBtn.setText("Two Player AI");
+        aiModeBtn.setText("AI Mode");
+        twoPlayerModeBtn.setText("Two-Player Mode");
     }
 
     /**
@@ -132,12 +132,12 @@ public class MainMenuController {
     }
 
     /**
-     * Starts the Two Player VS Mode game.
+     * Starts the Two-Player Mode game.
      * Creates separate game services for both players and launches VS mode.
      */
     @FXML
-    private void startTwoPlayerVS() {
-        System.out.println("Starting Two Player VS Mode...");
+    private void startTwoPlayerMode() {
+        System.out.println("Starting Two-Player Mode...");
         try {
             // Create GUI controller
             GuiController guiController = new GuiController();
@@ -150,18 +150,18 @@ public class MainMenuController {
             loadGameScene(guiController);
             
         } catch (Exception e) {
-            System.err.println("Error starting Two Player VS Mode: " + e.getMessage());
+            System.err.println("Error starting Two-Player Mode: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     /**
-     * Starts the Two Player AI Mode game.
+     * Starts the AI Mode game.
      * Creates a game service and launches AI mode.
      */
     @FXML
-    private void startTwoPlayerAI() {
-        System.out.println("Starting Two Player AI Mode...");
+    private void startAIMode() {
+        System.out.println("Starting AI Mode...");
         try {
             // Create game service and GUI controller
             GameService gameService = new GameServiceImpl();
@@ -175,7 +175,7 @@ public class MainMenuController {
             loadGameScene(guiController);
             
         } catch (Exception e) {
-            System.err.println("Error starting Two Player AI Mode: " + e.getMessage());
+            System.err.println("Error starting AI Mode: " + e.getMessage());
             e.printStackTrace();
         }
     }

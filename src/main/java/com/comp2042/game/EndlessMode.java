@@ -63,6 +63,9 @@ public class EndlessMode implements GameMode {
         
         // Initialize UI display
         if (guiController != null) {
+            // Set single-player mode for keyboard bindings
+            guiController.setGameMode(false); // Single-player mode
+            
             guiController.updateScore(0, highScore);
             guiController.updateLines(0);
             guiController.updateLevel(1);

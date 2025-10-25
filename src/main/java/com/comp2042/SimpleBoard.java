@@ -80,6 +80,46 @@ public class SimpleBoard implements Board {
         }
     }
 
+    @Override
+    /**
+     * Instantly drops the currently falling brick to the bottom of the board.
+     * This is the hard drop functionality that moves the brick as far down as possible.
+     *
+     * @return the number of positions the brick was moved down.
+     */
+    public int hardDropBrick() {
+        if (currentOffset == null) {
+            return 0; // No brick to drop
+        }
+        
+        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
+        int dropDistance = 0;
+        Point originalPosition = new Point(currentOffset);
+        
+        // Keep moving down until we hit a collision
+        while (true) {
+            Point testPosition = new Point(currentOffset);
+            testPosition.translate(0, 1); // Move down one position
+            
+            // Check if the new position is valid
+            if (testPosition.getY() < 0 || testPosition.getY() >= height) {
+                break; // Hit bottom of board
+            }
+            
+            // Check for collision with other bricks
+            boolean conflict = MatrixOperations.intersect(currentMatrix, brickRotator.getCurrentShape(), (int) testPosition.getX(), (int) testPosition.getY());
+            if (conflict) {
+                break; // Hit another brick
+            }
+            
+            // Move is valid, update position and continue
+            currentOffset = testPosition;
+            dropDistance++;
+        }
+        
+        return dropDistance;
+    }
+
 
     @Override
     /**
@@ -136,6 +176,24 @@ public class SimpleBoard implements Board {
             return false; // Cannot rotate
         } else {
             brickRotator.setCurrentShape(nextShape.getPosition()); // Apply rotation
+            return true;                                           // Rotation successful
+        }
+    }
+
+    /**
+     * Attempts to rotate the currently falling brick counter-clockwise.
+     * Calculates the potential previous shape and checks for collisions in the new orientation.
+     *
+     * @return true if the rotation was successful, false if a collision occurred.
+     */
+    public boolean rotateRightBrick() {
+        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
+        NextShapeInfo prevShape = brickRotator.calculatePreviousShapeInfo();
+        boolean conflict = MatrixOperations.intersect(currentMatrix, prevShape.getShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
+        if (conflict) {
+            return false; // Cannot rotate
+        } else {
+            brickRotator.setCurrentShape(prevShape.getPosition()); // Apply rotation
             return true;                                           // Rotation successful
         }
     }

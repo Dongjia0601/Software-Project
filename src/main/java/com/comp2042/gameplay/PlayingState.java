@@ -44,8 +44,22 @@ public class PlayingState implements GameState {
      * @return DownData containing view and row-clearing information.
      */
     public DownData onDownEvent(MoveEvent event) {
-        boolean canMove = board.moveBrickDown();
+        boolean canMove;
         ClearRow clearRow = null;
+        
+        if (event.getEventType() == EventType.HARD_DROP) {
+            // Hard drop: instantly drop to bottom
+            int dropDistance = board.hardDropBrick();
+            if (dropDistance > 0) {
+                // Add score for hard drop (2 points per row dropped)
+                board.getScore().add(dropDistance * 2);
+            }
+            canMove = false; // Hard drop always lands the brick
+        } else {
+            // Normal soft drop: move down one position
+            canMove = board.moveBrickDown();
+        }
+        
         if (!canMove) { // Brick landed
             board.mergeBrickToBackground();
             clearRow = board.clearRows();
@@ -96,6 +110,17 @@ public class PlayingState implements GameState {
      */
     public ViewData onRotateEvent(MoveEvent event) {
         board.rotateLeftBrick();
+        return board.getViewData();
+    }
+
+    @Override
+    /**
+     * Handles the ROTATE_CCW event by attempting to rotate the brick counter-clockwise.
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the updated brick position and shape.
+     */
+    public ViewData onRotateCCWEvent(MoveEvent event) {
+        board.rotateRightBrick();
         return board.getViewData();
     }
 

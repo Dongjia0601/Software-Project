@@ -38,6 +38,13 @@ public interface GameState {
     ViewData onRotateEvent(MoveEvent event);
 
     /**
+     * Handles the ROTATE_CCW event (counter-clockwise rotation).
+     * @param event The MoveEvent containing event type and source.
+     * @return ViewData containing the updated brick position and shape (may be null in some states like Paused/GameOver).
+     */
+    ViewData onRotateCCWEvent(MoveEvent event);
+
+    /**
      * Handles a request to pause or unpause the game.
      * @return The next state after handling the pause request (e.g., Playing -> Paused, Paused -> Playing).
      */
