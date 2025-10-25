@@ -442,6 +442,18 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
     }
 
+    /**
+     * Resumes the game by restarting the timeline if it exists.
+     * This method is called when returning from settings to ensure the game continues.
+     */
+    public void resumeGame() {
+        if (timeLine != null && !isGameOver.getValue()) {
+            timeLine.play();
+            System.out.println("✓ Game timeline resumed");
+        }
+        gamePanel.requestFocus();
+    }
+
     public void updateProgress(int linesClearedInLevel, int targetLines) {
     }
 

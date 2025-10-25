@@ -278,8 +278,8 @@ public class SettingsController {
             
             // CRITICAL FIX: Resume game automatically if it wasn't paused before settings
             if (guiController != null && !wasGamePausedBeforeSettings) {
-                guiController.pauseGame(null); // Toggle pause to resume
-                System.out.println("✓ Game automatically resumed after settings");
+                guiController.resumeGame(); // Resume game timeline
+                System.out.println("Game automatically resumed after settings");
             } else {
                 System.out.println("Returned to game from settings (kept paused)");
             }
