@@ -21,6 +21,7 @@ public class SimpleBoard implements Board {
     private int[][] currentGameMatrix;           // The current state of the board grid
     private Point currentOffset;                 // The current position (x, y) of the falling brick
     private final Score score;                   // The score tracker
+    private int totalLinesCleared = 0;           // Total lines cleared in the game
     
     // Hold functionality fields
     private Brick heldBrick = null;
@@ -181,7 +182,7 @@ public class SimpleBoard implements Board {
     }
 
     /**
-     * Attempts to rotate the currently falling brick counter-clockwise.
+     * Attempts to rotate the currently falling brick counterclockwise.
      * Calculates the potential previous shape and checks for collisions in the new orientation.
      *
      * @return true if the rotation was successful, false if a collision occurred.
@@ -276,6 +277,9 @@ public class SimpleBoard implements Board {
         ClearRow clearRow = MatrixOperations.clearCompletedRows(currentGameMatrix);
         currentGameMatrix = clearRow.getNewMatrix();
 
+        // Update total lines cleared counter
+        totalLinesCleared += clearRow.getLinesRemoved();
+
         // CRITICAL FIX: Award the calculated score bonus to the player's score
         int scoreBonus = clearRow.getScoreBonus();
         if (scoreBonus > 0) {
@@ -293,6 +297,15 @@ public class SimpleBoard implements Board {
      */
     public Score getScore() {
         return score;
+    }
+
+    /**
+     * Gets the total number of lines cleared in the current game.
+     *
+     * @return The total lines cleared.
+     */
+    public int getTotalLinesCleared() {
+        return totalLinesCleared;
     }
 
 
@@ -366,6 +379,7 @@ public class SimpleBoard implements Board {
     public void newGame() {
         currentGameMatrix = new int[height][width]; // Clear the board
         score.reset(); // Reset the score
+        totalLinesCleared = 0; // Reset lines cleared counter
         heldBrick = null; // Clear held brick
         canHold = true;   // Re-enable hold
         createNewBrick(); // Start the game by creating the first brick

@@ -169,10 +169,26 @@ public class MatrixOperations {
         }
 
         // Calculate score bonus based on the number of lines cleared (Tetris scoring rule)
-        int scoreBonus = 50 * clearedRows.size() * clearedRows.size();
+        int scoreBonus = calculateLineClearScore(clearedRows.size());
 
         // Return the results encapsulated in a ClearRow object
         return new ClearRow(clearedRows.size(), tmp, scoreBonus);
+    }
+
+    /**
+     * Calculates the score bonus for clearing lines based on Tetris scoring rules.
+     * 
+     * @param linesCleared the number of lines cleared (1-4)
+     * @return the score bonus points
+     */
+    private static int calculateLineClearScore(int linesCleared) {
+        switch (linesCleared) {
+            case 1: return 100;  // Single line clear
+            case 2: return 300; // Double line clear 
+            case 3: return 500; // Triple line clear
+            case 4: return 800; // Tetris (I block)
+            default: return 0;  // No lines cleared
+        }
     }
 
     /**

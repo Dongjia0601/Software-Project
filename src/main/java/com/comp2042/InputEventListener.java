@@ -44,7 +44,7 @@ public interface InputEventListener {
     ViewData onRotateEvent(MoveEvent event);
 
     /**
-     * Handles the ROTATE_CCW event (counter-clockwise rotation).
+     * Handles the ROTATE_CCW event (counterclockwise rotation).
      *
      * @param event The MoveEvent containing event type and source.
      * @return ViewData containing the updated brick position and shape.

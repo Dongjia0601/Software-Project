@@ -64,7 +64,7 @@ public interface GameService {
     ViewData processRotateEvent(MoveEvent event);
 
     /**
-     * Processes a counter-clockwise rotation event.
+     * Processes a counterclockwise rotation event.
      * @param event the move event
      * @return the view data result
      */

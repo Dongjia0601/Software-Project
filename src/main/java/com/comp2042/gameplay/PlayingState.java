@@ -65,6 +65,8 @@ public class PlayingState implements GameState {
             clearRow = board.clearRows();
             if (clearRow.getLinesRemoved() > 0) {
                 board.getScore().add(clearRow.getScoreBonus());
+                // Update lines display in GUI
+                guiController.updateLines(board.getTotalLinesCleared());
             }
             if (board.createNewBrick()) { // Check for game over after landing/creating new brick
                 guiController.gameOver(); // Notify GUI
@@ -115,7 +117,7 @@ public class PlayingState implements GameState {
 
     @Override
     /**
-     * Handles the ROTATE_CCW event by attempting to rotate the brick counter-clockwise.
+     * Handles the ROTATE_CCW event by attempting to rotate the brick counterclockwise.
      * @param event The MoveEvent containing event type and source.
      * @return ViewData containing the updated brick position and shape.
      */
@@ -142,6 +144,7 @@ public class PlayingState implements GameState {
     public GameState handleNewGameRequest() {
         board.newGame();
         guiController.refreshGameBackground(board.getBoardMatrix());
+        guiController.updateLines(0);
         return new PlayingState(board, guiController, gameController); // Return new PlayingState instance
     }
 }

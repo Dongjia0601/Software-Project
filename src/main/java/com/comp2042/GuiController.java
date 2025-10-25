@@ -449,7 +449,7 @@ public class GuiController implements Initializable {
     public void resumeGame() {
         if (timeLine != null && !isGameOver.getValue()) {
             timeLine.play();
-            System.out.println("✓ Game timeline resumed");
+            System.out.println("Game timeline resumed");
         }
         gamePanel.requestFocus();
     }
@@ -795,7 +795,7 @@ public class GuiController implements Initializable {
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.F) {
-            // Rotate counter-clockwise
+            // Rotate counterclockwise
             refreshBrick(eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_1)));
             keyEvent.consume();
         }
@@ -843,7 +843,7 @@ public class GuiController implements Initializable {
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.F) {
-            // Player 1: Rotate counter-clockwise
+            // Player 1: Rotate counterclockwise
             refreshBrick(eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_1)));
             keyEvent.consume();
         }
@@ -884,7 +884,7 @@ public class GuiController implements Initializable {
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.ENTER) {
-            // Player 2: Rotate counter-clockwise
+            // Player 2: Rotate counterclockwise
             refreshBrick(eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_2)));
             keyEvent.consume();
         }

@@ -25,7 +25,7 @@ public class BrickRotator {
     }
 
     /**
-     * Calculates the potential previous shape and its index if the current brick were to rotate counter-clockwise.
+     * Calculates the potential previous shape and its index if the current brick were to rotate counterclockwise.
      * This method does not modify the internal 'currentShape' index of this BrickRotator instance.
      *
      * @return A NextShapeInfo object containing the potential previous shape matrix and its index.

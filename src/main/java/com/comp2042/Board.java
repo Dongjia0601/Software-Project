@@ -50,7 +50,7 @@ public interface Board {
     boolean rotateLeftBrick(); // Note: Method name suggests 'left' rotation logic
 
     /**
-     * Attempts to rotate the currently falling brick counter-clockwise.
+     * Attempts to rotate the currently falling brick counterclockwise.
      * Checks for collisions in the new orientation.
      *
      * @return true if the rotation was successful, false if a collision occurred.
@@ -101,6 +101,13 @@ public interface Board {
      * @return The Score instance.
      */
     Score getScore();
+
+    /**
+     * Gets the total number of lines cleared in the current game.
+     *
+     * @return The total lines cleared.
+     */
+    int getTotalLinesCleared();
 
     /**
      * Resets the board state for a new game.

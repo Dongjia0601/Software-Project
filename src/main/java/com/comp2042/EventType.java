@@ -17,7 +17,7 @@ public enum EventType {
     /** Rotate brick clockwise */
     ROTATE,
     
-    /** Rotate brick counter-clockwise */
+    /** Rotate brick counterclockwise */
     ROTATE_CCW,
     
     /** Hard drop - instantly drop brick to bottom */
