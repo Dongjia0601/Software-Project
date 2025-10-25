@@ -96,51 +96,51 @@
     <!-- Center: Game Board - Absolutely centered below title -->
     <center>
         <StackPane alignment="CENTER">
-            <VBox alignment="CENTER" spacing="15" fillWidth="false">
+            <VBox alignment="CENTER" spacing="10" fillWidth="false">
                 <padding>
-                    <Insets top="20" bottom="20" left="0" right="0"/>
+                    <Insets top="10" bottom="20" left="0" right="0"/>
                 </padding>
                 
-                <!-- Game Title - Centered -->
+                <!-- Game Title - Centered and moved up -->
                 <Label text="TETRIS" styleClass="game-title" alignment="CENTER">
                     <VBox.margin>
-                        <Insets left="0" right="0"/>
+                        <Insets left="0" right="0" top="0" bottom="5"/>
                     </VBox.margin>
                 </Label>
                 
-                <!-- Game Area Container - Fixed positioning using Pane (not BorderPane) 
-                 Dimensions: 10 columns × 20 visible rows
-                 Each cell: 20px brick + 1px gap = 21px
-                 Grid: 10*20 + 9*1 = 209px width, 20*20 + 19*1 = 419px height
-                 Border: 12px, Padding: 28px left/right, 20px top/bottom (extra bottom clearance)
-                 Total: 209 + 2*12 + 2*28 = 289px width, 419 + 2*12 + 20 + 22 = 485px height -->
-            <Pane styleClass="game-container" prefWidth="289" prefHeight="485">
-                <!-- Background Board (decorative border: 12px) - FIRST (bottom layer) -->
-                <Pane styleClass="gameBoard" layoutX="0" layoutY="0" prefWidth="289" prefHeight="485" mouseTransparent="true"/>
+                <!-- Game Area Container - Enlarged for better visibility
+                 Original: 10 columns × 20 visible rows, 20px brick + 1px gap = 21px
+                 Enlarged: 25px brick + 1px gap = 26px
+                 Grid: 10*25 + 9*1 = 259px width, 20*25 + 19*1 = 519px height
+                 Border: 15px, Padding: 35px left/right, 25px top/bottom
+                 Total: 259 + 2*15 + 2*35 = 359px width, 519 + 2*15 + 25 + 5 = 579px height -->
+            <Pane styleClass="game-container" prefWidth="359" prefHeight="579">
+                <!-- Background Board (decorative border: 15px) - FIRST (bottom layer) -->
+                <Pane styleClass="gameBoard" layoutX="0" layoutY="0" prefWidth="359" prefHeight="579" mouseTransparent="true"/>
                 
                 <!-- Game Grid - SECOND (game cells) 
-                     Position: 12px (border) + 28px (padding) = 40px from left
-                               12px (border) + 18px (padding) = 30px from top
-                     Size: 10 columns × 20 rows = 209px × 419px
+                     Position: 15px (border) + 35px (padding) = 50px from left
+                               15px (border) + 35px (padding) = 50px from top
+                     Size: 10 columns × 20 rows = 259px × 519px
                      Grid lines created via cell borders in GuiController -->
-                <GridPane fx:id="gamePanel" hgap="1" vgap="1" layoutX="40" layoutY="30" 
-                          prefWidth="209" prefHeight="419"
+                <GridPane fx:id="gamePanel" hgap="1" vgap="1" layoutX="50" layoutY="50" 
+                          prefWidth="259" prefHeight="519"
                           styleClass="game-grid"/>
                 
                 <!-- Brick Panel (moving piece overlay) - THIRD (middle layer, visible on top)
-                     Initial position set by Java code, max 4×4 brick = 84×84px (4*20px + 3*1px gaps)
+                     Initial position set by Java code, max 4×4 brick = 104×104px (4*25px + 3*1px gaps)
                      CRITICAL: MUST use same gaps as gamePanel for perfect cell alignment! -->
                 <!-- Render moving brick with absolute positioned children to avoid GridPane rounding -->
-                <Pane fx:id="brickPanel" prefWidth="84" prefHeight="84"/>
+                <Pane fx:id="brickPanel" prefWidth="104" prefHeight="104"/>
                 
                 <!-- Ghost Panel (ghost piece preview) - FOURTH (middle layer, below moving brick)
                      Shows semi-transparent preview of where brick will land -->
-                <Pane fx:id="ghostPanel" prefWidth="84" prefHeight="84"/>
+                <Pane fx:id="ghostPanel" prefWidth="104" prefHeight="104"/>
                 
                 <!-- Notification Area (Game Over overlay) - LAST (top layer)
-                     Centered in game board: game board is 209×419px at (40, 30)
-                     Panel is ~240×160px, so center at: X=40+(209-240)/2≈25, Y=30+(419-160)/2≈160 -->
-                <Group fx:id="groupNotification" layoutX="25" layoutY="160">
+                     Centered in game board: game board is 259×519px at (50, 40)
+                     Panel is ~240×160px, so center at: X=50+(259-240)/2≈60, Y=40+(519-160)/2≈220 -->
+                <Group fx:id="groupNotification" layoutX="60" layoutY="220">
                     <VBox alignment="CENTER">
                         <GameOverPanel fx:id="gameOverPanel"/>
                     </VBox>

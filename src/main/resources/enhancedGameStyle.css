@@ -67,14 +67,14 @@
 .game-container {
     -fx-background-color: linear-gradient(to bottom, #851ee5, #4B0082);
     -fx-background-radius: 12px; /* match .gameBoard radius to cover corners */
-    -fx-padding: 10px;
+    -fx-padding: 0px; /* Remove padding to show the actual border */
 }
 
 /* Game Board */
 .gameBoard {
     /* Layer 1: outer neon frame, Layer 2: inner dark panel */
     -fx-background-color: linear-gradient(to bottom, #851ee5, #4B0082), rgba(10, 14, 39, 0.96);
-    -fx-background-insets: 0, 12; /* inner panel inset to create frame thickness */
+    -fx-background-insets: 0,10;/* inner panel inset to create frame thickness */
     -fx-background-radius: 16, 8; /* rounded corners for both layers */
     -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.85), 18, 0, 0, 0);
 }
