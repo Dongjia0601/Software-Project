@@ -77,7 +77,7 @@
             <VBox spacing="10" styleClass="info-box">
                 <Label text="CONTROLS" styleClass="section-title"/>
                 <Button fx:id="muteButton" 
-                       text="Sound" 
+                       text="Mute" 
                        styleClass="control-button"
                        onAction="#toggleMute"/>
                 <Button fx:id="settingsButton" 
@@ -149,9 +149,9 @@
             
             <!-- Control Instructions -->
             <VBox spacing="2" alignment="CENTER">
-                <Label text="[← →/A D] Move  [↑/W] Rotate  [↓/S] Soft Drop  [Space] Hard Drop"
+                <Label text="[A/D] Move  [W] Rotate(Clockwise) [F] Rotate Counter-Clockwise"
                        styleClass="control-hint"/>
-                <Label text="[Shift] Hold  [F] Rotate Counter-Clockwise"
+                <Label text=" [S] Soft Drop [Space] Hard Drop [Shift] Hold"
                        styleClass="control-hint"/>
             </VBox>
             </VBox>

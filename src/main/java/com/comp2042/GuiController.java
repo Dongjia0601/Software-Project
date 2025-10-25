@@ -26,6 +26,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import com.comp2042.config.GameSettings;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -89,6 +90,9 @@ public class GuiController implements Initializable {
     
     @FXML
     private GridPane nextBrickPanel;
+    
+    @FXML
+    private javafx.scene.control.Button muteButton;
 
     private Rectangle[][] displayMatrix; // Array of rectangles representing the static board background
     private Rectangle[][] holdDisplayMatrix; // Array of rectangles for hold display
@@ -112,6 +116,12 @@ public class GuiController implements Initializable {
     
     // Game mode tracking
     private boolean isTwoPlayerMode = false; // Track if we're in two-player mode
+    
+    // Settings reference
+    private GameSettings settings;
+    
+    // Store previous volume before muting
+    private double previousVolume = 0.7; // Default volume
 
     @Override
     /**
@@ -131,6 +141,9 @@ public class GuiController implements Initializable {
      * @param resources The resources used to localize the root object, or null if the root object was not localized.
      */
     public void initialize(URL location, ResourceBundle resources) {
+        // Initialize settings
+        settings = GameSettings.getInstance();
+        
         // Load the digital font for UI elements
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
 
@@ -669,12 +682,27 @@ public class GuiController implements Initializable {
     
     /**
      * Toggles mute state for audio.
+     * When muted, sets Master Volume to 0%. When unmuted, restores previous volume.
      */
     @FXML
     public void toggleMute() {
+        if (isMuted) {
+            // Unmute: restore previous volume
+            settings.setMasterVolume(previousVolume);
+            muteButton.setText("Mute");
+            System.out.println("Audio unmuted - Master Volume: " + (int)(previousVolume * 100) + "%");
+        } else {
+            // Mute: save current volume and set to 0%
+            previousVolume = settings.getMasterVolume();
+            settings.setMasterVolume(0.0);
+            muteButton.setText("Unmute");
+            System.out.println("Audio muted - Master Volume: 0%");
+        }
+        
         isMuted = !isMuted;
-        System.out.println("Audio " + (isMuted ? "muted" : "unmuted"));
-        // TODO: Implement actual audio muting logic
+        
+        // Save settings to persist the mute state
+        settings.saveSettings();
     }
     
     /**
@@ -684,6 +712,27 @@ public class GuiController implements Initializable {
     public void setGameMode(boolean isTwoPlayer) {
         this.isTwoPlayerMode = isTwoPlayer;
         System.out.println("Game mode set to: " + (isTwoPlayer ? "Two-Player" : "Single-Player"));
+    }
+    
+    /**
+     * Updates the Mute button state based on current Master Volume.
+     * Called when settings are saved from the settings dialog.
+     */
+    public void updateMuteButtonState() {
+        if (settings != null) {
+            double currentVolume = settings.getMasterVolume();
+            if (currentVolume > 0) {
+                // Volume is not 0, so we're not muted
+                isMuted = false;
+                muteButton.setText("Mute");
+                System.out.println("Mute button updated: Volume is " + (int)(currentVolume * 100) + "% - showing Mute");
+            } else {
+                // Volume is 0, so we're muted
+                isMuted = true;
+                muteButton.setText("Unmute");
+                System.out.println("Mute button updated: Volume is 0% - showing Unmute");
+            }
+        }
     }
     
     /**

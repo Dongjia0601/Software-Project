@@ -235,6 +235,11 @@ public class SettingsController {
         
         if (success) {
             showStatus("Settings saved successfully!", "#4DFFFF");
+            
+            // Update Mute button state in game interface
+            if (guiController != null) {
+                guiController.updateMuteButtonState();
+            }
         } else {
             showStatus("Failed to save settings.", "#FF6B6B");
         }
@@ -251,6 +256,11 @@ public class SettingsController {
         masterVolumeSlider.setValue(settings.getMasterVolume() * 100);
         musicVolumeSlider.setValue(settings.getMusicVolume() * 100);
         sfxVolumeSlider.setValue(settings.getSfxVolume() * 100);
+        
+        // Update Mute button state in game interface
+        if (guiController != null) {
+            guiController.updateMuteButtonState();
+        }
         
         showStatus("Settings reset to defaults", "#FFD700");
     }
