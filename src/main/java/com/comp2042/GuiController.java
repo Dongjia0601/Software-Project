@@ -80,6 +80,7 @@ public class GuiController implements Initializable {
     
     // Track current game mode
     private boolean isEndlessMode = false;
+    private long gameStartTime = 0;
     
     // EndlessMode UI components
     @FXML
@@ -1072,6 +1073,9 @@ public class GuiController implements Initializable {
      */
     public void setEndlessMode(boolean endlessMode) {
         this.isEndlessMode = endlessMode;
+        if (endlessMode) {
+            this.gameStartTime = System.currentTimeMillis();
+        }
     }
     
     
@@ -1081,9 +1085,7 @@ public class GuiController implements Initializable {
      * @param board the game board containing final game data
      */
     public void showEndlessGameOverScene(Board board) {
-        System.out.println("showEndlessGameOverScene called, isEndlessMode: " + isEndlessMode);
         if (!isEndlessMode) {
-            System.out.println("Not in endless mode, returning...");
             return; 
         }
         
@@ -1091,10 +1093,12 @@ public class GuiController implements Initializable {
             // Get final game data from board
             int finalScore = board.getScore().getScore();
             int linesCleared = board.getTotalLinesCleared();
-            System.out.println("Final score: " + finalScore + ", Lines cleared: " + linesCleared);
             
-            // Calculate play time (simplified - we don't have start time here)
-            long playTimeMs = 60000; // 1 minute placeholder
+            // Calculate actual play time
+            long playTimeMs = 60000; // Default fallback
+            if (gameStartTime > 0) {
+                playTimeMs = System.currentTimeMillis() - gameStartTime;
+            }
             
             // Get leaderboard instance and check for high score
             com.comp2042.game.EndlessModeLeaderboard leaderboard = 

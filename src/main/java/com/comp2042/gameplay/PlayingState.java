@@ -53,8 +53,9 @@ public class PlayingState implements GameState {
             if (dropDistance > 0) {
                 // Add score for hard drop (2 points per row dropped)
                 board.getScore().add(dropDistance * 2);
-                // Update score display immediately for hard drop
-                guiController.updateScore(board.getScore().getScore(), 0);
+                // Update score display immediately for hard drop with current high score
+                int currentHighScore = getCurrentHighScore();
+                guiController.updateScore(board.getScore().getScore(), currentHighScore);
             }
             canMove = false; // Hard drop always lands the brick
         } else {
@@ -69,8 +70,9 @@ public class PlayingState implements GameState {
               
                 // Update lines display in GUI
                 guiController.updateLines(board.getTotalLinesCleared());
-                // Update score display in GUI
-                guiController.updateScore(board.getScore().getScore(), 0); // High score not available in PlayingState
+                // Update score display in GUI with current high score
+                int currentHighScore = getCurrentHighScore();
+                guiController.updateScore(board.getScore().getScore(), currentHighScore);
             }
             if (board.createNewBrick()) { // Check for game over after landing/creating new brick
                 System.out.println("Game Over detected! isEndlessMode: " + guiController.isEndlessMode());
@@ -90,8 +92,9 @@ public class PlayingState implements GameState {
             // Only add score for soft drop (down movement), not for left/right movement
             if (event.getEventSource() == EventSource.USER && event.getEventType() == EventType.DOWN) {
                 board.getScore().add(1);
-                // Update score display immediately for soft drop
-                guiController.updateScore(board.getScore().getScore(), 0);
+                // Update score display immediately for soft drop with current high score
+                int currentHighScore = getCurrentHighScore();
+                guiController.updateScore(board.getScore().getScore(), currentHighScore);
             }
         }
         return new DownData(clearRow, board.getViewData());
@@ -160,7 +163,28 @@ public class PlayingState implements GameState {
         board.newGame();
         guiController.refreshGameBackground(board.getBoardMatrix());
         guiController.updateLines(0);
-        guiController.updateScore(0, 0);
+        // Update score with current high score for new game
+        int currentHighScore = getCurrentHighScore();
+        guiController.updateScore(0, currentHighScore);
         return new PlayingState(board, guiController, gameController); // Return new PlayingState instance
+    }
+    
+    /**
+     * Gets the current high score from the leaderboard if in Endless Mode.
+     * 
+     * @return the current high score, or 0 if not in Endless Mode
+     */
+    private int getCurrentHighScore() {
+        if (guiController != null && guiController.isEndlessMode()) {
+            try {
+                com.comp2042.game.EndlessModeLeaderboard leaderboard = 
+                    com.comp2042.game.EndlessModeLeaderboard.getInstance();
+                return leaderboard.getHighScore();
+            } catch (Exception e) {
+                System.err.println("Error getting high score from leaderboard: " + e.getMessage());
+                return 0;
+            }
+        }
+        return 0;
     }
 }

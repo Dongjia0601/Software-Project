@@ -87,7 +87,6 @@ public class EndlessMode implements GameMode {
             // guiController.showEndlessModeUI();
         }
         
-        System.out.println("EndlessMode initialized - High Score: " + highScore);
     }
 
     @Override
@@ -239,6 +238,15 @@ public class EndlessMode implements GameMode {
     @Override
     public int getHighScore() {
         return highScore;
+    }
+    
+    /**
+     * Gets the game start time.
+     * 
+     * @return the game start time in milliseconds
+     */
+    public long getGameStartTime() {
+        return gameStartTime;
     }
     
     /**

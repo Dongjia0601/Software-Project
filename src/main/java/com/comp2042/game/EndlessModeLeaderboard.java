@@ -203,8 +203,6 @@ public class EndlessModeLeaderboard {
             // Sort entries just in case
             Collections.sort(entries);
             
-            System.out.println("Loaded " + entries.size() + " leaderboard entries.");
-            
         } catch (IOException e) {
             System.err.println("Failed to load leaderboard: " + e.getMessage());
         }

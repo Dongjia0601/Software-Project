@@ -42,6 +42,18 @@ public class GameController implements InputEventListener {
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
         viewGuiController.bindScore(board.getScore().scoreProperty());
         viewGuiController.setEventListener(this);
+        
+        // Ensure high score is displayed correctly for Endless Mode
+        if (viewGuiController.isEndlessMode()) {
+            try {
+                com.comp2042.game.EndlessModeLeaderboard leaderboard = 
+                    com.comp2042.game.EndlessModeLeaderboard.getInstance();
+                int highScore = leaderboard.getHighScore();
+                viewGuiController.updateScore(0, highScore);
+            } catch (Exception e) {
+                System.err.println("Error updating initial high score: " + e.getMessage());
+            }
+        }
     }
 
     /**
