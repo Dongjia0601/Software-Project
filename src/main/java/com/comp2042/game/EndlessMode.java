@@ -34,6 +34,7 @@ public class EndlessMode implements GameMode {
     private GameResult gameResult;
     private int currentRank;
     private boolean isNewHighScore;
+    private int currentLevel;
     
     /**
      * Constructs a new EndlessMode.
@@ -48,6 +49,7 @@ public class EndlessMode implements GameMode {
         this.gameStartTime = 0;
         this.highScore = leaderboard.getHighScore(); // Load from leaderboard
         this.gameOver = false;
+        this.currentLevel = 1;
         this.paused = false;
         this.gameResult = null;
         this.currentRank = 0;
@@ -120,11 +122,11 @@ public class EndlessMode implements GameMode {
         guiController.updateLines(linesCleared);
         
         // Update level (based on lines cleared)
-        int level = Math.max(1, (linesCleared / 10) + 1);
-        guiController.updateLevel(level);
+        this.currentLevel = Math.max(1, (linesCleared / 10) + 1);
+        guiController.updateLevel(this.currentLevel);
         
         // Update speed display
-        int speedLevel = Math.min(10, level);
+        int speedLevel = Math.min(10, this.currentLevel);
         guiController.updateSpeed(speedLevel);
         
         // Update next piece display
@@ -202,6 +204,7 @@ public class EndlessMode implements GameMode {
         this.gameOver = false;
         this.paused = false;
         this.gameResult = null;
+        this.currentLevel = 1;
         
         // Start new game in service
         gameService.startNewGame();
@@ -266,7 +269,7 @@ public class EndlessMode implements GameMode {
         this.isNewHighScore = leaderboard.isNewHighScore(finalScore);
         
         // Add entry to leaderboard and get rank (0 if not in top 5)
-        this.currentRank = leaderboard.addEntry(finalScore, linesCleared, playTime);
+        this.currentRank = leaderboard.addEntry(finalScore, linesCleared, playTime, this.currentLevel);
         
         // Update high score from leaderboard
         this.highScore = leaderboard.getHighScore();

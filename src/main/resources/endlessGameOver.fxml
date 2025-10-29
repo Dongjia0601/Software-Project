@@ -15,7 +15,7 @@
     <top>
         <VBox alignment="CENTER" spacing="2" styleClass="title-section">
             <padding>
-                <Insets top="10" bottom="0" left="40" right="40"/>
+                <Insets top="30" bottom="0" left="40" right="40"/>
             </padding>
             
             <!-- Main Title -->
@@ -41,7 +41,7 @@
     <center>
         <VBox alignment="CENTER" spacing="8" styleClass="center-section">
             <padding>
-                <Insets top="0" bottom="5" left="40" right="40"/>
+                <Insets top="-20" bottom="5" left="40" right="40"/>
             </padding>
             
             <!-- Your Score Card -->
@@ -49,6 +49,9 @@
                   alignment="CENTER" 
                   spacing="5" 
                   styleClass="score-card">
+                <VBox.margin>
+                    <Insets top="10"/>
+                </VBox.margin>
                 <padding>
                     <Insets top="12" bottom="12" left="20" right="20"/>
                 </padding>
@@ -96,7 +99,7 @@
                 <Insets top="5" bottom="15" left="40" right="40"/>
             </padding>
             
-            <HBox spacing="30" alignment="CENTER">
+            <HBox spacing="20" alignment="CENTER">
                 <Button fx:id="tryAgainButton" 
                         text="🔄 TRY AGAIN" 
                         styleClass="action-button try-again-btn"
@@ -106,10 +109,16 @@
                         text="🏠 BACK TO MENU" 
                         styleClass="action-button menu-btn"
                         onAction="#onBackToMenu"/>
+
+                <Button fx:id="resetLeaderboardButton" 
+                        text="🕓 RESET LEADERBOARD" 
+                        styleClass="action-button reset-btn"
+                        mnemonicParsing="false"
+                        onAction="#onResetLeaderboard"/>
             </HBox>
             
             <!-- Additional Info -->
-            <Label text="Press SPACE to try again or ESC to return to menu" 
+            <Label text="Press N to try again or ESC to return to menu" 
                    styleClass="hint-text"/>
         </VBox>
     </bottom>

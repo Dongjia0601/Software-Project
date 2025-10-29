@@ -99,8 +99,12 @@
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
     -fx-padding: 10px;
-    -fx-min-width: 100px;
-    -fx-min-height: 100px;
+    -fx-min-width: 120px;
+    -fx-min-height: 120px;
+    -fx-pref-width: 120px;
+    -fx-pref-height: 120px;
+    -fx-max-width: 120px;
+    -fx-max-height: 120px;
 }
 
 /* Labels */
@@ -111,7 +115,7 @@
 }
 
 .stat-value {
-    -fx-font-size: 18px;  /* Increased from 16px */
+    -fx-font-size: 16px;  /* Unified with stat-label to align baselines */
     -fx-font-weight: bold;
     -fx-text-fill: #FFD700;  /* Gold for visibility */
 }
@@ -175,8 +179,8 @@
     -fx-border-width: 1px;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 2);
     -fx-min-width: 140px;  /* Ensure button is wide enough for text */
-    -fx-max-width: 180px;  /* Prevent buttons from being too wide */
-    -fx-pref-width: 160px;  /* Preferred width */
+    -fx-max-width: 260px;  /* Allow longer labels like "Pause & Resume (P)" */
+    -fx-pref-width: 220px;  /* Preferred width */
     -fx-text-overrun: clip;  /* Don't show ellipsis */
     -fx-alignment: center;  /* Center text in button */
 }

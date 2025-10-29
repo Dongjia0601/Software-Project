@@ -39,7 +39,7 @@ import java.util.ResourceBundle;
  */
 public class EndlessGameOverController implements Initializable {
     
-    private static final String[] RANK_EMOJIS = {"🥇", "🥈", "🥉", "④", "⑤"};
+    private static final String[] RANK_EMOJIS = {"🥇", "🥈", "🥉", "🏅", "🏅"};
     private static final String[] RANK_COLORS = {
         "#FFD700", // Gold
         "#C0C0C0", // Silver  
@@ -59,6 +59,7 @@ public class EndlessGameOverController implements Initializable {
     @FXML private VBox leaderboardSection;
     @FXML private VBox leaderboardContainer;
     @FXML private Button tryAgainButton;
+    @FXML private Button resetLeaderboardButton;
     @FXML private Button backToMenuButton;
     
     // Game data
@@ -71,6 +72,7 @@ public class EndlessGameOverController implements Initializable {
     // Callbacks
     private Runnable onTryAgain;
     private Runnable onBackToMenu;
+    private Runnable onResetLeaderboard;
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -82,6 +84,13 @@ public class EndlessGameOverController implements Initializable {
         
         // Apply button styles directly via Java code
         applyButtonStyles();
+
+        // Ensure SPACE does not trigger Try Again; we use 'N' to retry
+        tryAgainButton.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
+            if (e.getCode() == KeyCode.SPACE) {
+                e.consume();
+            }
+        });
     }
     
     /**
@@ -115,7 +124,7 @@ public class EndlessGameOverController implements Initializable {
     private void updateUI() {
         // Update main title
         if (isNewHighScore) {
-            mainTitleLabel.setText("🏆 NEW HIGH SCORE! 🏆");
+            mainTitleLabel.setText("NEW HIGH SCORE!");
             mainTitleLabel.getStyleClass().add("new-high-score");
             subtitleLabel.setText("Congratulations! You've achieved a new record!");
             subtitleLabel.setVisible(true);
@@ -203,11 +212,15 @@ public class EndlessGameOverController implements Initializable {
         Label linesLabel = new Label(String.format("%d lines", entry.getLinesCleared()));
         linesLabel.getStyleClass().add("entry-lines");
         
-        // Highlight indicator
-        Label indicator = new Label(highlight ? "⭐" : "");
-        indicator.getStyleClass().add("highlight-indicator");
+        // Level
+        Label levelLabel = new Label(String.format("Lv.%d", entry.getLevel()));
+        levelLabel.getStyleClass().add("entry-level");
         
-        box.getChildren().addAll(rankBadge, rankNum, scoreLabel, linesLabel, indicator);
+        // Highlight indicator removed
+        // Label indicator = new Label(highlight ? "⭐" : "");
+        // indicator.getStyleClass().add("highlight-indicator");
+        
+        box.getChildren().addAll(rankBadge, rankNum, scoreLabel, linesLabel, levelLabel);
         return box;
     }
     
@@ -434,7 +447,7 @@ public class EndlessGameOverController implements Initializable {
      */
     public void handleKeyPress(KeyEvent event) {
         switch (event.getCode()) {
-            case SPACE:
+            case N:
                 onTryAgain();
                 break;
             case ESCAPE:
@@ -444,6 +457,8 @@ public class EndlessGameOverController implements Initializable {
                 // If a button is focused, activate it
                 if (tryAgainButton.isFocused()) {
                     onTryAgain();
+                } else if (resetLeaderboardButton.isFocused()) {
+                    onResetLeaderboard();
                 } else if (backToMenuButton.isFocused()) {
                     onBackToMenu();
                 }
@@ -451,6 +466,8 @@ public class EndlessGameOverController implements Initializable {
             case TAB:
                 // Cycle through buttons
                 if (tryAgainButton.isFocused()) {
+                    resetLeaderboardButton.requestFocus();
+                } else if (resetLeaderboardButton.isFocused()) {
                     backToMenuButton.requestFocus();
                 } else {
                     tryAgainButton.requestFocus();
@@ -467,6 +484,16 @@ public class EndlessGameOverController implements Initializable {
     private void onTryAgain() {
         if (onTryAgain != null) {
             onTryAgain.run();
+        }
+    }
+    
+    /**
+     * Handles Reset Leaderboard button click.
+     */
+    @FXML
+    private void onResetLeaderboard() {
+        if (onResetLeaderboard != null) {
+            onResetLeaderboard.run();
         }
     }
     
@@ -488,9 +515,40 @@ public class EndlessGameOverController implements Initializable {
     }
     
     /**
+     * Sets the callback for Reset Leaderboard action.
+     */
+    public void setOnResetLeaderboard(Runnable callback) {
+        this.onResetLeaderboard = callback;
+    }
+    
+    /**
      * Sets the callback for Back to Menu action.
      */
     public void setOnBackToMenu(Runnable callback) {
         this.onBackToMenu = callback;
+    }
+    
+    /**
+     * Refreshes the leaderboard display after clearing.
+     */
+    public void refreshLeaderboard() {
+        // Clear current leaderboard entries
+        leaderboardContainer.getChildren().clear();
+        
+        // Get fresh leaderboard data
+        List<LeaderboardEntry> entries = EndlessModeLeaderboard.getInstance().getTopEntries();
+        
+        // Rebuild leaderboard display
+        for (int i = 0; i < 5; i++) {
+            if (i < entries.size()) {
+                LeaderboardEntry entry = entries.get(i);
+                boolean isCurrentPlayer = (i == 0 && isNewHighScore); // Only highlight if it's a new high score
+                HBox entryBox = createLeaderboardEntry(i + 1, entry, isCurrentPlayer);
+                leaderboardContainer.getChildren().add(entryBox);
+            } else {
+                HBox emptyEntry = createEmptyEntry(i + 1);
+                leaderboardContainer.getChildren().add(emptyEntry);
+            }
+        }
     }
 }

@@ -17,7 +17,7 @@
     
     <!-- Left Panel: Hold Area and Statistics -->
     <left>
-        <VBox spacing="20" styleClass="side-panel" prefWidth="200">
+        <VBox spacing="20" styleClass="side-panel" prefWidth="230">
             <padding>
                 <Insets top="20" right="15" bottom="20" left="15"/>
             </padding>
@@ -29,7 +29,10 @@
                          hgap="1" 
                          vgap="1" 
                          styleClass="hold-display"
-                         alignment="CENTER"/>
+                         alignment="CENTER"
+                         minWidth="120" minHeight="120"
+                         prefWidth="120" prefHeight="120"
+                         maxWidth="120" maxHeight="120"/>
                 <Label fx:id="holdHintLabel" 
                        text="Press SHIFT to Hold" 
                        styleClass="hint-label"/>
@@ -49,6 +52,10 @@
                 <HBox spacing="5">
                     <Label text="Speed:" styleClass="stat-label"/>
                     <Label fx:id="speedLabel" text="1x" styleClass="stat-value"/>
+                </HBox>
+                <HBox spacing="5">
+                    <Label text="Time:" styleClass="stat-label"/>
+                    <Label fx:id="timeLabel" text="00:00" styleClass="stat-value"/>
                 </HBox>
             </VBox>
             
@@ -160,7 +167,7 @@
     
     <!-- Right Panel: Next Brick and Score -->
     <right>
-        <VBox spacing="20" styleClass="side-panel" prefWidth="200">
+        <VBox spacing="20" styleClass="side-panel" prefWidth="230">
             <padding>
                 <Insets top="20" right="15" bottom="20" left="15"/>
             </padding>
@@ -172,7 +179,10 @@
                          hgap="1" 
                          vgap="1" 
                          styleClass="next-display"
-                         alignment="CENTER"/>
+                         alignment="CENTER"
+                         minWidth="120" minHeight="120"
+                         prefWidth="120" prefHeight="120"
+                         maxWidth="120" maxHeight="120"/>
             </VBox>
             
             <!-- Score Display -->
@@ -216,7 +226,7 @@
                        styleClass="game-button"
                        onAction="#newGame"/>
                 <Button fx:id="pauseButton" 
-                       text="Pause (P)" 
+                       text="Pause &amp; Resume (P)" 
                        styleClass="game-button"
                        onAction="#pauseGame"/>
                 <Button text="Menu" 

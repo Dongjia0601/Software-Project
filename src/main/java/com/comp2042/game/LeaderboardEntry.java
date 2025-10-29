@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * Represents a single entry in the Endless Mode leaderboard.
  * 
- * <p>Each entry contains the player's score, lines cleared, and timestamp.
+ * <p>Each entry contains the player's score, lines cleared, play time and level.
  * Entries are comparable by score (descending order) for ranking purposes.</p>
  * 
  * <p>Design Pattern: Value Object - Immutable data container for leaderboard entries.</p>
@@ -17,6 +17,7 @@ public class LeaderboardEntry implements Comparable<LeaderboardEntry> {
     private final int linesCleared;
     private final String timestamp;
     private final long playTimeMs;
+    private final int level;
     
     /**
      * Creates a new leaderboard entry.
@@ -24,11 +25,13 @@ public class LeaderboardEntry implements Comparable<LeaderboardEntry> {
      * @param score the final score achieved
      * @param linesCleared the number of lines cleared
      * @param playTimeMs the play time in milliseconds
+     * @param level the final level reached
      */
-    public LeaderboardEntry(int score, int linesCleared, long playTimeMs) {
+    public LeaderboardEntry(int score, int linesCleared, long playTimeMs, int level) {
         this.score = score;
         this.linesCleared = linesCleared;
         this.playTimeMs = playTimeMs;
+        this.level = level;
         this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
     }
     
@@ -39,12 +42,14 @@ public class LeaderboardEntry implements Comparable<LeaderboardEntry> {
      * @param score the score
      * @param linesCleared the lines cleared
      * @param playTimeMs the play time
+     * @param level the level
      * @param timestamp the timestamp string
      */
-    public LeaderboardEntry(int score, int linesCleared, long playTimeMs, String timestamp) {
+    public LeaderboardEntry(int score, int linesCleared, long playTimeMs, int level, String timestamp) {
         this.score = score;
         this.linesCleared = linesCleared;
         this.playTimeMs = playTimeMs;
+        this.level = level;
         this.timestamp = timestamp;
     }
     
@@ -62,6 +67,10 @@ public class LeaderboardEntry implements Comparable<LeaderboardEntry> {
     
     public String getTimestamp() {
         return timestamp;
+    }
+    
+    public int getLevel() {
+        return level;
     }
     
     /**
@@ -88,8 +97,8 @@ public class LeaderboardEntry implements Comparable<LeaderboardEntry> {
     
     @Override
     public String toString() {
-        return String.format("LeaderboardEntry{score=%d, lines=%d, time=%s, date=%s}",
-                score, linesCleared, getFormattedPlayTime(), timestamp);
+        return String.format("LeaderboardEntry{score=%d, lines=%d, level=%d, time=%s, date=%s}",
+                score, linesCleared, level, getFormattedPlayTime(), timestamp);
     }
     
     @Override

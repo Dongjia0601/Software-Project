@@ -19,7 +19,7 @@
 }
 
 .main-title {
-    -fx-font-size: 48px;
+    -fx-font-size: 64px;
     -fx-font-weight: bold;
     -fx-text-fill: linear-gradient(to right, #FF6BFF, #FFD700, #4DFFFF);
     -fx-effect: dropshadow(gaussian, rgba(255, 107, 255, 0.8), 15, 0, 0, 0);
@@ -29,7 +29,7 @@
 .main-title.new-high-score {
     -fx-text-fill: linear-gradient(to right, #FFD700, #FFA500, #FFD700);
     -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 1.0), 20, 0, 0, 0);
-    -fx-font-size: 56px;
+    -fx-font-size: 72px;
 }
 
 .subtitle {
@@ -186,7 +186,7 @@
     -fx-font-size: 18px;
     -fx-font-weight: bold;
     -fx-text-fill: #FFFFFF;
-    -fx-min-width: 120px;
+    -fx-min-width: 110px;
 }
 
 .entry-lines {
@@ -206,6 +206,13 @@
     -fx-text-fill: #666666;
     -fx-font-style: italic;
     -fx-min-width: 200px;
+}
+
+/* New statistics labels */
+.entry-level {
+    -fx-font-size: 14px;
+    -fx-text-fill: #AAAAAA; /* same as lines */
+    -fx-min-width: 70px;    /* slightly narrower to stay within border */
 }
 
 /* Button Section */
@@ -247,6 +254,77 @@
     -fx-background-color: #00CC66 !important;
     -fx-border-color: #00DD77 !important;
     -fx-effect: dropshadow(gaussian, rgba(0, 204, 102, 0.6), 8, 0, 0, 2) !important;
+}
+
+/* Reset Leaderboard Button - Klein Blue */
+.button.reset-btn {
+    -fx-background-color: #1547c7 !important; /* Klein Blue */
+    -fx-border-color: #092fb9 !important;     /* bright edge */
+    -fx-text-fill: #FFFFFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 47, 167, 0.8), 15, 0, 0, 0) !important;
+    -fx-font-family: "Arial Black", Arial, sans-serif !important;
+    -fx-font-size: 18px !important;
+    -fx-font-weight: bold !important;
+    -fx-padding: 12px 25px !important;
+    -fx-background-radius: 15px !important;
+    -fx-border-radius: 15px !important;
+    -fx-border-width: 2px !important;
+    -fx-min-width: 180px !important;
+}
+
+.button.reset-btn:hover {
+    -fx-background-color: #1E56FF !important; /* lighter Klein */
+    -fx-border-color: #5B7CFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(46, 114, 255, 1.0), 25, 0, 0, 0) !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-scale-x: 1.06; /* hover enlarge */
+    -fx-scale-y: 1.06;
+}
+
+.button.reset-btn:pressed {
+    -fx-background-color: #001F73 !important; /* deep Klein */
+    -fx-border-color: #2F5BFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 31, 115, 0.6), 8, 0, 0, 2) !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-scale-x: 0.98; /* slight compress to simulate press */
+    -fx-scale-y: 0.98;
+}
+
+/* Also override combined selector to ensure consistency */
+.action-button.reset-btn {
+    -fx-background-color: #002FA7 !important;
+    -fx-border-color: #2F5BFF !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 47, 167, 0.8), 15, 0, 0, 0) !important;
+}
+
+.action-button.reset-btn:hover {
+    -fx-background-color: #1E56FF !important;
+    -fx-border-color: #5B7CFF !important;
+}
+
+.action-button.reset-btn:pressed {
+    -fx-background-color: #001F73 !important;
+    -fx-border-color: #2F5BFF !important;
+}
+
+/* Fallback selectors for Reset (in case default class list differs) */
+.reset-btn {
+    -fx-background-color: #002FA7 !important;
+    -fx-border-color: #2F5BFF !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-background-radius: 15 !important;
+    -fx-border-radius: 15 !important;
+}
+
+.reset-btn:hover {
+    -fx-background-color: #1E56FF !important;
+    -fx-border-color: #5B7CFF !important;
+}
+
+.reset-btn:pressed {
+    -fx-background-color: #001F73 !important;
+    -fx-border-color: #2F5BFF !important;
 }
 
 /* Back to Menu Button - Elegant Purple with Premium Feel */
@@ -328,4 +406,30 @@
         -fx-min-width: 300px;
         -fx-max-width: 400px;
     }
+}
+
+/* ID-specific overrides for Reset to guarantee precedence */
+#resetLeaderboardButton, .button#resetLeaderboardButton {
+    -fx-background-color: #002FA7 !important;
+    -fx-border-color: #2F5BFF !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-background-radius: 15 !important;
+    -fx-border-radius: 15 !important;
+    -fx-border-width: 2px !important;
+    -fx-padding: 12px 25px !important;
+    -fx-font-size: 14px !important;
+    -fx-font-weight: bold !important;
+    -fx-font-family: "Arial Black", Arial, sans-serif !important;
+}
+#resetLeaderboardButton:hover, .button#resetLeaderboardButton:hover {
+    -fx-background-color: #1E56FF !important;
+    -fx-border-color: #5B7CFF !important;
+    -fx-scale-x: 1.06;
+    -fx-scale-y: 1.06;
+}
+#resetLeaderboardButton:pressed, .button#resetLeaderboardButton:pressed {
+    -fx-background-color: #001F73 !important;
+    -fx-border-color: #2F5BFF !important;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
 }

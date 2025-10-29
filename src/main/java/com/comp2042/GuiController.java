@@ -99,6 +99,9 @@ public class GuiController implements Initializable {
     private Label speedLabel;
     
     @FXML
+    private Label timeLabel;
+    
+    @FXML
     private GridPane holdPanel;
     
     @FXML
@@ -116,6 +119,7 @@ public class GuiController implements Initializable {
     private Rectangle[][] rectangles; // Array of rectangles representing the current falling brick
 
     private Timeline timeLine; // Timeline for the automatic downward movement of the brick
+    private Timeline timeTimer; // Timer to update elapsed time in Endless Mode
     
     // EndlessMode specific fields
     private int currentDropSpeed = 400; // Default speed in milliseconds
@@ -135,6 +139,14 @@ public class GuiController implements Initializable {
     
     // Store previous volume before muting
     private double previousVolume = 0.7; // Default volume
+    
+    // Time tracking (exclude paused duration)
+    private long totalPausedMillis = 0L;
+    private long lastPauseStartMillis = 0L;
+    
+    // Endless mode progression tracking
+    private int endlessLevel = 1;
+    private int endlessLinesClearedUI = 0;
 
     @Override
     /**
@@ -257,6 +269,21 @@ public class GuiController implements Initializable {
         ));
         timeLine.setCycleCount(Timeline.INDEFINITE);
         timeLine.play();
+
+        // Start time tracking for Endless Mode
+        if (isEndlessMode) {
+            if (gameStartTime == 0) {
+                gameStartTime = System.currentTimeMillis();
+            }
+            startTimeTimer();
+            // Ensure initial Endless speed/labels are applied after timeline exists
+            if (endlessLevel <= 0) {
+                endlessLevel = 1;
+            }
+            updateLevel(endlessLevel);
+            updateSpeed(getSpeedDisplayForLevel(endlessLevel));
+            updateGameSpeed(getDropMsForLevel(endlessLevel));
+        }
     }
 
     /**
@@ -362,6 +389,14 @@ public class GuiController implements Initializable {
                     NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
                     groupNotification.getChildren().add(notificationPanel);
                     notificationPanel.showScore(groupNotification.getChildren());
+                    // Endless progression: update on clear
+                    if (isEndlessMode) {
+                        int removedLines = downData.getClearRow().getLinesRemoved();
+                        endlessLinesClearedUI += removedLines;
+                        updateLines(endlessLinesClearedUI);
+                        
+                        applyEndlessProgression();
+                    }
                 }
                 refreshBrick(downData.getViewData());
             }
@@ -397,6 +432,9 @@ public class GuiController implements Initializable {
         if (timeLine != null) {
             timeLine.stop(); // Stop automatic movement
         }
+        if (timeTimer != null) {
+            timeTimer.stop();
+        }
         gameOverPanel.setVisible(true);
         isGameOver.setValue(true);
         isPause.setValue(false); // Ensure pause is off on game over
@@ -417,17 +455,36 @@ public class GuiController implements Initializable {
         if (timeLine != null) {
             timeLine.stop(); // Stop current timeline
         }
+        if (timeTimer != null) {
+            timeTimer.stop();
+        }
         gameOverPanel.setVisible(false);
         
         // Clear hold and next panels when starting new game
         updateHoldDisplay(null);
         updateNextDisplay(null);
+        // Reset time for Endless Mode
+        if (isEndlessMode) {
+            gameStartTime = System.currentTimeMillis();
+            totalPausedMillis = 0L;
+            lastPauseStartMillis = 0L;
+            updateTimeLabel();
+            endlessLevel = 1;
+            endlessLinesClearedUI = 0;
+            updateLevel(endlessLevel);
+            updateSpeed(getSpeedDisplayForLevel(endlessLevel));
+            updateGameSpeed(getDropMsForLevel(endlessLevel));
+        }
         
         eventListener.createNewGame(); // Delegate to state/controller
         gamePanel.requestFocus();
         // Restart timeline after state transition (assuming PlayingState starts the game loop)
         if (timeLine != null) {
             timeLine.play(); // Restart automatic movement
+        }
+        // Restart timer if Endless Mode
+        if (isEndlessMode) {
+            startTimeTimer();
         }
         isPause.setValue(false);
         isGameOver.setValue(false);
@@ -444,6 +501,28 @@ public class GuiController implements Initializable {
         if (eventListener instanceof GameController) {
             ((GameController) eventListener).requestPause();
         }
+        
+        // Toggle pause state and handle timer accordingly
+        isPause.setValue(!isPause.getValue());
+        
+        if (isPause.getValue()) {
+            // Game is now paused - pause the timer
+            if (lastPauseStartMillis == 0L) {
+                lastPauseStartMillis = System.currentTimeMillis();
+            }
+            if (timeTimer != null) {
+                timeTimer.pause();
+            }
+        } else {
+            // Game is now resumed - resume the timer
+            if (lastPauseStartMillis > 0L) {
+                totalPausedMillis += System.currentTimeMillis() - lastPauseStartMillis;
+                lastPauseStartMillis = 0L;
+            }
+            if (timeTimer != null) {
+                timeTimer.play();
+            }
+        }
         gamePanel.requestFocus();
     }
 
@@ -456,6 +535,15 @@ public class GuiController implements Initializable {
             timeLine.play();
             System.out.println("Game timeline resumed");
         }
+        if (timeTimer != null && !isGameOver.getValue()) {
+            timeTimer.play();
+        }
+        // Ensure pause state is false when resuming
+        if (isPause.getValue() && lastPauseStartMillis > 0L) {
+            totalPausedMillis += System.currentTimeMillis() - lastPauseStartMillis;
+            lastPauseStartMillis = 0L;
+        }
+        isPause.setValue(false);
         gamePanel.requestFocus();
     }
 
@@ -482,6 +570,71 @@ public class GuiController implements Initializable {
     }
     
     // ==================== EndlessMode UI Update Methods ====================
+    private void applyEndlessProgression() {
+        int newLevel = 1 + (endlessLinesClearedUI / 10); // +1 level every 10 lines
+        newLevel = Math.min(newLevel, 15); // cap at 15
+        if (newLevel != endlessLevel) {
+            endlessLevel = newLevel;
+            updateLevel(endlessLevel);
+            int dropMs = getDropMsForLevel(endlessLevel);
+            updateGameSpeed(dropMs);
+            int speedDisplay = getSpeedDisplayForLevel(endlessLevel);
+            updateSpeed(speedDisplay);
+            showLevelUpNotification(endlessLevel);
+        }
+    }
+
+    private int getDropMsForLevel(int level) {
+        // Reasonable decreasing speeds (ms per step)
+        // 1:700, 2:600, 3:530, 4:470, 5:420, 6:380, 7:340, 8:300, 9:260, 10:230, 11:200, 12:180, 13:160, 14:140, 15+:120
+        int[] table = {700, 600, 530, 470, 420, 380, 340, 300, 260, 230, 200, 180, 160, 140, 120};
+        int idx = Math.max(1, Math.min(level, 15)) - 1;
+        return table[idx];
+    }
+
+    private int getSpeedDisplayForLevel(int level) {
+        // Display as integer multiplier: +1 every 2 levels, cap 8x
+        int speed = 1 + ((Math.max(1, level) - 1) / 2);
+        return Math.min(speed, 8);
+    }
+    
+    // ==================== Public getters for Endless Mode statistics ====================
+    
+    /**
+     * Gets current level for Endless Mode.
+     * @return current level
+     */
+    public int getCurrentLevel() {
+        return endlessLevel;
+    }
+    
+    private void startTimeTimer() {
+        if (timeLabel == null) {
+            return;
+        }
+        if (timeTimer != null) {
+            timeTimer.stop();
+        }
+        updateTimeLabel();
+        timeTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> updateTimeLabel()));
+        timeTimer.setCycleCount(Timeline.INDEFINITE);
+        if (!isGameOver.getValue() && !isPause.getValue()) {
+            timeTimer.play();
+        }
+    }
+
+    private void updateTimeLabel() {
+        if (timeLabel == null) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        long pausedSoFar = totalPausedMillis + (isPause.getValue() && lastPauseStartMillis > 0L ? (now - lastPauseStartMillis) : 0L);
+        long elapsed = (gameStartTime > 0) ? (now - gameStartTime - pausedSoFar) : 0;
+        long totalSeconds = elapsed / 1000;
+        long mm = totalSeconds / 60;
+        long ss = totalSeconds % 60;
+        timeLabel.setText(String.format("%02d:%02d", mm, ss));
+    }
     
     /**
      * Updates the score display for EndlessMode.
@@ -1075,6 +1228,13 @@ public class GuiController implements Initializable {
         this.isEndlessMode = endlessMode;
         if (endlessMode) {
             this.gameStartTime = System.currentTimeMillis();
+            startTimeTimer();
+            // Initialize endless progression UI
+            endlessLevel = 1;
+            endlessLinesClearedUI = 0;
+            updateLevel(endlessLevel);
+            updateSpeed(getSpeedDisplayForLevel(endlessLevel));
+            updateGameSpeed(getDropMsForLevel(endlessLevel));
         }
     }
     
@@ -1106,7 +1266,7 @@ public class GuiController implements Initializable {
             boolean isNewHighScore = leaderboard.isNewHighScore(finalScore);
             
             // Add entry to leaderboard and get rank
-            int rank = leaderboard.addEntry(finalScore, linesCleared, playTimeMs);
+            int rank = leaderboard.addEntry(finalScore, linesCleared, playTimeMs, getCurrentLevel());
             
             // Load the endless game over FXML
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("endlessGameOver.fxml"));
@@ -1114,6 +1274,8 @@ public class GuiController implements Initializable {
             
             // Get the controller and set up callbacks
             EndlessGameOverController controller = loader.getController();
+            // Capture current stage for reliable scene switching across retries
+            final Stage stageForCallbacks = (Stage) gamePanel.getScene().getWindow();
             controller.setOnTryAgain(() -> {
                 // Start a new Endless Mode game (same as clicking Endless Mode button)
                 try {
@@ -1134,11 +1296,9 @@ public class GuiController implements Initializable {
                     }
                     
                     Scene gameScene = new Scene(gameRoot, 900, 800);
-                    // Get stage from the current game over scene
-                    Stage currentStage = (Stage) root.getScene().getWindow();
-                    if (currentStage != null) {
-                        currentStage.setScene(gameScene);
-                        currentStage.setTitle("Tetris - Game");
+                    if (stageForCallbacks != null) {
+                        stageForCallbacks.setScene(gameScene);
+                        stageForCallbacks.setTitle("Tetris - Game");
                     } else {
                         System.err.println("Current stage is null, cannot switch to game scene");
                     }
@@ -1150,17 +1310,30 @@ public class GuiController implements Initializable {
                     e.printStackTrace();
                 }
             });
+            controller.setOnResetLeaderboard(() -> {
+                // Clear the leaderboard and refresh the display
+                try {
+                    com.comp2042.game.EndlessModeLeaderboard lb = 
+                        com.comp2042.game.EndlessModeLeaderboard.getInstance();
+                    lb.clearLeaderboard();
+                    
+                    // Refresh the leaderboard display by recreating the entries
+                    controller.refreshLeaderboard();
+                    System.out.println("Leaderboard cleared successfully");
+                } catch (Exception e) {
+                    System.err.println("Error clearing leaderboard: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
             controller.setOnBackToMenu(() -> {
                 // Return to main menu
                 try {
                     FXMLLoader menuLoader = new FXMLLoader(getClass().getClassLoader().getResource("mainMenu.fxml"));
                     Parent menuRoot = menuLoader.load();
                     Scene menuScene = new Scene(menuRoot, 900, 800);
-                    // Get stage from the current game over scene
-                    Stage currentStage = (Stage) root.getScene().getWindow();
-                    if (currentStage != null) {
-                        currentStage.setScene(menuScene);
-                        currentStage.setTitle("Tetris - Main Menu");
+                    if (stageForCallbacks != null) {
+                        stageForCallbacks.setScene(menuScene);
+                        stageForCallbacks.setTitle("Tetris - Main Menu");
                     } else {
                         System.err.println("Current stage is null, cannot switch to menu scene");
                     }

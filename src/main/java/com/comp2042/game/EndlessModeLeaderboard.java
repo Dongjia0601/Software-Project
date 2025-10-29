@@ -72,10 +72,11 @@ public class EndlessModeLeaderboard {
      * @param score the final score
      * @param linesCleared the lines cleared
      * @param playTimeMs the play time in milliseconds
+     * @param level the final level
      * @return the rank (1-5) if entry was added, 0 if not in top 5
      */
-    public synchronized int addEntry(int score, int linesCleared, long playTimeMs) {
-        LeaderboardEntry newEntry = new LeaderboardEntry(score, linesCleared, playTimeMs);
+    public synchronized int addEntry(int score, int linesCleared, long playTimeMs, int level) {
+        LeaderboardEntry newEntry = new LeaderboardEntry(score, linesCleared, playTimeMs, level);
         
         // Add the new entry
         entries.add(newEntry);
@@ -192,8 +193,12 @@ public class EndlessModeLeaderboard {
                         int lines = Integer.parseInt(parts[1].trim());
                         long time = Long.parseLong(parts[2].trim());
                         String timestamp = parts[3].trim();
+                        int level = 1;
+                        if (parts.length >= 5) {
+                            level = Integer.parseInt(parts[4].trim());
+                        }
                         
-                        entries.add(new LeaderboardEntry(score, lines, time, timestamp));
+                        entries.add(new LeaderboardEntry(score, lines, time, level, timestamp));
                     } catch (NumberFormatException e) {
                         System.err.println("Invalid leaderboard entry: " + line);
                     }
@@ -214,16 +219,17 @@ public class EndlessModeLeaderboard {
     private void saveLeaderboard() {
         try (BufferedWriter writer = Files.newBufferedWriter(leaderboardPath)) {
             // Write header
-            writer.write("score,lines,time_ms,timestamp");
+            writer.write("score,lines,time_ms,timestamp,level");
             writer.newLine();
             
             // Write entries
             for (LeaderboardEntry entry : entries) {
-                writer.write(String.format("%d,%d,%d,%s",
+                writer.write(String.format("%d,%d,%d,%s,%d",
                         entry.getScore(),
                         entry.getLinesCleared(),
                         entry.getPlayTimeMs(),
-                        entry.getTimestamp()));
+                        entry.getTimestamp(),
+                        entry.getLevel()));
                 writer.newLine();
             }
             
