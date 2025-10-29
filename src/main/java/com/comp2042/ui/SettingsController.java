@@ -112,7 +112,36 @@ public class SettingsController {
                 randomizerChoice.setStyle("-fx-text-fill: #4DFFFF; -fx-border-color: rgba(77,255,255,0.6); -fx-background-color: rgba(77,255,255,0.12);");
             };
             applyStyle.accept(randomizerChoice.getValue());
-            randomizerChoice.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> applyStyle.accept(n));
+            // Live confirm on selection change: revert to original if user cancels
+            final boolean[] reverting = new boolean[] { false };
+            randomizerChoice.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+                applyStyle.accept(newVal);
+                if (reverting[0]) {
+                    // Prevent re-entrancy when we programmatically revert
+                    reverting[0] = false;
+                    return;
+                }
+                String target = (newVal != null && newVal.startsWith("Pure Random")) ? "pure_random" : "seven_bag";
+                if (originalRandomizer != null && !originalRandomizer.equals(target)) {
+                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Confirm Selection");
+                    alert.setHeaderText("Change Piece Randomizer?");
+                    alert.setContentText("This selection will switch the piece randomizer and restart the game after you click Save.\n\nProceed with this selection?");
+                    alert.getButtonTypes().setAll(javafx.scene.control.ButtonType.YES, javafx.scene.control.ButtonType.NO);
+                    java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
+                    if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.YES) {
+                        // Accept change in settings model; actual rebuild handled on Save/Reset
+                        settings.setPieceRandomizer(target);
+                        showStatus("Piece randomizer updated. Save to apply now.", "#4DFFFF");
+                    } else {
+                        // Revert selection immediately, stay on settings
+                        reverting[0] = true;
+                        randomizerChoice.setValue("pure_random".equals(originalRandomizer) ? LABEL_RANDOM : LABEL_7BAG);
+                        applyStyle.accept(randomizerChoice.getValue());
+                        showStatus("Change canceled.", "#FFD700");
+                    }
+                }
+            });
         }
     }
     
@@ -274,12 +303,15 @@ public class SettingsController {
             java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.YES) {
                 settings.setPieceRandomizer(pendingRandomizer);
+                originalRandomizer = pendingRandomizer; 
             } else {
                 // Revert UI selection
                 if (randomizerChoice != null) {
                     randomizerChoice.setValue("pure_random".equals(originalRandomizer) ? "Pure Random (Classic)" : "7-Bag (Recommended)");
                 }
                 pendingRandomizer = originalRandomizer;
+                // Remain in settings, show inline notice
+                showStatus("Change canceled.", "#FFD700");
             }
         }
 
@@ -314,22 +346,70 @@ public class SettingsController {
      */
     @FXML
     public void resetToDefault() {
+        // Capture current randomizer to decide whether we need confirmation
+        String currentRandomizer = settings.getPieceRandomizer();
+
+        // Always reset audio sliders to defaults first
         settings.resetToDefaults();
-        
-        // Update UI to reflect defaults
         masterVolumeSlider.setValue(settings.getMasterVolume() * 100);
         musicVolumeSlider.setValue(settings.getMusicVolume() * 100);
         sfxVolumeSlider.setValue(settings.getSfxVolume() * 100);
+
+        // If current piece system is pure_random, ask user before forcing 7-bag reset
+        if ("pure_random".equalsIgnoreCase(currentRandomizer)) {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Gameplay Change");
+            alert.setHeaderText("Reset Piece System to Default?");
+            alert.setContentText("Resetting to defaults will switch the piece randomizer from 'Pure Random' to '7-Bag' and restart the game.\n\nApply now?");
+            alert.getButtonTypes().setAll(javafx.scene.control.ButtonType.YES, javafx.scene.control.ButtonType.NO);
+            java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.YES) {
+                // Apply default piece system and persist
+                settings.setPieceRandomizer("seven_bag");
+                if (randomizerChoice != null) {
+                    randomizerChoice.setValue("7-Bag (Recommended)");
+                }
+                originalRandomizer = "seven_bag";
+                settings.saveSettings();
+
+                // Back to game and rebuild so change takes effect immediately
+                if (guiController != null && savedGameScene != null && stage != null) {
+                    stage.setScene(savedGameScene);
+                    stage.setTitle("TETRIS - Game");
+                    guiController.rebuildGameForRandomizerChange();
+                }
+                showStatus("Defaults applied (7-Bag) and game restarted", "#4DFFFF");
+                return;
+            } else {
+                // Keep Pure Random and return to game like Back to Game
+                settings.setPieceRandomizer("pure_random");
+                if (randomizerChoice != null) {
+                    randomizerChoice.setValue("Pure Random (Classic)");
+                }
+                settings.saveSettings();
+                if (guiController != null && savedGameScene != null && stage != null) {
+                    stage.setScene(savedGameScene);
+                    stage.setTitle("TETRIS - Game");
+                    guiController.resumeFromOverlay();
+                }
+                showStatus("Kept Pure Random and returned to game", "#FFD700");
+                return;
+            }
+        }
+
+        // If already seven_bag (or anything else), enforce defaults quietly
+        settings.setPieceRandomizer("seven_bag");
         if (randomizerChoice != null) {
             randomizerChoice.setValue("7-Bag (Recommended)");
         }
-        
-        // Update Mute button state in game interface
+        originalRandomizer = "seven_bag";
+        settings.saveSettings();
+
         if (guiController != null) {
             guiController.updateMuteButtonState();
         }
-        
-        showStatus("Settings reset to defaults", "#FFD700");
+        // Do not auto-return if piece system was already 7-Bag; just notify under the buttons
+        showStatus("Audio settings have been reset to defaults!", "#FFD700");
     }
     
     /**
