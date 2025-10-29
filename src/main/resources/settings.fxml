@@ -125,7 +125,7 @@
                             </VBox>
                         </VBox>
                         
-                        <!-- Game Controls -->
+                <!-- Game Controls -->
                         <VBox spacing="4" styleClass="control-section">
                             <Text text="Game Controls" styleClass="control-section-title"/>
                             <VBox spacing="4" styleClass="control-list">
@@ -139,6 +139,17 @@
                                 </HBox>
                             </VBox>
                         </VBox>
+
+                <!-- Gameplay Section -->
+                <VBox spacing="10" styleClass="settings-section">
+                    <Text text="GAMEPLAY" styleClass="section-title"/>
+                    <Separator styleClass="section-divider"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Piece Randomizer:" styleClass="audio-label" minWidth="140"/>
+                        <Region prefWidth="30" />
+                        <ChoiceBox fx:id="randomizerChoice" prefWidth="260" styleClass="randomizer-choice"/>
+                    </HBox>
+                </VBox>
                     </VBox>
                 </VBox>
                 

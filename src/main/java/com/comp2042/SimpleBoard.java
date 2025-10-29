@@ -3,6 +3,8 @@ package com.comp2042;
 import com.comp2042.logic.bricks.Brick;
 import com.comp2042.logic.bricks.BrickGenerator;
 import com.comp2042.logic.bricks.RandomBrickGenerator;
+import com.comp2042.logic.bricks.SevenBagBrickGenerator;
+import com.comp2042.config.GameSettings;
 
 import java.awt.*;
 
@@ -46,7 +48,13 @@ public class SimpleBoard implements Board {
         this.width = width;
         this.height = height;
         currentGameMatrix = new int[height][width];
-        brickGenerator = new RandomBrickGenerator();
+        // Choose generator based on settings
+        String randomizer = GameSettings.getInstance().getPieceRandomizer();
+        if ("pure_random".equalsIgnoreCase(randomizer)) {
+            brickGenerator = new RandomBrickGenerator();
+        } else {
+            brickGenerator = new SevenBagBrickGenerator();
+        }
         brickRotator = new BrickRotator();
         score = new Score();
     }

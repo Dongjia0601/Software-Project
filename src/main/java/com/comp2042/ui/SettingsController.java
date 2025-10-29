@@ -1,7 +1,6 @@
 package com.comp2042.ui;
 
 import com.comp2042.config.GameSettings;
-// import com.comp2042.ui.theme.CosmicTheme; // Removed - not available in addition branch
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.ChoiceBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -69,6 +69,13 @@ public class SettingsController {
     private Scene savedGameScene; // Saved game scene for returning to game
     private com.comp2042.GuiController guiController; // Reference to GUI controller for resuming game
     private boolean wasGamePausedBeforeSettings; // Track if game was already paused 
+
+    // Gameplay: piece randomizer
+    @FXML
+    private ChoiceBox<String> randomizerChoice;
+
+    // Track original randomizer to detect changes on save
+    private String originalRandomizer;
     
     /**
      * Initializes the settings controller.
@@ -88,6 +95,25 @@ public class SettingsController {
                          settings.getMusicVolume() * 100);
         setupVolumeSlider(sfxVolumeSlider, sfxVolumeLabel, 
                          settings.getSfxVolume() * 100);
+
+        // Setup randomizer choice box if present
+        if (randomizerChoice != null) {
+            final String LABEL_7BAG = "7-Bag (Recommended)";
+            final String LABEL_RANDOM = "Pure Random (Classic)";
+            randomizerChoice.getItems().setAll(LABEL_7BAG, LABEL_RANDOM);
+            String mode = settings.getPieceRandomizer();
+            boolean isPure = "pure_random".equalsIgnoreCase(mode);
+            randomizerChoice.setValue(isPure ? LABEL_RANDOM : LABEL_7BAG);
+            originalRandomizer = isPure ? "pure_random" : "seven_bag";
+
+            // Color the control based on selection (ChoiceBox has no cell factory API)
+            java.util.function.Consumer<String> applyStyle = (val) -> {
+                // Always blue to match key legend style
+                randomizerChoice.setStyle("-fx-text-fill: #4DFFFF; -fx-border-color: rgba(77,255,255,0.6); -fx-background-color: rgba(77,255,255,0.12);");
+            };
+            applyStyle.accept(randomizerChoice.getValue());
+            randomizerChoice.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> applyStyle.accept(n));
+        }
     }
     
     /**
@@ -229,8 +255,35 @@ public class SettingsController {
         settings.setMasterVolume(masterVolumeSlider.getValue() / 100.0);
         settings.setMusicVolume(musicVolumeSlider.getValue() / 100.0);
         settings.setSfxVolume(sfxVolumeSlider.getValue() / 100.0);
-        
-        // Save to file
+
+        String pendingRandomizer = originalRandomizer;
+        boolean randomizerChanged = false;
+        if (randomizerChoice != null) {
+            String selected = randomizerChoice.getValue();
+            pendingRandomizer = (selected != null && selected.startsWith("Pure Random") ? "pure_random" : "seven_bag");
+            randomizerChanged = (originalRandomizer != null && !originalRandomizer.equals(pendingRandomizer));
+        }
+
+        // If randomizer changed, ask for confirmation because this resets the game
+        if (randomizerChanged) {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Gameplay Change");
+            alert.setHeaderText("Change Piece Randomizer?");
+            alert.setContentText("Switching the piece randomizer will reset the current game.\n\nDo you want to apply the change now?");
+            alert.getButtonTypes().setAll(javafx.scene.control.ButtonType.YES, javafx.scene.control.ButtonType.NO);
+            java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.YES) {
+                settings.setPieceRandomizer(pendingRandomizer);
+            } else {
+                // Revert UI selection
+                if (randomizerChoice != null) {
+                    randomizerChoice.setValue("pure_random".equals(originalRandomizer) ? "Pure Random (Classic)" : "7-Bag (Recommended)");
+                }
+                pendingRandomizer = originalRandomizer;
+            }
+        }
+
+        // Persist settings (volumes and possibly randomizer)
         boolean success = settings.saveSettings();
         
         if (success) {
@@ -239,6 +292,17 @@ public class SettingsController {
             // Update Mute button state in game interface
             if (guiController != null) {
                 guiController.updateMuteButtonState();
+                // If randomizer was applied and we are in-game, rebuild the board immediately
+                if (randomizerChanged && pendingRandomizer.equals(settings.getPieceRandomizer())) {
+                    // Return to game scene if we are currently in the settings scene
+                    if (savedGameScene != null && stage != null) {
+                        stage.setScene(savedGameScene);
+                        stage.setTitle("TETRIS - Game");
+                    }
+                    guiController.rebuildGameForRandomizerChange();
+                    // Update baseline to new value for subsequent saves
+                    originalRandomizer = settings.getPieceRandomizer();
+                }
             }
         } else {
             showStatus("Failed to save settings.", "#FF6B6B");
@@ -256,6 +320,9 @@ public class SettingsController {
         masterVolumeSlider.setValue(settings.getMasterVolume() * 100);
         musicVolumeSlider.setValue(settings.getMusicVolume() * 100);
         sfxVolumeSlider.setValue(settings.getSfxVolume() * 100);
+        if (randomizerChoice != null) {
+            randomizerChoice.setValue("7-Bag (Recommended)");
+        }
         
         // Update Mute button state in game interface
         if (guiController != null) {
@@ -278,7 +345,7 @@ public class SettingsController {
             
             // CRITICAL FIX: Resume game automatically if it wasn't paused before settings
             if (guiController != null && !wasGamePausedBeforeSettings) {
-                guiController.resumeGame(); // Resume game timeline
+                guiController.resumeFromOverlay(); // Toggle state and resume
                 System.out.println("Game automatically resumed after settings");
             } else {
                 System.out.println("Returned to game from settings (kept paused)");
@@ -308,13 +375,13 @@ public class SettingsController {
             System.out.println("Main menu FXML loaded successfully");
             
             com.comp2042.MainMenuController menuController = loader.getController();
-            // Note: MainMenuController doesn't have setStage method in addition branch
+
             
             // Create scene with main menu size
             Scene scene = new Scene(root, 900, 800);
             System.out.println("Scene created: 900x800");
             
-            // Apply inline theme (CosmicTheme not available in addition branch)
+            // Apply inline theme
             scene.getRoot().setStyle("-fx-background-color: linear-gradient(to bottom, #0a0e27 0%, #1a1a3e 25%, #2d1b69 50%, #1a1a3e 75%, #0f0c29 100%);");
             System.out.println("Theme applied");
             

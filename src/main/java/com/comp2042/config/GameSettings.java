@@ -34,12 +34,14 @@ public class GameSettings {
     
     // Gameplay settings
     private int defaultDifficulty;
+    private String pieceRandomizer; // "seven_bag" or "pure_random"
     
     // Default values
     private static final double DEFAULT_MASTER_VOLUME = 0.7;
     private static final double DEFAULT_MUSIC_VOLUME = 0.5;
     private static final double DEFAULT_SFX_VOLUME = 0.8;
     private static final int DEFAULT_DIFFICULTY = 1;
+    private static final String DEFAULT_RANDOMIZER = "seven_bag";
     
     /**
      * Private constructor for Singleton pattern.
@@ -68,6 +70,7 @@ public class GameSettings {
         this.musicVolume = DEFAULT_MUSIC_VOLUME;
         this.sfxVolume = DEFAULT_SFX_VOLUME;
         this.defaultDifficulty = DEFAULT_DIFFICULTY;
+        this.pieceRandomizer = DEFAULT_RANDOMIZER;
     }
     
     /**
@@ -81,6 +84,7 @@ public class GameSettings {
         props.setProperty("musicVolume", String.valueOf(musicVolume));
         props.setProperty("sfxVolume", String.valueOf(sfxVolume));
         props.setProperty("defaultDifficulty", String.valueOf(defaultDifficulty));
+        props.setProperty("pieceRandomizer", pieceRandomizer);
         
         File settingsFile = getSettingsFile();
         try (FileOutputStream out = new FileOutputStream(settingsFile)) {
@@ -115,11 +119,13 @@ public class GameSettings {
             musicVolume = Double.parseDouble(props.getProperty("musicVolume", String.valueOf(DEFAULT_MUSIC_VOLUME)));
             sfxVolume = Double.parseDouble(props.getProperty("sfxVolume", String.valueOf(DEFAULT_SFX_VOLUME)));
             defaultDifficulty = Integer.parseInt(props.getProperty("defaultDifficulty", String.valueOf(DEFAULT_DIFFICULTY)));
+            pieceRandomizer = props.getProperty("pieceRandomizer", DEFAULT_RANDOMIZER);
             
             System.out.println("Settings loaded from file: " + file.getAbsolutePath());
             System.out.println("Master volume: " + masterVolume);
             System.out.println("Music volume: " + musicVolume);
             System.out.println("SFX volume: " + sfxVolume);
+            System.out.println("Piece randomizer: " + pieceRandomizer);
             return true;
         } catch (IOException | NumberFormatException e) {
             System.err.println("Failed to load settings: " + e.getMessage());
@@ -160,5 +166,18 @@ public class GameSettings {
     
     public void setDefaultDifficulty(int defaultDifficulty) {
         this.defaultDifficulty = Math.max(1, Math.min(10, defaultDifficulty));
+    }
+
+    public String getPieceRandomizer() {
+        return pieceRandomizer;
+    }
+
+    public void setPieceRandomizer(String pieceRandomizer) {
+        if (pieceRandomizer == null) {
+            this.pieceRandomizer = DEFAULT_RANDOMIZER;
+        } else {
+            String v = pieceRandomizer.toLowerCase();
+            this.pieceRandomizer = ("pure_random".equals(v) ? "pure_random" : "seven_bag");
+        }
     }
 }

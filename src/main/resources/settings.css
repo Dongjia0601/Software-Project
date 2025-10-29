@@ -1,3 +1,42 @@
+/* Randomizer choice base styling */
+.randomizer-choice {
+    -fx-background-color: rgba(77, 255, 255, 0.12);
+    -fx-border-color: rgba(77,255,255,0.6);
+    -fx-border-width: 1px;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-padding: 2 8 2 8;
+}
+
+/* Ensure displayed text matches key legend (cyan, bold, mono-ish) */
+.randomizer-choice .label {
+    -fx-text-fill: #4DFFFF;
+    -fx-font-weight: bold;
+    -fx-font-family: "Consolas", "Monaco", monospace;
+}
+
+/* Dropdown (popup) menu styling: white background, black text for readability */
+.randomizer-choice .context-menu {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+}
+.randomizer-choice .context-menu .label {
+    -fx-text-fill: #000000;
+    -fx-font-weight: normal;
+}
+.randomizer-choice .context-menu .check-menu-item .check-mark {
+    -fx-background-color: #000000; /* black tick on white */
+}
+.randomizer-choice .context-menu .radio-menu-item .radio {
+    -fx-background-color: #000000; /* black dot on white */
+}
+.randomizer-choice .menu-item:focused {
+    -fx-background-color: rgba(77,255,255,0.20);
+}
+.randomizer-choice .menu-item:focused .label {
+    -fx-text-fill: #000000;
+}
 /* ===========================
    TETRIS Settings Page Styles
    =========================== */

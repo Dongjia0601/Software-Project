@@ -72,6 +72,16 @@ public class BrickFactory {
     public static BrickGenerator createRandomBrickGenerator() {
         return new RandomBrickGenerator();
     }
+
+    /**
+     * Creates a brick generator that uses the 7-bag randomizer
+     * (one of each piece per bag, then shuffled).
+     *
+     * @return A BrickGenerator instance that follows the 7-bag randomizer.
+     */
+    public static BrickGenerator createSevenBagBrickGenerator() {
+        return new SevenBagBrickGenerator();
+    }
     
     /**
      * Gets all available brick types.

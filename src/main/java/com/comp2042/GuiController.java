@@ -233,12 +233,20 @@ public class GuiController implements Initializable {
      * @param brick       The initial view data for the falling brick (shape, position).
      */
     public void initGameView(int[][] boardMatrix, ViewData brick) {
+        // Ensure the grid pane renders its grid lines and keeps the correct style
+        if (gamePanel != null) {
+            gamePanel.setGridLinesVisible(true);
+            if (!gamePanel.getStyleClass().contains("game-grid")) {
+                gamePanel.getStyleClass().add("game-grid");
+            }
+        }
         // Initialize the display matrix for the static board background
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
         for (int i = 2; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
                 rectangle.setFill(Color.TRANSPARENT);
+                rectangle.getStyleClass().add("game-cell");
                 displayMatrix[i][j] = rectangle;
                 gamePanel.add(rectangle, j, i - 2);
             }
@@ -445,6 +453,76 @@ public class GuiController implements Initializable {
     }
 
     /**
+     * Rebuilds the underlying game controller and board after a gameplay-affecting
+     * settings change (e.g., switching the piece randomizer). Creates a fresh
+     * GameController which constructs a new Board based on current settings and
+     * re-initializes the view. Any running timers are stopped beforehand.
+     */
+    public void rebuildGameForRandomizerChange() {
+        // Stop timers
+        if (timeLine != null) {
+            timeLine.stop();
+        }
+        if (timeTimer != null) {
+            timeTimer.stop();
+        }
+        timeLine = null;
+        timeTimer = null;
+        // Reset UI panels
+        if (brickPanel != null) {
+            brickPanel.getChildren().clear();
+        }
+        // Clear static board cells by resetting fills; keep grid nodes to preserve styling
+        if (displayMatrix != null) {
+            for (int i = 0; i < displayMatrix.length; i++) {
+                for (int j = 0; j < displayMatrix[i].length; j++) {
+                    if (displayMatrix[i][j] != null) {
+                        displayMatrix[i][j].setFill(Color.TRANSPARENT);
+                    }
+                }
+            }
+        }
+        if (nextBrickPanel != null) {
+            nextBrickPanel.getChildren().clear();
+        }
+        if (holdPanel != null) {
+            holdPanel.getChildren().clear();
+        }
+        // Clear cached display matrices so initGameView rebuilds them cleanly
+        displayMatrix = null;
+        rectangles = null;
+        nextDisplayMatrix = null;
+        holdDisplayMatrix = null;
+        updateHoldDisplay(null);
+        updateNextDisplay(null);
+        isGameOver.setValue(false);
+        isPause.setValue(false);
+        // Recreate controller which will read settings and build a new Board
+        new GameController(this);
+        // Re-assert grid lines visibility and style just in case
+        if (gamePanel != null) {
+            gamePanel.setGridLinesVisible(true);
+            if (!gamePanel.getStyleClass().contains("game-grid")) {
+                gamePanel.getStyleClass().add("game-grid");
+            }
+        }
+        // Reset Endless mode timers/progression UI
+        if (isEndlessMode) {
+            gameStartTime = System.currentTimeMillis();
+            totalPausedMillis = 0L;
+            lastPauseStartMillis = 0L;
+            endlessLevel = 1;
+            endlessLinesClearedUI = 0;
+            updateLevel(endlessLevel);
+            updateSpeed(getSpeedDisplayForLevel(endlessLevel));
+            updateGameSpeed(getDropMsForLevel(endlessLevel));
+            updateTimeLabel();
+            startTimeTimer();
+        }
+        gamePanel.requestFocus();
+    }
+
+    /**
      * Handles the request to start a new game.
      * Stops the timeline, hides the game over panel, requests a new game from the event listener,
      * and restarts the timeline.
@@ -545,6 +623,17 @@ public class GuiController implements Initializable {
         }
         isPause.setValue(false);
         gamePanel.requestFocus();
+    }
+
+    /**
+     * Resumes gameplay after returning from modal overlays (Settings/Help).
+     * Ensures the state machine toggles back to Playing before timers resume.
+     */
+    public void resumeFromOverlay() {
+        if (eventListener instanceof GameController) {
+            ((GameController) eventListener).requestPause(); // Paused -> Playing
+        }
+        resumeGame();
     }
 
     public void updateProgress(int linesClearedInLevel, int targetLines) {
@@ -1060,6 +1149,22 @@ public class GuiController implements Initializable {
             Scene currentGameScene = gamePanel.getScene();
             Stage stage = (Stage) currentGameScene.getWindow();
             
+            // Ensure the game is paused while settings are open
+            boolean wasGamePaused = isPause.getValue();
+            if (!wasGamePaused) {
+                if (eventListener instanceof GameController) {
+                    ((GameController) eventListener).requestPause();
+                }
+                // Pause local timers defensively
+                if (timeLine != null) {
+                    timeLine.pause();
+                }
+                if (timeTimer != null) {
+                    timeTimer.pause();
+                }
+                isPause.setValue(true);
+            }
+
             // Load settings FXML
             FXMLLoader settingsLoader = new FXMLLoader(getClass().getResource("/settings.fxml"));
             Scene settingsScene = new Scene(settingsLoader.load(), 900, 800);
@@ -1068,15 +1173,8 @@ public class GuiController implements Initializable {
             com.comp2042.ui.SettingsController settingsController = settingsLoader.getController();
             settingsController.setStage(stage);
             settingsController.setSavedGameScene(currentGameScene); // Pass current game scene
-            
-            // Check if game is currently paused
-            boolean isGamePaused = false;
-            if (eventListener instanceof GameController) {
-                // We can't directly access the current state, so we'll assume it's not paused
-                // The settings controller will handle the game state properly
-                isGamePaused = false; // Default to not paused
-            }
-            settingsController.setGameController(this, isGamePaused); // Pass game controller and pause state
+            // Pass whether it was already paused before opening settings
+            settingsController.setGameController(this, wasGamePaused);
             
             // Set up keyboard handling to prevent space key conflicts
             settingsController.setupKeyboardHandling(settingsScene);
@@ -1105,6 +1203,15 @@ public class GuiController implements Initializable {
         System.out.println("Help dialog requested");
         
         try {
+            boolean wasPaused = isPause.getValue();
+            if (!wasPaused) {
+                if (eventListener instanceof GameController) {
+                    ((GameController) eventListener).requestPause();
+                }
+                if (timeLine != null) timeLine.pause();
+                if (timeTimer != null) timeTimer.pause();
+                isPause.setValue(true);
+            }
             // Create help dialog
             Stage helpStage = new Stage();
             helpStage.setTitle("Gameplay Guide");
@@ -1156,7 +1263,12 @@ public class GuiController implements Initializable {
             // Close button
             Button closeButton = new Button("Close");
             closeButton.setStyle("-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;");
-            closeButton.setOnAction(e -> helpStage.close());
+            closeButton.setOnAction(e -> {
+                helpStage.close();
+                if (!wasPaused) {
+                    resumeFromOverlay();
+                }
+            });
             
             // Create HBox for right-aligned close button
             HBox buttonContainer = new HBox();
