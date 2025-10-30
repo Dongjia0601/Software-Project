@@ -98,8 +98,8 @@ public class SettingsController {
 
         // Setup randomizer choice box if present
         if (randomizerChoice != null) {
-            final String LABEL_7BAG = "7-Bag (Recommended)";
-            final String LABEL_RANDOM = "Pure Random (Classic)";
+            final String LABEL_7BAG = "7-Bag System (Recommended)";
+            final String LABEL_RANDOM = "Pure Random System (Classic)";
             randomizerChoice.getItems().setAll(LABEL_7BAG, LABEL_RANDOM);
             String mode = settings.getPieceRandomizer();
             boolean isPure = "pure_random".equalsIgnoreCase(mode);
@@ -136,7 +136,7 @@ public class SettingsController {
                     } else {
                         // Revert selection immediately, stay on settings
                         reverting[0] = true;
-                        randomizerChoice.setValue("pure_random".equals(originalRandomizer) ? LABEL_RANDOM : LABEL_7BAG);
+                    randomizerChoice.setValue("pure_random".equals(originalRandomizer) ? LABEL_RANDOM : LABEL_7BAG);
                         applyStyle.accept(randomizerChoice.getValue());
                         showStatus("Change canceled.", "#FFD700");
                     }
@@ -307,7 +307,7 @@ public class SettingsController {
             } else {
                 // Revert UI selection
                 if (randomizerChoice != null) {
-                    randomizerChoice.setValue("pure_random".equals(originalRandomizer) ? "Pure Random (Classic)" : "7-Bag (Recommended)");
+                    randomizerChoice.setValue("pure_random".equals(originalRandomizer) ? "Pure Random System (Classic)" : "7-Bag System (Recommended)");
                 }
                 pendingRandomizer = originalRandomizer;
                 // Remain in settings, show inline notice
@@ -367,7 +367,7 @@ public class SettingsController {
                 // Apply default piece system and persist
                 settings.setPieceRandomizer("seven_bag");
                 if (randomizerChoice != null) {
-                    randomizerChoice.setValue("7-Bag (Recommended)");
+                    randomizerChoice.setValue("7-Bag System (Recommended)");
                 }
                 originalRandomizer = "seven_bag";
                 settings.saveSettings();
@@ -384,7 +384,7 @@ public class SettingsController {
                 // Keep Pure Random and return to game like Back to Game
                 settings.setPieceRandomizer("pure_random");
                 if (randomizerChoice != null) {
-                    randomizerChoice.setValue("Pure Random (Classic)");
+                    randomizerChoice.setValue("Pure Random System (Classic)");
                 }
                 settings.saveSettings();
                 if (guiController != null && savedGameScene != null && stage != null) {
@@ -400,7 +400,7 @@ public class SettingsController {
         // If already seven_bag (or anything else), enforce defaults quietly
         settings.setPieceRandomizer("seven_bag");
         if (randomizerChoice != null) {
-            randomizerChoice.setValue("7-Bag (Recommended)");
+            randomizerChoice.setValue("7-Bag System (Recommended)");
         }
         originalRandomizer = "seven_bag";
         settings.saveSettings();

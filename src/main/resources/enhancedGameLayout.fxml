@@ -80,13 +80,9 @@
                 </VBox>
             </VBox>
             
-            <!-- Control Buttons -->
+            <!-- Controls (left panel) -->
             <VBox spacing="10" styleClass="info-box">
                 <Label text="CONTROLS" styleClass="section-title"/>
-                <Button fx:id="muteButton" 
-                       text="Mute" 
-                       styleClass="control-button"
-                       onAction="#toggleMute"/>
                 <Button fx:id="settingsButton" 
                        text="Settings" 
                        styleClass="control-button"
@@ -95,6 +91,9 @@
                        text="Help" 
                        styleClass="control-button"
                        onAction="#showHelp"/>
+                <Button text="Exit to Menu" 
+                       styleClass="control-button"
+                       onAction="#returnToMenu"/>
             </VBox>
             
         </VBox>
@@ -219,22 +218,21 @@
                 </VBox>
             </VBox>
             
-            <!-- Game Controls -->
+            <!-- Actions -->
             <VBox spacing="10" styleClass="info-box">
-                <Label text="GAME" styleClass="section-title"/>
+                <Label text="ACTIONS" styleClass="section-title"/>
                 <Button text="New Game (N)" 
                        styleClass="game-button"
                        onAction="#newGame"/>
+                <Button fx:id="muteButton" 
+                       text="Mute" 
+                       styleClass="game-button"
+                       onAction="#toggleMute"/>
                 <Button fx:id="pauseButton" 
                        text="Pause &amp; Resume (P)" 
                        styleClass="game-button"
                        onAction="#pauseGame"/>
-                <Button text="Menu" 
-                       styleClass="game-button"
-                       onAction="#returnToMenu"/>
             </VBox>
-            
-            <!-- Combo removed per user request -->
             
         </VBox>
     </right>

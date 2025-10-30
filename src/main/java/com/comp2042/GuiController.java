@@ -1236,9 +1236,9 @@ public class GuiController implements Initializable {
             titleLabel.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(titleLabel, Priority.ALWAYS);
             
-            // Game modes table
-            VBox modesContainer = new VBox(15);
-            modesContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+            // Game modes section (compact, no section header)
+            VBox modesContainer = new VBox(12);
+            modesContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.08); -fx-background-radius: 10; -fx-padding: 18;");
             
             // Mode descriptions
             String[][] modeData = {
@@ -1267,30 +1267,66 @@ public class GuiController implements Initializable {
                 modesContainer.getChildren().add(modeRow);
             }
 
+            // Basics & Controls split into two purple boxes
+            HBox basicsDual = new HBox(20);
+            basicsDual.setAlignment(Pos.TOP_LEFT);
+
+            // Left: Gameplay Basics & Rules
+            VBox basicsLeftBox = new VBox(12);
+            basicsLeftBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.08); -fx-background-radius: 10; -fx-padding: 18;");
+            Label basicsLeftTitle = new Label("Gameplay Basics");
+            basicsLeftTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+            VBox basicsLeftCol = createBulletedColumn(new String[] {
+                "Place falling tetrominoes to complete rows.",
+                "Clear full horizontal lines to earn points.",
+                "Clear multiple lines at once for higher points.",
+                "Pieces fall faster as you clear more lines.",
+                "Topping out (stack reaches top) ends the game."
+            }, 330);
+            basicsLeftBox.getChildren().addAll(basicsLeftTitle, basicsLeftCol);
+
+            // Right: Sidebar Panels & Actions
+            VBox basicsRightBox = new VBox(12);
+            basicsRightBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.08); -fx-background-radius: 10; -fx-padding: 18;");
+            Label basicsRightTitle = new Label("Side Panels & Actions");
+            basicsRightTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+            VBox basicsRightCol = createBulletedColumn(new String[] {
+                "Next: preview upcoming pieces.",
+                "Hold: store one piece to swap later (one swap per piece).",
+                "Statistics: shows Level, Lines cleared, Speed and Time.",
+                "Score: real-time points and the Highest Score.",
+                "Controls: Settings, Help, Exit to Menu.",
+                "Actions: New Game (N), Pause & Resume (P), Mute."
+            }, 330);
+            basicsRightBox.getChildren().addAll(basicsRightTitle, basicsRightCol);
+
+            basicsDual.getChildren().addAll(basicsLeftBox, basicsRightBox);
+
             // Piece Randomizer help section
             VBox rngContainer = new VBox(10);
             rngContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
 
-            Label rngTitle = new Label("Piece Randomizer (Gameplay)");
+            Label rngTitle = new Label("Piece Randomizer Systems");
             rngTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
 
-            Label rngIntro = new Label("You can choose how tetrominoes are generated in Settings > Gameplay > Piece Randomizer. Default is 7-Bag.");
+            Label rngIntro = new Label(
+                "Modern Tetris variants use a \"bag\" to distribute tetrominoes, while early games used pure random selection. Choose your system in Settings > Gameplay > Piece Randomizer. Default is 7‑Bag System.");
             rngIntro.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
             rngIntro.setWrapText(true);
 
             // 7-Bag description
-            Label bagHeader = new Label("7-Bag (Recommended)");
+            Label bagHeader = new Label("7‑Bag System (Recommended)");
             bagHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
 
             Label bagDesc = new Label(
-                "• Each bag contains I, O, T, S, Z, J, L exactly once, then the bag is shuffled.\n" +
+                "• Each set of seven contains I, O, T, S, Z, J, L exactly once, then a new bag is shuffled.\n" +
                 "• Guarantees fairness and predictability: no long droughts, no long streaks.\n" +
                 "• Best for skill development and consistent difficulty.");
             bagDesc.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
             bagDesc.setWrapText(true);
 
             // Pure Random description
-            Label prHeader = new Label("Pure Random (Classic)");
+            Label prHeader = new Label("Pure Random System (Classic)");
             prHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
 
             Label prDesc = new Label(
@@ -1308,6 +1344,37 @@ public class GuiController implements Initializable {
             applyInfo.setWrapText(true);
 
             rngContainer.getChildren().addAll(rngTitle, rngIntro, bagHeader, bagDesc, prHeader, prDesc, applyInfo);
+
+            // Scoring help section
+            VBox scoreContainer = new VBox(10);
+            scoreContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+
+            Label scoreTitle = new Label("Scoring (Single Player)");
+            scoreTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+
+            Label lineScores = new Label(
+                "Line Clears:\n" +
+                "• Single (1 line): +100 pts\n" +
+                "• Double (2 lines): +300 pts\n" +
+                "• Triple (3 lines): +500 pts\n" +
+                "• Tetris (4 lines): +800 pts");
+            lineScores.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            lineScores.setWrapText(true);
+
+            Label dropScores = new Label(
+                "Drops:\n" +
+                "• Soft Drop: +1 pt per row (accelerated)\n" +
+                "• Hard Drop: +2 pts per row (instant)");
+            dropScores.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            dropScores.setWrapText(true);
+
+            HBox scoreRow = new HBox(40);
+            scoreRow.setAlignment(Pos.TOP_LEFT);
+            lineScores.setPrefWidth(300);
+            dropScores.setPrefWidth(300);
+            scoreRow.getChildren().addAll(lineScores, dropScores);
+
+            scoreContainer.getChildren().addAll(scoreTitle, scoreRow);
             
             // Close button
             Button closeButton = new Button("Close");
@@ -1332,7 +1399,7 @@ public class GuiController implements Initializable {
             buttonContainer.getChildren().add(closeButton);
             
             // Add all components
-            mainContainer.getChildren().addAll(titleLabel, modesContainer, rngContainer, buttonContainer);
+            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, buttonContainer);
             scrollPane.setContent(mainContainer);
             
             // Create scene and show
@@ -1560,5 +1627,18 @@ public class GuiController implements Initializable {
             // Fallback to regular game over
             gameOver();
         }
+    }
+    
+    // Helper: build a bullet column with consistent wrapping and spacing for Help dialog
+    private VBox createBulletedColumn(String[] items, double width) {
+        VBox box = new VBox(6);
+        for (String text : items) {
+            Label lbl = new Label("• " + text);
+            lbl.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            lbl.setWrapText(true);
+            lbl.setPrefWidth(width);
+            box.getChildren().add(lbl);
+        }
+        return box;
     }
 }

@@ -127,7 +127,7 @@
                         
                 <!-- Game Controls -->
                         <VBox spacing="4" styleClass="control-section">
-                            <Text text="Game Controls" styleClass="control-section-title"/>
+                            <Text text="Controls" styleClass="control-section-title"/>
                             <VBox spacing="4" styleClass="control-list">
                                 <HBox spacing="20" alignment="CENTER_LEFT">
                                     <Label text="Pause/Resume" styleClass="control-action" minWidth="200"/>

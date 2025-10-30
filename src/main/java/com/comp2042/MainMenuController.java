@@ -289,9 +289,9 @@ public class MainMenuController {
             titleLabel.setMaxWidth(Double.MAX_VALUE);
             javafx.scene.layout.HBox.setHgrow(titleLabel, javafx.scene.layout.Priority.ALWAYS);
             
-            // Game modes table
-            javafx.scene.layout.VBox modesContainer = new javafx.scene.layout.VBox(15);
-            modesContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+            // Game modes section (compact, no header)
+            javafx.scene.layout.VBox modesContainer = new javafx.scene.layout.VBox(12);
+            modesContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.08); -fx-background-radius: 10; -fx-padding: 18;");
             
             // Mode descriptions
             String[][] modeData = {
@@ -319,29 +319,66 @@ public class MainMenuController {
                 modeRow.getChildren().addAll(modeLabel, descLabel);
                 modesContainer.getChildren().add(modeRow);
             }
+
+            // Basics & Controls split into two purple boxes
+            javafx.scene.layout.HBox basicsDual = new javafx.scene.layout.HBox(20);
+            basicsDual.setAlignment(javafx.geometry.Pos.TOP_LEFT);
+
+            // Left: Gameplay Basics & Rules
+            javafx.scene.layout.VBox basicsLeftBox = new javafx.scene.layout.VBox(12);
+            basicsLeftBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.08); -fx-background-radius: 10; -fx-padding: 18;");
+            javafx.scene.control.Label basicsLeftTitle = new javafx.scene.control.Label("Gameplay Basics");
+            basicsLeftTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+            String[] basicsLeftItems = new String[] {
+                "Place falling tetrominoes to complete rows.",
+                "Clear full horizontal lines to earn points.",
+                "Clear multiple lines at once for higher points.",
+                "Pieces fall faster as you clear more lines.",
+                "Topping out (stack reaches top) ends the game."
+            };
+            javafx.scene.layout.VBox basicsLeftCol = createBulletedColumn(basicsLeftItems, 330);
+            basicsLeftBox.getChildren().addAll(basicsLeftTitle, basicsLeftCol);
+
+            // Right: Sidebar Panels & Actions
+            javafx.scene.layout.VBox basicsRightBox = new javafx.scene.layout.VBox(12);
+            basicsRightBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.08); -fx-background-radius: 10; -fx-padding: 18;");
+            javafx.scene.control.Label basicsRightTitle = new javafx.scene.control.Label("Side Panels & Actions");
+            basicsRightTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+            String[] basicsRightItems = new String[] {
+                "Next: preview upcoming pieces.",
+                "Hold: store one piece to swap later (one swap per piece).",
+                "Statistics: shows Level, Lines cleared, Speed and Time.",
+                "Score: real-time points and the Highest Score.",
+                "Controls: Settings, Help, Exit to Menu.",
+                "Actions: New Game (N), Pause & Resume (P), Mute."
+            };
+            javafx.scene.layout.VBox basicsRightCol = createBulletedColumn(basicsRightItems, 330);
+            basicsRightBox.getChildren().addAll(basicsRightTitle, basicsRightCol);
+
+            basicsDual.getChildren().addAll(basicsLeftBox, basicsRightBox);
             
             // Piece Randomizer help section
             javafx.scene.layout.VBox rngContainer = new javafx.scene.layout.VBox(10);
             rngContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
 
-            javafx.scene.control.Label rngTitle = new javafx.scene.control.Label("Piece Randomizer (Gameplay)");
+            javafx.scene.control.Label rngTitle = new javafx.scene.control.Label("Piece Randomizer Systems");
             rngTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
 
             javafx.scene.control.Label rngIntro = new javafx.scene.control.Label(
-                "You can choose how tetrominoes are generated in Settings > Gameplay > Piece Randomizer. Default is 7-Bag.");
+                "Modern Tetris variants use a \"bag\" to distribute tetrominoes, while early games used pure random selection. Choose your system in Settings > Gameplay > Piece Randomizer. Default is 7‑Bag System.");
             rngIntro.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
             rngIntro.setWrapText(true);
 
-            javafx.scene.control.Label bagHeader = new javafx.scene.control.Label("7-Bag (Recommended)");
+            javafx.scene.control.Label bagHeader = new javafx.scene.control.Label("7‑Bag System (Recommended)");
             bagHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
             javafx.scene.control.Label bagDesc = new javafx.scene.control.Label(
-                "• Each bag contains I, O, T, S, Z, J, L exactly once, then the bag is shuffled.\n" +
+                "• Each set of seven contains I, O, T, S, Z, J, L exactly once, then a new bag is shuffled.\n" +
                 "• Guarantees fairness and predictability: no long droughts, no long streaks.\n" +
                 "• Best for skill development and consistent difficulty.");
             bagDesc.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
             bagDesc.setWrapText(true);
 
-            javafx.scene.control.Label prHeader = new javafx.scene.control.Label("Pure Random (Classic)");
+            javafx.scene.control.Label prHeader = new javafx.scene.control.Label("Pure Random System (Classic)");
             prHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
             javafx.scene.control.Label prDesc = new javafx.scene.control.Label(
                 "• Each piece is chosen uniformly at random with replacement.\n" +
@@ -358,6 +395,37 @@ public class MainMenuController {
 
             rngContainer.getChildren().addAll(rngTitle, rngIntro, bagHeader, bagDesc, prHeader, prDesc, applyInfo);
 
+            // Scoring help section
+            javafx.scene.layout.VBox scoreContainer = new javafx.scene.layout.VBox(10);
+            scoreContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+
+            javafx.scene.control.Label scoreTitle = new javafx.scene.control.Label("Scoring (Single Player)");
+            scoreTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+
+            javafx.scene.control.Label lineScores = new javafx.scene.control.Label(
+                "Line Clears:\n" +
+                "• Single (1 line): +100 pts\n" +
+                "• Double (2 lines): +300 pts\n" +
+                "• Triple (3 lines): +500 pts\n" +
+                "• Tetris (4 lines): +800 pts");
+            lineScores.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            lineScores.setWrapText(true);
+
+            javafx.scene.control.Label dropScores = new javafx.scene.control.Label(
+                "Drops:\n" +
+                "• Soft Drop: +1 pt per row (accelerated)\n" +
+                "• Hard Drop: +2 pts per row (instant)");
+            dropScores.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            dropScores.setWrapText(true);
+
+            javafx.scene.layout.HBox scoreRow = new javafx.scene.layout.HBox(40);
+            scoreRow.setAlignment(javafx.geometry.Pos.TOP_LEFT);
+            lineScores.setPrefWidth(300);
+            dropScores.setPrefWidth(300);
+            scoreRow.getChildren().addAll(lineScores, dropScores);
+
+            scoreContainer.getChildren().addAll(scoreTitle, scoreRow);
+
             // Close button
             javafx.scene.control.Button closeButton = new javafx.scene.control.Button("Close");
             closeButton.setStyle("-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;");
@@ -369,7 +437,7 @@ public class MainMenuController {
             buttonContainer.getChildren().add(closeButton);
             
             // Add all components
-            mainContainer.getChildren().addAll(titleLabel, modesContainer, rngContainer, buttonContainer);
+            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, buttonContainer);
             scrollPane.setContent(mainContainer);
             
             // Create scene and show
@@ -385,5 +453,18 @@ public class MainMenuController {
             System.err.println("Error showing help dialog: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    // Helper: build a bullet column with consistent wrapping and spacing
+    private javafx.scene.layout.VBox createBulletedColumn(String[] items, double width) {
+        javafx.scene.layout.VBox box = new javafx.scene.layout.VBox(6);
+        for (String text : items) {
+            javafx.scene.control.Label lbl = new javafx.scene.control.Label("• " + text);
+            lbl.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            lbl.setWrapText(true);
+            lbl.setPrefWidth(width);
+            box.getChildren().add(lbl);
+        }
+        return box;
     }
 }
