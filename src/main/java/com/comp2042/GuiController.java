@@ -1385,6 +1385,8 @@ public class GuiController implements Initializable {
                     resumeFromOverlay();
                 }
             });
+            // Prevent initial focus from jumping to the bottom button
+            closeButton.setFocusTraversable(false);
 
             // Also handle the window's X (close) button to resume if needed
             helpStage.setOnCloseRequest(e -> {

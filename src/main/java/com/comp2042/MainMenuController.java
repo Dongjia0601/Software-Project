@@ -430,6 +430,8 @@ public class MainMenuController {
             javafx.scene.control.Button closeButton = new javafx.scene.control.Button("Close");
             closeButton.setStyle("-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;");
             closeButton.setOnAction(e -> helpStage.close());
+            // Prevent initial focus from jumping to the bottom button
+            closeButton.setFocusTraversable(false);
             
             // Create HBox for right-aligned close button
             javafx.scene.layout.HBox buttonContainer = new javafx.scene.layout.HBox();
