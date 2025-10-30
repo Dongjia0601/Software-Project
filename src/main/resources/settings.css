@@ -37,6 +37,45 @@
 .randomizer-choice .menu-item:focused .label {
     -fx-text-fill: #000000;
 }
+
+/* Help dialog ScrollPane styling */
+.help-scroll {
+    -fx-background-color: transparent;
+}
+.help-scroll .viewport {
+    -fx-background-color: transparent;
+}
+.help-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+.help-scroll .scroll-bar:vertical .track {
+    -fx-background-color: rgba(20, 20, 40, 0.35);
+    -fx-background-radius: 6px;
+}
+.help-scroll .scroll-bar:vertical .track-background {
+    -fx-background-color: transparent;
+}
+.help-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: linear-gradient(to bottom, rgba(161, 81, 227, 0.95), rgba(146, 51, 223, 0.7));
+    -fx-background-radius: 6px;
+    -fx-effect: dropshadow(gaussian, rgba(161, 81, 227, 0.5), 6, 0, 0, 0);
+}
+.help-scroll .scroll-bar:vertical .thumb:hover {
+    /* Hover: cyan highlight feedback */
+    -fx-background-color: linear-gradient(to bottom, rgba(76, 168, 248, 0.9), rgba(0, 136, 255, 0.6));
+}
+.help-scroll .scroll-bar:vertical .thumb:pressed {
+    -fx-background-color: linear-gradient(to bottom, rgba(125, 63, 188, 0.95), rgba(110, 38, 173, 0.8));
+}
+.help-scroll .scroll-bar:vertical .increment-button,
+.help-scroll .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 4px;
+}
+.help-scroll .corner {
+    -fx-background-color: transparent; /* remove white corner */
+}
 /* ===========================
    TETRIS Settings Page Styles
    =========================== */

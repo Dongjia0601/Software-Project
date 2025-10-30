@@ -22,6 +22,7 @@ import javafx.scene.layout.Priority;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
@@ -1218,7 +1219,13 @@ public class GuiController implements Initializable {
             helpStage.initModality(Modality.APPLICATION_MODAL);
             helpStage.setResizable(false);
             
-            // Create main container
+            // Create scrollable content
+            ScrollPane scrollPane = new ScrollPane();
+            scrollPane.setFitToWidth(true);
+            scrollPane.setPrefViewportHeight(520);
+            scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+            scrollPane.getStyleClass().add("help-scroll");
+
             VBox mainContainer = new VBox(20);
             mainContainer.setPadding(new Insets(30));
             mainContainer.setStyle("-fx-background-color: linear-gradient(to bottom, #1A0033, #2D1B69);");
@@ -1259,12 +1266,61 @@ public class GuiController implements Initializable {
                 modeRow.getChildren().addAll(modeLabel, descLabel);
                 modesContainer.getChildren().add(modeRow);
             }
+
+            // Piece Randomizer help section
+            VBox rngContainer = new VBox(10);
+            rngContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+
+            Label rngTitle = new Label("Piece Randomizer (Gameplay)");
+            rngTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+
+            Label rngIntro = new Label("You can choose how tetrominoes are generated in Settings > Gameplay > Piece Randomizer. Default is 7-Bag.");
+            rngIntro.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            rngIntro.setWrapText(true);
+
+            // 7-Bag description
+            Label bagHeader = new Label("7-Bag (Recommended)");
+            bagHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+
+            Label bagDesc = new Label(
+                "• Each bag contains I, O, T, S, Z, J, L exactly once, then the bag is shuffled.\n" +
+                "• Guarantees fairness and predictability: no long droughts, no long streaks.\n" +
+                "• Best for skill development and consistent difficulty.");
+            bagDesc.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            bagDesc.setWrapText(true);
+
+            // Pure Random description
+            Label prHeader = new Label("Pure Random (Classic)");
+            prHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+
+            Label prDesc = new Label(
+                "• Each piece is chosen uniformly at random with replacement.\n" +
+                "• Can produce streaks and droughts (harder and more volatile).\n" +
+                "• Choose this if you prefer old-school variance and challenge.");
+            prDesc.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            prDesc.setWrapText(true);
+
+            // How to apply
+            Label applyInfo = new Label(
+                "Note: Changing the piece randomizer requires a game restart.\n" +
+                "When you click Save in the settings page, the current game will reset with the selected system.");
+            applyInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #AAAAAA;");
+            applyInfo.setWrapText(true);
+
+            rngContainer.getChildren().addAll(rngTitle, rngIntro, bagHeader, bagDesc, prHeader, prDesc, applyInfo);
             
             // Close button
             Button closeButton = new Button("Close");
             closeButton.setStyle("-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;");
             closeButton.setOnAction(e -> {
                 helpStage.close();
+                if (!wasPaused) {
+                    resumeFromOverlay();
+                }
+            });
+
+            // Also handle the window's X (close) button to resume if needed
+            helpStage.setOnCloseRequest(e -> {
                 if (!wasPaused) {
                     resumeFromOverlay();
                 }
@@ -1276,10 +1332,15 @@ public class GuiController implements Initializable {
             buttonContainer.getChildren().add(closeButton);
             
             // Add all components
-            mainContainer.getChildren().addAll(titleLabel, modesContainer, buttonContainer);
+            mainContainer.getChildren().addAll(titleLabel, modesContainer, rngContainer, buttonContainer);
+            scrollPane.setContent(mainContainer);
             
             // Create scene and show
-            Scene helpScene = new Scene(mainContainer, 700, 450);
+            Scene helpScene = new Scene(scrollPane, 720, 560);
+            // Reuse settings.css for visual consistency (scrollbar styling etc.)
+            helpScene.getStylesheets().add(
+                getClass().getResource("/settings.css").toExternalForm()
+            );
             helpStage.setScene(helpScene);
             helpStage.show();
             

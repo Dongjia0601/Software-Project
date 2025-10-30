@@ -270,7 +270,14 @@ public class MainMenuController {
             helpStage.setTitle("Gameplay Guide");
             helpStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
             helpStage.setResizable(false);
-            
+
+            // Scrollable content
+            javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane();
+            scrollPane.setFitToWidth(true);
+            scrollPane.setPrefViewportHeight(520);
+            scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+            scrollPane.getStyleClass().add("help-scroll");
+
             // Create main container
             javafx.scene.layout.VBox mainContainer = new javafx.scene.layout.VBox(20);
             mainContainer.setPadding(new javafx.geometry.Insets(30));
@@ -313,6 +320,44 @@ public class MainMenuController {
                 modesContainer.getChildren().add(modeRow);
             }
             
+            // Piece Randomizer help section
+            javafx.scene.layout.VBox rngContainer = new javafx.scene.layout.VBox(10);
+            rngContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+
+            javafx.scene.control.Label rngTitle = new javafx.scene.control.Label("Piece Randomizer (Gameplay)");
+            rngTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+
+            javafx.scene.control.Label rngIntro = new javafx.scene.control.Label(
+                "You can choose how tetrominoes are generated in Settings > Gameplay > Piece Randomizer. Default is 7-Bag.");
+            rngIntro.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            rngIntro.setWrapText(true);
+
+            javafx.scene.control.Label bagHeader = new javafx.scene.control.Label("7-Bag (Recommended)");
+            bagHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+            javafx.scene.control.Label bagDesc = new javafx.scene.control.Label(
+                "• Each bag contains I, O, T, S, Z, J, L exactly once, then the bag is shuffled.\n" +
+                "• Guarantees fairness and predictability: no long droughts, no long streaks.\n" +
+                "• Best for skill development and consistent difficulty.");
+            bagDesc.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            bagDesc.setWrapText(true);
+
+            javafx.scene.control.Label prHeader = new javafx.scene.control.Label("Pure Random (Classic)");
+            prHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+            javafx.scene.control.Label prDesc = new javafx.scene.control.Label(
+                "• Each piece is chosen uniformly at random with replacement.\n" +
+                "• Can produce streaks and droughts (harder and more volatile).\n" +
+                "• Choose this if you prefer old-school variance and challenge.");
+            prDesc.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            prDesc.setWrapText(true);
+
+            javafx.scene.control.Label applyInfo = new javafx.scene.control.Label(
+                "Note: Changing the piece randomizer requires a game restart.\n" +
+                "When you click Save in the settings page, the current game will reset with the selected system.");
+            applyInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #AAAAAA;");
+            applyInfo.setWrapText(true);
+
+            rngContainer.getChildren().addAll(rngTitle, rngIntro, bagHeader, bagDesc, prHeader, prDesc, applyInfo);
+
             // Close button
             javafx.scene.control.Button closeButton = new javafx.scene.control.Button("Close");
             closeButton.setStyle("-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;");
@@ -324,10 +369,15 @@ public class MainMenuController {
             buttonContainer.getChildren().add(closeButton);
             
             // Add all components
-            mainContainer.getChildren().addAll(titleLabel, modesContainer, buttonContainer);
+            mainContainer.getChildren().addAll(titleLabel, modesContainer, rngContainer, buttonContainer);
+            scrollPane.setContent(mainContainer);
             
             // Create scene and show
-            javafx.scene.Scene helpScene = new javafx.scene.Scene(mainContainer, 700, 450);
+            javafx.scene.Scene helpScene = new javafx.scene.Scene(scrollPane, 720, 560);
+            // Load settings.css for shared styles including scrollbar
+            helpScene.getStylesheets().add(
+                getClass().getResource("/settings.css").toExternalForm()
+            );
             helpStage.setScene(helpScene);
             helpStage.show();
             
