@@ -9,6 +9,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.effect.Blend;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Glow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -48,6 +59,12 @@ public class MainMenuController {
     
     @FXML
     private Button helpBtn;
+    
+    @FXML
+    private AnchorPane rootPane;
+    
+    @FXML
+    private Text titleText;
 
     /**
      * Initializes the main menu controller after FXML loading.
@@ -70,6 +87,100 @@ public class MainMenuController {
         levelModeBtn.setText("Level Mode");
         aiModeBtn.setText("AI Mode");
         twoPlayerModeBtn.setText("Two-Player Mode");
+        
+        // Set centered background image
+        setCenteredBackground();
+        
+        // Enhance Tetris title with advanced neon effects
+        enhanceTitleNeonEffect();
+    }
+    
+    /**
+     * Enhances the Tetris title with clean neon glow effects.
+     * Simple and effective: bright magenta text with cyan outer glow.
+     */
+    private void enhanceTitleNeonEffect() {
+        if (titleText != null) {
+            // Set bright magenta text color
+            titleText.setFill(Color.web("#FF6BFF")); // Vibrant magenta/pink
+            
+            // Simple but effective: single strong cyan glow
+            DropShadow glow = new DropShadow(30, Color.web("#4DFFFF")); // Bright cyan
+            glow.setSpread(0.5);
+            
+            // Apply effect
+            titleText.setEffect(glow);
+        }
+    }
+    
+    /**
+     * Sets the background image with centered cropping.
+     * This ensures the middle portion of the image is displayed when the image is wider than the window.
+     */
+    private void setCenteredBackground() {
+        try {
+            // Load the background image
+            Image bgImage = new Image(getClass().getClassLoader().getResourceAsStream("main_menu_bg.jpg"));
+            
+            // Window dimensions
+            double windowWidth = 900.0;
+            double windowHeight = 800.0;
+            double windowAspectRatio = windowWidth / windowHeight;
+            
+            // Image dimensions
+            double imageWidth = bgImage.getWidth();
+            double imageHeight = bgImage.getHeight();
+            double imageAspectRatio = imageWidth / imageHeight;
+            
+            // Create ImageView for precise control
+            ImageView bgImageView = new ImageView(bgImage);
+            bgImageView.setPreserveRatio(true);
+            
+            // Calculate how to display the image to show the center portion
+            if (imageAspectRatio > windowAspectRatio) {
+                // Image is wider than window - need to crop from sides to show center
+                // Scale to fit height (fill vertically), then crop width from center
+                double scaleFactor = windowHeight / imageHeight;
+                double scaledImageWidth = imageWidth * scaleFactor;
+                
+                // Calculate what portion of the original image to show
+                // We want to show a width that equals windowWidth when scaled
+                double originalVisibleWidth = windowWidth / scaleFactor;
+                
+                // Calculate x offset to center the viewport (crop equal amounts from both sides)
+                double xOffset = (imageWidth - originalVisibleWidth) / 2.0;
+                
+                // Set viewport to show center portion of original image
+                bgImageView.setViewport(new Rectangle2D(
+                    xOffset,                    // x: start from this x position in original image
+                    0,                         // y: start from top
+                    originalVisibleWidth,      // width: portion of original image to show
+                    imageHeight                // height: full height
+                ));
+                
+                // Set fit size to fill the window height
+                bgImageView.setFitHeight(windowHeight);
+                bgImageView.setFitWidth(windowWidth);
+            } else {
+                // Image is taller than window - scale to fit width (will crop top/bottom)
+                bgImageView.setFitWidth(windowWidth);
+                bgImageView.setFitHeight(windowHeight);
+            }
+            
+            // Position ImageView at (0, 0) to fill the pane
+            AnchorPane.setLeftAnchor(bgImageView, 0.0);
+            AnchorPane.setRightAnchor(bgImageView, 0.0);
+            AnchorPane.setTopAnchor(bgImageView, 0.0);
+            AnchorPane.setBottomAnchor(bgImageView, 0.0);
+            
+            // Add ImageView as the first child (background layer)
+            rootPane.getChildren().add(0, bgImageView);
+            bgImageView.toBack();  // Ensure it's behind all other elements
+            
+        } catch (Exception e) {
+            System.err.println("Error loading background image: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**

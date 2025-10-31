@@ -39,9 +39,9 @@
     
     <!-- Center: Score and Leaderboard Section -->
     <center>
-        <VBox alignment="CENTER" spacing="8" styleClass="center-section">
+        <VBox alignment="CENTER" spacing="10" styleClass="center-section" maxWidth="800.0">
             <padding>
-                <Insets top="-20" bottom="5" left="40" right="40"/>
+                <Insets top="-12" bottom="10" left="40" right="40"/>
             </padding>
             
             <!-- Your Score Card -->
@@ -105,16 +105,16 @@
                         styleClass="action-button try-again-btn"
                         onAction="#onTryAgain"/>
 
-                <Button fx:id="backToMenuButton" 
-                        text="🏠 BACK TO MENU" 
-                        styleClass="action-button menu-btn"
-                        onAction="#onBackToMenu"/>
-
                 <Button fx:id="resetLeaderboardButton" 
                         text="🕓 RESET LEADERBOARD" 
                         styleClass="action-button reset-btn"
                         mnemonicParsing="false"
                         onAction="#onResetLeaderboard"/>
+
+                <Button fx:id="backToMenuButton" 
+                        text="🏠 BACK TO MENU" 
+                        styleClass="action-button menu-btn"
+                        onAction="#onBackToMenu"/>
             </HBox>
             
             <!-- Additional Info -->

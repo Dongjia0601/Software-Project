@@ -216,10 +216,6 @@ public class EndlessGameOverController implements Initializable {
         Label levelLabel = new Label(String.format("Lv.%d", entry.getLevel()));
         levelLabel.getStyleClass().add("entry-level");
         
-        // Highlight indicator removed
-        // Label indicator = new Label(highlight ? "⭐" : "");
-        // indicator.getStyleClass().add("highlight-indicator");
-        
         box.getChildren().addAll(rankBadge, rankNum, scoreLabel, linesLabel, levelLabel);
         return box;
     }
@@ -268,7 +264,7 @@ public class EndlessGameOverController implements Initializable {
             "-fx-border-radius: 15px;" +
             "-fx-background-radius: 15px;" +
             "-fx-text-fill: #FFFFFF;" +
-            "-fx-font-size: 16px;" +
+            "-fx-font-size: 18px;" +
             "-fx-font-weight: bold;" +
             "-fx-padding: 12px 25px;" +
             "-fx-min-width: 180px;" +
@@ -283,7 +279,7 @@ public class EndlessGameOverController implements Initializable {
             "-fx-border-radius: 15px;" +
             "-fx-background-radius: 15px;" +
             "-fx-text-fill: #FFFFFF;" +
-            "-fx-font-size: 16px;" +
+            "-fx-font-size: 18px;" +
             "-fx-font-weight: bold;" +
             "-fx-padding: 12px 25px;" +
             "-fx-min-width: 180px;" +
@@ -297,10 +293,7 @@ public class EndlessGameOverController implements Initializable {
     private void setupButtonEffects() {
         // Try Again button effects
         tryAgainButton.setOnMouseEntered(e -> {
-            tryAgainButton.setScaleX(1.05);
-            tryAgainButton.setScaleY(1.05);
-            tryAgainButton.setRotate(0.5);
-            // Change color on hover
+            // Change color on hover (no transform)
             tryAgainButton.setStyle(
                 "-fx-background-color: #00FFAA;" +
                 "-fx-border-color: #00FFCC;" +
@@ -308,7 +301,7 @@ public class EndlessGameOverController implements Initializable {
                 "-fx-border-radius: 15px;" +
                 "-fx-background-radius: 15px;" +
                 "-fx-text-fill: #FFFFFF;" +
-                "-fx-font-size: 16px;" +
+                "-fx-font-size: 18px;" +
                 "-fx-font-weight: bold;" +
                 "-fx-padding: 12px 25px;" +
                 "-fx-min-width: 180px;" +
@@ -317,9 +310,6 @@ public class EndlessGameOverController implements Initializable {
         });
         
         tryAgainButton.setOnMouseExited(e -> {
-            tryAgainButton.setScaleX(1.0);
-            tryAgainButton.setScaleY(1.0);
-            tryAgainButton.setRotate(0.0);
             // Reset to original color
             tryAgainButton.setStyle(
                 "-fx-background-color: #00FF88;" +
@@ -328,7 +318,7 @@ public class EndlessGameOverController implements Initializable {
                 "-fx-border-radius: 15px;" +
                 "-fx-background-radius: 15px;" +
                 "-fx-text-fill: #FFFFFF;" +
-                "-fx-font-size: 16px;" +
+                "-fx-font-size: 18px;" +
                 "-fx-font-weight: bold;" +
                 "-fx-padding: 12px 25px;" +
                 "-fx-min-width: 180px;" +
@@ -336,24 +326,12 @@ public class EndlessGameOverController implements Initializable {
             );
         });
         
-        tryAgainButton.setOnMousePressed(e -> {
-            tryAgainButton.setScaleX(0.98);
-            tryAgainButton.setScaleY(0.98);
-            tryAgainButton.setRotate(0.0);
-        });
-        
-        tryAgainButton.setOnMouseReleased(e -> {
-            tryAgainButton.setScaleX(1.05);
-            tryAgainButton.setScaleY(1.05);
-            tryAgainButton.setRotate(0.5);
-        });
+        tryAgainButton.setOnMousePressed(e -> { /* no transform on press */ });
+        tryAgainButton.setOnMouseReleased(e -> { /* no transform on release */ });
         
         // Back to Menu button effects
         backToMenuButton.setOnMouseEntered(e -> {
-            backToMenuButton.setScaleX(1.05);
-            backToMenuButton.setScaleY(1.05);
-            backToMenuButton.setRotate(-0.5);
-            // Change color on hover
+            // Change color on hover (no transform)
             backToMenuButton.setStyle(
                 "-fx-background-color: #9D4EDD;" +
                 "-fx-border-color: #B565F0;" +
@@ -361,7 +339,7 @@ public class EndlessGameOverController implements Initializable {
                 "-fx-border-radius: 15px;" +
                 "-fx-background-radius: 15px;" +
                 "-fx-text-fill: #FFFFFF;" +
-                "-fx-font-size: 16px;" +
+                "-fx-font-size: 18px;" +
                 "-fx-font-weight: bold;" +
                 "-fx-padding: 12px 25px;" +
                 "-fx-min-width: 180px;" +
@@ -370,9 +348,6 @@ public class EndlessGameOverController implements Initializable {
         });
         
         backToMenuButton.setOnMouseExited(e -> {
-            backToMenuButton.setScaleX(1.0);
-            backToMenuButton.setScaleY(1.0);
-            backToMenuButton.setRotate(0.0);
             // Reset to original color
             backToMenuButton.setStyle(
                 "-fx-background-color: #8A2BE2;" +
@@ -381,25 +356,15 @@ public class EndlessGameOverController implements Initializable {
                 "-fx-border-radius: 15px;" +
                 "-fx-background-radius: 15px;" +
                 "-fx-text-fill: #FFFFFF;" +
-                "-fx-font-size: 16px;" +
+                "-fx-font-size: 18px;" +
                 "-fx-font-weight: bold;" +
                 "-fx-padding: 12px 25px;" +
                 "-fx-min-width: 180px;" +
                 "-fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.8), 10, 0, 0, 0);"
             );
         });
-        
-        backToMenuButton.setOnMousePressed(e -> {
-            backToMenuButton.setScaleX(0.98);
-            backToMenuButton.setScaleY(0.98);
-            backToMenuButton.setRotate(0.0);
-        });
-        
-        backToMenuButton.setOnMouseReleased(e -> {
-            backToMenuButton.setScaleX(1.05);
-            backToMenuButton.setScaleY(1.05);
-            backToMenuButton.setRotate(-0.5);
-        });
+        backToMenuButton.setOnMousePressed(e -> { /* no transform on press */ });
+        backToMenuButton.setOnMouseReleased(e -> { /* no transform on release */ });
     }
     
     /**

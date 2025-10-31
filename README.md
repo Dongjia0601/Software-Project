@@ -44,7 +44,7 @@ Before you begin, ensure the following components are installed and properly con
 - **JavaFX SDK 21.0.9**  
   Required for running the JavaFX application.  
   [Download JavaFX](https://gluonhq.com/products/javafx/) and configure it in your IDE.
-- 
+
 - **Git**  
   Used to clone and manage the project repository.
 
