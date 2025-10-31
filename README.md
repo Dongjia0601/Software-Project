@@ -27,26 +27,26 @@ This Tetris implementation includes four distinct game modes:
 ## Compilation Instructions
 
 ### Prerequisites
-Before you begin, ensure you have the following installed:
+Before you begin, ensure the following components are installed and properly configured:
 
-- **Java JDK 21**  
+- **Java Development Kit (JDK) 21**  
   Required to compile and run the application.  
-  [Download JDK 21](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html) or use OpenJDK.
-
-- **JavaFX SDK 21.0.9**  
-  Required for running the JavaFX application.  
-  [Download JavaFX](https://gluonhq.com/products/javafx/) and configure it in your IDE.
+  [Download JDK 21](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html) or Microsoft Build of OpenJDK.
 
 - **IntelliJ IDEA** (or Eclipse)  
   Recommended IDE for building and running the project.  
   [Download IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
 
 - **Maven**  
-  Used for dependency management and building the project. IntelliJ IDEA includes a bundled Maven.
+  Used for dependency management and project builds. IntelliJ IDEA bundles Maven by default.
   Alternatively, install it from [Maven’s official site](https://maven.apache.org/download.cgi) and add it to your system PATH.
 
+- **JavaFX SDK 21.0.9**  
+  Required for running the JavaFX application.  
+  [Download JavaFX](https://gluonhq.com/products/javafx/) and configure it in your IDE.
+- 
 - **Git**  
-  For cloning the project repository.
+  Used to clone and manage the project repository.
 
 ---
 
@@ -80,10 +80,11 @@ Before you begin, ensure you have the following installed:
 
 ### Running the Application
 
-#### Option 1: Using Maven Plugin
+#### Option 1: Using Maven Plugin (Recommended)
 1. Open the **Maven** tool window (click the Maven icon on the right sidebar).
 2. Navigate to **Plugins > javafx**
 3. Double-click **javafx:run** to execute the application.
+   This automatically attaches required JavaFX modules.
 
 #### Option 2: Using the Main Class
 1. In the **Project** view, locate:
@@ -92,13 +93,20 @@ Before you begin, ensure you have the following installed:
     ```
 2. Right-click `Main.java` → **Run 'Main'** to start the application.
 
+Note:
+> Running the application directly via `Run 'Main'` in IntelliJ may produce
+> `JavaFX runtime components are missing` because IntelliJ does not automatically
+> configure the JavaFX module path. Please use the Maven plugin (`javafx:run`)
+> for consistent and portable execution.
 ---
 
 ### VM Options (if needed)
 If JavaFX runtime errors occur, ensure the following VM options are added to your Run Configuration:
 ```bash
---module-path "path\to\javafx-sdk-21.0.9\lib" --add-modules javafx.controls,javafx.fxml
+--module-path "path\to\javafx-sdk-21.0.9\lib" 
+--add-modules javafx.controls,javafx.fxml
 ```
+This should only be necessary when not using javafx:run.
 
 ## Implemented and Working Properly
 
