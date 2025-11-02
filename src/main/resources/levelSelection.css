@@ -144,7 +144,8 @@
     -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
-    -fx-wrap-text: true;
+    -fx-wrap-text: false;
+    -fx-text-overrun: ellipsis;
 }
 
 .level-description {

@@ -55,15 +55,25 @@ public class LevelSelectionController {
      */
     @FXML
     public void initialize() {
-        levelManager = LevelManager.getInstance();
-        populateLevelGrid();
-        updateStats();
+        refreshData();
         
         // Apply gradient to title text
         applyTitleGradient();
         
         // Disable space key for all buttons to prevent accidental activation
         disableSpaceKeyForButtons();
+    }
+    
+    /**
+     * Refreshes the level data and UI.
+     * Called when returning from game over screen to update stars and stats.
+     */
+    public void refreshData() {
+        levelManager = LevelManager.getInstance();
+        // LevelManager is a singleton and automatically loads progress in constructor
+        // The levels are already updated, just need to refresh the UI
+        populateLevelGrid();
+        updateStats();
     }
     
     /**
@@ -147,6 +157,9 @@ public class LevelSelectionController {
      * Populates the level grid with level cards.
      */
     private void populateLevelGrid() {
+        // Clear existing cards first
+        levelGrid.getChildren().clear();
+        
         List<LevelMode> levels = levelManager.getAllLevels();
         
         int column = 0;
@@ -190,9 +203,10 @@ public class LevelSelectionController {
         // Level name
         Label levelName = new Label(level.getLevelName());
         levelName.getStyleClass().add("level-name");
-        levelName.setMaxWidth(240);
-        levelName.setWrapText(true);
+        levelName.setMaxWidth(280); // Increased width to accommodate longer names like "Interstellar Odyssey"
+        levelName.setWrapText(false); // Disable wrapping to keep name on one line
         levelName.setAlignment(Pos.CENTER);
+        // Use CSS text-overrun: ellipsis for overflow handling
         
         // Theme preview image
         ImageView themePreview = new ImageView();
@@ -203,14 +217,14 @@ public class LevelSelectionController {
                 String resourcePath = bgImagePath.startsWith("/") ? bgImagePath.substring(1) : bgImagePath;
                 Image themeImage = new Image(getClass().getClassLoader().getResourceAsStream(resourcePath));
                 themePreview.setImage(themeImage);
-                themePreview.setFitWidth(180);
-                themePreview.setFitHeight(100);
+                themePreview.setFitWidth(220);
+                themePreview.setFitHeight(130);
                 themePreview.setPreserveRatio(true);
                 themePreview.setSmooth(true);
                 themePreview.setCache(true);
                 
                 // Add rounded corners clip
-                javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(180, 100);
+                javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(220, 130);
                 clip.setArcWidth(10);
                 clip.setArcHeight(10);
                 themePreview.setClip(clip);
@@ -361,7 +375,7 @@ public class LevelSelectionController {
      * Handles level selection.
      * @param level the selected level
      */
-    private void handleLevelSelect(LevelMode level) {
+    public void handleLevelSelect(LevelMode level) {
         if (!level.isUnlocked()) {
             return;
         }
@@ -394,12 +408,257 @@ public class LevelSelectionController {
                 stage.setTitle("Tetris - " + level.getLevelName());
             }
             
+            // Apply theme background and colors AFTER scene is set
+            applyThemeBackground(root, level);
+            
+            // Apply theme colors to Hold and Next preview displays
+            guiController.applyThemeToPreviewDisplays(level.getTheme().getAccentColor());
+            
             // Initialize game controller
             new com.comp2042.GameController(guiController);
             
         } catch (IOException e) {
             e.printStackTrace();
             showError("Failed to load game screen: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Applies the theme background and UI colors to the game scene.
+     * Adds darkening overlay for visual clarity.
+     * 
+     * @param root the root parent node
+     * @param level the level with theme info
+     */
+    private void applyThemeBackground(Parent root, com.comp2042.game.LevelMode level) {
+        com.comp2042.game.LevelTheme theme = level.getTheme();
+        
+        if (theme == null) {
+            System.err.println("Theme is null for level: " + level.getLevelName());
+            return;
+        }
+        
+        String bgImagePath = theme.getBackgroundImage();
+        
+        if (bgImagePath != null && !bgImagePath.isEmpty()) {
+            try {
+                // Remove leading slash if present for getResourceAsStream
+                String resourcePath = bgImagePath.startsWith("/") ? bgImagePath.substring(1) : bgImagePath;
+                java.net.URL resourceUrl = getClass().getClassLoader().getResource(resourcePath);
+                
+                if (resourceUrl != null) {
+                    // Apply background image with darkening overlay
+                    String backgroundStyle = String.format(
+                        "-fx-background-image: url('%s'); " +
+                        "-fx-background-size: cover; " +
+                        "-fx-background-position: center center; " +
+                        "-fx-background-repeat: no-repeat; " +
+                        "-fx-background-color: rgba(0, 0, 0, 0.4);",
+                        resourceUrl.toExternalForm()
+                    );
+                    
+                    if (root instanceof javafx.scene.layout.Region) {
+                        ((javafx.scene.layout.Region) root).setStyle(backgroundStyle);
+                    }
+                    
+                    System.out.println("Applied theme background: " + bgImagePath);
+                } else {
+                    System.err.println("Resource URL is null for: " + bgImagePath);
+                    // Fallback to gradient
+                    applyGradientFallback(root, theme);
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to apply theme background: " + e.getMessage());
+                e.printStackTrace();
+                // Fallback to gradient
+                applyGradientFallback(root, theme);
+            }
+            
+            // Apply theme colors to game elements
+            applyThemeColors(root, theme);
+        } else {
+            System.err.println("Background image path is empty for level: " + level.getLevelName());
+            // Fallback to gradient
+            applyGradientFallback(root, theme);
+            
+            // Apply theme colors to game elements
+            applyThemeColors(root, theme);
+        }
+    }
+    
+    /**
+     * Applies gradient fallback when background image fails to load.
+     */
+    private void applyGradientFallback(Parent root, com.comp2042.game.LevelTheme theme) {
+        String gradientStyle = String.format(
+            "-fx-background-color: linear-gradient(to bottom, %s, %s);",
+            theme.getPrimaryColor(),
+            theme.getSecondaryColor()
+        );
+        if (root instanceof javafx.scene.layout.Region) {
+            ((javafx.scene.layout.Region) root).setStyle(gradientStyle);
+        }
+        System.out.println("Applied gradient background: " + theme.getPrimaryColor() + " to " + theme.getSecondaryColor());
+    }
+    
+    /**
+     * Applies theme colors to game UI elements.
+     * @param root the root parent node
+     * @param theme the level theme
+     */
+    private void applyThemeColors(Parent root, com.comp2042.game.LevelTheme theme) {
+        // Use Platform.runLater to ensure styles are applied after CSS loading
+        javafx.application.Platform.runLater(() -> {
+            // Apply theme to different UI element types
+            applyThemeToElementType(root, ".side-panel", createSidePanelStyle(theme));
+            applyThemeToElementType(root, ".gameBoard", createGameBoardStyle(theme));
+            applyThemeToElementType(root, ".info-box", createInfoBoxStyle(theme));
+            applyThemeToElementType(root, ".section-title", createSectionTitleStyle(theme));
+            applyThemeToElementType(root, ".game-button", createButtonStyle(theme));
+            applyThemeToElementType(root, ".control-button", createButtonStyle(theme));
+            applyThemeToElementType(root, "#settingsButton", createSettingsButtonStyle(theme));
+            applyThemeToElementType(root, "Button[fx:id='settingsButton']", createSettingsButtonStyle(theme));
+            applyThemeToElementType(root, ".control-hint", createControlHintStyle());
+            
+            System.out.println("Applied theme colors to UI elements");
+        });
+    }
+    
+    /**
+     * Helper method to apply theme to specific element types.
+     */
+    private void applyThemeToElementType(Parent root, String selector, String style) {
+        root.lookupAll(selector).forEach(node -> node.setStyle(style));
+    }
+    
+    /**
+     * Creates side panel style.
+     */
+    private String createSidePanelStyle(com.comp2042.game.LevelTheme theme) {
+        return String.format(
+            "-fx-background-color: rgba(255, 255, 255, 0.05); " +
+            "-fx-border-color: %s; " +
+            "-fx-border-width: 0 2px 0 2px; " +
+            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 0);",
+            convertColorToRgba(theme.getAccentColor(), 0.3)
+        );
+    }
+    
+    /**
+     * Creates game board style.
+     */
+    private String createGameBoardStyle(com.comp2042.game.LevelTheme theme) {
+        return String.format(
+            "-fx-background-color: linear-gradient(to bottom, %s, %s), rgba(10, 14, 39, 0.96); " +
+            "-fx-background-insets: 0, 12; " +
+            "-fx-background-radius: 16, 8; " +
+            "-fx-effect: dropshadow(gaussian, %s, 18, 0, 0, 0);",
+            theme.getPrimaryColor(),
+            theme.getSecondaryColor(),
+            convertColorToRgba(theme.getAccentColor(), 0.85)
+        );
+    }
+    
+    /**
+     * Creates info box style.
+     */
+    private String createInfoBoxStyle(com.comp2042.game.LevelTheme theme) {
+        return String.format(
+            "-fx-background-color: rgba(0, 0, 0, 0.7); " +
+            "-fx-background-radius: 10px; " +
+            "-fx-padding: 15px; " +
+            "-fx-border-color: %s; " +
+            "-fx-border-radius: 10px; " +
+            "-fx-border-width: 2px; " +
+            "-fx-effect: dropshadow(gaussian, %s, 8, 0, 0, 0);",
+            theme.getAccentColor(),
+            convertColorToRgba(theme.getPrimaryColor(), 0.3)
+        );
+    }
+    
+    /**
+     * Creates section title style.
+     */
+    private String createSectionTitleStyle(com.comp2042.game.LevelTheme theme) {
+        return String.format(
+            "-fx-text-fill: %s; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 18px; " +
+            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 3, 0, 0, 0);",
+            theme.getAccentColor()
+        );
+    }
+    
+    /**
+     * Creates button style.
+     */
+    private String createButtonStyle(com.comp2042.game.LevelTheme theme) {
+        return String.format(
+            "-fx-background-color: linear-gradient(to bottom, %s, %s); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-padding: 10px 20px; " +
+            "-fx-background-radius: 8px; " +
+            "-fx-border-color: %s; " +
+            "-fx-border-width: 2px; " +
+            "-fx-border-radius: 8px; " +
+            "-fx-cursor: hand;",
+            theme.getPrimaryColor(),
+            theme.getSecondaryColor(),
+            theme.getAccentColor()
+        );
+    }
+    
+    /**
+     * Creates settings button style.
+     */
+    private String createSettingsButtonStyle(com.comp2042.game.LevelTheme theme) {
+        return String.format(
+            "-fx-background-color: linear-gradient(to bottom, %s, %s); " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-padding: 10px 20px; " +
+            "-fx-background-radius: 8px; " +
+            "-fx-border-color: %s; " +
+            "-fx-border-width: 2px; " +
+            "-fx-border-radius: 8px; " +
+            "-fx-cursor: hand; " +
+            "-fx-effect: dropshadow(gaussian, %s, 8, 0, 0, 0);",
+            theme.getPrimaryColor(),
+            theme.getSecondaryColor(),
+            theme.getAccentColor(),
+            convertColorToRgba(theme.getAccentColor(), 0.6)
+        );
+    }
+    
+    /**
+     * Creates control hint style.
+     */
+    private String createControlHintStyle() {
+        return "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;";
+    }
+    
+    /**
+     * Converts a hex color to rgba format with specified opacity.
+     * @param hexColor the hex color (e.g., "#FFD700")
+     * @param opacity the opacity (0.0 to 1.0)
+     * @return the rgba color string (e.g., "rgba(255, 215, 0, 0.3)")
+     */
+    private String convertColorToRgba(String hexColor, double opacity) {
+        try {
+            // Remove # if present
+            String hex = hexColor.startsWith("#") ? hexColor.substring(1) : hexColor;
+            
+            // Parse hex to RGB
+            int r = Integer.parseInt(hex.substring(0, 2), 16);
+            int g = Integer.parseInt(hex.substring(2, 4), 16);
+            int b = Integer.parseInt(hex.substring(4, 6), 16);
+            
+            return String.format("rgba(%d, %d, %d, %.2f)", r, g, b, opacity);
+        } catch (Exception e) {
+            System.err.println("Failed to convert color: " + hexColor + " - " + e.getMessage());
+            // Fallback to white with opacity
+            return String.format("rgba(255, 255, 255, %.2f)", opacity);
         }
     }
     
