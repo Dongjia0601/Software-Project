@@ -99,6 +99,15 @@ public class GuiController implements Initializable {
     private Label highScoreLabel;
     
     @FXML
+    private VBox bestStatsBox;
+    
+    @FXML
+    private Label bestScoreLabel;
+    
+    @FXML
+    private Label bestTimeLabel;
+    
+    @FXML
     private Label linesLabel;
     
     @FXML
@@ -139,6 +148,15 @@ public class GuiController implements Initializable {
     private int levelTimeRemainingSeconds = 0;
     private Timeline levelTimer;
     private boolean isLevelMode = false;
+    private long levelStartTime = 0;
+    
+    /**
+     * Gets the level start time.
+     * @return the level start time in milliseconds
+     */
+    public long getLevelStartTime() {
+        return levelStartTime;
+    }
 
     private Rectangle[][] displayMatrix; // Array of rectangles representing the static board background
     private Rectangle[][] holdDisplayMatrix; // Array of rectangles for hold display
@@ -612,6 +630,9 @@ public class GuiController implements Initializable {
         if (timeTimer != null) {
             timeTimer.stop();
         }
+        if (levelTimer != null) {
+            stopLevelTimer(); // Stop Level Mode timer
+        }
         gameOverPanel.setVisible(false);
         
         // Clear hold and next panels when starting new game
@@ -628,6 +649,14 @@ public class GuiController implements Initializable {
             updateLevel(endlessLevel);
             updateSpeed(getSpeedDisplayForLevel(endlessLevel));
             updateGameSpeed(getDropMsForLevel(endlessLevel));
+        }
+        // Reset timer for Level Mode
+        if (isLevelMode) {
+            com.comp2042.game.LevelManager levelManager = com.comp2042.game.LevelManager.getInstance();
+            com.comp2042.game.LevelMode currentLevel = levelManager.getCurrentLevel();
+            if (currentLevel != null) {
+                updateTime(currentLevel.getTimeLimitSeconds()); // Reset timer to full time limit
+            }
         }
         
         eventListener.createNewGame(); // Delegate to state/controller
@@ -720,21 +749,29 @@ public class GuiController implements Initializable {
 
     public void updateProgress(int linesClearedInLevel, int targetLines) {
         if (leftProgressLabel != null) {
-            leftProgressLabel.setText(linesClearedInLevel + "/" + targetLines);
+            String progressText = String.format("%d/%d", linesClearedInLevel, targetLines);
+            leftProgressLabel.setText(progressText);
+            
+            // Change color based on progress (large font size)
+            double progress = (double) linesClearedInLevel / targetLines;
+            if (progress >= 1.0) {
+                leftProgressLabel.setStyle("-fx-text-fill: #00FF00; -fx-font-weight: bold; -fx-font-size: 32px;");
+            } else if (progress >= 0.75) {
+                leftProgressLabel.setStyle("-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-font-size: 32px;");
+            } else {
+                leftProgressLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 32px; -fx-text-fill: #FF0000;");
+            }
         }
     }
 
     public void updateStarDisplay(int stars) {
         if (leftStarDisplay != null) {
             leftStarDisplay.getChildren().clear();
+            
             for (int i = 0; i < 3; i++) {
-                Label star = new Label("★");
-                star.setFont(new Font("Arial", 20));
-                if (i < stars) {
-                    star.setTextFill(javafx.scene.paint.Color.GOLD);
-                } else {
-                    star.setTextFill(javafx.scene.paint.Color.GRAY);
-                }
+                Label star = new Label(i < stars ? "★" : "☆");
+                star.setStyle("-fx-font-size: 28px; " + 
+                             (i < stars ? "-fx-text-fill: #FFD700;" : "-fx-text-fill: #666666;"));
                 leftStarDisplay.getChildren().add(star);
             }
         }
@@ -745,36 +782,120 @@ public class GuiController implements Initializable {
             // Calculate speed based on level ID (simple display)
             double speed = 1.0 + (levelId - 1) * 0.2;
             leftSpeedLabel.setText(String.format("%.1fx", speed));
+            // Set large font size to match other objective labels
+            leftSpeedLabel.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
         }
     }
 
-    public void updateBestStats(int bestScore, long bestTime) {
-        // Best stats can be displayed in the level selection or game over screen
-        // This method is reserved for future use if needed
+    public void updateBestStats(int bestScore, long bestTimeMillis) {
+        if (bestScoreLabel != null) {
+            bestScoreLabel.setText("Best Score: " + bestScore);
+        }
+        
+        if (bestTimeLabel != null) {
+            if (bestTimeMillis == Long.MAX_VALUE || bestTimeMillis <= 0) {
+                bestTimeLabel.setText("Best Time: --:--");
+            } else {
+                int bestTimeSeconds = (int) (bestTimeMillis / 1000);
+                int minutes = bestTimeSeconds / 60;
+                int seconds = bestTimeSeconds % 60;
+                String timeText = String.format("Best Time: %d:%02d", minutes, seconds);
+                bestTimeLabel.setText(timeText);
+            }
+        }
+    }
+    
+    /**
+     * Applies theme colors to Hold and Next preview displays.
+     * 
+     * @param accentColor the theme's accent color (e.g., "#FFD700" for gold)
+     */
+    public void applyThemeToPreviewDisplays(String accentColor) {
+        if (holdPanel != null) {
+            String style = String.format(
+                "-fx-background-color: rgba(10, 14, 39, 0.8); " +
+                "-fx-border-color: %s; " +
+                "-fx-border-width: 2px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-background-radius: 5px; " +
+                "-fx-padding: 10px;",
+                accentColor
+            );
+            holdPanel.setStyle(style);
+        }
+        
+        if (nextBrickPanel != null) {
+            String style = String.format(
+                "-fx-background-color: rgba(10, 14, 39, 0.8); " +
+                "-fx-border-color: %s; " +
+                "-fx-border-width: 2px; " +
+                "-fx-border-radius: 5px; " +
+                "-fx-background-radius: 5px; " +
+                "-fx-padding: 10px;",
+                accentColor
+            );
+            nextBrickPanel.setStyle(style);
+        }
     }
 
     public void showLevelModeUI() {
         isLevelMode = true;
+        levelStartTime = System.currentTimeMillis(); // Track level start time
+        
         if (leftObjectiveBox != null) {
             leftObjectiveBox.setManaged(true);
             leftObjectiveBox.setVisible(true);
         }
+        
         if (statisticsBox != null) {
             statisticsBox.setManaged(false);
             statisticsBox.setVisible(false);
         }
+        
+        if (bestStatsBox != null) {
+            bestStatsBox.setVisible(true);
+            bestStatsBox.setManaged(true);
+        }
+        
+        if (highScoreLabel != null) {
+            highScoreLabel.setVisible(false);
+            highScoreLabel.setManaged(false);
+        }
+        
+        System.out.println("Level mode UI enabled (left panel)");
+    }
+    
+    /**
+     * Checks if the game is in Level Mode.
+     * @return true if in Level Mode, false otherwise
+     */
+    public boolean isLevelMode() {
+        return isLevelMode;
     }
 
     public void hideLevelModeUI() {
         isLevelMode = false;
+        
         if (leftObjectiveBox != null) {
             leftObjectiveBox.setManaged(false);
             leftObjectiveBox.setVisible(false);
         }
+        
         if (statisticsBox != null) {
             statisticsBox.setManaged(true);
             statisticsBox.setVisible(true);
         }
+        
+        if (bestStatsBox != null) {
+            bestStatsBox.setVisible(false);
+            bestStatsBox.setManaged(false);
+        }
+        
+        if (highScoreLabel != null) {
+            highScoreLabel.setVisible(true);
+            highScoreLabel.setManaged(true);
+        }
+        
         stopLevelTimer();
     }
 
@@ -797,18 +918,11 @@ public class GuiController implements Initializable {
                     levelTimeRemainingSeconds--;
                     updateTimeDisplay();
                     
-                    // Change color when time is running low
-                    if (levelTimeRemainingSeconds <= 10) {
-                        leftTimerLabel.setTextFill(javafx.scene.paint.Color.RED);
-                    } else if (levelTimeRemainingSeconds <= 30) {
-                        leftTimerLabel.setTextFill(javafx.scene.paint.Color.ORANGE);
-                    } else {
-                        leftTimerLabel.setTextFill(javafx.scene.paint.Color.WHITE);
-                    }
+                    // Color is set in updateTimeDisplay()
                 } else {
                     // Time's up
                     leftTimerLabel.setText("0:00");
-                    leftTimerLabel.setTextFill(javafx.scene.paint.Color.RED);
+                    leftTimerLabel.setStyle("-fx-text-fill: #FF0000; -fx-font-weight: bold; -fx-font-size: 32px;");
                 }
             }
         }));
@@ -830,6 +944,15 @@ public class GuiController implements Initializable {
             int minutes = levelTimeRemainingSeconds / 60;
             int seconds = levelTimeRemainingSeconds % 60;
             leftTimerLabel.setText(String.format("%d:%02d", minutes, seconds));
+            
+            // Change color if time is running out (large font size)
+            if (levelTimeRemainingSeconds <= 30) {
+                leftTimerLabel.setStyle("-fx-text-fill: #FF0000; -fx-font-weight: bold; -fx-font-size: 32px;");
+            } else if (levelTimeRemainingSeconds <= 60) {
+                leftTimerLabel.setStyle("-fx-text-fill: #FFA500; -fx-font-weight: bold; -fx-font-size: 32px;");
+            } else {
+                leftTimerLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 32px; -fx-text-fill: #00FF00;");
+            }
         }
     }
 
@@ -915,7 +1038,7 @@ public class GuiController implements Initializable {
             scoreLabel.setText(String.valueOf(currentScore));
         }
         if (highScoreLabel != null) {
-            highScoreLabel.setText("High: " + highScore);
+            highScoreLabel.setText("Best Score: " + highScore);
         }
     }
     
@@ -1802,6 +1925,220 @@ public class GuiController implements Initializable {
             
         } catch (Exception e) {
             System.err.println("Error loading Endless Game Over scene: " + e.getMessage());
+            e.printStackTrace();
+            // Fallback to regular game over
+            gameOver();
+        }
+    }
+    
+    /**
+     * Shows the Level Mode Game Over scene.
+     * Called when a level is completed or failed.
+     *
+     * @param board the game board instance
+     */
+    public void showLevelGameOverScene(Board board) {
+        if (!isLevelMode) {
+            return;
+        }
+        
+        try {
+            // Get level data from LevelManager
+            com.comp2042.game.LevelManager levelManager = com.comp2042.game.LevelManager.getInstance();
+            com.comp2042.game.LevelMode currentLevel = levelManager.getCurrentLevel();
+            
+            if (currentLevel == null) {
+                System.err.println("No current level found");
+                gameOver();
+                return;
+            }
+            
+            // Get final game data
+            int finalScore = board.getScore().getScore();
+            int linesCleared = board.getTotalLinesCleared(); // Get from board
+            int targetLines = currentLevel.getTargetLines();
+            
+            // Calculate actual play time from level start time
+            long playTimeMs = 0;
+            if (levelStartTime > 0) {
+                playTimeMs = System.currentTimeMillis() - levelStartTime;
+            }
+            
+            // Get stars and success status
+            int completionTimeSeconds = (int) (playTimeMs / 1000);
+            boolean success = linesCleared >= targetLines;
+            
+            // Note: Level is already completed in PlayingState through LevelGameModeImpl
+            // This ensures best stats are updated and next level is unlocked before showing game over screen
+            // Reload current level to get updated best stats
+            final com.comp2042.game.LevelMode finalCurrentLevel = levelManager.getCurrentLevel();
+            
+            int stars = finalCurrentLevel != null ? finalCurrentLevel.calculateStars(finalScore, linesCleared, completionTimeSeconds, success) : 0;
+            
+            // Check if new best score/time
+            // Note: getBestTime() returns milliseconds, so compare with playTimeMs
+            boolean isNewBestScore = finalCurrentLevel != null && finalScore > finalCurrentLevel.getBestScore();
+            boolean isNewBestTime = success && finalCurrentLevel != null && (finalCurrentLevel.getBestTime() == Long.MAX_VALUE || 
+                playTimeMs < finalCurrentLevel.getBestTime());
+            
+            // Load the level game over FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("levelGameOver.fxml"));
+            Parent root = loader.load();
+            
+            // Get the controller and set up callbacks
+            LevelGameOverController controller = loader.getController();
+            final Stage stageForCallbacks = (Stage) gamePanel.getScene().getWindow();
+            
+            controller.setOnTryAgain(() -> {
+                // Reload the same level
+                try {
+                    // First load level selection screen
+                    FXMLLoader levelSelectionLoader = new FXMLLoader(getClass().getClassLoader().getResource("levelSelection.fxml"));
+                    Parent levelSelectionRoot = levelSelectionLoader.load();
+                    com.comp2042.ui.LevelSelectionController levelSelectionController = levelSelectionLoader.getController();
+                    levelSelectionController.setStage(stageForCallbacks);
+                    
+                    // Create scene and set it
+                    Scene levelSelectionScene = new Scene(levelSelectionRoot, 900, 800);
+                    if (stageForCallbacks != null) {
+                        stageForCallbacks.setScene(levelSelectionScene);
+                        stageForCallbacks.setTitle("Tetris - Level Selection");
+                    }
+                    
+                    // Then load the level
+                    levelSelectionController.handleLevelSelect(finalCurrentLevel);
+                } catch (Exception e) {
+                    System.err.println("Error restarting level: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+            
+            controller.setOnNextLevel(() -> {
+                // Load next level if available
+                com.comp2042.game.LevelMode nextLevel = levelManager.getLevel(finalCurrentLevel.getLevelId() + 1);
+                if (nextLevel != null && nextLevel.isUnlocked()) {
+                    try {
+                        // First load level selection screen
+                        FXMLLoader levelSelectionLoader = new FXMLLoader(getClass().getClassLoader().getResource("levelSelection.fxml"));
+                        Parent levelSelectionRoot = levelSelectionLoader.load();
+                        com.comp2042.ui.LevelSelectionController levelSelectionController = levelSelectionLoader.getController();
+                        levelSelectionController.setStage(stageForCallbacks);
+                        
+                        // Create scene and set it
+                        Scene levelSelectionScene = new Scene(levelSelectionRoot, 900, 800);
+                        if (stageForCallbacks != null) {
+                            stageForCallbacks.setScene(levelSelectionScene);
+                            stageForCallbacks.setTitle("Tetris - Level Selection");
+                        }
+                        
+                        // Then load the next level
+                        levelSelectionController.handleLevelSelect(nextLevel);
+                    } catch (Exception e) {
+                        System.err.println("Error loading next level: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                } else {
+                    // Next level not available or locked - return to level selection
+                    try {
+                        FXMLLoader levelSelectionLoader = new FXMLLoader(getClass().getClassLoader().getResource("levelSelection.fxml"));
+                        Parent levelSelectionRoot = levelSelectionLoader.load();
+                        com.comp2042.ui.LevelSelectionController levelSelectionController = levelSelectionLoader.getController();
+                        levelSelectionController.setStage(stageForCallbacks);
+                        
+                        Scene levelSelectionScene = new Scene(levelSelectionRoot, 900, 800);
+                        if (stageForCallbacks != null) {
+                            stageForCallbacks.setScene(levelSelectionScene);
+                            stageForCallbacks.setTitle("Tetris - Level Selection");
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error loading level selection: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            });
+            
+            controller.setOnBackToSelection(() -> {
+                // Return to level selection (to show updated stars and unlocked levels)
+                try {
+                    FXMLLoader levelSelectionLoader = new FXMLLoader(getClass().getClassLoader().getResource("levelSelection.fxml"));
+                    Parent levelSelectionRoot = levelSelectionLoader.load();
+                    com.comp2042.ui.LevelSelectionController levelSelectionController = levelSelectionLoader.getController();
+                    levelSelectionController.setStage(stageForCallbacks);
+                    
+                    // Refresh data to show updated stars and unlocked levels
+                    levelSelectionController.refreshData();
+                    
+                    Scene levelSelectionScene = new Scene(levelSelectionRoot, 900, 800);
+                    if (stageForCallbacks != null) {
+                        stageForCallbacks.setScene(levelSelectionScene);
+                        stageForCallbacks.setTitle("Tetris - Level Selection");
+                    }
+                    System.out.println("Returned to level selection");
+                } catch (Exception e) {
+                    System.err.println("Error loading level selection: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+            
+            controller.setOnBackToMenu(() -> {
+                // Return to main menu
+                try {
+                    FXMLLoader menuLoader = new FXMLLoader(getClass().getClassLoader().getResource("mainMenu.fxml"));
+                    Parent menuRoot = menuLoader.load();
+                    com.comp2042.MainMenuController menuController = menuLoader.getController();
+                    
+                    Scene menuScene = new Scene(menuRoot, 900, 800);
+                    if (stageForCallbacks != null) {
+                        stageForCallbacks.setScene(menuScene);
+                        stageForCallbacks.setTitle("Tetris - Main Menu");
+                    }
+                    System.out.println("Returned to main menu");
+                } catch (Exception e) {
+                    System.err.println("Error loading main menu: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+            
+            // Show the game over data
+            controller.showGameOver(finalScore, linesCleared, targetLines, playTimeMs,
+                    stars, success, finalCurrentLevel.getLevelId(),
+                    isNewBestScore, isNewBestTime);
+            
+            // Create new scene
+            Scene gameOverScene = new Scene(root, 900, 800);
+            
+            // Load CSS stylesheet
+            try {
+                String cssPath = getClass().getClassLoader().getResource("levelGameOverStyle.css").toExternalForm();
+                if (cssPath != null) {
+                    gameOverScene.getStylesheets().add(cssPath);
+                    System.out.println("CSS loaded: " + cssPath);
+                }
+            } catch (Exception e) {
+                System.err.println("Error loading CSS: " + e.getMessage());
+            }
+            
+            // Get current stage and switch scene
+            Stage stage = (Stage) gamePanel.getScene().getWindow();
+            if (stage != null) {
+                stage.setScene(gameOverScene);
+                stage.setTitle("Tetris - Level Complete");
+            }
+            
+            // Stop the game timeline
+            if (timeLine != null) {
+                timeLine.stop();
+            }
+            if (levelTimer != null) {
+                levelTimer.stop();
+            }
+            isGameOver.setValue(true);
+            isPause.setValue(false);
+            
+            System.out.println("Level Game Over scene loaded successfully");
+            
+        } catch (Exception e) {
+            System.err.println("Error loading Level Game Over scene: " + e.getMessage());
             e.printStackTrace();
             // Fallback to regular game over
             gameOver();
