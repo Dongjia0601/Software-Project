@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.comp2042.ui.LevelSelectionController"
+            prefWidth="900" 
+            prefHeight="800"
+            style="-fx-background-color: #1a1a2e;">
+    
+    <VBox fx:id="rootPane" 
+          AnchorPane.topAnchor="0" 
+          AnchorPane.bottomAnchor="0" 
+          AnchorPane.leftAnchor="0" 
+          AnchorPane.rightAnchor="0"
+          spacing="20"
+          alignment="CENTER"
+          style="-fx-background-color: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);">
+        
+        <padding>
+            <Insets top="40" right="40" bottom="40" left="40"/>
+        </padding>
+        
+        <!-- Title -->
+        <Text text="LEVEL MODE" 
+              style="-fx-fill: #FFD700; -fx-font-size: 48; -fx-font-weight: bold;">
+            <effect>
+                <DropShadow color="#FFD700" radius="10" spread="0.5"/>
+            </effect>
+        </Text>
+        
+        <!-- Subtitle -->
+        <Label text="Select a level to play" 
+               style="-fx-text-fill: #ffffff; -fx-font-size: 18;"/>
+        
+        <!-- Levels Container -->
+        <ScrollPane fitToWidth="true" 
+                    fitToHeight="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    style="-fx-background: transparent; -fx-background-color: transparent;">
+            <VBox fx:id="levelsContainer" 
+                  alignment="CENTER"
+                  spacing="20">
+                <padding>
+                    <Insets top="20" bottom="20"/>
+                </padding>
+            </VBox>
+        </ScrollPane>
+        
+        <!-- Back Button -->
+        <Button fx:id="backButton" 
+                text="Back to Menu" 
+                minWidth="150"
+                minHeight="40"/>
+        
+    </VBox>
+    
+</AnchorPane>
+

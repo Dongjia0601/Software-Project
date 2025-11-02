@@ -284,25 +284,23 @@ public class MainMenuController {
 
     /**
      * Starts the Level Mode game.
-     * Creates a new game service and launches the level mode.
+     * Opens the level selection interface.
      */
     @FXML
     private void startLevelMode() {
-        System.out.println("Starting Level Mode...");
+        System.out.println("Opening Level Selection...");
         try {
-            // Create game service and GUI controller
-            GameService gameService = new GameServiceImpl();
-            GuiController guiController = new GuiController();
+            // Load level selection scene
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("levelSelection.fxml"));
+            Parent root = loader.load();
+            Scene levelSelectionScene = new Scene(root, 900, 800);
             
-            // Create level mode
-            var gameMode = GameModeFactory.createGameMode(GameModeType.LEVEL, gameService, guiController);
-            gameMode.initialize();
-            
-            // Load game layout
-            loadGameScene(guiController);
+            Stage currentStage = (Stage) levelModeBtn.getScene().getWindow();
+            currentStage.setScene(levelSelectionScene);
+            currentStage.setTitle("Tetris - Level Selection");
             
         } catch (Exception e) {
-            System.err.println("Error starting Level Mode: " + e.getMessage());
+            System.err.println("Error opening Level Selection: " + e.getMessage());
             e.printStackTrace();
         }
     }

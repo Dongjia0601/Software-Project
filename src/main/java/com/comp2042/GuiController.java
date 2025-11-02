@@ -111,6 +111,9 @@ public class GuiController implements Initializable {
     private Label timeLabel;
     
     @FXML
+    private VBox statisticsBox;
+    
+    @FXML
     private GridPane holdPanel;
     
     @FXML
@@ -118,6 +121,24 @@ public class GuiController implements Initializable {
     
     @FXML
     private javafx.scene.control.Button muteButton;
+
+    // Level Mode UI components
+    @FXML
+    private VBox leftObjectiveBox;
+    @FXML
+    private Label leftTimerLabel;
+    @FXML
+    private Label leftProgressLabel;
+    @FXML
+    private Label leftSpeedLabel;
+    @FXML
+    private HBox leftStarDisplay;
+
+    // Level Mode state
+    private int levelTimeLimitSeconds = 0;
+    private int levelTimeRemainingSeconds = 0;
+    private Timeline levelTimer;
+    private boolean isLevelMode = false;
 
     private Rectangle[][] displayMatrix; // Array of rectangles representing the static board background
     private Rectangle[][] holdDisplayMatrix; // Array of rectangles for hold display
@@ -646,6 +667,9 @@ public class GuiController implements Initializable {
             if (timeTimer != null) {
                 timeTimer.pause();
             }
+            if (levelTimer != null && isLevelMode) {
+                levelTimer.pause();
+            }
         } else {
             // Game is now resumed - resume the timer
             if (lastPauseStartMillis > 0L) {
@@ -654,6 +678,9 @@ public class GuiController implements Initializable {
             }
             if (timeTimer != null) {
                 timeTimer.play();
+            }
+            if (levelTimer != null && isLevelMode) {
+                levelTimer.play();
             }
         }
         gamePanel.requestFocus();
@@ -692,25 +719,122 @@ public class GuiController implements Initializable {
     }
 
     public void updateProgress(int linesClearedInLevel, int targetLines) {
+        if (leftProgressLabel != null) {
+            leftProgressLabel.setText(linesClearedInLevel + "/" + targetLines);
+        }
     }
 
-    public void updateStarDisplay(int i) {
+    public void updateStarDisplay(int stars) {
+        if (leftStarDisplay != null) {
+            leftStarDisplay.getChildren().clear();
+            for (int i = 0; i < 3; i++) {
+                Label star = new Label("★");
+                star.setFont(new Font("Arial", 20));
+                if (i < stars) {
+                    star.setTextFill(javafx.scene.paint.Color.GOLD);
+                } else {
+                    star.setTextFill(javafx.scene.paint.Color.GRAY);
+                }
+                leftStarDisplay.getChildren().add(star);
+            }
+        }
     }
 
     public void updateLevelSpeedDisplay(int levelId) {
+        if (leftSpeedLabel != null) {
+            // Calculate speed based on level ID (simple display)
+            double speed = 1.0 + (levelId - 1) * 0.2;
+            leftSpeedLabel.setText(String.format("%.1fx", speed));
+        }
     }
 
-
     public void updateBestStats(int bestScore, long bestTime) {
+        // Best stats can be displayed in the level selection or game over screen
+        // This method is reserved for future use if needed
     }
 
     public void showLevelModeUI() {
+        isLevelMode = true;
+        if (leftObjectiveBox != null) {
+            leftObjectiveBox.setManaged(true);
+            leftObjectiveBox.setVisible(true);
+        }
+        if (statisticsBox != null) {
+            statisticsBox.setManaged(false);
+            statisticsBox.setVisible(false);
+        }
     }
 
     public void hideLevelModeUI() {
+        isLevelMode = false;
+        if (leftObjectiveBox != null) {
+            leftObjectiveBox.setManaged(false);
+            leftObjectiveBox.setVisible(false);
+        }
+        if (statisticsBox != null) {
+            statisticsBox.setManaged(true);
+            statisticsBox.setVisible(true);
+        }
+        stopLevelTimer();
     }
 
     public void updateTime(int timeLimitSeconds) {
+        this.levelTimeLimitSeconds = timeLimitSeconds;
+        this.levelTimeRemainingSeconds = timeLimitSeconds;
+        startLevelTimer();
+        updateTimeDisplay();
+    }
+
+    private void startLevelTimer() {
+        stopLevelTimer();
+        if (leftTimerLabel == null) {
+            return;
+        }
+        
+        levelTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            if (!isPause.getValue() && !isGameOver.getValue()) {
+                if (levelTimeRemainingSeconds > 0) {
+                    levelTimeRemainingSeconds--;
+                    updateTimeDisplay();
+                    
+                    // Change color when time is running low
+                    if (levelTimeRemainingSeconds <= 10) {
+                        leftTimerLabel.setTextFill(javafx.scene.paint.Color.RED);
+                    } else if (levelTimeRemainingSeconds <= 30) {
+                        leftTimerLabel.setTextFill(javafx.scene.paint.Color.ORANGE);
+                    } else {
+                        leftTimerLabel.setTextFill(javafx.scene.paint.Color.WHITE);
+                    }
+                } else {
+                    // Time's up
+                    leftTimerLabel.setText("0:00");
+                    leftTimerLabel.setTextFill(javafx.scene.paint.Color.RED);
+                }
+            }
+        }));
+        levelTimer.setCycleCount(Timeline.INDEFINITE);
+        if (!isGameOver.getValue() && !isPause.getValue()) {
+            levelTimer.play();
+        }
+    }
+
+    private void stopLevelTimer() {
+        if (levelTimer != null) {
+            levelTimer.stop();
+            levelTimer = null;
+        }
+    }
+
+    private void updateTimeDisplay() {
+        if (leftTimerLabel != null) {
+            int minutes = levelTimeRemainingSeconds / 60;
+            int seconds = levelTimeRemainingSeconds % 60;
+            leftTimerLabel.setText(String.format("%d:%02d", minutes, seconds));
+        }
+    }
+
+    public int getTimeRemainingSeconds() {
+        return levelTimeRemainingSeconds;
     }
     
     // ==================== EndlessMode UI Update Methods ====================

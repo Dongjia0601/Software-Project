@@ -130,10 +130,10 @@ public class LevelManager {
      * @return the level, or null if not found
      */
     public LevelMode getLevel(int levelId) {
-        if (levelId < 1 || levelId > levels.size()) {
-            return null;
-        }
-        return levels.get(levelId - 1);
+        return levels.stream()
+                .filter(level -> level.getLevelId() == levelId)
+                .findFirst()
+                .orElse(null);
     }
 
     /**
