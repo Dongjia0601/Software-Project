@@ -93,6 +93,65 @@ public class MainMenuController {
         
         // Enhance Tetris title with advanced neon effects
         enhanceTitleNeonEffect();
+        
+        // CRITICAL FIX: Disable Space key for all buttons to prevent accidental activation
+        disableSpaceKeyForButtons();
+    }
+    
+    /**
+     * Disables Space key for all buttons to prevent accidental activation.
+     * CRITICAL FIX: Uses addEventFilter for CAPTURE phase to intercept events BEFORE button processes them.
+     */
+    private void disableSpaceKeyForButtons() {
+        // CRITICAL: Use addEventFilter (CAPTURE phase) instead of setOnKeyPressed (BUBBLING phase)
+        
+        if (endlessModeBtn != null) {
+            endlessModeBtn.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.SPACE) {
+                    event.consume();
+                }
+            });
+        }
+        
+        if (levelModeBtn != null) {
+            levelModeBtn.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.SPACE) {
+                    event.consume();
+                }
+            });
+        }
+        
+        if (aiModeBtn != null) {
+            aiModeBtn.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.SPACE) {
+                    event.consume();
+                }
+            });
+        }
+        
+        if (twoPlayerModeBtn != null) {
+            twoPlayerModeBtn.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.SPACE) {
+                    event.consume();
+                }
+            });
+        }
+        
+        if (settingsBtn != null) {
+            settingsBtn.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.SPACE) {
+                    event.consume();
+                }
+            });
+        }
+        
+        if (helpBtn != null) {
+            helpBtn.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.SPACE) {
+                    event.consume();
+                }
+            });
+        }
     }
     
     /**
@@ -120,7 +179,7 @@ public class MainMenuController {
     private void setCenteredBackground() {
         try {
             // Load the background image
-            Image bgImage = new Image(getClass().getClassLoader().getResourceAsStream("main_menu_bg.jpg"));
+            Image bgImage = new Image(getClass().getClassLoader().getResourceAsStream("main_menu_bg1.jpg"));
             
             // Window dimensions
             double windowWidth = 900.0;

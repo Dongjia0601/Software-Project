@@ -19,6 +19,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.geometry.Rectangle2D;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -63,6 +68,9 @@ public class GuiController implements Initializable {
     private static final int LAYOUT_OFFSET_Y = 0; // Vertical layout offset for brick panel
     private static final int LAYOUT_OFFSET_X = 0; // Horizontal layout offset for brick panel
 
+    @FXML
+    private BorderPane rootPane; // Root BorderPane container
+    
     @FXML
     private GridPane gamePanel; // GridPane for the main game board display
 
@@ -189,6 +197,52 @@ public class GuiController implements Initializable {
         dropShadow.setOffsetX(0.0);
         dropShadow.setOffsetY(4.0);
         dropShadow.setColor(Color.rgb(0, 0, 0, 0.3));
+        
+        // CRITICAL FIX: Disable Space key for all control buttons to prevent accidental activation
+        // This prevents Space key from triggering buttons when they have focus
+        // Use Platform.runLater to ensure scene is loaded before setting up filters
+        javafx.application.Platform.runLater(() -> {
+            disableSpaceKeyForControlButtons();
+        });
+    }
+    
+    /**
+     * Disables Space key for all control buttons to prevent accidental activation.
+     * CRITICAL FIX: Uses addEventFilter for CAPTURE phase to intercept events BEFORE button processes them.
+     */
+    private void disableSpaceKeyForControlButtons() {
+        if (rootPane != null) {
+            addSpaceKeyFilterToButtons(rootPane);
+        }
+    }
+    
+    /**
+     * Recursively finds all control buttons and adds Space key event filters.
+     */
+    private void addSpaceKeyFilterToButtons(javafx.scene.Node node) {
+        if (node instanceof Button) {
+            Button button = (Button) node;
+            String buttonText = button.getText();
+            // Only filter control buttons (Settings, Help, Exit to Menu)
+            if (buttonText != null && (
+                buttonText.contains("Settings") ||
+                buttonText.contains("Help") ||
+                buttonText.contains("Exit to Menu")
+            )) {
+                button.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                    if (event.getCode() == KeyCode.SPACE) {
+                        event.consume();
+                    }
+                });
+            }
+        }
+        
+        // Recursively process children
+        if (node instanceof javafx.scene.Parent) {
+            for (javafx.scene.Node child : ((javafx.scene.Parent) node).getChildrenUnmodifiable()) {
+                addSpaceKeyFilterToButtons(child);
+            }
+        }
     }
 
     /**
@@ -1479,7 +1533,6 @@ public class GuiController implements Initializable {
             updateGameSpeed(getDropMsForLevel(endlessLevel));
         }
     }
-    
     
     /**
      * This method loads the endless game over FXML and switches to it.

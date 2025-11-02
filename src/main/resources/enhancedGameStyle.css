@@ -30,9 +30,10 @@
 /* Side Panels - Border color will be set dynamically by theme */
 .side-panel {
     -fx-background-color: rgba(255, 255, 255, 0.05);
-    -fx-border-color: rgba(138, 43, 226, 0.3);  /* Default, overridden by theme */
-    -fx-border-width: 0 2px 0 2px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 0);
+    -fx-border-color: rgba(138, 43, 226, 0.6);  /* Brighter neon border */
+    -fx-border-width: 0 3px 0 3px;  /* Slightly thicker for more visibility */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 0),
+                dropshadow(gaussian, rgba(138, 43, 226, 0.5), 15, 0, 0, 0);  /* Enhanced neon glow */
 }
 
 /* Info Boxes - Border and shadow colors will be set dynamically by theme */
@@ -40,10 +41,11 @@
     -fx-background-color: rgba(0, 0, 0, 0.7);  /* Dark background */
     -fx-background-radius: 10px;
     -fx-padding: 15px;
-    -fx-border-color: rgba(186, 85, 211, 0.4);  /* Default, overridden by theme */
+    -fx-border-color: rgba(186, 85, 211, 0.6);  /* Brighter neon border */
     -fx-border-radius: 10px;
     -fx-border-width: 2px;  /* Increased from 1px for better visibility */
-    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.3), 8, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.6), 12, 0, 0, 0),
+                innershadow(gaussian, rgba(186, 85, 211, 0.3), 8, 0, 0, 0);  /* Enhanced neon glow */
 }
 
 /* Section Titles - Text color will be set dynamically by theme */
@@ -51,7 +53,9 @@
     -fx-font-size: 18px;  /* Increased from 16px */
     -fx-font-weight: bold;
     -fx-text-fill: #FFD700;  /* Default gold, overridden by theme */
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 3, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 3, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 215, 0, 0.9), 12, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 255, 0, 0.6), 8, 0, 0, 0);  /* Enhanced neon glow */
     -fx-alignment: center;
 }
 
@@ -60,7 +64,10 @@
     -fx-font-size: 48px;
     -fx-font-weight: bold;
     -fx-text-fill: linear-gradient(to right, #FF6BFF, #FFD700, #4DFFFF);
-    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 15, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 255, 1.0), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 215, 0, 1.0), 18, 0, 0, 0),
+                dropshadow(gaussian, rgba(77, 255, 255, 1.0), 16, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 255, 255, 0.6), 8, 0, 0, 0);  /* Multi-color neon glow */
 }
 
 /* Game Container - match frame color so rounded corners aren't dark */
@@ -76,7 +83,9 @@
     -fx-background-color: linear-gradient(to bottom, #851ee5, #4B0082), rgba(10, 14, 39, 0.96);
     -fx-background-insets: 0,10;/* inner panel inset to create frame thickness */
     -fx-background-radius: 16, 8; /* rounded corners for both layers */
-    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.85), 18, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 1.0), 25, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 107, 255, 0.5), 15, 0, 0, 0),
+                innershadow(gaussian, rgba(138, 43, 226, 0.4), 12, 0, 0, 0);  /* Enhanced multi-layer neon glow */
 }
 
 /* Game Grid - Critical: Must be visible and receive events */
@@ -87,18 +96,20 @@
 
 /* Individual grid cells - visible borders for Tetris grid */
 .game-cell {
-    -fx-border-color: rgba(138, 43, 226, 0.15);
+    -fx-border-color: rgba(138, 43, 226, 0.25);  /* Brighter border */
     -fx-border-width: 0.5px;
 }
 
 /* Hold and Next Display Areas - Border color will be set dynamically by theme */
 .hold-display, .next-display {
     -fx-background-color: rgba(10, 14, 39, 0.8);
-    -fx-border-color: rgba(138, 43, 226, 0.5);  /* Default, overridden by theme */
+    -fx-border-color: rgba(138, 43, 226, 0.7);  /* Brighter neon border */
     -fx-border-width: 2px;
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
     -fx-padding: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.6), 10, 0, 0, 0),
+                innershadow(gaussian, rgba(77, 255, 255, 0.2), 6, 0, 0, 0);  /* Enhanced neon glow */
     -fx-min-width: 120px;
     -fx-min-height: 120px;
     -fx-pref-width: 120px;
@@ -148,7 +159,9 @@
     -fx-font-size: 36px;
     -fx-font-weight: bold;
     -fx-text-fill: linear-gradient(to bottom, #f0df81, #e2a533ed);
-    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 10, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 1.0), 15, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 255, 0, 0.6), 10, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 165, 0, 0.4), 8, 0, 0, 0);  /* Enhanced neon glow */
     -fx-alignment: center;
 }
 
@@ -175,9 +188,11 @@
     -fx-padding: 10px 15px;
     -fx-background-radius: 8px;
     -fx-border-radius: 8px;
-    -fx-border-color: rgba(255, 255, 255, 0.2);
-    -fx-border-width: 1px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 2);
+    -fx-border-color: rgba(138, 43, 226, 0.8);  /* Brighter neon border */
+    -fx-border-width: 2px;  /* Thicker border */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 2),
+                dropshadow(gaussian, rgba(138, 43, 226, 0.8), 12, 0, 0, 0),
+                innershadow(gaussian, rgba(157, 78, 221, 0.3), 8, 0, 0, 0);  /* Enhanced neon glow */
     -fx-min-width: 140px;  /* Ensure button is wide enough for text */
     -fx-max-width: 260px;  /* Allow longer labels like "Pause & Resume (P)" */
     -fx-pref-width: 220px;  /* Preferred width */
@@ -187,9 +202,12 @@
 
 .control-button:hover, .game-button:hover {
     -fx-background-color: linear-gradient(to bottom, #9A3BF2, #7A2BC2);
+    -fx-border-color: rgba(157, 78, 221, 1.0);  /* Brightest on hover */
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
-    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.8), 10, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 1.0), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 107, 255, 0.6), 15, 0, 0, 0),
+                innershadow(gaussian, rgba(157, 78, 221, 0.5), 10, 0, 0, 0);  /* Intense neon glow on hover */
 }
 
 .control-button:pressed, .game-button:pressed {

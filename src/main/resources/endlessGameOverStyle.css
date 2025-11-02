@@ -27,9 +27,11 @@
 }
 
 .main-title.new-high-score {
-    -fx-text-fill: linear-gradient(to right, #FFD700, #FFA500, #FFD700);
-    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 1.0), 20, 0, 0, 0);
-    -fx-font-size: 72px;
+    -fx-font-size: 64px;  /* Same size as regular title */
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to right, #FF6BFF, #FFD700, #4DFFFF);  /* Same gradient as regular title */
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.6), 12, 0, 0, 0);  /* Same effect as regular title */
+    -fx-alignment: center;
 }
 
 .subtitle {
@@ -163,13 +165,14 @@
 }
 
 .leaderboard-entry.current-player {
-    /* Left neon rail + inner tile */
-    -fx-background-color: linear-gradient(to bottom, #FFD700, #FFA500), rgba(138, 43, 226, 0.10);
-    -fx-background-insets: 0, 0 0 0 3; /* 3px left rail */
-    -fx-background-radius: 10, 10;
-    -fx-border-color: rgba(255, 215, 0, 0.45);
-    -fx-border-width: 1.5px;
-    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.45), 8, 0, 0, 0);
+    /* Enhanced neon border effect instead of yellow fill */
+    -fx-background-color: rgba(138, 43, 226, 0.15);  /* Slightly brighter purple background */
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(77, 255, 255, 0.8);  /* Bright cyan neon border */
+    -fx-border-radius: 10px;
+    -fx-border-width: 2px;  /* Thicker border for visibility */
+    -fx-effect: dropshadow(gaussian, rgba(77, 255, 255, 0.6), 12, 0, 0, 0),
+                innershadow(gaussian, rgba(138, 43, 226, 0.3), 8, 0, 0, 0);  /* Dual glow effect */
 }
 
 .rank-badge {
@@ -227,118 +230,189 @@
 
 .action-button {
     -fx-text-fill: white;
-    -fx-font-size: 18px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-padding: 12px 24px;
+    -fx-padding: 10px 20px;
     -fx-background-radius: 12px;
     -fx-border-radius: 12px;
     -fx-border-width: 2px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 10, 0, 0, 3);
-    -fx-min-width: 180px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4);
+    -fx-min-width: 160px;
     -fx-cursor: hand;
 }
 
-/* Try Again Button - Vibrant Green with Gaming Feel */
 .button.try-again-btn {
     -fx-background-color: #00FF88 !important;
-    -fx-border-color: #00FFAA !important;
+    -fx-border-color: #00FFCC !important;
     -fx-text-fill: #FFFFFF !important;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 10, 0, 0, 3) !important; /* unify shadow */
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 136, 0.8), 15, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
 }
 
 .button.try-again-btn:hover {
     -fx-background-color: #00FFAA !important;
-    -fx-border-color: #00FFCC !important;
-    -fx-effect: dropshadow(gaussian, rgba(0, 255, 170, 1.0), 25, 0, 0, 0) !important;
+    -fx-border-color: #00FFDD !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 170, 1.0), 30, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 255, 136, 0.6), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
     -fx-text-fill: #FFFFFF !important;
 }
 
 .button.try-again-btn:pressed {
-    -fx-background-color: #00CC66 !important;
-    -fx-border-color: #00DD77 !important;
-    -fx-effect: dropshadow(gaussian, rgba(0, 204, 102, 0.6), 8, 0, 0, 2) !important;
+    -fx-background-color: #00DD77 !important;
+    -fx-border-color: #00EE88 !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 221, 119, 0.7), 12, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 8, 0, 0, 2) !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
 }
 
-/* Reset Leaderboard Button - Klein Blue */
-.button.reset-btn {
-    -fx-background-color: #1547c7 !important; /* Klein Blue */
-    -fx-border-color: #2F5BFF !important;
+.action-button.try-again-btn {
+    -fx-background-color: #00FF88 !important;
+    -fx-border-color: #00FFCC !important;
     -fx-text-fill: #FFFFFF !important;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 10, 0, 0, 3) !important; /* unify shadow */
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 136, 0.8), 15, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
+}
+
+.action-button.try-again-btn:hover {
+    -fx-background-color: #00FFAA !important;
+    -fx-border-color: #00FFDD !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 170, 1.0), 30, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 255, 136, 0.6), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
+}
+
+.action-button.try-again-btn:pressed {
+    -fx-background-color: #00DD77 !important;
+    -fx-border-color: #00EE88 !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 221, 119, 0.7), 12, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 8, 0, 0, 2) !important;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.button.reset-btn {
+    -fx-background-color: #00AAFF !important;
+    -fx-border-color: #00DDFF !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 170, 255, 0.8), 15, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
 }
 
 .button.reset-btn:hover {
-    -fx-background-color: #1E56FF !important; /* lighter Klein */
-    -fx-border-color: #5B7CFF !important;
-    -fx-effect: dropshadow(gaussian, rgba(46, 114, 255, 1.0), 25, 0, 0, 0) !important;
+    -fx-background-color: #00CCFF !important;
+    -fx-border-color: #00EEFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 204, 255, 1.0), 30, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 170, 255, 0.6), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
     -fx-text-fill: #FFFFFF !important;
 }
 
 .button.reset-btn:pressed {
-    -fx-background-color: #001F73 !important; /* deep Klein */
-    -fx-border-color: #2F5BFF !important;
-    -fx-effect: dropshadow(gaussian, rgba(0, 31, 115, 0.6), 8, 0, 0, 2) !important;
+    -fx-background-color: #0088EE !important;
+    -fx-border-color: #0099FF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 136, 238, 0.7), 12, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 8, 0, 0, 2) !important;
     -fx-text-fill: #FFFFFF !important;
-    -fx-scale-x: 0.98; /* slight compress to simulate press */
+    -fx-scale-x: 0.98;
     -fx-scale-y: 0.98;
 }
 
-/* Also override combined selector to ensure consistency */
 .action-button.reset-btn {
-    -fx-background-color: #002FA7 !important;
-    -fx-border-color: #2F5BFF !important;
+    -fx-background-color: #00AAFF !important;
+    -fx-border-color: #00DDFF !important;
     -fx-text-fill: #FFFFFF !important;
-    -fx-effect: dropshadow(gaussian, rgba(0, 47, 167, 0.8), 15, 0, 0, 0) !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 170, 255, 0.8), 15, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
 }
 
 .action-button.reset-btn:hover {
-    -fx-background-color: #1E56FF !important;
-    -fx-border-color: #5B7CFF !important;
+    -fx-background-color: #00CCFF !important;
+    -fx-border-color: #00EEFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 204, 255, 1.0), 30, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 170, 255, 0.6), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
 }
 
 .action-button.reset-btn:pressed {
-    -fx-background-color: #001F73 !important;
-    -fx-border-color: #2F5BFF !important;
+    -fx-background-color: #0088EE !important;
+    -fx-border-color: #0099FF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 136, 238, 0.7), 12, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 8, 0, 0, 2) !important;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
 }
 
-/* Fallback selectors for Reset (in case default class list differs) */
 .reset-btn {
-    -fx-background-color: #002FA7 !important;
-    -fx-border-color: #2F5BFF !important;
+    -fx-background-color: #00AAFF !important;
+    -fx-border-color: #00CCFF !important;
     -fx-text-fill: #FFFFFF !important;
-    -fx-background-radius: 15 !important;
-    -fx-border-radius: 15 !important;
 }
 
 .reset-btn:hover {
-    -fx-background-color: #1E56FF !important;
-    -fx-border-color: #5B7CFF !important;
+    -fx-background-color: #00CCFF !important;
+    -fx-border-color: #00DDFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 204, 255, 1.0), 25, 0, 0, 0) !important;
 }
 
 .reset-btn:pressed {
-    -fx-background-color: #001F73 !important;
-    -fx-border-color: #2F5BFF !important;
+    -fx-background-color: #0088DD !important;
+    -fx-border-color: #0099EE !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 136, 221, 0.6), 8, 0, 0, 2) !important;
 }
 
-/* Back to Menu Button - Elegant Purple with Premium Feel */
 .button.menu-btn {
-    -fx-background-color: #8A2BE2 !important;
-    -fx-border-color: #9D4EDD !important;
+    -fx-background-color: #AA00FF !important;
+    -fx-border-color: #DD00FF !important;
     -fx-text-fill: #FFFFFF !important;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 10, 0, 0, 3) !important; /* unify shadow */
+    -fx-effect: dropshadow(gaussian, rgba(170, 0, 255, 0.8), 15, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
 }
 
 .button.menu-btn:hover {
-    -fx-background-color: #9D4EDD !important;
-    -fx-border-color: #B565F0 !important;
-    -fx-effect: dropshadow(gaussian, rgba(157, 78, 221, 1.0), 25, 0, 0, 0) !important;
+    -fx-background-color: #CC00FF !important;
+    -fx-border-color: #EE00FF !important;
+    -fx-effect: dropshadow(gaussian, rgba(204, 0, 255, 1.0), 30, 0, 0, 0),
+                dropshadow(gaussian, rgba(170, 0, 255, 0.6), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
     -fx-text-fill: #FFFFFF !important;
 }
 
 .button.menu-btn:pressed {
-    -fx-background-color: #7B2CBF !important;
-    -fx-border-color: #8A2BE2 !important;
-    -fx-effect: dropshadow(gaussian, rgba(123, 44, 191, 0.6), 8, 0, 0, 2) !important;
+    -fx-background-color: #9900EE !important;
+    -fx-border-color: #AA00FF !important;
+    -fx-effect: dropshadow(gaussian, rgba(153, 0, 238, 0.7), 12, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 8, 0, 0, 2) !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.action-button.menu-btn {
+    -fx-background-color: #AA00FF !important;
+    -fx-border-color: #DD00FF !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(170, 0, 255, 0.8), 15, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
+}
+
+.action-button.menu-btn:hover {
+    -fx-background-color: #CC00FF !important;
+    -fx-border-color: #EE00FF !important;
+    -fx-effect: dropshadow(gaussian, rgba(204, 0, 255, 1.0), 30, 0, 0, 0),
+                dropshadow(gaussian, rgba(170, 0, 255, 0.6), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
+}
+
+.action-button.menu-btn:pressed {
+    -fx-background-color: #9900EE !important;
+    -fx-border-color: #AA00FF !important;
+    -fx-effect: dropshadow(gaussian, rgba(153, 0, 238, 0.7), 12, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 8, 0, 0, 2) !important;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
 }
 
 .hint-text {
@@ -400,26 +474,92 @@
     }
 }
 
-/* ID-specific overrides for Reset to guarantee precedence */
-#resetLeaderboardButton, .button#resetLeaderboardButton {
-    -fx-background-color: #002FA7 !important;
-    -fx-border-color: #2F5BFF !important;
+#tryAgainButton, .button#tryAgainButton {
+    -fx-background-color: #00FF88 !important;
+    -fx-border-color: #00FFCC !important;
     -fx-text-fill: #FFFFFF !important;
-    -fx-background-radius: 15 !important;
-    -fx-border-radius: 15 !important;
-    -fx-border-width: 2px !important;
-    -fx-padding: 12px 25px !important;
-    -fx-font-size: 18px !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 136, 0.8), 15, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
     -fx-font-weight: bold !important;
-    -fx-font-family: "Arial Black", Arial, sans-serif !important;
+    -fx-font-size: 16px !important;
+    -fx-padding: 10px 20px !important;
+    -fx-background-radius: 12px !important;
+    -fx-border-radius: 12px !important;
+    -fx-border-width: 2px !important;
+    -fx-min-width: 160px !important;
+}
+#tryAgainButton:hover, .button#tryAgainButton:hover {
+    -fx-background-color: #00FFAA !important;
+    -fx-border-color: #00FFDD !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 170, 1.0), 30, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 255, 136, 0.6), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
+}
+#tryAgainButton:pressed, .button#tryAgainButton:pressed {
+    -fx-background-color: #00DD77 !important;
+    -fx-border-color: #00EE88 !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 221, 119, 0.7), 12, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 8, 0, 0, 2) !important;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+#resetLeaderboardButton, .button#resetLeaderboardButton {
+    -fx-background-color: #00AAFF !important;
+    -fx-border-color: #00DDFF !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 170, 255, 0.8), 15, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
+    -fx-font-weight: bold !important;
+    -fx-font-size: 16px !important;
+    -fx-padding: 10px 20px !important;
+    -fx-background-radius: 12px !important;
+    -fx-border-radius: 12px !important;
+    -fx-border-width: 2px !important;
+    -fx-min-width: 160px !important;
 }
 #resetLeaderboardButton:hover, .button#resetLeaderboardButton:hover {
-    -fx-background-color: #1E56FF !important;
-    -fx-border-color: #5B7CFF !important;
+    -fx-background-color: #00CCFF !important;
+    -fx-border-color: #00EEFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 204, 255, 1.0), 30, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 170, 255, 0.6), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
 }
 #resetLeaderboardButton:pressed, .button#resetLeaderboardButton:pressed {
-    -fx-background-color: #001F73 !important;
-    -fx-border-color: #2F5BFF !important;
+    -fx-background-color: #0088EE !important;
+    -fx-border-color: #0099FF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 136, 238, 0.7), 12, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 8, 0, 0, 2) !important;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+#backToMenuButton, .button#backToMenuButton {
+    -fx-background-color: #AA00FF !important;
+    -fx-border-color: #DD00FF !important;
+    -fx-text-fill: #FFFFFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(170, 0, 255, 0.8), 15, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
+    -fx-font-weight: bold !important;
+    -fx-font-size: 16px !important;
+    -fx-padding: 10px 20px !important;
+    -fx-background-radius: 12px !important;
+    -fx-border-radius: 12px !important;
+    -fx-border-width: 2px !important;
+    -fx-min-width: 160px !important;
+}
+#backToMenuButton:hover, .button#backToMenuButton:hover {
+    -fx-background-color: #CC00FF !important;
+    -fx-border-color: #EE00FF !important;
+    -fx-effect: dropshadow(gaussian, rgba(204, 0, 255, 1.0), 30, 0, 0, 0),
+                dropshadow(gaussian, rgba(170, 0, 255, 0.6), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 12, 0, 0, 4) !important;
+}
+#backToMenuButton:pressed, .button#backToMenuButton:pressed {
+    -fx-background-color: #9900EE !important;
+    -fx-border-color: #AA00FF !important;
+    -fx-effect: dropshadow(gaussian, rgba(153, 0, 238, 0.7), 12, 0, 0, 0),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.50), 8, 0, 0, 2) !important;
     -fx-scale-x: 0.98;
     -fx-scale-y: 0.98;
 }

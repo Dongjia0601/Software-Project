@@ -12,6 +12,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -49,6 +53,7 @@ public class EndlessGameOverController implements Initializable {
     };
     
     // UI Components
+    @FXML private BorderPane rootPane;
     @FXML private Label mainTitleLabel;
     @FXML private Label subtitleLabel;
     @FXML private Label rankLabel;
@@ -76,6 +81,9 @@ public class EndlessGameOverController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Load background image
+        setGameOverBackground();
+        
         // Set up keyboard navigation
         setupKeyboardNavigation();
         
@@ -86,11 +94,87 @@ public class EndlessGameOverController implements Initializable {
         applyButtonStyles();
 
         // Ensure SPACE does not trigger Try Again; we use 'N' to retry
-        tryAgainButton.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
-            if (e.getCode() == KeyCode.SPACE) {
-                e.consume();
+        if (tryAgainButton != null) {
+            tryAgainButton.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+                if (e.getCode() == KeyCode.SPACE) {
+                    e.consume();
+                }
+            });
+        }
+    }
+    
+    /**
+     * Sets the background image for the game over screen.
+     * Uses GameOver_bg.jpg as the background with centered cropping.
+     */
+    private void setGameOverBackground() {
+        if (rootPane == null) {
+            return;
+        }
+        
+        try {
+            // Load the game over background image
+            Image bgImage = new Image(getClass().getClassLoader().getResourceAsStream("GameOver_bg.jpg"));
+            
+            // Window dimensions
+            double windowWidth = 900.0;
+            double windowHeight = 800.0;
+            double windowAspectRatio = windowWidth / windowHeight;
+            
+            // Image dimensions
+            double imageWidth = bgImage.getWidth();
+            double imageHeight = bgImage.getHeight();
+            double imageAspectRatio = imageWidth / imageHeight;
+            
+            // Create ImageView for precise control
+            ImageView bgImageView = new ImageView(bgImage);
+            bgImageView.setPreserveRatio(true);
+            
+            // Calculate how to display the image to show the center portion
+            if (imageAspectRatio > windowAspectRatio) {
+                // Image is wider than window - need to crop from sides to show center
+                // Scale to fit height (fill vertically), then crop width from center
+                double scaleFactor = windowHeight / imageHeight;
+                double scaledImageWidth = imageWidth * scaleFactor;
+                
+                // Calculate what portion of the original image to show
+                double originalVisibleWidth = windowWidth / scaleFactor;
+                
+                // Calculate x offset to center the viewport (crop equal amounts from both sides)
+                double xOffset = (imageWidth - originalVisibleWidth) / 2.0;
+                
+                // Set viewport to show center portion of original image
+                bgImageView.setViewport(new Rectangle2D(
+                    xOffset,                    // x: start from this x position in original image
+                    0,                         // y: start from top
+                    originalVisibleWidth,      // width: portion of original image to show
+                    imageHeight                // height: full height
+                ));
+                
+                // Set fit size to fill the window height
+                bgImageView.setFitHeight(windowHeight);
+                bgImageView.setFitWidth(windowWidth);
+            } else {
+                // Image is taller than window - scale to fit width (will crop top/bottom)
+                bgImageView.setFitWidth(windowWidth);
+                bgImageView.setFitHeight(windowHeight);
             }
-        });
+            
+            // Clear any existing background images (in case method is called multiple times)
+            rootPane.getChildren().removeIf(node -> node instanceof ImageView && 
+                node.getId() != null && node.getId().equals("gameOverBackground"));
+            
+            // Set ID for identification
+            bgImageView.setId("gameOverBackground");
+            
+            // Add ImageView as the first child (background layer)
+            rootPane.getChildren().add(0, bgImageView);
+            bgImageView.toBack();  // Ensure it's behind all other elements
+            
+        } catch (Exception e) {
+            System.err.println("Error loading game over background image: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     /**
@@ -126,8 +210,6 @@ public class EndlessGameOverController implements Initializable {
         if (isNewHighScore) {
             mainTitleLabel.setText("NEW HIGH SCORE!");
             mainTitleLabel.getStyleClass().add("new-high-score");
-            subtitleLabel.setText("Congratulations! You've achieved a new record!");
-            subtitleLabel.setVisible(true);
         } else {
             mainTitleLabel.setText("GAME OVER");
             mainTitleLabel.getStyleClass().remove("new-high-score");
@@ -141,7 +223,10 @@ public class EndlessGameOverController implements Initializable {
             rankLabel.setStyle("-fx-text-fill: " + RANK_COLORS[rank - 1] + ";");
             rankLabel.setVisible(true);
         } else {
-            rankLabel.setVisible(false);
+            // Display friendly message when not in top 5
+            rankLabel.setText("💫 Keep Trying! 💫");
+            rankLabel.setStyle("-fx-text-fill: #AAAAAA;");  // Gray color for not in top 5
+            rankLabel.setVisible(true);
         }
         
         // Update score display
@@ -153,6 +238,12 @@ public class EndlessGameOverController implements Initializable {
         long minutes = seconds / 60;
         seconds = seconds % 60;
         timeLabel.setText(String.format("%02d:%02d", minutes, seconds));
+        
+        // Ensure Your Score card uses standard style (same for all ranks)
+        // Clear any inline styles that might have been set by animations
+        if (yourScoreCard != null) {
+            yourScoreCard.setStyle(null);  // Remove any inline styles, use CSS class only
+        }
         
         // Build leaderboard
         buildLeaderboard();
@@ -254,117 +345,20 @@ public class EndlessGameOverController implements Initializable {
     
     /**
      * Applies button styles directly via Java code.
+     * Note: Now all buttons use CSS styles for consistency.
      */
     private void applyButtonStyles() {
-        // Try Again Button - Green styling
-        tryAgainButton.setStyle(
-            "-fx-background-color: #00FF88;" +
-            "-fx-border-color: #00FFAA;" +
-            "-fx-border-width: 2px;" +
-            "-fx-border-radius: 15px;" +
-            "-fx-background-radius: 15px;" +
-            "-fx-text-fill: #FFFFFF;" +
-            "-fx-font-size: 18px;" +
-            "-fx-font-weight: bold;" +
-            "-fx-padding: 12px 25px;" +
-            "-fx-min-width: 180px;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 255, 136, 0.8), 10, 0, 0, 0);"
-        );
-        
-        // Back to Menu Button - Purple styling
-        backToMenuButton.setStyle(
-            "-fx-background-color: #8A2BE2;" +
-            "-fx-border-color: #9D4EDD;" +
-            "-fx-border-width: 2px;" +
-            "-fx-border-radius: 15px;" +
-            "-fx-background-radius: 15px;" +
-            "-fx-text-fill: #FFFFFF;" +
-            "-fx-font-size: 18px;" +
-            "-fx-font-weight: bold;" +
-            "-fx-padding: 12px 25px;" +
-            "-fx-min-width: 180px;" +
-            "-fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.8), 10, 0, 0, 0);"
-        );
+        // All buttons now use CSS styles - no inline styles needed
+        // This ensures all three buttons (Try Again, Reset, Back to Menu) have identical styling
     }
     
     /**
      * Sets up button hover effects and animations.
+     * Note: All button effects are now handled by CSS for consistency.
      */
     private void setupButtonEffects() {
-        // Try Again button effects
-        tryAgainButton.setOnMouseEntered(e -> {
-            // Change color on hover (no transform)
-            tryAgainButton.setStyle(
-                "-fx-background-color: #00FFAA;" +
-                "-fx-border-color: #00FFCC;" +
-                "-fx-border-width: 2px;" +
-                "-fx-border-radius: 15px;" +
-                "-fx-background-radius: 15px;" +
-                "-fx-text-fill: #FFFFFF;" +
-                "-fx-font-size: 18px;" +
-                "-fx-font-weight: bold;" +
-                "-fx-padding: 12px 25px;" +
-                "-fx-min-width: 180px;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0, 255, 170, 1.0), 15, 0, 0, 0);"
-            );
-        });
-        
-        tryAgainButton.setOnMouseExited(e -> {
-            // Reset to original color
-            tryAgainButton.setStyle(
-                "-fx-background-color: #00FF88;" +
-                "-fx-border-color: #00FFAA;" +
-                "-fx-border-width: 2px;" +
-                "-fx-border-radius: 15px;" +
-                "-fx-background-radius: 15px;" +
-                "-fx-text-fill: #FFFFFF;" +
-                "-fx-font-size: 18px;" +
-                "-fx-font-weight: bold;" +
-                "-fx-padding: 12px 25px;" +
-                "-fx-min-width: 180px;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0, 255, 136, 0.8), 10, 0, 0, 0);"
-            );
-        });
-        
-        tryAgainButton.setOnMousePressed(e -> { /* no transform on press */ });
-        tryAgainButton.setOnMouseReleased(e -> { /* no transform on release */ });
-        
-        // Back to Menu button effects
-        backToMenuButton.setOnMouseEntered(e -> {
-            // Change color on hover (no transform)
-            backToMenuButton.setStyle(
-                "-fx-background-color: #9D4EDD;" +
-                "-fx-border-color: #B565F0;" +
-                "-fx-border-width: 2px;" +
-                "-fx-border-radius: 15px;" +
-                "-fx-background-radius: 15px;" +
-                "-fx-text-fill: #FFFFFF;" +
-                "-fx-font-size: 18px;" +
-                "-fx-font-weight: bold;" +
-                "-fx-padding: 12px 25px;" +
-                "-fx-min-width: 180px;" +
-                "-fx-effect: dropshadow(gaussian, rgba(157, 78, 221, 1.0), 15, 0, 0, 0);"
-            );
-        });
-        
-        backToMenuButton.setOnMouseExited(e -> {
-            // Reset to original color
-            backToMenuButton.setStyle(
-                "-fx-background-color: #8A2BE2;" +
-                "-fx-border-color: #9D4EDD;" +
-                "-fx-border-width: 2px;" +
-                "-fx-border-radius: 15px;" +
-                "-fx-background-radius: 15px;" +
-                "-fx-text-fill: #FFFFFF;" +
-                "-fx-font-size: 18px;" +
-                "-fx-font-weight: bold;" +
-                "-fx-padding: 12px 25px;" +
-                "-fx-min-width: 180px;" +
-                "-fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.8), 10, 0, 0, 0);"
-            );
-        });
-        backToMenuButton.setOnMousePressed(e -> { /* no transform on press */ });
-        backToMenuButton.setOnMouseReleased(e -> { /* no transform on release */ });
+        // All button hover/press effects are now handled by CSS
+        // This ensures all three buttons have identical behavior
     }
     
     /**
@@ -392,19 +386,11 @@ public class EndlessGameOverController implements Initializable {
     
     /**
      * Plays a simple confetti animation.
+     * Note: Your Score card now uses the same style for all ranks (no special animation).
      */
     private void playConfettiAnimation() {
-        // This could be enhanced with particle effects
-        // For now, we'll use a simple color animation
-        Timeline confetti = new Timeline(
-            new KeyFrame(Duration.ZERO, e -> yourScoreCard.setStyle("-fx-background-color: rgba(255, 215, 0, 0.1);")),
-            new KeyFrame(Duration.millis(200), e -> yourScoreCard.setStyle("-fx-background-color: rgba(255, 0, 255, 0.1);")),
-            new KeyFrame(Duration.millis(400), e -> yourScoreCard.setStyle("-fx-background-color: rgba(0, 255, 255, 0.1);")),
-            new KeyFrame(Duration.millis(600), e -> yourScoreCard.setStyle("-fx-background-color: rgba(255, 255, 0, 0.1);")),
-            new KeyFrame(Duration.millis(800), e -> yourScoreCard.setStyle("-fx-background-color: rgba(138, 43, 226, 0.15);"))
-        );
-        confetti.setCycleCount(3);
-        confetti.play();
+        // Confetti animation removed - Your Score card now uses standard style for all ranks
+        // Title animation is still played to celebrate new high score
     }
     
     /**

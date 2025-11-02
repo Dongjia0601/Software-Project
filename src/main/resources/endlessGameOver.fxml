@@ -5,6 +5,7 @@
 <?import javafx.scene.text.Font?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml" 
+            fx:id="rootPane"
             fx:controller="com.comp2042.EndlessGameOverController"
             prefWidth="900" 
             prefHeight="800"
@@ -13,7 +14,7 @@
     
     <!-- Top: Title Section -->
     <top>
-        <VBox alignment="CENTER" spacing="2" styleClass="title-section">
+        <VBox alignment="CENTER" spacing="5" styleClass="title-section">
             <padding>
                 <Insets top="30" bottom="0" left="40" right="40"/>
             </padding>
@@ -23,16 +24,20 @@
                    text="GAME OVER" 
                    styleClass="main-title"/>
             
-            <!-- Subtitle (for new high score) -->
-            <Label fx:id="subtitleLabel" 
-                   text="" 
-                   styleClass="subtitle"
-                   visible="false"/>
-            
-            <!-- Rank Display -->
+            <!-- Rank Display - Positioned below title -->
             <Label fx:id="rankLabel" 
                    text="" 
                    styleClass="rank-display"
+                   visible="false">
+                <VBox.margin>
+                    <Insets top="0" bottom="0" left="0" right="0"/>
+                </VBox.margin>
+            </Label>
+            
+            <!-- Subtitle (for new high score) - Hidden -->
+            <Label fx:id="subtitleLabel" 
+                   text="" 
+                   styleClass="subtitle"
                    visible="false"/>
         </VBox>
     </top>
@@ -103,6 +108,7 @@
                 <Button fx:id="tryAgainButton" 
                         text="🔄 TRY AGAIN" 
                         styleClass="action-button try-again-btn"
+                        mnemonicParsing="false"
                         onAction="#onTryAgain"/>
 
                 <Button fx:id="resetLeaderboardButton" 
