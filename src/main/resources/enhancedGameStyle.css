@@ -125,6 +125,11 @@
     -fx-text-fill: #FFFFFF;  /* Pure white for maximum contrast */
 }
 
+/* Stat label alignment for large values - move down to align with 32px font */
+VBox#leftObjectiveBox .stat-label {
+    -fx-padding: 8px 0 0 0;  /* Add top padding to align with large font values (32px) */
+}
+
 .stat-value {
     -fx-font-size: 16px;  /* Unified with stat-label to align baselines */
     -fx-font-weight: bold;
@@ -136,7 +141,7 @@
     -fx-font-size: 32px;  /* Large for timer and progress */
     -fx-font-weight: bold;
     -fx-text-fill: #00FF00;  /* Bright green for countdown */
-    -fx-effect: dropshadow(gaussian, rgba(0, 255, 0, 0.8), 8, 0, 0, 0);
+    /* Green glow effect removed */
 }
 
 .hint-label {
@@ -183,43 +188,32 @@
 .control-button, .game-button {
     -fx-background-color: linear-gradient(to bottom, #8A2BE2, #6A1BB2);
     -fx-text-fill: white;
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
     -fx-font-weight: bold;
-    -fx-padding: 10px 15px;
+    -fx-padding: 10px 12px;
     -fx-background-radius: 8px;
     -fx-border-radius: 8px;
     -fx-border-color: rgba(138, 43, 226, 0.8);  /* Brighter neon border */
     -fx-border-width: 2px;  /* Thicker border */
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 2),
-                dropshadow(gaussian, rgba(138, 43, 226, 0.8), 12, 0, 0, 0),
-                innershadow(gaussian, rgba(157, 78, 221, 0.3), 8, 0, 0, 0);  /* Enhanced neon glow */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 2);  /* Only black shadow, no purple glow */
     -fx-min-width: 140px;  /* Ensure button is wide enough for text */
-    -fx-max-width: 260px;  /* Allow longer labels like "Pause & Resume (P)" */
-    -fx-pref-width: 220px;  /* Preferred width */
-    -fx-text-overrun: clip;  /* Don't show ellipsis */
+    -fx-max-width: 200px;  /* Constrain to fit side panel (230px - 30px padding = 200px) */
+    -fx-pref-width: 200px;  /* Preferred width to fit side panel */
+    -fx-text-overrun: ellipsis;  /* Show ellipsis if text is too long */
     -fx-alignment: center;  /* Center text in button */
 }
 
 .control-button:hover, .game-button:hover {
     -fx-background-color: linear-gradient(to bottom, #9A3BF2, #7A2BC2);
     -fx-border-color: rgba(157, 78, 221, 1.0);  /* Brightest on hover */
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
-    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 1.0), 20, 0, 0, 0),
-                dropshadow(gaussian, rgba(255, 107, 255, 0.6), 15, 0, 0, 0),
-                innershadow(gaussian, rgba(157, 78, 221, 0.5), 10, 0, 0, 0);  /* Intense neon glow on hover */
+    -fx-scale-x: 1.05;  /* Button enlargement - applies to both level mode and endless mode */
+    -fx-scale-y: 1.05;  /* Button enlargement - applies to both level mode and endless mode */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 8, 0, 0, 2);  /* Only black shadow, no purple glow */
 }
 
 .control-button:pressed, .game-button:pressed {
     -fx-background-color: linear-gradient(to bottom, #6A1BB2, #5A0BA2);
     -fx-translate-y: 2px;
-}
-
-/* Animations */
-@keyframes glow {
-    0% { -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.5), 10, 0, 0, 0); }
-    50% { -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 1.0), 20, 0, 0, 0); }
-    100% { -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.5), 10, 0, 0, 0); }
 }
 
 /* Responsive Adjustments */

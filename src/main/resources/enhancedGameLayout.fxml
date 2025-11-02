@@ -39,7 +39,7 @@
                        styleClass="hint-label"/>
             </VBox>
             
-            <!-- Game Statistics (for non-level modes) -->
+            <!-- Game Statistics (for both endless and level modes) -->
             <VBox fx:id="statisticsBox" spacing="10" styleClass="info-box" managed="true" visible="true">
                 <Label text="STATISTICS" styleClass="section-title"/>
                 <HBox spacing="5">
@@ -60,7 +60,7 @@
                 </HBox>
             </VBox>
             
-            <!-- Objective (for level mode only) - Moved to left panel -->
+            <!-- Objective (for level mode only) - Large font for better visibility -->
             <VBox fx:id="leftObjectiveBox" spacing="10" styleClass="info-box" managed="false" visible="false">
                 <Label text="OBJECTIVE" styleClass="section-title"/>
                 <HBox spacing="5" alignment="CENTER_LEFT">
@@ -73,12 +73,12 @@
                 </HBox>
                 <HBox spacing="5" alignment="CENTER_LEFT">
                     <Label text="Speed:" styleClass="stat-label"/>
-                    <Label fx:id="leftSpeedLabel" text="1.0x" styleClass="stat-value"/>
+                    <Label fx:id="leftSpeedLabel" text="1.0x" styleClass="stat-value-large"/>
                 </HBox>
-                <VBox spacing="5">
+                <HBox spacing="5" alignment="CENTER_LEFT">
                     <Label text="Stars:" styleClass="stat-label"/>
                     <HBox fx:id="leftStarDisplay" spacing="8" alignment="CENTER"/>
-                </VBox>
+                </HBox>
             </VBox>
             
             <!-- Controls (left panel) -->
@@ -198,7 +198,7 @@
                 </VBox>
                 <!-- Fallback high score for non-level modes -->
                 <Label fx:id="highScoreLabel" 
-                       text="High: 0" 
+                       text="Best Score: 0" 
                        styleClass="high-score-label"/>
             </VBox>
             
@@ -230,7 +230,7 @@
                        styleClass="game-button"
                        onAction="#toggleMute"/>
                 <Button fx:id="pauseButton" 
-                       text="Pause &amp; Resume (P)" 
+                       text="Pause/Resume (P)" 
                        styleClass="game-button"
                        onAction="#pauseGame"/>
             </VBox>
