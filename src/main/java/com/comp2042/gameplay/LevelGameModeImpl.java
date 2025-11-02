@@ -74,7 +74,8 @@ public class LevelGameModeImpl implements GameMode {
             checkTimeLimit();
 
             if (guiController != null && !levelCompleted && !levelFailed) {
-                guiController.updateTime(getTimeRemainingSeconds());
+                // Time is automatically updated by GuiController's levelTimer
+                // Only update progress and score here
                 guiController.updateProgress(linesClearedInLevel, currentLevelMode.getTargetLines());
                 guiController.updateScore(gameService.getScore().getScore(), currentLevelMode.getBestScore());
             }
