@@ -3,18 +3,9 @@ package com.comp2042.game;
 /**
  * Represents the configuration data for a single level within the Level-based game mode.
  * 
- * <p>This class encapsulates all level-specific parameters including theme, difficulty
- * settings, scoring targets, and player progress. It serves as a data container that
- * defines the rules and objectives for a particular level instance in the level-based
- * game mode.</p>
- * 
- * <p>Key responsibilities:</p>
- * <ul>
- *   <li>Define level difficulty parameters (speed, lines, time limits)</li>
- *   <li>Set scoring targets and star rating criteria</li>
- *   <li>Track player progress and achievements</li>
- *   <li>Manage level unlocking and completion status</li>
- * </ul>
+ * <p>Encapsulates level-specific parameters like theme, difficulty settings (speed, lines, time),
+ * scoring targets, and player progress. Used by the LevelGameMode implementation to define
+ * the rules and objectives for a particular level instance.
  */
 public class LevelMode {
 

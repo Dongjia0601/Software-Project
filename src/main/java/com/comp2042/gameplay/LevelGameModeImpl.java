@@ -3,26 +3,25 @@ package com.comp2042.gameplay;
 import com.comp2042.*;
 import com.comp2042.core.GameService;
 import com.comp2042.game.GameResult;
-import com.comp2042.game.LevelMode; // Import the data class
-import com.comp2042.game.LevelManager; // Import the manager
+import com.comp2042.game.LevelMode;
+import com.comp2042.game.LevelManager;
 
 /**
  * Concrete implementation of the GameMode interface for playing themed levels.
  * This mode uses a LevelMode object to define level-specific rules and objectives.
  * It delegates core game logic to GameService and UI updates to GuiController.
- *
  */
-public class LevelGameModeImpl implements GameMode { // Implement the GameMode interface
+public class LevelGameModeImpl implements GameMode {
 
-    private final GameService gameService; // Core game logic service
-    private final GuiController guiController; // UI controller
-    private final LevelManager levelManager; // Level manager for persistence/unlocking
+    private final GameService gameService;
+    private final GuiController guiController;
+    private final LevelManager levelManager;
 
-    private LevelMode currentLevelMode; // The specific level being played (data object)
-    private long levelStartTime; // Timestamp when the level started
-    private int linesClearedInLevel; // Lines cleared during this level play session
-    private boolean levelCompleted; // Flag indicating if the level was completed successfully
-    private boolean levelFailed; // Flag indicating if the level failed (time up, game over)
+    private LevelMode currentLevelMode;
+    private long levelStartTime;
+    private int linesClearedInLevel;
+    private boolean levelCompleted;
+    private boolean levelFailed;
 
     /**
      * Constructs a new LevelGameModeImpl.
@@ -45,29 +44,21 @@ public class LevelGameModeImpl implements GameMode { // Implement the GameMode i
 
     @Override
     public void initialize() {
-        // Initialize level-specific state
         this.levelStartTime = System.currentTimeMillis();
         this.linesClearedInLevel = 0;
         this.levelCompleted = false;
         this.levelFailed = false;
 
-        // Apply level-specific settings (e.g., fall speed) via the GameService
-        // The GuiController should listen to the GameService for these updates
         gameService.setDropSpeed(currentLevelMode.getFallSpeed());
 
-        // Inform the GuiController about the level mode start
-        // The GuiController can then update its UI accordingly (timer, progress, best stats)
         if (guiController != null) {
-            // Set single-player mode for keyboard bindings
-            guiController.setGameMode(false); // Single-player mode
-            
-            guiController.showLevelModeUI(); // Show level-specific UI elements
-            guiController.updateTime(currentLevelMode.getTimeLimitSeconds()); // Set initial timer
-            guiController.updateProgress(linesClearedInLevel, currentLevelMode.getTargetLines()); // Set initial progress
-            guiController.updateStarDisplay(0); // Reset star display
-            guiController.updateLevelSpeedDisplay(currentLevelMode.getLevelId()); // Show level speed
+            guiController.setGameMode(false);
+            guiController.showLevelModeUI();
+            guiController.updateTime(currentLevelMode.getTimeLimitSeconds());
+            guiController.updateProgress(linesClearedInLevel, currentLevelMode.getTargetLines());
+            guiController.updateStarDisplay(0);
+            guiController.updateLevelSpeedDisplay(currentLevelMode.getLevelId());
 
-            // Update best stats display with current level's best records
             guiController.updateBestStats(
                     currentLevelMode.getBestScore(),
                     currentLevelMode.getBestTime()
@@ -79,15 +70,12 @@ public class LevelGameModeImpl implements GameMode { // Implement the GameMode i
 
     @Override
     public void update() {
-        // Update level-specific logic (e.g., check time limit)
         if (!levelCompleted && !levelFailed) {
             checkTimeLimit();
 
-            // Update UI elements like timer and progress if the level is still active
             if (guiController != null && !levelCompleted && !levelFailed) {
                 guiController.updateTime(getTimeRemainingSeconds());
                 guiController.updateProgress(linesClearedInLevel, currentLevelMode.getTargetLines());
-                // Update score display with current score and level's best score
                 guiController.updateScore(gameService.getScore().getScore(), currentLevelMode.getBestScore());
             }
         }
@@ -95,52 +83,45 @@ public class LevelGameModeImpl implements GameMode { // Implement the GameMode i
 
     @Override
     public void render() {
-        // Rendering is primarily handled by GuiController based on data/events
-        // This method might be used for level-specific overlays or effects in the future
-        // For now, it's a placeholder
     }
 
     @Override
     public GameResult getResult() {
-        // Calculate final result based on level play session
         long playTimeMillis = System.currentTimeMillis() - levelStartTime;
         int finalScore = gameService.getScore().getScore();
-        int highScoreForLevel = currentLevelMode.getBestScore(); // Get level's persisted high score
+        int highScoreForLevel = currentLevelMode.getBestScore();
         boolean isNewHighScore = finalScore > highScoreForLevel;
-        boolean success = levelCompleted; // Success means level completed, not just game over
+        boolean success = levelCompleted;
 
         return new GameResult(
                 finalScore,
                 highScoreForLevel,
                 isNewHighScore,
-                GameModeType.LEVEL, // Indicate this is a level mode result
+                GameModeType.LEVEL,
                 playTimeMillis,
                 linesClearedInLevel,
-                currentLevelMode.getLevelId(), // Report the specific level played
+                currentLevelMode.getLevelId(),
                 success
         );
     }
 
     @Override
     public GameModeType getType() {
-        return GameModeType.LEVEL; // This implementation is for LEVEL mode
+        return GameModeType.LEVEL;
     }
 
     @Override
     public DownData onDownEvent(MoveEvent event) {
-        // Delegate to GameService
         DownData downData = gameService.processDownEvent(event);
 
-        // Check for line clears and update level progress
         if (downData != null && downData.getClearRow() != null) {
             int linesCleared = downData.getClearRow().getLinesRemoved();
             if (linesCleared > 0) {
                 this.linesClearedInLevel += linesCleared;
-                checkLevelCompletion(); // Check if target lines are met
+                checkLevelCompletion();
             }
         }
 
-        // Check for game over from the core service
         if (gameService.isGameOver()) {
             failLevel("Game Over: Brick could not be placed");
         }
@@ -150,49 +131,41 @@ public class LevelGameModeImpl implements GameMode { // Implement the GameMode i
 
     @Override
     public ViewData onLeftEvent(MoveEvent event) {
-        // Delegate to GameService
         return gameService.processLeftEvent(event);
     }
 
     @Override
     public ViewData onRightEvent(MoveEvent event) {
-        // Delegate to GameService
         return gameService.processRightEvent(event);
     }
 
     @Override
     public ViewData onRotateEvent(MoveEvent event) {
-        // Delegate to GameService
         return gameService.processRotateEvent(event);
     }
 
     @Override
     public void startNewGame() {
-        // Reset level-specific state for a retry
         this.levelStartTime = System.currentTimeMillis();
         this.linesClearedInLevel = 0;
         this.levelCompleted = false;
         this.levelFailed = false;
 
-        // Reset the core game service
         gameService.startNewGame();
-
-        // Re-apply level settings
         gameService.setDropSpeed(currentLevelMode.getFallSpeed());
 
-        // Update UI for new game
         if (guiController != null) {
-            guiController.hideLevelModeUI(); // Temporarily hide to reset
-            guiController.showLevelModeUI(); // Show again
+            guiController.hideLevelModeUI();
+            guiController.showLevelModeUI();
             guiController.updateTime(currentLevelMode.getTimeLimitSeconds());
             guiController.updateProgress(linesClearedInLevel, currentLevelMode.getTargetLines());
             guiController.updateStarDisplay(0);
             guiController.updateLevelSpeedDisplay(currentLevelMode.getLevelId());
-            guiController.updateScore(0, currentLevelMode.getBestScore()); // Reset score display
+            guiController.updateScore(0, currentLevelMode.getBestScore());
             guiController.updateBestStats(
                     currentLevelMode.getBestScore(),
                     currentLevelMode.getBestTime()
-            ); // Reset best stats display
+            );
         }
 
         System.out.println("LevelGameModeImpl: New game started for level: " + currentLevelMode.getLevelName());
@@ -229,8 +202,6 @@ public class LevelGameModeImpl implements GameMode { // Implement the GameMode i
         return currentLevelMode.getBestScore();
     }
 
-    // ==================== Level-Specific Logic Helpers ====================
-
     /**
      * Checks if the level's time limit has been exceeded.
      */
@@ -254,7 +225,7 @@ public class LevelGameModeImpl implements GameMode { // Implement the GameMode i
      * Marks the level as completed successfully.
      */
     private void completeLevel() {
-        if (levelCompleted || levelFailed) return; // Prevent duplicate completion
+        if (levelCompleted || levelFailed) return;
 
         levelCompleted = true;
         long completionTimeMillis = System.currentTimeMillis() - levelStartTime;
@@ -289,7 +260,7 @@ public class LevelGameModeImpl implements GameMode { // Implement the GameMode i
      * @param reason The reason for failure (e.g., "Time limit exceeded", "Game Over").
      */
     private void failLevel(String reason) {
-        if (levelCompleted || levelFailed) return; // Prevent duplicate failure
+        if (levelCompleted || levelFailed) return;
 
         levelFailed = true;
         long completionTimeMillis = System.currentTimeMillis() - levelStartTime;
