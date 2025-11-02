@@ -3,10 +3,6 @@ package com.comp2042.game;
 
 import com.comp2042.game.themes.*;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.prefs.Preferences;
 
@@ -62,7 +58,7 @@ public class LevelManager {
         levels.add(new LevelMode(
                 1,
                 "Ancient Temple",
-                new AncientTempleTheme(), // Assuming implemented
+                new AncientTempleTheme(),
                 600,    // fallSpeed (ms) - Slow
                 5,      // targetLines
                 180,    // timeLimitSeconds (3 minutes)
@@ -75,8 +71,8 @@ public class LevelManager {
         // Level 3: Sunset City (Medium)
         levels.add(new LevelMode(
                 3,
-                "Sunset City", // Changed display name
-                new SunsetCityTheme(), // Changed theme class instantiation
+                "Sunset City",
+                new SunsetCityTheme(),
                 400,    // fallSpeed (ms) - Medium
                 10,     // targetLines
                 120,    // timeLimitSeconds (2 minutes)
@@ -90,7 +86,7 @@ public class LevelManager {
         levels.add(new LevelMode(
                 4,
                 "Future Warfare",
-                new FutureWarfareTheme(), // Assuming implemented
+                new FutureWarfareTheme(),
                 250,    // fallSpeed (ms) - Fast
                 8,      // targetLines
                 90,     // timeLimitSeconds (1.5 minutes)
@@ -104,7 +100,7 @@ public class LevelManager {
         levels.add(new LevelMode(
                 5,
                 "Interstellar Odyssey",
-                new InterstellarTheme(), // Assuming implemented
+                new InterstellarTheme(),
                 150,    // fallSpeed (ms) - Very Fast
                 6,      // targetLines
                 60,     // timeLimitSeconds (1 minute)
