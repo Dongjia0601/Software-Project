@@ -68,6 +68,20 @@ public class LevelManager {
                 150     // threeStarTime (2:30)
         ));
 
+        // Level 2: Magic Castle (Easy-Medium)
+        levels.add(new LevelMode(
+                2,
+                "Magic Castle",
+                new MagicCastleTheme(),
+                500,    // fallSpeed (ms) - Slow-Medium
+                7,      // targetLines
+                150,    // timeLimitSeconds (2.5 minutes)
+                400,    // baseTargetScore (1 star)
+                800,    // twoStarScore
+                1200,   // threeStarScore
+                125     // threeStarTime (2:05)
+        ));
+
         // Level 3: Sunset City (Medium)
         levels.add(new LevelMode(
                 3,
