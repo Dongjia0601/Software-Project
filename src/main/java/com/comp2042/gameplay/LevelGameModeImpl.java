@@ -119,6 +119,17 @@ public class LevelGameModeImpl implements GameMode {
             int linesCleared = downData.getClearRow().getLinesRemoved();
             if (linesCleared > 0) {
                 this.linesClearedInLevel += linesCleared;
+                
+                // Update lines display in GUI (same as endless mode)
+                if (guiController != null) {
+                    guiController.updateLines(gameService.getBoard().getTotalLinesCleared());
+                }
+                
+                // Update progress display
+                if (guiController != null) {
+                    guiController.updateProgress(linesClearedInLevel, currentLevelMode.getTargetLines());
+                }
+                
                 checkLevelCompletion();
             }
         }
@@ -177,6 +188,14 @@ public class LevelGameModeImpl implements GameMode {
         // Game is over if the level is completed or failed
         return levelCompleted || levelFailed || gameService.isGameOver();
     }
+    
+    /**
+     * Checks if the level has been completed.
+     * @return true if the level is completed, false otherwise
+     */
+    public boolean isLevelCompleted() {
+        return levelCompleted;
+    }
 
     @Override
     public void pause() {
@@ -210,6 +229,25 @@ public class LevelGameModeImpl implements GameMode {
         long elapsedMillis = System.currentTimeMillis() - levelStartTime;
         if (elapsedMillis >= currentLevelMode.getTimeLimitMillis()) {
             failLevel("Time limit exceeded");
+        }
+    }
+
+    /**
+     * Handles line clear events from the game board.
+     * This method is called by PlayingState when lines are cleared.
+     * 
+     * @param linesCleared The number of lines cleared in this event.
+     */
+    public void handleLineClear(int linesCleared) {
+        if (linesCleared > 0 && !levelCompleted && !levelFailed) {
+            this.linesClearedInLevel += linesCleared;
+            
+            // Update progress display
+            if (guiController != null) {
+                guiController.updateProgress(linesClearedInLevel, currentLevelMode.getTargetLines());
+            }
+            
+            checkLevelCompletion();
         }
     }
 

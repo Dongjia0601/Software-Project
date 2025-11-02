@@ -69,10 +69,49 @@ public class PlayingState implements GameState {
             if (clearRow.getLinesRemoved() > 0) {
               
                 // Update lines display in GUI
-                guiController.updateLines(board.getTotalLinesCleared());
+                // Endless Mode updates lines in GuiController.moveDown() using endlessLinesClearedUI
+                if (!guiController.isEndlessMode()) {
+                    guiController.updateLines(board.getTotalLinesCleared());
+                }
                 // Update score display in GUI with current high score
                 int currentHighScore = getCurrentHighScore();
                 guiController.updateScore(board.getScore().getScore(), currentHighScore);
+                
+                // For Level Mode, also update progress through LevelGameModeImpl
+                if (guiController.isLevelMode()) {
+                    // Get current level and update progress
+                    com.comp2042.game.LevelManager levelManager = com.comp2042.game.LevelManager.getInstance();
+                    com.comp2042.game.LevelMode currentLevel = levelManager.getCurrentLevel();
+                    if (currentLevel != null) {
+                        // Calculate lines cleared in level from board
+                        int linesClearedInLevel = board.getTotalLinesCleared();
+                        guiController.updateProgress(linesClearedInLevel, currentLevel.getTargetLines());
+                        
+                        // Check if level completion condition is met (target lines reached)
+                        if (linesClearedInLevel >= currentLevel.getTargetLines()) {
+                            // Level completed - complete the level in LevelManager first
+                            // This will update best stats and unlock next level
+                            long playTimeMs = System.currentTimeMillis() - guiController.getLevelStartTime();
+                            if (playTimeMs <= 0) {
+                                playTimeMs = 1; // Ensure positive time
+                            }
+                            
+                            // Complete the level in LevelManager to update best stats and unlock next level
+                            levelManager.completeLevel(
+                                currentLevel.getLevelId(),
+                                board.getScore().getScore(),
+                                linesClearedInLevel,
+                                playTimeMs,
+                                true // success
+                            );
+                            
+                            // Then trigger game over to show completion screen
+                            System.out.println("Level Mode: Target lines reached! Showing completion screen...");
+                            guiController.showLevelGameOverScene(board);
+                            return new DownData(clearRow, board.getViewData());
+                        }
+                    }
+                }
             }
             if (board.createNewBrick()) { // Check for game over after landing/creating new brick
                 System.out.println("Game Over detected! isEndlessMode: " + guiController.isEndlessMode());
@@ -80,6 +119,9 @@ public class PlayingState implements GameState {
                 if (guiController.isEndlessMode()) {
                     System.out.println("Showing Endless Game Over UI...");
                     guiController.showEndlessGameOverScene(board);
+                } else if (guiController.isLevelMode()) {
+                    System.out.println("Showing Level Game Over UI...");
+                    guiController.showLevelGameOverScene(board);
                 } else {
                     System.out.println("Showing regular Game Over UI...");
                     guiController.gameOver(); // Notify GUI
@@ -162,7 +204,19 @@ public class PlayingState implements GameState {
     public GameState handleNewGameRequest() {
         board.newGame();
         guiController.refreshGameBackground(board.getBoardMatrix());
-        guiController.updateLines(0);
+        // Update lines display - different for Endless vs Level Mode
+        if (guiController.isEndlessMode()) {
+            guiController.updateLines(0);
+        } else if (guiController.isLevelMode()) {
+            // For Level Mode, update progress display (linesCleared/targetLines)
+            com.comp2042.game.LevelManager levelManager = com.comp2042.game.LevelManager.getInstance();
+            com.comp2042.game.LevelMode currentLevel = levelManager.getCurrentLevel();
+            if (currentLevel != null) {
+                guiController.updateProgress(0, currentLevel.getTargetLines());
+            }
+        } else {
+            guiController.updateLines(0);
+        }
         // Update score with current high score for new game
         int currentHighScore = getCurrentHighScore();
         guiController.updateScore(0, currentHighScore);
