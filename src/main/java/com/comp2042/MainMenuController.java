@@ -299,6 +299,12 @@ public class MainMenuController {
             currentStage.setScene(levelSelectionScene);
             currentStage.setTitle("Tetris - Level Selection");
             
+            // Set stage reference in controller
+            com.comp2042.ui.LevelSelectionController controller = loader.getController();
+            if (controller != null) {
+                controller.setStage(currentStage);
+            }
+            
         } catch (Exception e) {
             System.err.println("Error opening Level Selection: " + e.getMessage());
             e.printStackTrace();

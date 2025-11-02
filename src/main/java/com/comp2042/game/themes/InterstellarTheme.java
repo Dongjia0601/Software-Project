@@ -14,7 +14,6 @@ public class InterstellarTheme implements LevelTheme {
 
     private static final String THEME_ID = "interstellar";
     private static final String THEME_NAME = "Interstellar Odyssey";
-    private static final String THEME_DESCRIPTION = "Journey through the infinite cosmos and beyond";
     private static final String BACKGROUND_IMAGE = "/interstellar_bg.jpg";
     private static final String BACKGROUND_MUSIC = "/themes/interstellar_music.mp3";
     private static final String PRIMARY_COLOR = "#9370DB"; // Medium Purple
@@ -46,11 +45,6 @@ public class InterstellarTheme implements LevelTheme {
     @Override
     public String getThemeName() {
         return THEME_NAME;
-    }
-
-    @Override
-    public String getThemeDescription() {
-        return THEME_DESCRIPTION;
     }
 
     @Override

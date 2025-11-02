@@ -13,7 +13,6 @@ public class AncientTempleTheme implements LevelTheme {
 
     private static final String THEME_ID = "ancient_temple";
     private static final String THEME_NAME = "Ancient Temple";
-    private static final String THEME_DESCRIPTION = "Explore the mysterious ruins of an ancient civilization";
     private static final String BACKGROUND_IMAGE = "/Ancient_temple_bg.jpg";
     private static final String BACKGROUND_MUSIC = "/themes/ancient_temple_music.mp3";
     private static final String PRIMARY_COLOR = "#D4AF37"; // Gold
@@ -45,11 +44,6 @@ public class AncientTempleTheme implements LevelTheme {
     @Override
     public String getThemeName() {
         return THEME_NAME;
-    }
-
-    @Override
-    public String getThemeDescription() {
-        return THEME_DESCRIPTION;
     }
 
     @Override

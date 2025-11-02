@@ -1,65 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<?import javafx.scene.effect.DropShadow?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.shape.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.comp2042.ui.LevelSelectionController"
-            prefWidth="900" 
-            prefHeight="800"
-            style="-fx-background-color: #1a1a2e;">
+            stylesheets="@levelSelection.css"
+            styleClass="level-selection-root">
     
-    <VBox fx:id="rootPane" 
-          AnchorPane.topAnchor="0" 
-          AnchorPane.bottomAnchor="0" 
-          AnchorPane.leftAnchor="0" 
-          AnchorPane.rightAnchor="0"
-          spacing="20"
-          alignment="CENTER"
-          style="-fx-background-color: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);">
-        
-        <padding>
-            <Insets top="40" right="40" bottom="40" left="40"/>
-        </padding>
-        
-        <!-- Title -->
-        <Text text="LEVEL MODE" 
-              style="-fx-fill: #FFD700; -fx-font-size: 48; -fx-font-weight: bold;">
-            <effect>
-                <DropShadow color="#FFD700" radius="10" spread="0.5"/>
-            </effect>
-        </Text>
-        
-        <!-- Subtitle -->
-        <Label text="Select a level to play" 
-               style="-fx-text-fill: #ffffff; -fx-font-size: 18;"/>
-        
-        <!-- Levels Container -->
-        <ScrollPane fitToWidth="true" 
-                    fitToHeight="true"
-                    hbarPolicy="NEVER"
-                    vbarPolicy="AS_NEEDED"
-                    style="-fx-background: transparent; -fx-background-color: transparent;">
-            <VBox fx:id="levelsContainer" 
-                  alignment="CENTER"
-                  spacing="20">
+    <!-- Header -->
+    <top>
+        <BorderPane styleClass="header-section">
+            <padding>
+                <Insets top="30" bottom="20" left="20" right="20"/>
+            </padding>
+            
+            <!-- Back button - top left corner -->
+            <top>
+                <Button fx:id="backButton" 
+                        text="◀ Back to Menu" 
+                        styleClass="back-button"
+                        BorderPane.alignment="TOP_LEFT"
+                        onAction="#handleBackToMenu"/>
+            </top>
+            
+            <!-- Title and stats - centered -->
+            <center>
+                <VBox spacing="15" alignment="CENTER">
+                    <Text fx:id="headerTitleText" text="TETRIS LEVEL MODE" styleClass="header-title">
+                        <font>
+                            <Font name="Impact" size="48.0"/>
+                        </font>
+                    </Text>
+                    
+                    <HBox spacing="30" alignment="CENTER">
+                        <Label fx:id="totalStarsLabel" text="Total Stars: 0/15" styleClass="stats-label"/>
+                        <Separator orientation="VERTICAL" prefHeight="20"/>
+                        <Label fx:id="completedLevelsLabel" text="Completed: 0/5" styleClass="stats-label"/>
+                    </HBox>
+                </VBox>
+            </center>
+        </BorderPane>
+    </top>
+    
+    <!-- Level Grid -->
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="scroll-pane">
+            <VBox spacing="40" alignment="TOP_CENTER">
                 <padding>
-                    <Insets top="20" bottom="20"/>
+                    <Insets top="20" bottom="40" left="40" right="40"/>
                 </padding>
+                
+                <!-- Level Cards Container -->
+                <GridPane fx:id="levelGrid" hgap="20" vgap="30" alignment="CENTER">
+                    <!-- Level cards will be dynamically added here -->
+                </GridPane>
             </VBox>
         </ScrollPane>
-        
-        <!-- Back Button -->
-        <Button fx:id="backButton" 
-                text="Back to Menu" 
-                minWidth="150"
-                minHeight="40"/>
-        
-    </VBox>
+    </center>
     
-</AnchorPane>
-
+    <!-- Footer -->
+    <bottom>
+        <HBox styleClass="footer-section" alignment="CENTER" spacing="20">
+            <padding>
+                <Insets top="15" bottom="15" left="20" right="20"/>
+            </padding>
+            
+            <Label text="Complete levels to unlock new challenges" 
+                   styleClass="footer-hint"/>
+            
+            <Region HBox.hgrow="ALWAYS"/>
+            
+            <Button fx:id="resetProgressButton" text="Reset Progress" styleClass="reset-button" 
+                    onAction="#handleResetProgress"/>
+        </HBox>
+    </bottom>
+    
+</BorderPane>

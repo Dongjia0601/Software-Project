@@ -14,7 +14,6 @@ public class FutureWarfareTheme implements LevelTheme {
 
     private static final String THEME_ID = "future_warfare";
     private static final String THEME_NAME = "Future Warfare";
-    private static final String THEME_DESCRIPTION = "Survive the intense battlefield of tomorrow's wars";
     private static final String BACKGROUND_IMAGE = "/Future_War_bg.jpg";
     private static final String BACKGROUND_MUSIC = "/themes/future_warfare_music.mp3";
     private static final String PRIMARY_COLOR = "#00FFFF"; // Cyan
@@ -46,11 +45,6 @@ public class FutureWarfareTheme implements LevelTheme {
     @Override
     public String getThemeName() {
         return THEME_NAME;
-    }
-
-    @Override
-    public String getThemeDescription() {
-        return THEME_DESCRIPTION;
     }
 
     @Override

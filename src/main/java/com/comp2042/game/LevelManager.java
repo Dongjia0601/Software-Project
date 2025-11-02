@@ -82,10 +82,10 @@ public class LevelManager {
                 125     // threeStarTime (2:05)
         ));
 
-        // Level 3: Sunset City (Medium)
+        // Level 3: Sunset Village (Medium)
         levels.add(new LevelMode(
                 3,
-                "Sunset City",
+                "Sunset Village",
                 new SunsetCityTheme(),
                 400,    // fallSpeed (ms) - Medium
                 10,     // targetLines

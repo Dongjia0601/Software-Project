@@ -25,13 +25,6 @@ public interface LevelTheme {
     String getThemeName();
 
     /**
-     * Gets the description of this theme.
-     *
-     * @return the theme description
-     */
-    String getThemeDescription();
-
-    /**
      * Gets the resource path to the background image.
      *
      * @return the path to background image (e.g., "/themes/ancient_temple_bg.png")

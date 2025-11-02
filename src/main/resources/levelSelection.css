@@ -1,0 +1,315 @@
+/* Level Selection Styles */
+
+.level-selection-root {
+    -fx-background-color: linear-gradient(to bottom, #1a1a3e, #2d1b69, #1a1a3e);
+}
+
+/* Header Section */
+.header-section {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-border-color: rgba(100, 100, 200, 0.3);
+    -fx-border-width: 0 0 2 0;
+}
+
+.header-title {
+    -fx-font-size: 48px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to right, #FF6BFF, #FFD700, #4DFFFF);
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.6), 12, 0, 0, 0);
+}
+
+.stats-label {
+    -fx-font-size: 18px;
+    -fx-text-fill: #b0e0e6;
+    -fx-font-weight: bold;
+}
+
+
+/* Scroll Pane */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Scroll Bar Styling */
+.scroll-pane .scroll-bar {
+    -fx-background-color: transparent;
+    -fx-pref-width: 12;
+    -fx-pref-height: 12;
+}
+
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+/* Scroll Bar Track */
+.scroll-pane .scroll-bar .track {
+    -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-background-radius: 6;
+}
+
+/* Scroll Bar Thumb */
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-color: linear-gradient(to bottom, rgba(0, 212, 255, 0.6), rgba(77, 255, 255, 0.6));
+    -fx-background-radius: 6;
+    -fx-background-insets: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0, 212, 255, 0.4), 5, 0, 0, 0);
+}
+
+.scroll-pane .scroll-bar .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(0, 212, 255, 0.8), rgba(77, 255, 255, 0.8));
+    -fx-effect: dropshadow(gaussian, rgba(0, 212, 255, 0.6), 8, 0, 0, 0);
+}
+
+.scroll-pane .scroll-bar .thumb:pressed {
+    -fx-background-color: linear-gradient(to bottom, rgba(77, 255, 255, 0.9), rgba(0, 212, 255, 0.9));
+}
+
+/* Scroll Bar Buttons (arrows) */
+.scroll-pane .scroll-bar .increment-button,
+.scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-pref-width: 12;
+    -fx-pref-height: 12;
+}
+
+.scroll-pane .scroll-bar .increment-arrow,
+.scroll-pane .scroll-bar .decrement-arrow {
+    -fx-background-color: rgba(0, 212, 255, 0.6);
+    -fx-shape: "M 0 0 L 4 4 L 0 8 Z";
+    -fx-padding: 0.25em;
+}
+
+.scroll-pane .scroll-bar .increment-arrow:hover,
+.scroll-pane .scroll-bar .decrement-arrow:hover {
+    -fx-background-color: rgba(0, 212, 255, 0.9);
+}
+
+/* Level Card */
+.level-card {
+    -fx-background-color: rgba(30, 30, 60, 0.7);
+    -fx-border-color: rgba(0, 212, 255, 0.8);
+    -fx-border-width: 3;
+    -fx-border-radius: 15;
+    -fx-background-radius: 15;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0, 0, 5);
+    -fx-cursor: hand;
+}
+
+.level-card:hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(80, 60, 140, 0.95), rgba(60, 40, 100, 0.95));
+    -fx-border-color: linear-gradient(to bottom, rgba(77, 255, 255, 1.0), rgba(0, 212, 255, 1.0));
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(gaussian, rgba(0, 212, 255, 0.7), 20, 0, 0, 5),
+                dropshadow(gaussian, rgba(0, 0, 0, 0.6), 15, 0, 0, 5);
+}
+
+.level-card-locked {
+    -fx-background-color: rgba(20, 20, 40, 0.5);
+    -fx-border-color: rgba(0, 212, 255, 0.5);
+    -fx-border-width: 2;
+    -fx-border-radius: 15;
+    -fx-background-radius: 15;
+    -fx-padding: 15;
+    -fx-opacity: 0.6;
+    -fx-cursor: default;
+}
+
+.level-card-locked:hover {
+    -fx-background-color: rgba(20, 20, 40, 0.5);
+    -fx-border-color: rgba(0, 212, 255, 0.5);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0, 0, 5);
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+}
+
+/* Level Card Elements */
+.level-number {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #00d4ff;
+}
+
+.level-name {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-wrap-text: true;
+}
+
+.level-description {
+    -fx-font-size: 13px;
+    -fx-text-fill: #b0e0e6;
+    -fx-wrap-text: true;
+}
+
+.level-stats {
+    -fx-font-size: 14px;
+    -fx-text-fill: #9370db;
+}
+
+.difficulty-badge {
+    -fx-background-color: rgba(255, 100, 100, 0.3);
+    -fx-text-fill: #ff6464;
+    -fx-padding: 5 15 5 15;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.difficulty-badge-easy {
+    -fx-background-color: rgba(100, 255, 100, 0.3);
+    -fx-text-fill: #64ff64;
+}
+
+.difficulty-badge-medium {
+    -fx-background-color: rgba(255, 200, 100, 0.3);
+    -fx-text-fill: #ffc864;
+}
+
+.difficulty-badge-hard {
+    -fx-background-color: rgba(255, 100, 100, 0.3);
+    -fx-text-fill: #ff6464;
+}
+
+.difficulty-badge-expert {
+    -fx-background-color: rgba(200, 100, 255, 0.3);
+    -fx-text-fill: #c864ff;
+}
+
+/* Star Rating */
+.star-container {
+    -fx-spacing: 5;
+}
+
+.star-filled {
+    -fx-fill: #ffd700;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 5, 0, 0, 0);
+}
+
+.star-empty {
+    -fx-fill: rgba(100, 100, 100, 0.5);
+}
+
+/* Lock Icon */
+.lock-icon {
+    -fx-fill: #606060;
+    -fx-font-size: 48px;
+}
+
+/* Play Button */
+.play-button {
+    -fx-background-color: linear-gradient(to bottom, #00d4ff, #0088cc);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 20 8 20;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 212, 255, 0.5), 10, 0, 0, 0);
+}
+
+.play-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #00ffff, #00aadd);
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.8), 15, 0, 0, 0);
+}
+
+.play-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #0088cc, #006699);
+}
+
+/* Locked Button */
+.locked-button {
+    -fx-background-color: linear-gradient(to bottom, #666666, #444444);
+    -fx-text-fill: #cccccc;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 20 8 20;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-cursor: default;
+    -fx-opacity: 0.8;
+}
+
+/* Best Score Display */
+.best-score-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #ffd700;
+    -fx-font-weight: bold;
+}
+
+.best-time-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #87ceeb;
+    -fx-font-weight: bold;
+}
+
+/* Footer Section */
+.footer-section {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-border-color: rgba(100, 100, 200, 0.3);
+    -fx-border-width: 2 0 0 0;
+}
+
+.footer-hint {
+    -fx-font-size: 14px;
+    -fx-text-fill: #9370db;
+    -fx-font-style: italic;
+}
+
+.reset-button {
+    -fx-background-color: rgba(100, 30, 30, 0.6);
+    -fx-text-fill: #ff6464;
+    -fx-font-size: 14px;
+    -fx-padding: 8 16 8 16;
+    -fx-border-color: #ff6464;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.reset-button:hover {
+    -fx-background-color: rgba(150, 50, 50, 0.8);
+    -fx-effect: dropshadow(gaussian, #ff6464, 8, 0, 0, 0);
+}
+
+/* Back Button */
+.back-button {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-text-fill: #b0e0e6;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16 8 16;
+    -fx-border-color: rgba(100, 100, 200, 0.5);
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 0);
+    -fx-alignment: center-left;
+}
+
+.back-button:hover {
+    -fx-background-color: rgba(100, 100, 200, 0.3);
+    -fx-text-fill: #00d4ff;
+    -fx-border-color: #00d4ff;
+    -fx-effect: dropshadow(gaussian, rgba(0, 212, 255, 0.6), 8, 0, 0, 0);
+}
+
+.back-button:pressed {
+    -fx-background-color: rgba(80, 80, 160, 0.5);
+    -fx-effect: dropshadow(gaussian, rgba(0, 212, 255, 0.4), 3, 0, 0, 0);
+}
