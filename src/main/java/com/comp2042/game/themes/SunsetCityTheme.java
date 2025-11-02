@@ -16,7 +16,7 @@ public class SunsetCityTheme implements LevelTheme {
     private static final String THEME_ID = "sunset_city";
     private static final String THEME_NAME = "Sunset City";
     private static final String THEME_DESCRIPTION = "Build the legendary city skyline as the sun sets over the horizon";
-    private static final String BACKGROUND_IMAGE = "/themes/sunset_city_bg.jpg";
+    private static final String BACKGROUND_IMAGE = "/sunset_city_bg.jpg";
     private static final String BACKGROUND_MUSIC = "/themes/sunset_city_music.mp3";
     private static final String PRIMARY_COLOR = "#E94B3C";
     private static final String SECONDARY_COLOR = "#C2452D";

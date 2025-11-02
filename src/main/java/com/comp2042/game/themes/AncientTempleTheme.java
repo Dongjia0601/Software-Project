@@ -14,7 +14,7 @@ public class AncientTempleTheme implements LevelTheme {
     private static final String THEME_ID = "ancient_temple";
     private static final String THEME_NAME = "Ancient Temple";
     private static final String THEME_DESCRIPTION = "Explore the mysterious ruins of an ancient civilization";
-    private static final String BACKGROUND_IMAGE = "/themes/ancient_temple_bg.jpg";
+    private static final String BACKGROUND_IMAGE = "/Ancient_temple_bg.jpg";
     private static final String BACKGROUND_MUSIC = "/themes/ancient_temple_music.mp3";
     private static final String PRIMARY_COLOR = "#D4AF37"; // Gold
     private static final String SECONDARY_COLOR = "#8B4513"; // Saddle Brown
