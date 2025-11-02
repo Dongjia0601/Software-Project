@@ -110,10 +110,10 @@ public class LevelManager {
                 75      // threeStarTime (1:15)
         ));
 
-        // Level 5: Interstellar Odyssey (Expert)
+        // Level 5: Interstellar (Expert)
         levels.add(new LevelMode(
                 5,
-                "Interstellar Odyssey",
+                "Interstellar",
                 new InterstellarTheme(),
                 150,    // fallSpeed (ms) - Very Fast
                 6,      // targetLines
