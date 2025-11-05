@@ -319,15 +319,60 @@ public class MainMenuController {
     private void startTwoPlayerMode() {
         System.out.println("Starting Two-Player Mode...");
         try {
-            // Create GUI controller
-            GuiController guiController = new GuiController();
+            // Load the two-player game layout FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("twoPlayerGameLayout.fxml"));
+            Parent root = loader.load();
+            
+            // Get the GUI controller from the loaded FXML
+            GuiController guiController = loader.getController();
+            if (guiController == null) {
+                guiController = new GuiController();
+            }
+            
+            // Set two-player mode flag BEFORE creating game mode
+            guiController.setGameMode(true);
             
             // Create VS mode (it will create its own game services)
             var gameMode = GameModeFactory.createGameMode(GameModeType.TWO_PLAYER_VS, null, guiController);
-            gameMode.initialize();
             
-            // Load game layout
-            loadGameScene(guiController);
+            // Create two-player game controller to manage both players
+            TwoPlayerGameController twoPlayerController = new TwoPlayerGameController((com.comp2042.game.TwoPlayerVSGameMode) gameMode, guiController);
+            
+            // Create new scene with two-player layout size
+            Scene gameScene = new Scene(root, 1400, 900);
+            
+            // Get the current stage and set the new scene
+            Stage currentStage = (Stage) twoPlayerModeBtn.getScene().getWindow();
+            currentStage.setScene(gameScene);
+            currentStage.setTitle("TetrisJFX - Two-Player Mode");
+            
+            // Set up keyboard focus for input handling AFTER scene is set
+            final GuiController gc = guiController;
+            final Parent sceneRoot = root;
+            // Critical: capture key presses at Scene level so SPACE/BACKSPACE/ALT work even when buttons are focused
+            gameScene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+                // Forward to game handler first
+                gc.handleKeyPressEvent(event);
+                // Ensure ALT doesn't trigger mnemonics
+                if (event.getCode() == javafx.scene.input.KeyCode.ALT || event.getCode() == javafx.scene.input.KeyCode.ALT_GRAPH) {
+                    event.consume();
+                }
+            });
+            javafx.application.Platform.runLater(() -> {
+                // Ensure rootPane is initialized and has focus
+                if (gc.getRootPane() != null) {
+                    gc.getRootPane().setFocusTraversable(true);
+                    gc.getRootPane().requestFocus();
+                    gc.getRootPane().setOnKeyPressed(gc::handleKeyPressEvent);
+                } else if (sceneRoot != null) {
+                    // Fallback: use root if rootPane not available
+                    sceneRoot.requestFocus();
+                    sceneRoot.setOnKeyPressed(gc::handleKeyPressEvent);
+                }
+                System.out.println("Keyboard focus set for two-player mode");
+            });
+            
+            System.out.println("Two-Player Mode scene loaded successfully");
             
         } catch (Exception e) {
             System.err.println("Error starting Two-Player Mode: " + e.getMessage());
@@ -523,7 +568,7 @@ public class MainMenuController {
                 "Hold: store one piece to swap later (one swap per piece).",
                 "Statistics: shows Level, Lines cleared, Speed and Time.",
                 "Score: real-time points and the Highest Score.",
-                "Controls: Settings, Help, Exit to Menu.",
+                "Controls: Settings, Help, Back to Menu.",
                 "Actions: New Game (N), Pause & Resume (P), Mute."
             };
             javafx.scene.layout.VBox basicsRightCol = createBulletedColumn(basicsRightItems, 330);
@@ -536,7 +581,9 @@ public class MainMenuController {
             rngContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
 
             javafx.scene.control.Label rngTitle = new javafx.scene.control.Label("Piece Randomizer Systems");
-            rngTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+            rngTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
+            rngTitle.setMaxWidth(Double.MAX_VALUE);
+            javafx.scene.layout.HBox.setHgrow(rngTitle, javafx.scene.layout.Priority.ALWAYS);
 
             javafx.scene.control.Label rngIntro = new javafx.scene.control.Label(
                 "Modern Tetris variants use a \"bag\" to distribute tetrominoes, while early games used pure random selection. Choose your system in Settings > Gameplay > Piece Randomizer. Default is 7‑Bag System.");
@@ -573,8 +620,10 @@ public class MainMenuController {
             javafx.scene.layout.VBox scoreContainer = new javafx.scene.layout.VBox(10);
             scoreContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
 
-            javafx.scene.control.Label scoreTitle = new javafx.scene.control.Label("Scoring (Single Player)");
-            scoreTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+            javafx.scene.control.Label scoreTitle = new javafx.scene.control.Label("Score System");
+            scoreTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
+            scoreTitle.setMaxWidth(Double.MAX_VALUE);
+            javafx.scene.layout.HBox.setHgrow(scoreTitle, javafx.scene.layout.Priority.ALWAYS);
 
             javafx.scene.control.Label lineScores = new javafx.scene.control.Label(
                 "Line Clears:\n" +
@@ -600,6 +649,83 @@ public class MainMenuController {
 
             scoreContainer.getChildren().addAll(scoreTitle, scoreRow);
 
+            // Two-Player Mode Rules section
+            javafx.scene.layout.VBox twoPlayerContainer = new javafx.scene.layout.VBox(12);
+            twoPlayerContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+
+            javafx.scene.control.Label twoPlayerTitle = new javafx.scene.control.Label("Two-Player Mode Rules");
+            twoPlayerTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
+            twoPlayerTitle.setMaxWidth(Double.MAX_VALUE);
+            javafx.scene.layout.HBox.setHgrow(twoPlayerTitle, javafx.scene.layout.Priority.ALWAYS);
+
+            // Objective and Winning Condition (combined)
+            javafx.scene.control.Label objectiveTitle = new javafx.scene.control.Label("Objective & Winning Condition");
+            objectiveTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            javafx.scene.control.Label objectiveText = new javafx.scene.control.Label(
+                "Clear lines to send garbage lines to your opponent. The last player standing wins!\n" +
+                "The game ends when one player's board fills up. The player with the higher score wins!");
+            objectiveText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            objectiveText.setWrapText(true);
+
+            // Attack System
+            javafx.scene.control.Label attackTitle = new javafx.scene.control.Label("Attack System");
+            attackTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            javafx.scene.control.Label attackText = new javafx.scene.control.Label(
+                "• 1 line cleared: No attack (0 garbage lines)\n" +
+                "• 2 lines cleared: Send 1 garbage line\n" +
+                "• 3 lines cleared: Send 2 garbage lines\n" +
+                "• 4 lines cleared (Tetris): Send 4 garbage lines");
+            attackText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            attackText.setWrapText(true);
+
+            // Combo Bonus
+            javafx.scene.control.Label comboTitle = new javafx.scene.control.Label("Combo Bonus");
+            comboTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            javafx.scene.control.Label comboText = new javafx.scene.control.Label(
+                "Build combos by clearing lines consecutively. Each combo above 1 eliminates 2 garbage lines from your board!\n" +
+                "Example: Combo x3 = Eliminates 4 garbage lines (2 per combo above 1)");
+            comboText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            comboText.setWrapText(true);
+
+            // Garbage Lines
+            javafx.scene.control.Label garbageTitle = new javafx.scene.control.Label("Garbage Lines");
+            garbageTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            javafx.scene.control.Label garbageText = new javafx.scene.control.Label("Garbage lines appear as gray blocks with one random hole. Clear them quickly or they'll stack up!");
+            garbageText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            garbageText.setWrapText(true);
+
+            // Special Features
+            javafx.scene.control.Label featuresTitle = new javafx.scene.control.Label("Special Features");
+            featuresTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            javafx.scene.control.Label featuresText = new javafx.scene.control.Label(
+                "• Countdown timer before game starts (3-2-1)\n" +
+                "• Visual attack animations when receiving attacks\n" +
+                "• Real-time statistics tracking (combo, attacks, defense)\n" +
+                "• Sound effects for attacks and line clears");
+            featuresText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            featuresText.setWrapText(true);
+
+            // Strategy Tips
+            javafx.scene.control.Label strategyTitle = new javafx.scene.control.Label("Strategy Tips");
+            strategyTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            javafx.scene.control.Label strategyText = new javafx.scene.control.Label(
+                "• Build for Tetris (4-line clears) for maximum damage\n" +
+                "• Maintain combos to clear incoming garbage lines\n" +
+                "• Watch your opponent's board and adapt your strategy\n" +
+                "• Use hold to save pieces for better setups");
+            strategyText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            strategyText.setWrapText(true);
+
+            twoPlayerContainer.getChildren().addAll(
+                twoPlayerTitle,
+                objectiveTitle, objectiveText,
+                attackTitle, attackText,
+                comboTitle, comboText,
+                garbageTitle, garbageText,
+                featuresTitle, featuresText,
+                strategyTitle, strategyText
+            );
+
             // Close button
             javafx.scene.control.Button closeButton = new javafx.scene.control.Button("Close");
             closeButton.setStyle("-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;");
@@ -613,7 +739,7 @@ public class MainMenuController {
             buttonContainer.getChildren().add(closeButton);
             
             // Add all components
-            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, buttonContainer);
+            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, twoPlayerContainer, buttonContainer);
             scrollPane.setContent(mainContainer);
             
             // Create scene and show

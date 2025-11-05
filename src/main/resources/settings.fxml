@@ -115,7 +115,7 @@
                                     </HBox>
                                     <HBox spacing="20" alignment="CENTER_LEFT">
                                         <Label text="Hard Drop" styleClass="control-action" minWidth="200"/>
-                                        <Label text="Ctrl" styleClass="control-key"/>
+                                        <Label text="Backspace" styleClass="control-key"/>
                                     </HBox>
                                     <HBox spacing="20" alignment="CENTER_LEFT">
                                         <Label text="Hold Block" styleClass="control-action" minWidth="200"/>
@@ -195,7 +195,7 @@
             <Button fx:id="resetButton" text="Reset" onAction="#resetToDefault" styleClass="settings-button, reset-button"/>
             <Button fx:id="backToGameButton" text="Back to Game" onAction="#backToGame" 
                    styleClass="settings-button, continue-button" visible="false" managed="false"/>
-            <Button fx:id="backToMenuButton" text="Exit to Menu" onAction="#backToMenu" 
+            <Button fx:id="backToMenuButton" text="Back to Menu" onAction="#backToMenu" 
                    styleClass="settings-button, exit-button"/>
         </HBox>
         

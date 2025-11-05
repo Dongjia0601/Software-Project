@@ -378,6 +378,46 @@ public class SimpleBoard implements Board {
     private void enableHold() {
         canHold = true;
     }
+    
+    /**
+     * Adds a garbage line to the bottom of the board.
+     * A garbage line is a full row with one random hole.
+     * This is used for VS mode attacks.
+     * 
+     * @return true if adding the garbage line causes game over
+     */
+    public boolean addGarbageLine() {
+        int width = currentGameMatrix[0].length;
+        int height = currentGameMatrix.length;
+        
+        // Shift all rows up by one
+        for (int i = 0; i < height - 1; i++) {
+            currentGameMatrix[i] = currentGameMatrix[i + 1].clone();
+        }
+        
+        // Create a garbage line with one random hole
+        int[] garbageLine = new int[width];
+        int holePosition = (int) (Math.random() * width);
+        for (int j = 0; j < width; j++) {
+            if (j == holePosition) {
+                garbageLine[j] = 0; // Hole
+            } else {
+                garbageLine[j] = 8; // Garbage block (use color 8 for garbage)
+            }
+        }
+        
+        // Place garbage line at the bottom
+        currentGameMatrix[height - 1] = garbageLine;
+        
+        // Check if this causes game over (collision with current brick)
+        if (currentOffset != null && brickRotator.getCurrentShape() != null) {
+            return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), 
+                                             (int) currentOffset.getX(), (int) currentOffset.getY());
+        }
+        
+        // If no current brick, check if new brick spawn would cause game over
+        return false;
+    }
 
     @Override
     /**

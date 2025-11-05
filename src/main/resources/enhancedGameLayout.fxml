@@ -92,7 +92,7 @@
                        text="Help" 
                        styleClass="control-button"
                        onAction="#showHelp"/>
-                <Button text="Exit to Menu" 
+                <Button text="Back to Menu" 
                        styleClass="control-button"
                        onAction="#returnToMenu"/>
             </VBox>
@@ -120,10 +120,10 @@
                  Enlarged: 25px brick + 1px gap = 26px
                  Grid: 10*25 + 9*1 = 259px width, 20*25 + 19*1 = 519px height
                  Border: 15px, Padding: 35px left/right, 25px top/bottom
-                 Total: 259 + 2*15 + 2*35 = 359px width, 519 + 2*15 + 25 + 5 = 579px height -->
-            <Pane styleClass="game-container" prefWidth="359" prefHeight="579">
+                 Total: 259 + 2*15 + 2*35 = 359px width, 519 + 2*15 + 25 + 5 + 20 = 599px height (added 20px bottom space) -->
+            <Pane styleClass="game-container" prefWidth="359" prefHeight="599">
                 <!-- Background Board (decorative border: 15px) - FIRST (bottom layer) -->
-                <Pane styleClass="gameBoard" layoutX="0" layoutY="0" prefWidth="359" prefHeight="579" mouseTransparent="true"/>
+                <Pane styleClass="gameBoard" layoutX="0" layoutY="0" prefWidth="359" prefHeight="599" mouseTransparent="true"/>
                 
                 <!-- Game Grid - SECOND (game cells) 
                      Position: 15px (border) + 35px (padding) = 50px from left

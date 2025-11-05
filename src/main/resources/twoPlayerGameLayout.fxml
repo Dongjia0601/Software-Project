@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.comp2042.GameOverPanel?>
+<?import com.comp2042.TwoPlayerGameOverPanel?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import java.net.URL?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" 
+            fx:id="rootPane"
+            fx:controller="com.comp2042.GuiController"
+            prefWidth="1400" 
+            prefHeight="900"
+            styleClass="root-pane">
+    
+    <!-- Top: Title and Game Status -->
+    <top>
+        <VBox alignment="CENTER" spacing="10" styleClass="top-panel">
+            <padding>
+                <Insets top="15" bottom="10" left="20" right="20"/>
+            </padding>
+            <Label text="TETRIS TWO-PLAYER MODE" styleClass="game-title-two-player"/>
+            <HBox spacing="30" alignment="CENTER">
+                <VBox alignment="CENTER" spacing="5">
+                    <Label text="PLAYER 1" styleClass="player1-label"/>
+                    <Label fx:id="player1ScoreLabel" text="Score: 0" styleClass="player-score"/>
+                </VBox>
+                <Label fx:id="vsLabel" text="VS" styleClass="vs-label"/>
+                <VBox alignment="CENTER" spacing="5">
+                    <Label text="PLAYER 2" styleClass="player2-label"/>
+                    <Label fx:id="player2ScoreLabel" text="Score: 0" styleClass="player-score"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+    
+    <!-- Center: Two Game Boards Side by Side -->
+    <center>
+        <StackPane>
+            <!-- Game Boards Container -->
+            <HBox spacing="40" alignment="CENTER" styleClass="boards-container">
+            <padding>
+                <Insets top="20" bottom="20" left="40" right="40"/>
+            </padding>
+            
+            <!-- Player 1 Game Area -->
+            <VBox spacing="15" alignment="CENTER" styleClass="player-area player1-area">
+                <Label text="PLAYER 1" styleClass="player1-title"/>
+                
+                <!-- Player 1 Left Panel: Hold and Stats -->
+                <HBox spacing="15" alignment="CENTER">
+                    <!-- Hold Area -->
+                    <VBox spacing="8" styleClass="info-box player1-info-box">
+                        <Label text="HOLD" styleClass="section-title"/>
+                        <GridPane fx:id="holdPanel1" 
+                                 hgap="1" 
+                                 vgap="1" 
+                                 styleClass="hold-display"
+                                 alignment="CENTER"
+                                 minWidth="110" minHeight="110"
+                                 prefWidth="110" prefHeight="110"
+                                 maxWidth="110" maxHeight="110"/>
+                    </VBox>
+                    
+                    <!-- Player 1 Game Board -->
+                    <StackPane alignment="CENTER">
+                        <VBox alignment="CENTER" spacing="5">
+                            <Pane styleClass="game-container-two-player" prefWidth="320" prefHeight="559">
+                                <!-- Background Board -->
+                                <Pane fx:id="boardBackground1" styleClass="gameBoard-two-player player1-board" 
+                                      layoutX="0" layoutY="0" 
+                                      prefWidth="320" prefHeight="559" 
+                                      mouseTransparent="true"/>
+                                
+                                <GridPane fx:id="gamePanel1" 
+                                         hgap="1" vgap="1" 
+                                         layoutX="30" layoutY="20" 
+                                         prefWidth="259" prefHeight="519"
+                                         styleClass="game-grid"
+                                         maxHeight="519"
+                                         minHeight="519"/>
+                                
+                                <!-- Brick Panel for Player 1 -->
+                                <Pane fx:id="brickPanel1" prefWidth="104" prefHeight="104"/>
+                                
+                                <!-- Ghost Panel for Player 1 -->
+                                <Pane fx:id="ghostPanel1" prefWidth="104" prefHeight="104"/>
+                                
+                                <!-- Game Over Overlay for Player 1 -->
+                                <Group fx:id="groupNotification1" layoutX="40" layoutY="210">
+                                    <VBox alignment="CENTER">
+                                        <GameOverPanel fx:id="gameOverPanel1"/>
+                                    </VBox>
+                                </Group>
+                            </Pane>
+                        </VBox>
+                    </StackPane>
+                    
+                    <!-- Player 1 Right Panel: Next and Stats -->
+                    <VBox spacing="8" styleClass="info-box player1-info-box">
+                        <Label text="NEXT" styleClass="section-title"/>
+                        <GridPane fx:id="nextBrickPanel1" 
+                                 hgap="1" 
+                                 vgap="1" 
+                                 styleClass="next-display"
+                                 alignment="CENTER"
+                                 minWidth="110" minHeight="110"
+                                 prefWidth="110" prefHeight="110"
+                                 maxWidth="110" maxHeight="110"/>
+                        
+                        <!-- Player 1 Statistics -->
+                        <VBox spacing="6" styleClass="player-stats">
+                            <Label text="STATISTICS" styleClass="section-title"/>
+                            <HBox spacing="5">
+                                <Label text="Lines:" styleClass="stat-label"/>
+                                <Label fx:id="player1LinesLabel" text="0" styleClass="stat-value"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label text="Combo:" styleClass="stat-label"/>
+                                <Label fx:id="player1ComboLabel" text="0" styleClass="stat-value"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label text="Attack:" styleClass="stat-label"/>
+                                <Label fx:id="player1AttackLabel" text="0" styleClass="stat-value"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label text="Defense:" styleClass="stat-label"/>
+                                <Label fx:id="player1DefenseLabel" text="0" styleClass="stat-value"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label text="Tetris:" styleClass="stat-label"/>
+                                <Label fx:id="player1TetrisLabel" text="0" styleClass="stat-value"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label text="Time:" styleClass="stat-label"/>
+                                <Label fx:id="player1TimeLabel" text="00:00" styleClass="stat-value"/>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </HBox>
+                
+                <!-- Spacer for control hint -->
+                <Region prefHeight="15" VBox.vgrow="NEVER"/>
+                
+                <!-- Player 1 Controls Hint -->
+                <Label text="[A/D] Move  [W] Rotate CW  [F] Rotate CCW  [S] Soft Drop  [Space] Hard Drop  [Shift] Hold"
+                       styleClass="control-hint-two-player">
+                    <VBox.margin>
+                        <Insets top="0" bottom="0" left="0" right="0"/>
+                    </VBox.margin>
+                </Label>
+            </VBox>
+            
+            <!-- Divider -->
+            <VBox alignment="CENTER" styleClass="divider">
+                <Label text="VS" styleClass="divider-label"/>
+            </VBox>
+            
+            <!-- Player 2 Game Area -->
+            <VBox spacing="15" alignment="CENTER" styleClass="player-area player2-area">
+                <Label text="PLAYER 2" styleClass="player2-title"/>
+                
+                <!-- Player 2 Left Panel: Hold and Stats -->
+                <HBox spacing="15" alignment="CENTER">
+                    <!-- Hold Area -->
+                    <VBox spacing="8" styleClass="info-box player2-info-box">
+                        <Label text="HOLD" styleClass="section-title"/>
+                        <GridPane fx:id="holdPanel2" 
+                                 hgap="1" 
+                                 vgap="1" 
+                                 styleClass="hold-display"
+                                 alignment="CENTER"
+                                 minWidth="110" minHeight="110"
+                                 prefWidth="110" prefHeight="110"
+                                 maxWidth="110" maxHeight="110"/>
+                    </VBox>
+                    
+                    <!-- Player 2 Game Board -->
+                    <StackPane alignment="CENTER">
+                        <VBox alignment="CENTER" spacing="5">
+                            <Pane styleClass="game-container-two-player" prefWidth="320" prefHeight="559">
+                                <!-- Background Board -->
+                                <Pane fx:id="boardBackground2" styleClass="gameBoard-two-player player2-board" 
+                                      layoutX="0" layoutY="0" 
+                                      prefWidth="320" prefHeight="559" 
+                                      mouseTransparent="true"/>
+                                
+                                <GridPane fx:id="gamePanel2" 
+                                         hgap="1" vgap="1" 
+                                         layoutX="30" layoutY="20" 
+                                         prefWidth="259" prefHeight="519"
+                                         styleClass="game-grid"
+                                         maxHeight="519"
+                                         minHeight="519"/>
+                                
+                                <!-- Brick Panel for Player 2 -->
+                                <Pane fx:id="brickPanel2" prefWidth="104" prefHeight="104"/>
+                                
+                                <!-- Ghost Panel for Player 2 -->
+                                <Pane fx:id="ghostPanel2" prefWidth="104" prefHeight="104"/>
+                                
+                                <!-- Game Over Overlay for Player 2 -->
+                                <Group fx:id="groupNotification2" layoutX="40" layoutY="210">
+                                    <VBox alignment="CENTER">
+                                        <GameOverPanel fx:id="gameOverPanel2"/>
+                                    </VBox>
+                                </Group>
+                            </Pane>
+                        </VBox>
+                    </StackPane>
+                    
+                    <!-- Player 2 Right Panel: Next and Stats -->
+                    <VBox spacing="8" styleClass="info-box player2-info-box">
+                        <Label text="NEXT" styleClass="section-title"/>
+                        <GridPane fx:id="nextBrickPanel2" 
+                                 hgap="1" 
+                                 vgap="1" 
+                                 styleClass="next-display"
+                                 alignment="CENTER"
+                                 minWidth="110" minHeight="110"
+                                 prefWidth="110" prefHeight="110"
+                                 maxWidth="110" maxHeight="110"/>
+                        
+                        <!-- Player 2 Statistics -->
+                        <VBox spacing="6" styleClass="player-stats">
+                            <Label text="STATISTICS" styleClass="section-title"/>
+                            <HBox spacing="5">
+                                <Label text="Lines:" styleClass="stat-label"/>
+                                <Label fx:id="player2LinesLabel" text="0" styleClass="stat-value"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label text="Combo:" styleClass="stat-label"/>
+                                <Label fx:id="player2ComboLabel" text="0" styleClass="stat-value"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label text="Attack:" styleClass="stat-label"/>
+                                <Label fx:id="player2AttackLabel" text="0" styleClass="stat-value"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label text="Defense:" styleClass="stat-label"/>
+                                <Label fx:id="player2DefenseLabel" text="0" styleClass="stat-value"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label text="Tetris:" styleClass="stat-label"/>
+                                <Label fx:id="player2TetrisLabel" text="0" styleClass="stat-value"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label text="Time:" styleClass="stat-label"/>
+                                <Label fx:id="player2TimeLabel" text="00:00" styleClass="stat-value"/>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </HBox>
+                
+                <!-- Spacer for control hint -->
+                <Region prefHeight="15" VBox.vgrow="NEVER"/>
+                
+                <!-- Player 2 Controls Hint -->
+                <Label text="[←/→] Move  [↑] Rotate CW  [Enter] Rotate CCW  [↓] Soft Drop  [Backspace] Hard Drop  [Alt] Hold"
+                       styleClass="control-hint-two-player">
+                    <VBox.margin>
+                        <Insets top="0" bottom="0" left="0" right="0"/>
+                    </VBox.margin>
+                </Label>
+            </VBox>
+        </HBox>
+            
+            <!-- Game Over Panel Overlay (initially hidden) -->
+            <TwoPlayerGameOverPanel fx:id="twoPlayerGameOverPanel" 
+                                   visible="false" 
+                                   managed="false"
+                                   styleClass="game-over-overlay"/>
+        </StackPane>
+    </center>
+    
+    <!-- Bottom: Game Controls -->
+    <bottom>
+        <VBox spacing="10" alignment="CENTER" styleClass="bottom-panel">
+            <padding>
+                <Insets top="15" bottom="15" left="20" right="20"/>
+            </padding>
+            <HBox spacing="15" alignment="CENTER">
+                <Button fx:id="settingsButton" 
+                       text="Settings" 
+                       styleClass="control-button"
+                       mnemonicParsing="false"
+                       onAction="#showSettings"/>
+                <Button fx:id="helpButton" 
+                       text="Help" 
+                       styleClass="control-button"
+                       mnemonicParsing="false"
+                       onAction="#showHelp"/>
+                <Button fx:id="muteButton" 
+                       text="Mute" 
+                       styleClass="game-button"
+                       mnemonicParsing="false"
+                       onAction="#toggleMute"/>
+                <Button fx:id="pauseButton" 
+                       text="Pause/Resume (P)" 
+                       styleClass="game-button"
+                       mnemonicParsing="false"
+                       onAction="#pauseGame"/>
+                <Button text="New Game (N)" 
+                       styleClass="game-button"
+                       mnemonicParsing="false"
+                       onAction="#newGame"/>
+                <Button text="Back to Menu" 
+                       styleClass="control-button"
+                       mnemonicParsing="false"
+                       onAction="#returnToMenu"/>
+            </HBox>
+        </VBox>
+    </bottom>
+    
+    <!-- Stylesheets -->
+    <stylesheets>
+        <URL value="@twoPlayerGameStyle.css"/>
+    </stylesheets>
+</BorderPane>

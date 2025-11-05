@@ -1,5 +1,6 @@
 package com.comp2042;
 
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
@@ -37,8 +38,10 @@ import javafx.stage.Modality;
 import javafx.geometry.Pos;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.Parent;
 import javafx.util.Duration;
+import javafx.application.Platform;
 
 import com.comp2042.config.GameSettings;
 import java.net.URL;
@@ -195,6 +198,14 @@ public class GuiController implements Initializable {
     // Endless mode progression tracking
     private int endlessLevel = 1;
     private int endlessLinesClearedUI = 0;
+    
+    // Countdown tracking
+    private Timeline countdownTimeline = null;
+    private Runnable countdownCallback = null;
+    private StackPane countdownOverlay1 = null;
+    private StackPane countdownOverlay2 = null;
+    private Pane countdownParent1 = null;
+    private Pane countdownParent2 = null;
 
     @Override
     /**
@@ -221,14 +232,27 @@ public class GuiController implements Initializable {
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
 
         // Set focus and request focus for keyboard input
-        gamePanel.setFocusTraversable(true);
-        gamePanel.requestFocus();
-
-        // Set up keyboard event handling
-        gamePanel.setOnKeyPressed(this::handleKeyPressEvent);
+        // For two-player mode, use rootPane; for single-player, use gamePanel
+        if (isTwoPlayerMode && rootPane != null) {
+            rootPane.setFocusTraversable(true);
+            rootPane.requestFocus();
+            rootPane.setOnKeyPressed(this::handleKeyPressEvent);
+        } else if (gamePanel != null) {
+            gamePanel.setFocusTraversable(true);
+            gamePanel.requestFocus();
+            gamePanel.setOnKeyPressed(this::handleKeyPressEvent);
+        }
 
         // Initialize game over panel visibility
-        gameOverPanel.setVisible(false);
+        if (gameOverPanel != null) {
+            gameOverPanel.setVisible(false);
+        }
+        if (gameOverPanel1 != null) {
+            gameOverPanel1.setVisible(false);
+        }
+        if (gameOverPanel2 != null) {
+            gameOverPanel2.setVisible(false);
+        }
         
         // Apply visual effects - using DropShadow instead of deprecated Reflection
         final DropShadow dropShadow = new DropShadow();
@@ -262,11 +286,11 @@ public class GuiController implements Initializable {
         if (node instanceof Button) {
             Button button = (Button) node;
             String buttonText = button.getText();
-            // Only filter control buttons (Settings, Help, Exit to Menu)
+            // Only filter control buttons (Settings, Help, Back to Menu)
             if (buttonText != null && (
                 buttonText.contains("Settings") ||
                 buttonText.contains("Help") ||
-                buttonText.contains("Exit to Menu")
+                buttonText.contains("Back to Menu")
             )) {
                 button.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
                     if (event.getCode() == KeyCode.SPACE) {
@@ -287,10 +311,11 @@ public class GuiController implements Initializable {
     /**
      * Handles keyboard press events for game controls.
      * Processes movement, rotation, pause, and new game requests.
+     * This method is public to allow external components to set up keyboard handlers.
      *
      * @param keyEvent The KeyEvent containing information about the key press.
      */
-    private void handleKeyPressEvent(KeyEvent keyEvent) {
+    public void handleKeyPressEvent(KeyEvent keyEvent) {
         // Check for pause state before handling movement/rotation
         if (!isPause.getValue() && !isGameOver.getValue()) {
             
@@ -305,9 +330,11 @@ public class GuiController implements Initializable {
 
         // Add key handler for pause/unpause (P key)
         if (keyEvent.getCode() == KeyCode.P) {
-            // Cast eventListener to GameController to call requestPause
+            // Handle pause for both GameController and TwoPlayerGameController
             if (eventListener instanceof GameController) {
                 ((GameController) eventListener).requestPause();
+            } else if (eventListener instanceof TwoPlayerGameController) {
+                ((TwoPlayerGameController) eventListener).requestPause();
             }
             keyEvent.consume();
         }
@@ -335,14 +362,15 @@ public class GuiController implements Initializable {
             }
         }
         // Initialize the display matrix for the static board background
+        // Render all 20 rows (10 columns × 20 rows)
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
-        for (int i = 2; i < boardMatrix.length; i++) {
+        for (int i = 0; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
                 rectangle.setFill(Color.TRANSPARENT);
                 rectangle.getStyleClass().add("game-cell");
                 displayMatrix[i][j] = rectangle;
-                gamePanel.add(rectangle, j, i - 2);
+                gamePanel.add(rectangle, j, i);
             }
         }
 
@@ -420,6 +448,9 @@ public class GuiController implements Initializable {
                 break;
             case 7:
                 returnPaint = Color.BURLYWOOD;
+                break;
+            case 8:
+                returnPaint = Color.GRAY; // Garbage line color
                 break;
             default:
                 returnPaint = Color.WHITE;
@@ -624,6 +655,71 @@ public class GuiController implements Initializable {
      * @param actionEvent The ActionEvent triggering the new game (e.g., from a button).
      */
     public void newGame(ActionEvent actionEvent) {
+        // Handle two-player mode
+        if (isTwoPlayerMode && eventListener instanceof TwoPlayerGameController) {
+            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+            
+            // Stop timelines before starting new game (to prevent blocks from falling during countdown)
+            try {
+                java.lang.reflect.Field player1TimelineField = TwoPlayerGameController.class.getDeclaredField("player1Timeline");
+                java.lang.reflect.Field player2TimelineField = TwoPlayerGameController.class.getDeclaredField("player2Timeline");
+                java.lang.reflect.Field statsUpdateTimelineField = TwoPlayerGameController.class.getDeclaredField("statsUpdateTimeline");
+                player1TimelineField.setAccessible(true);
+                player2TimelineField.setAccessible(true);
+                statsUpdateTimelineField.setAccessible(true);
+                
+                Timeline player1Timeline = (Timeline) player1TimelineField.get(controller);
+                Timeline player2Timeline = (Timeline) player2TimelineField.get(controller);
+                Timeline statsUpdateTimeline = (Timeline) statsUpdateTimelineField.get(controller);
+                
+                if (player1Timeline != null) {
+                    player1Timeline.stop();
+                }
+                if (player2Timeline != null) {
+                    player2Timeline.stop();
+                }
+                if (statsUpdateTimeline != null) {
+                    statsUpdateTimeline.stop();
+                }
+            } catch (Exception e) {
+                // If reflection fails, fall back to onNewGameEvent
+                // But we need to prevent it from starting timelines
+                System.err.println("Failed to stop timelines via reflection: " + e.getMessage());
+            }
+            
+            // Clear all panels before starting new game
+            clearPlayer1Panels();
+            clearPlayer2Panels();
+            
+            // Hide game over panels
+            if (gameOverPanel1 != null) {
+                gameOverPanel1.setVisible(false);
+            }
+            if (gameOverPanel2 != null) {
+                gameOverPanel2.setVisible(false);
+            }
+            if (twoPlayerGameOverPanel != null) {
+                twoPlayerGameOverPanel.setVisible(false);
+                twoPlayerGameOverPanel.setManaged(false);
+            }
+            
+            isPause.setValue(false);
+            isGameOver.setValue(false);
+            
+            // Show countdown before starting new game
+            showCountdown(() -> {
+                // After countdown, start the new game
+                controller.onNewGameEvent(new MoveEvent(EventType.NEW_GAME, EventSource.USER));
+                
+                // Request focus for keyboard input
+                if (rootPane != null) {
+                    rootPane.requestFocus();
+                }
+            });
+            return;
+        }
+        
+        // Handle single-player mode
         if (timeLine != null) {
             timeLine.stop(); // Stop current timeline
         }
@@ -660,7 +756,9 @@ public class GuiController implements Initializable {
         }
         
         eventListener.createNewGame(); // Delegate to state/controller
-        gamePanel.requestFocus();
+        if (gamePanel != null) {
+            gamePanel.requestFocus();
+        }
         // Restart timeline after state transition (assuming PlayingState starts the game loop)
         if (timeLine != null) {
             timeLine.play(); // Restart automatic movement
@@ -675,7 +773,7 @@ public class GuiController implements Initializable {
 
     /**
      * Handles the request to pause or unpause the game via a UI button.
-     * Delegates the pause request to the GameController.
+     * Delegates the pause request to the GameController or TwoPlayerGameController.
      *
      * @param actionEvent The ActionEvent triggering the pause/unpause.
      */
@@ -683,6 +781,8 @@ public class GuiController implements Initializable {
         // Call the controller's pause request method
         if (eventListener instanceof GameController) {
             ((GameController) eventListener).requestPause();
+        } else if (eventListener instanceof TwoPlayerGameController) {
+            ((TwoPlayerGameController) eventListener).requestPause();
         }
         
         // Toggle pause state and handle timer accordingly
@@ -712,7 +812,13 @@ public class GuiController implements Initializable {
                 levelTimer.play();
             }
         }
-        gamePanel.requestFocus();
+        
+        // Request focus for keyboard input
+        if (isTwoPlayerMode && rootPane != null) {
+            rootPane.requestFocus();
+        } else if (gamePanel != null) {
+            gamePanel.requestFocus();
+        }
     }
 
     /**
@@ -733,7 +839,12 @@ public class GuiController implements Initializable {
             lastPauseStartMillis = 0L;
         }
         isPause.setValue(false);
-        gamePanel.requestFocus();
+        // Request focus appropriately for single or two-player mode
+        if (isTwoPlayerMode && rootPane != null) {
+            rootPane.requestFocus();
+        } else if (gamePanel != null) {
+            gamePanel.requestFocus();
+        }
     }
 
     /**
@@ -743,6 +854,8 @@ public class GuiController implements Initializable {
     public void resumeFromOverlay() {
         if (eventListener instanceof GameController) {
             ((GameController) eventListener).requestPause(); // Paused -> Playing
+        } else if (eventListener instanceof TwoPlayerGameController) {
+            ((TwoPlayerGameController) eventListener).requestPause(); // Paused -> Playing
         }
         resumeGame();
     }
@@ -1359,82 +1472,116 @@ public class GuiController implements Initializable {
         // === Player 1 Controls (WASD Keys) ===
         if (keyEvent.getCode() == KeyCode.A) {
             // Player 1: Move left
-            refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_1)));
+            ViewData result = eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_1));
+            if (result != null) {
+                refreshPlayer1Brick(result);
+            }
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.D) {
             // Player 1: Move right
-            refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.KEYBOARD_PLAYER_1)));
+            ViewData result = eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.KEYBOARD_PLAYER_1));
+            if (result != null) {
+                refreshPlayer1Brick(result);
+            }
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.W) {
             // Player 1: Rotate clockwise
-            refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.KEYBOARD_PLAYER_1)));
+            ViewData result = eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.KEYBOARD_PLAYER_1));
+            if (result != null) {
+                refreshPlayer1Brick(result);
+            }
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.S) {
             // Player 1: Soft drop
-            moveDown(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_1));
+            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_1));
+            if (downData != null) {
+                handlePlayer1DownEvent(downData);
+            }
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.SPACE) {
-            // Player 1: Hard drop
-            moveDown(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_1));
+            // Player 1: Hard drop (Scene-level filter ensures delivery even if a Button is focused)
+            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_1));
+            if (downData != null) {
+                handlePlayer1DownEvent(downData);
+            }
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.SHIFT) {
             // Player 1: Hold brick
             ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_1));
             if (result != null) {
-                refreshBrick(result);
-                updateHoldDisplay(result.getHoldBrickData());
+                refreshPlayer1Brick(result);
             }
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.F) {
             // Player 1: Rotate counterclockwise
-            refreshBrick(eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_1)));
+            ViewData result = eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_1));
+            if (result != null) {
+                refreshPlayer1Brick(result);
+            }
             keyEvent.consume();
         }
         
         // === Player 2 Controls (Arrow Keys + Special Keys) ===
         if (keyEvent.getCode() == KeyCode.LEFT) {
             // Player 2: Move left
-            refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_2)));
+            ViewData result = eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_2));
+            if (result != null) {
+                refreshPlayer2Brick(result);
+            }
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.RIGHT) {
             // Player 2: Move right
-            refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.KEYBOARD_PLAYER_2)));
+            ViewData result = eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.KEYBOARD_PLAYER_2));
+            if (result != null) {
+                refreshPlayer2Brick(result);
+            }
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.UP) {
             // Player 2: Rotate clockwise
-            refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.KEYBOARD_PLAYER_2)));
+            ViewData result = eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.KEYBOARD_PLAYER_2));
+            if (result != null) {
+                refreshPlayer2Brick(result);
+            }
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.DOWN) {
             // Player 2: Soft drop
-            moveDown(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_2));
+            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_2));
+            if (downData != null) {
+                handlePlayer2DownEvent(downData);
+            }
             keyEvent.consume();
         }
-        if (keyEvent.getCode() == KeyCode.CONTROL) {
-            // Player 2: Hard drop
-            moveDown(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_2));
+        if (keyEvent.getCode() == KeyCode.BACK_SPACE) {
+            // Player 2: Hard drop (Backspace)
+            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_2));
+            if (downData != null) {
+                handlePlayer2DownEvent(downData);
+            }
             keyEvent.consume();
         }
-        if (keyEvent.getCode() == KeyCode.ALT) {
-            // Player 2: Hold brick (Alt key)
+        if (keyEvent.getCode() == KeyCode.ALT || keyEvent.getCode() == KeyCode.ALT_GRAPH) {
+            // Player 2: Hold brick (Alt / AltGr)
             ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_2));
             if (result != null) {
-                refreshBrick(result);
-                updateHoldDisplay(result.getHoldBrickData());
+                refreshPlayer2Brick(result);
             }
             keyEvent.consume();
         }
         if (keyEvent.getCode() == KeyCode.ENTER) {
             // Player 2: Rotate counterclockwise
-            refreshBrick(eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_2)));
+            ViewData result = eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_2));
+            if (result != null) {
+                refreshPlayer2Brick(result);
+            }
             keyEvent.consume();
         }
     }
@@ -1447,14 +1594,30 @@ public class GuiController implements Initializable {
     public void showSettings() {
         System.out.println("Settings dialog requested from game");
         try {
-            // Save current game scene for returning
-            Scene currentGameScene = gamePanel.getScene();
+            // Save current game scene for returning - handle both single-player and two-player modes
+            Scene currentGameScene;
+            if (isTwoPlayerMode && rootPane != null) {
+                currentGameScene = rootPane.getScene();
+            } else if (gamePanel != null) {
+                currentGameScene = gamePanel.getScene();
+            } else {
+                System.err.println("Cannot determine current scene for settings");
+                return;
+            }
+            
+            if (currentGameScene == null) {
+                System.err.println("Current game scene is null");
+                return;
+            }
+            
             Stage stage = (Stage) currentGameScene.getWindow();
             
             // Ensure the game is paused while settings are open
             boolean wasGamePaused = isPause.getValue();
             if (!wasGamePaused) {
-                if (eventListener instanceof GameController) {
+                if (isTwoPlayerMode && eventListener instanceof TwoPlayerGameController) {
+                    ((TwoPlayerGameController) eventListener).requestPause();
+                } else if (eventListener instanceof GameController) {
                     ((GameController) eventListener).requestPause();
                 }
                 // Pause local timers defensively
@@ -1506,13 +1669,68 @@ public class GuiController implements Initializable {
         
         try {
             boolean wasPaused = isPause.getValue();
-            if (!wasPaused) {
+            final boolean wasCountdownRunning = (countdownTimeline != null && countdownTimeline.getStatus() == Animation.Status.RUNNING);
+            
+            // Stop countdown if running (will restart from beginning when Help closes)
+            // Save callback before stopping to ensure we can restart countdown correctly
+            final Runnable savedCountdownCallback;
+            if (wasCountdownRunning && countdownTimeline != null) {
+                // Save callback before stopping
+                savedCountdownCallback = countdownCallback;
+                countdownTimeline.stop();
+                countdownTimeline = null;
+                // Remove overlays
+                if (countdownOverlay1 != null && countdownParent1 != null) {
+                    countdownParent1.getChildren().remove(countdownOverlay1);
+                    countdownOverlay1 = null;
+                }
+                if (countdownOverlay2 != null && countdownParent2 != null) {
+                    countdownParent2.getChildren().remove(countdownOverlay2);
+                    countdownOverlay2 = null;
+                }
+            } else {
+                savedCountdownCallback = null;
+            }
+            
+            // Pause game if it's running (but not during countdown - countdown means game hasn't started yet)
+            if (!wasPaused && !wasCountdownRunning) {
                 if (eventListener instanceof GameController) {
                     ((GameController) eventListener).requestPause();
+                } else if (eventListener instanceof TwoPlayerGameController) {
+                    ((TwoPlayerGameController) eventListener).requestPause();
                 }
                 if (timeLine != null) timeLine.pause();
                 if (timeTimer != null) timeTimer.pause();
                 isPause.setValue(true);
+            }
+            
+            // If countdown is running, ensure timelines are stopped (game hasn't started yet)
+            if (wasCountdownRunning && eventListener instanceof TwoPlayerGameController) {
+                TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+                try {
+                    java.lang.reflect.Field player1TimelineField = TwoPlayerGameController.class.getDeclaredField("player1Timeline");
+                    java.lang.reflect.Field player2TimelineField = TwoPlayerGameController.class.getDeclaredField("player2Timeline");
+                    java.lang.reflect.Field statsUpdateTimelineField = TwoPlayerGameController.class.getDeclaredField("statsUpdateTimeline");
+                    player1TimelineField.setAccessible(true);
+                    player2TimelineField.setAccessible(true);
+                    statsUpdateTimelineField.setAccessible(true);
+                    
+                    Timeline player1Timeline = (Timeline) player1TimelineField.get(controller);
+                    Timeline player2Timeline = (Timeline) player2TimelineField.get(controller);
+                    Timeline statsUpdateTimeline = (Timeline) statsUpdateTimelineField.get(controller);
+                    
+                    if (player1Timeline != null) {
+                        player1Timeline.stop();
+                    }
+                    if (player2Timeline != null) {
+                        player2Timeline.stop();
+                    }
+                    if (statsUpdateTimeline != null) {
+                        statsUpdateTimeline.stop();
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to stop timelines during countdown: " + e.getMessage());
+                }
             }
             // Create help dialog
             Stage helpStage = new Stage();
@@ -1596,7 +1814,7 @@ public class GuiController implements Initializable {
                 "Hold: store one piece to swap later (one swap per piece).",
                 "Statistics: shows Level, Lines cleared, Speed and Time.",
                 "Score: real-time points and the Highest Score.",
-                "Controls: Settings, Help, Exit to Menu.",
+                "Controls: Settings, Help, Back to Menu.",
                 "Actions: New Game (N), Pause & Resume (P), Mute."
             }, 330);
             basicsRightBox.getChildren().addAll(basicsRightTitle, basicsRightCol);
@@ -1608,7 +1826,9 @@ public class GuiController implements Initializable {
             rngContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
 
             Label rngTitle = new Label("Piece Randomizer Systems");
-            rngTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+            rngTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
+            rngTitle.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(rngTitle, Priority.ALWAYS);
 
             Label rngIntro = new Label(
                 "Modern Tetris variants use a \"bag\" to distribute tetrominoes, while early games used pure random selection. Choose your system in Settings > Gameplay > Piece Randomizer. Default is 7‑Bag System.");
@@ -1650,8 +1870,10 @@ public class GuiController implements Initializable {
             VBox scoreContainer = new VBox(10);
             scoreContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
 
-            Label scoreTitle = new Label("Scoring (Single Player)");
-            scoreTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+            Label scoreTitle = new Label("Score System");
+            scoreTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
+            scoreTitle.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(scoreTitle, Priority.ALWAYS);
 
             Label lineScores = new Label(
                 "Line Clears:\n" +
@@ -1676,13 +1898,96 @@ public class GuiController implements Initializable {
             scoreRow.getChildren().addAll(lineScores, dropScores);
 
             scoreContainer.getChildren().addAll(scoreTitle, scoreRow);
+
+            // Two-Player Mode Rules section
+            VBox twoPlayerContainer = new VBox(12);
+            twoPlayerContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+
+            Label twoPlayerTitle = new Label("Two-Player Mode Rules");
+            twoPlayerTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
+            twoPlayerTitle.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(twoPlayerTitle, Priority.ALWAYS);
+
+            // Objective and Winning Condition
+            Label objectiveTitle = new Label("Objective & Winning Condition");
+            objectiveTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            Label objectiveText = new Label(
+                "Clear lines to send garbage lines to your opponent. The last player standing wins!\n" +
+                "The game ends when one player's board fills up. The player with the higher score wins!");
+            objectiveText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            objectiveText.setWrapText(true);
+
+            // Attack System
+            Label attackTitle = new Label("Attack System");
+            attackTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            Label attackText = new Label(
+                "• 1 line cleared: No attack (0 garbage lines)\n" +
+                "• 2 lines cleared: Send 1 garbage line\n" +
+                "• 3 lines cleared: Send 2 garbage lines\n" +
+                "• 4 lines cleared (Tetris): Send 4 garbage lines");
+            attackText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            attackText.setWrapText(true);
+
+            // Combo Bonus
+            Label comboTitle = new Label("Combo Bonus");
+            comboTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            Label comboText = new Label(
+                "Build combos by clearing lines consecutively. Each combo above 1 eliminates 2 garbage lines from your board!\n" +
+                "Example: Combo x3 = Eliminates 4 garbage lines (2 per combo above 1)");
+            comboText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            comboText.setWrapText(true);
+
+            // Garbage Lines
+            Label garbageTitle = new Label("Garbage Lines");
+            garbageTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            Label garbageText = new Label("Garbage lines appear as gray blocks with one random hole. Clear them quickly or they'll stack up!");
+            garbageText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            garbageText.setWrapText(true);
+
+            // Special Features
+            Label featuresTitle = new Label("Special Features");
+            featuresTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            Label featuresText = new Label(
+                "• Countdown timer before game starts (3-2-1)\n" +
+                "• Visual attack animations when receiving attacks\n" +
+                "• Real-time statistics tracking (combo, attacks, defense)\n" +
+                "• Sound effects for attacks and line clears");
+            featuresText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            featuresText.setWrapText(true);
+
+            // Strategy Tips
+            Label strategyTitle = new Label("Strategy Tips");
+            strategyTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            Label strategyText = new Label(
+                "• Build for Tetris (4-line clears) for maximum damage\n" +
+                "• Maintain combos to clear incoming garbage lines\n" +
+                "• Watch your opponent's board and adapt your strategy\n" +
+                "• Use hold to save pieces for better setups");
+            strategyText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            strategyText.setWrapText(true);
+
+            twoPlayerContainer.getChildren().addAll(
+                twoPlayerTitle,
+                objectiveTitle, objectiveText,
+                attackTitle, attackText,
+                comboTitle, comboText,
+                garbageTitle, garbageText,
+                featuresTitle, featuresText,
+                strategyTitle, strategyText
+            );
             
             // Close button
             Button closeButton = new Button("Close");
             closeButton.setStyle("-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;");
             closeButton.setOnAction(e -> {
                 helpStage.close();
-                if (!wasPaused) {
+                // Restart countdown from beginning if it was running
+                if (wasCountdownRunning && savedCountdownCallback != null) {
+                    // Ensure game is not paused before restarting countdown
+                    isPause.setValue(false);
+                    // Restart countdown from beginning
+                    showCountdown(savedCountdownCallback);
+                } else if (!wasPaused) {
                     resumeFromOverlay();
                 }
             });
@@ -1691,7 +1996,13 @@ public class GuiController implements Initializable {
 
             // Also handle the window's X (close) button to resume if needed
             helpStage.setOnCloseRequest(e -> {
-                if (!wasPaused) {
+                // Restart countdown from beginning if it was running
+                if (wasCountdownRunning && savedCountdownCallback != null) {
+                    // Ensure game is not paused before restarting countdown
+                    isPause.setValue(false);
+                    // Restart countdown from beginning
+                    showCountdown(savedCountdownCallback);
+                } else if (!wasPaused) {
                     resumeFromOverlay();
                 }
             });
@@ -1702,7 +2013,7 @@ public class GuiController implements Initializable {
             buttonContainer.getChildren().add(closeButton);
             
             // Add all components
-            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, buttonContainer);
+            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, twoPlayerContainer, buttonContainer);
             scrollPane.setContent(mainContainer);
             
             // Create scene and show
@@ -1727,17 +2038,33 @@ public class GuiController implements Initializable {
     public void returnToMenu() {
         System.out.println("Returning to main menu");
         try {
+            // Stop any running timelines for two-player mode
+            if (eventListener instanceof TwoPlayerGameController) {
+                TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+                controller.onQuitEvent(new MoveEvent(EventType.QUIT, EventSource.USER));
+            }
+            
             // Load main menu FXML
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("mainMenu.fxml"));
             Parent root = loader.load();
             
-            // Get current stage and set new scene
-            Stage stage = (Stage) gamePanel.getScene().getWindow();
+            // Get current stage - handle both single-player and two-player modes
+            Stage stage;
+            if (rootPane != null && rootPane.getScene() != null) {
+                stage = (Stage) rootPane.getScene().getWindow();
+            } else if (gamePanel != null && gamePanel.getScene() != null) {
+                stage = (Stage) gamePanel.getScene().getWindow();
+            } else {
+                System.err.println("Cannot determine current stage");
+                return;
+            }
+            
             Scene scene = new Scene(root, 900, 800);
             stage.setScene(scene);
             stage.setTitle("Tetris - Main Menu");
         } catch (Exception e) {
             System.err.println("Error loading main menu: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -2156,5 +2483,1155 @@ public class GuiController implements Initializable {
             box.getChildren().add(lbl);
         }
         return box;
+    }
+    
+    // ============================================
+    // Two-Player Mode Components and Methods
+    // ============================================
+    
+    // Player 1 FXML components (for two-player layout)
+    @FXML
+    private GridPane gamePanel1;
+    @FXML
+    private Pane brickPanel1;
+    @FXML
+    private Pane ghostPanel1;
+    @FXML
+    private GridPane holdPanel1;
+    @FXML
+    private GridPane nextBrickPanel1;
+    @FXML
+    private Group groupNotification1;
+    @FXML
+    private GameOverPanel gameOverPanel1;
+    @FXML
+    private Label player1ScoreLabel;
+    @FXML
+    private Label player1LinesLabel;
+    @FXML
+    private Label player1LevelLabel;
+    @FXML
+    private Label player1ComboLabel;
+    @FXML
+    private Label player1AttackLabel;
+    @FXML
+    private Label player1DefenseLabel;
+    @FXML
+    private Label player1TetrisLabel;
+    @FXML
+    private Label player1TimeLabel;
+    
+    // Player 2 FXML components (for two-player layout)
+    @FXML
+    private GridPane gamePanel2;
+    @FXML
+    private Pane brickPanel2;
+    @FXML
+    private Pane ghostPanel2;
+    @FXML
+    private GridPane holdPanel2;
+    @FXML
+    private GridPane nextBrickPanel2;
+    @FXML
+    private Group groupNotification2;
+    @FXML
+    private GameOverPanel gameOverPanel2;
+    @FXML
+    private Label player2ScoreLabel;
+    @FXML
+    private Label player2LinesLabel;
+    @FXML
+    private Label player2LevelLabel;
+    @FXML
+    private Label player2ComboLabel;
+    @FXML
+    private Label player2AttackLabel;
+    @FXML
+    private Label player2DefenseLabel;
+    @FXML
+    private Label player2TetrisLabel;
+    @FXML
+    private Label player2TimeLabel;
+    @FXML
+    private Label vsLabel;
+    
+    @FXML
+    private TwoPlayerGameOverPanel twoPlayerGameOverPanel;
+    
+    // Player 1 display matrices (for two-player mode)
+    private Rectangle[][] displayMatrix1;
+    private Rectangle[][] rectangles1;
+    private Rectangle[][] holdDisplayMatrix1;
+    private Rectangle[][] nextDisplayMatrix1;
+    
+    // Player 2 display matrices (for two-player mode)
+    private Rectangle[][] displayMatrix2;
+    private Rectangle[][] rectangles2;
+    private Rectangle[][] holdDisplayMatrix2;
+    private Rectangle[][] nextDisplayMatrix2;
+    
+    // Background board panes for precise centering
+    @FXML
+    private Pane boardBackground1;
+    @FXML
+    private Pane boardBackground2;
+    
+    /**
+     * Initializes Player 1's game view for two-player mode.
+     * Sets up the visual representation of Player 1's board and falling brick.
+     * 
+     * @param boardMatrix the initial state of Player 1's game board matrix
+     * @param brick the initial view data for Player 1's falling brick
+     */
+    public void initPlayer1View(int[][] boardMatrix, ViewData brick) {
+        if (gamePanel1 == null) {
+            return; // Two-player layout not loaded
+        }
+        
+        // Set border style for Player 1's board background (same as endless mode)
+        // Apply CSS styles directly to ensure visibility
+        if (boardBackground1 != null) {
+            boardBackground1.getStyleClass().add("gameBoard-two-player");
+            boardBackground1.getStyleClass().add("player1-board");
+            // Ensure styles are applied
+            boardBackground1.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #851ee5, #4B0082), rgba(10, 14, 39, 0.96); " +
+                "-fx-background-insets: 0,10; " +
+                "-fx-background-radius: 16, 8; " +
+                "-fx-border-color: rgba(138, 43, 226, 0.8); " +
+                "-fx-border-width: 6px; " +
+                "-fx-border-radius: 16px;"
+            );
+        }
+        
+        // Ensure grid lines are visible
+        gamePanel1.setGridLinesVisible(true);
+        if (!gamePanel1.getStyleClass().contains("game-grid")) {
+            gamePanel1.getStyleClass().add("game-grid");
+        }
+        
+        // Initialize display matrix for Player 1's static board background
+        // Render all 20 rows (10 columns × 20 rows)
+        displayMatrix1 = new Rectangle[boardMatrix.length][boardMatrix[0].length];
+        for (int i = 0; i < boardMatrix.length; i++) {
+            for (int j = 0; j < boardMatrix[i].length; j++) {
+                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                rectangle.setFill(Color.TRANSPARENT);
+                rectangle.getStyleClass().add("game-cell");
+                displayMatrix1[i][j] = rectangle;
+                gamePanel1.add(rectangle, j, i);
+            }
+        }
+        
+        // Initialize rectangles for Player 1's current falling brick
+        rectangles1 = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
+        for (int i = 0; i < brick.getBrickData().length; i++) {
+            for (int j = 0; j < brick.getBrickData()[i].length; j++) {
+                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                rectangle.setFill(getFillColor(brick.getBrickData()[i][j]));
+                rectangle.setLayoutX(j * (BRICK_SIZE + 1));
+                rectangle.setLayoutY(i * (BRICK_SIZE + 1));
+                rectangles1[i][j] = rectangle;
+                brickPanel1.getChildren().add(rectangle);
+            }
+        }
+        
+        // Center game grid within the background board
+        // FXML layout: Container 320px × 560px, Grid 259px × 519px
+        // Centered: layoutX = (320-259)/2 = 30.5px ≈ 30px, layoutY = (560-519)/2 = 20.5px ≈ 20px
+        // Grid position is already set correctly in FXML, no need to override
+        
+        // Set initial position of Player 1's brick panel
+        if (gamePanel1 != null && brickPanel1 != null) {
+            brickPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * gamePanel1.getVgap() + brick.getxPosition() * BRICK_SIZE);
+            brickPanel1.setLayoutY(-52.5 + gamePanel1.getLayoutY() + brick.getyPosition() * gamePanel1.getHgap() + brick.getyPosition() * BRICK_SIZE);
+        }
+        
+        // Initialize next and hold displays
+        if (brick.getNextBrickData() != null) {
+            updatePlayer1NextDisplay(brick.getNextBrickData());
+        }
+        if (brick.getHoldBrickData() != null) {
+            updatePlayer1HoldDisplay(brick.getHoldBrickData());
+        }
+        
+        // Hide game over panel initially
+        if (gameOverPanel1 != null) {
+            gameOverPanel1.setVisible(false);
+        }
+    }
+    
+    /**
+     * Initializes Player 2's game view for two-player mode.
+     * Sets up the visual representation of Player 2's board and falling brick.
+     * 
+     * @param boardMatrix the initial state of Player 2's game board matrix
+     * @param brick the initial view data for Player 2's falling brick
+     */
+    public void initPlayer2View(int[][] boardMatrix, ViewData brick) {
+        if (gamePanel2 == null) {
+            return; // Two-player layout not loaded
+        }
+        
+        // Set border style for Player 2's board background
+        // Apply CSS styles directly to ensure visibility
+        if (boardBackground2 != null) {
+            boardBackground2.getStyleClass().add("gameBoard-two-player");
+            boardBackground2.getStyleClass().add("player2-board");
+            // Ensure styles are applied
+            boardBackground2.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #851ee5, #4B0082), rgba(10, 14, 39, 0.96); " +
+                "-fx-background-insets: 0,10; " +
+                "-fx-background-radius: 16, 8; " +
+                "-fx-border-color: rgba(138, 43, 226, 0.8); " +
+                "-fx-border-width: 6px; " +
+                "-fx-border-radius: 16px;"
+            );
+        }
+        
+        // Ensure grid lines are visible
+        gamePanel2.setGridLinesVisible(true);
+        if (!gamePanel2.getStyleClass().contains("game-grid")) {
+            gamePanel2.getStyleClass().add("game-grid");
+        }
+        
+        // Initialize display matrix for Player 2's static board background
+        // Render all 20 rows (10 columns × 20 rows)
+        displayMatrix2 = new Rectangle[boardMatrix.length][boardMatrix[0].length];
+        for (int i = 0; i < boardMatrix.length; i++) {
+            for (int j = 0; j < boardMatrix[i].length; j++) {
+                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                rectangle.setFill(Color.TRANSPARENT);
+                rectangle.getStyleClass().add("game-cell");
+                displayMatrix2[i][j] = rectangle;
+                gamePanel2.add(rectangle, j, i);
+            }
+        }
+        
+        // Initialize rectangles for Player 2's current falling brick
+        rectangles2 = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
+        for (int i = 0; i < brick.getBrickData().length; i++) {
+            for (int j = 0; j < brick.getBrickData()[i].length; j++) {
+                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                rectangle.setFill(getFillColor(brick.getBrickData()[i][j]));
+                rectangle.setLayoutX(j * (BRICK_SIZE + 1));
+                rectangle.setLayoutY(i * (BRICK_SIZE + 1));
+                rectangles2[i][j] = rectangle;
+                brickPanel2.getChildren().add(rectangle);
+            }
+        }
+        
+        // Center game grid within the background board
+        // FXML layout: Container 320px × 560px, Grid 259px × 519px
+        // Centered: layoutX = (320-259)/2 = 30.5px ≈ 30px, layoutY = (560-519)/2 = 20.5px ≈ 20px
+        // Grid position is already set correctly in FXML, no need to override
+        
+        // Set initial position of Player 2's brick panel
+        if (gamePanel2 != null && brickPanel2 != null) {
+            brickPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * gamePanel2.getVgap() + brick.getxPosition() * BRICK_SIZE);
+            brickPanel2.setLayoutY(-52.5 + gamePanel2.getLayoutY() + brick.getyPosition() * gamePanel2.getHgap() + brick.getyPosition() * BRICK_SIZE);
+        }
+        
+        // Initialize next and hold displays
+        if (brick.getNextBrickData() != null) {
+            updatePlayer2NextDisplay(brick.getNextBrickData());
+        }
+        if (brick.getHoldBrickData() != null) {
+            updatePlayer2HoldDisplay(brick.getHoldBrickData());
+        }
+        
+        // Hide game over panel initially
+        if (gameOverPanel2 != null) {
+            gameOverPanel2.setVisible(false);
+        }
+    }
+    
+    /**
+     * Refreshes Player 1's brick display based on updated view data.
+     * Updates the position and shape of Player 1's falling brick.
+     * 
+     * @param brick the updated view data for Player 1's brick
+     */
+    public void refreshPlayer1Brick(ViewData brick) {
+        if (brickPanel1 == null || gamePanel1 == null || rectangles1 == null) {
+            return;
+        }
+        
+        if (!isPause.getValue()) {
+            brickPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * gamePanel1.getVgap() + brick.getxPosition() * BRICK_SIZE);
+            brickPanel1.setLayoutY(-52.5 + gamePanel1.getLayoutY() + brick.getyPosition() * gamePanel1.getHgap() + brick.getyPosition() * BRICK_SIZE);
+            
+            for (int i = 0; i < brick.getBrickData().length && i < rectangles1.length; i++) {
+                for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles1[i].length; j++) {
+                    setRectangleData(brick.getBrickData()[i][j], rectangles1[i][j]);
+                }
+            }
+            
+            // Update next and hold displays
+            if (brick.getNextBrickData() != null) {
+                updatePlayer1NextDisplay(brick.getNextBrickData());
+            }
+            if (brick.getHoldBrickData() != null) {
+                updatePlayer1HoldDisplay(brick.getHoldBrickData());
+            }
+        }
+    }
+    
+    /**
+     * Refreshes Player 2's brick display based on updated view data.
+     * Updates the position and shape of Player 2's falling brick.
+     * 
+     * @param brick the updated view data for Player 2's brick
+     */
+    public void refreshPlayer2Brick(ViewData brick) {
+        if (brickPanel2 == null || gamePanel2 == null || rectangles2 == null) {
+            return;
+        }
+        
+        if (!isPause.getValue()) {
+            brickPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * gamePanel2.getVgap() + brick.getxPosition() * BRICK_SIZE);
+            brickPanel2.setLayoutY(-52.5 + gamePanel2.getLayoutY() + brick.getyPosition() * gamePanel2.getHgap() + brick.getyPosition() * BRICK_SIZE);
+            
+            for (int i = 0; i < brick.getBrickData().length && i < rectangles2.length; i++) {
+                for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles2[i].length; j++) {
+                    setRectangleData(brick.getBrickData()[i][j], rectangles2[i][j]);
+                }
+            }
+            
+            // Update next and hold displays
+            if (brick.getNextBrickData() != null) {
+                updatePlayer2NextDisplay(brick.getNextBrickData());
+            }
+            if (brick.getHoldBrickData() != null) {
+                updatePlayer2HoldDisplay(brick.getHoldBrickData());
+            }
+        }
+    }
+    
+    /**
+     * Handles Player 1's down event (brick landing).
+     * Updates the board display and handles row clearing animations.
+     * 
+     * @param downData the down event data containing row clearing information
+     */
+    public void handlePlayer1DownEvent(DownData downData) {
+        if (downData == null) {
+            return;
+        }
+        
+        refreshPlayer1Brick(downData.getViewData());
+        
+        // Update board background
+        if (eventListener instanceof TwoPlayerGameController) {
+            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+            refreshGameBackground1(controller.getPlayer1Service().getBoard().getBoardMatrix());
+            
+            // Update score after each move
+            updatePlayerScores(controller);
+            
+            // Check for game over - if brick landed and game is over
+            if (downData.isBrickLanded() && controller.getPlayer1Service().isGameOver()) {
+                controller.checkGameOver();
+            }
+        }
+        
+        // Handle row clearing notification
+        if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
+            NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
+            if (groupNotification1 != null) {
+                groupNotification1.getChildren().add(notificationPanel);
+                notificationPanel.showScore(groupNotification1.getChildren());
+            }
+        }
+        
+        // Check for game over
+        if (eventListener instanceof TwoPlayerGameController) {
+            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+            controller.checkGameOver();
+        }
+    }
+    
+    /**
+     * Handles Player 2's down event (brick landing).
+     * Updates the board display and handles row clearing animations.
+     * 
+     * @param downData the down event data containing row clearing information
+     */
+    public void handlePlayer2DownEvent(DownData downData) {
+        if (downData == null) {
+            return;
+        }
+        
+        refreshPlayer2Brick(downData.getViewData());
+        
+        // Update board background
+        if (eventListener instanceof TwoPlayerGameController) {
+            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+            refreshGameBackground2(controller.getPlayer2Service().getBoard().getBoardMatrix());
+            
+            // Update score after each move
+            updatePlayerScores(controller);
+            
+            // Check for game over - if brick landed and game is over
+            if (downData.isBrickLanded() && controller.getPlayer2Service().isGameOver()) {
+                controller.checkGameOver();
+            }
+        }
+        
+        // Handle row clearing notification
+        if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
+            NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
+            if (groupNotification2 != null) {
+                groupNotification2.getChildren().add(notificationPanel);
+                notificationPanel.showScore(groupNotification2.getChildren());
+            }
+        }
+        
+        // Check for game over
+        if (eventListener instanceof TwoPlayerGameController) {
+            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+            controller.checkGameOver();
+        }
+    }
+    
+    
+    
+    /**
+     * Refreshes Player 1's game board background display.
+     * 
+     * @param board the updated board matrix
+     */
+    public void refreshGameBackground1(int[][] board) {
+        if (displayMatrix1 == null) {
+            return;
+        }
+        for (int i = 2; i < board.length && i < displayMatrix1.length; i++) {
+            for (int j = 0; j < board[i].length && j < displayMatrix1[i].length; j++) {
+                setRectangleData(board[i][j], displayMatrix1[i][j]);
+            }
+        }
+    }
+    
+    /**
+     * Refreshes Player 2's game board background display.
+     * 
+     * @param board the updated board matrix
+     */
+    public void refreshGameBackground2(int[][] board) {
+        if (displayMatrix2 == null) {
+            return;
+        }
+        for (int i = 2; i < board.length && i < displayMatrix2.length; i++) {
+            for (int j = 0; j < board[i].length && j < displayMatrix2[i].length; j++) {
+                setRectangleData(board[i][j], displayMatrix2[i][j]);
+            }
+        }
+    }
+    
+    /**
+     * Updates Player 1's next piece display.
+     * 
+     * @param nextBrickData the next brick shape data
+     */
+    public void updatePlayer1NextDisplay(int[][] nextBrickData) {
+        if (nextBrickPanel1 == null) {
+            return;
+        }
+        
+        if (nextDisplayMatrix1 == null) {
+            nextDisplayMatrix1 = new Rectangle[4][4];
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    Rectangle rectangle = new Rectangle(20, 20);
+                    rectangle.setFill(Color.TRANSPARENT);
+                    rectangle.setArcHeight(9);
+                    rectangle.setArcWidth(9);
+                    nextDisplayMatrix1[i][j] = rectangle;
+                    nextBrickPanel1.add(rectangle, j, i);
+                }
+            }
+        }
+        
+        // Clear display
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                nextDisplayMatrix1[i][j].setFill(Color.TRANSPARENT);
+            }
+        }
+        
+        // Display brick
+        if (nextBrickData != null) {
+            for (int i = 0; i < nextBrickData.length && i < 4; i++) {
+                for (int j = 0; j < nextBrickData[i].length && j < 4; j++) {
+                    if (nextBrickData[i][j] != 0) {
+                        nextDisplayMatrix1[i][j].setFill(getFillColor(nextBrickData[i][j]));
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Updates Player 2's next piece display.
+     * 
+     * @param nextBrickData the next brick shape data
+     */
+    public void updatePlayer2NextDisplay(int[][] nextBrickData) {
+        if (nextBrickPanel2 == null) {
+            return;
+        }
+        
+        if (nextDisplayMatrix2 == null) {
+            nextDisplayMatrix2 = new Rectangle[4][4];
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    Rectangle rectangle = new Rectangle(20, 20);
+                    rectangle.setFill(Color.TRANSPARENT);
+                    rectangle.setArcHeight(9);
+                    rectangle.setArcWidth(9);
+                    nextDisplayMatrix2[i][j] = rectangle;
+                    nextBrickPanel2.add(rectangle, j, i);
+                }
+            }
+        }
+        
+        // Clear display
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                nextDisplayMatrix2[i][j].setFill(Color.TRANSPARENT);
+            }
+        }
+        
+        // Display brick
+        if (nextBrickData != null) {
+            for (int i = 0; i < nextBrickData.length && i < 4; i++) {
+                for (int j = 0; j < nextBrickData[i].length && j < 4; j++) {
+                    if (nextBrickData[i][j] != 0) {
+                        nextDisplayMatrix2[i][j].setFill(getFillColor(nextBrickData[i][j]));
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Updates Player 1's hold piece display.
+     * 
+     * @param holdBrickData the held brick shape data
+     */
+    public void updatePlayer1HoldDisplay(int[][] holdBrickData) {
+        if (holdPanel1 == null) {
+            return;
+        }
+        
+        if (holdDisplayMatrix1 == null) {
+            holdDisplayMatrix1 = new Rectangle[4][4];
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    Rectangle rectangle = new Rectangle(20, 20);
+                    rectangle.setFill(Color.TRANSPARENT);
+                    rectangle.setArcHeight(9);
+                    rectangle.setArcWidth(9);
+                    holdDisplayMatrix1[i][j] = rectangle;
+                    holdPanel1.add(rectangle, j, i);
+                }
+            }
+        }
+        
+        // Clear display
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                holdDisplayMatrix1[i][j].setFill(Color.TRANSPARENT);
+            }
+        }
+        
+        // Display brick
+        if (holdBrickData != null) {
+            for (int i = 0; i < holdBrickData.length && i < 4; i++) {
+                for (int j = 0; j < holdBrickData[i].length && j < 4; j++) {
+                    if (holdBrickData[i][j] != 0) {
+                        holdDisplayMatrix1[i][j].setFill(getFillColor(holdBrickData[i][j]));
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Updates Player 2's hold piece display.
+     * 
+     * @param holdBrickData the held brick shape data
+     */
+    public void updatePlayer2HoldDisplay(int[][] holdBrickData) {
+        if (holdPanel2 == null) {
+            return;
+        }
+        
+        if (holdDisplayMatrix2 == null) {
+            holdDisplayMatrix2 = new Rectangle[4][4];
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    Rectangle rectangle = new Rectangle(20, 20);
+                    rectangle.setFill(Color.TRANSPARENT);
+                    rectangle.setArcHeight(9);
+                    rectangle.setArcWidth(9);
+                    holdDisplayMatrix2[i][j] = rectangle;
+                    holdPanel2.add(rectangle, j, i);
+                }
+            }
+        }
+        
+        // Clear display
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                holdDisplayMatrix2[i][j].setFill(Color.TRANSPARENT);
+            }
+        }
+        
+        // Display brick
+        if (holdBrickData != null) {
+            for (int i = 0; i < holdBrickData.length && i < 4; i++) {
+                for (int j = 0; j < holdBrickData[i].length && j < 4; j++) {
+                    if (holdBrickData[i][j] != 0) {
+                        holdDisplayMatrix2[i][j].setFill(getFillColor(holdBrickData[i][j]));
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Updates Player 1's score display.
+     * 
+     * @param score the new score value
+     */
+    public void updatePlayer1Score(int score) {
+        if (player1ScoreLabel != null) {
+            player1ScoreLabel.setText("Score: " + score);
+        }
+    }
+    
+    /**
+     * Updates Player 2's score display.
+     * 
+     * @param score the new score value
+     */
+    public void updatePlayer2Score(int score) {
+        if (player2ScoreLabel != null) {
+            player2ScoreLabel.setText("Score: " + score);
+        }
+    }
+    
+    /**
+     * Updates scores for both players (helper method for two-player mode).
+     * 
+     * @param controller the TwoPlayerGameController instance
+     */
+    private void updatePlayerScores(TwoPlayerGameController controller) {
+        if (controller != null) {
+            int player1Score = controller.getPlayer1Service().getScore().getScore();
+            int player2Score = controller.getPlayer2Service().getScore().getScore();
+            updatePlayer1Score(player1Score);
+            updatePlayer2Score(player2Score);
+        }
+    }
+    
+    /**
+     * Updates player statistics display for two-player mode.
+     * 
+     * @param player the player number (1 or 2)
+     * @param stats the PlayerStats instance containing the statistics
+     */
+    public void updatePlayerStats(int player, com.comp2042.game.PlayerStats stats) {
+        if (stats == null) {
+            return;
+        }
+        
+        if (player == 1) {
+            if (player1LinesLabel != null) {
+                player1LinesLabel.setText(String.valueOf(stats.getLinesCleared()));
+            }
+            if (player1ComboLabel != null) {
+                player1ComboLabel.setText(String.valueOf(stats.getCurrentCombo()));
+            }
+            if (player1AttackLabel != null) {
+                player1AttackLabel.setText(String.valueOf(stats.getAttacksSent()));
+            }
+            if (player1DefenseLabel != null) {
+                player1DefenseLabel.setText(String.valueOf(stats.getAttacksReceived()));
+            }
+            if (player1TetrisLabel != null) {
+                player1TetrisLabel.setText(String.valueOf(stats.getTetrisCount()));
+            }
+            if (player1TimeLabel != null) {
+                player1TimeLabel.setText(stats.getFormattedTime());
+            }
+        } else if (player == 2) {
+            if (player2LinesLabel != null) {
+                player2LinesLabel.setText(String.valueOf(stats.getLinesCleared()));
+            }
+            if (player2ComboLabel != null) {
+                player2ComboLabel.setText(String.valueOf(stats.getCurrentCombo()));
+            }
+            if (player2AttackLabel != null) {
+                player2AttackLabel.setText(String.valueOf(stats.getAttacksSent()));
+            }
+            if (player2DefenseLabel != null) {
+                player2DefenseLabel.setText(String.valueOf(stats.getAttacksReceived()));
+            }
+            if (player2TetrisLabel != null) {
+                player2TetrisLabel.setText(String.valueOf(stats.getTetrisCount()));
+            }
+            if (player2TimeLabel != null) {
+                player2TimeLabel.setText(stats.getFormattedTime());
+            }
+        }
+    }
+    
+    /**
+     * Clears all panels for Player 1 (game board, hold, next).
+     * Used when starting a new game in two-player mode.
+     */
+    private void clearPlayer1Panels() {
+        // Clear game board display
+        if (displayMatrix1 != null && gamePanel1 != null) {
+            for (int i = 0; i < displayMatrix1.length; i++) {
+                if (displayMatrix1[i] != null) {
+                    for (int j = 0; j < displayMatrix1[i].length; j++) {
+                        if (displayMatrix1[i][j] != null) {
+                            displayMatrix1[i][j].setFill(Color.TRANSPARENT);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Clear hold display
+        updatePlayer1HoldDisplay(null);
+        
+        // Clear next display
+        updatePlayer1NextDisplay(null);
+        
+        // Clear falling brick
+        if (brickPanel1 != null) {
+            brickPanel1.getChildren().clear();
+        }
+    }
+    
+    /**
+     * Clears all panels for Player 2 (game board, hold, next).
+     * Used when starting a new game in two-player mode.
+     */
+    private void clearPlayer2Panels() {
+        // Clear game board display
+        if (displayMatrix2 != null && gamePanel2 != null) {
+            for (int i = 0; i < displayMatrix2.length; i++) {
+                if (displayMatrix2[i] != null) {
+                    for (int j = 0; j < displayMatrix2[i].length; j++) {
+                        if (displayMatrix2[i][j] != null) {
+                            displayMatrix2[i][j].setFill(Color.TRANSPARENT);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Clear hold display
+        updatePlayer2HoldDisplay(null);
+        
+        // Clear next display
+        updatePlayer2NextDisplay(null);
+        
+        // Clear falling brick
+        if (brickPanel2 != null) {
+            brickPanel2.getChildren().clear();
+        }
+    }
+    
+    /**
+     * Shows the game over screen for two-player mode.
+     * Displays the winner, detailed statistics, and action buttons.
+     * 
+     * @param winner the winner (1 for Player 1, 2 for Player 2, 0 for tie)
+     * @param player1Score Player 1's final score
+     * @param player2Score Player 2's final score
+     */
+    public void showTwoPlayerGameOver(int winner, int player1Score, int player2Score) {
+        // Get statistics from game mode
+        com.comp2042.game.PlayerStats player1Stats = null;
+        com.comp2042.game.PlayerStats player2Stats = null;
+        
+        if (eventListener instanceof TwoPlayerGameController) {
+            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+            if (controller.getGameMode() instanceof com.comp2042.game.TwoPlayerVSGameMode) {
+                com.comp2042.game.TwoPlayerVSGameMode gameMode = 
+                    (com.comp2042.game.TwoPlayerVSGameMode) controller.getGameMode();
+                player1Stats = gameMode.getPlayer1Stats();
+                player2Stats = gameMode.getPlayer2Stats();
+            }
+        }
+        
+        // Use default stats if not available
+        if (player1Stats == null) {
+            player1Stats = new com.comp2042.game.PlayerStats();
+        }
+        if (player2Stats == null) {
+            player2Stats = new com.comp2042.game.PlayerStats();
+        }
+        
+        // Show enhanced game over panel
+        if (twoPlayerGameOverPanel != null) {
+            twoPlayerGameOverPanel.setVisible(true);
+            twoPlayerGameOverPanel.setManaged(true);
+            twoPlayerGameOverPanel.setGameOverInfo(winner, player1Stats, player2Stats, 
+                                                    player1Score, player2Score);
+            
+            // Set button actions
+            twoPlayerGameOverPanel.setButtons(
+                e -> {
+                    // Hide game over panel
+                    if (twoPlayerGameOverPanel != null) {
+                        twoPlayerGameOverPanel.setVisible(false);
+                        twoPlayerGameOverPanel.setManaged(false);
+                    }
+                    newGame(e);
+                },  // New Game button
+                e -> {
+                    // Hide game over panel
+                    if (twoPlayerGameOverPanel != null) {
+                        twoPlayerGameOverPanel.setVisible(false);
+                        twoPlayerGameOverPanel.setManaged(false);
+                    }
+                    returnToMenu();
+                }  // Back to Menu button
+            );
+            
+            // Add fade-in animation
+            javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
+                javafx.util.Duration.millis(500), twoPlayerGameOverPanel);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            fadeIn.play();
+        } else {
+            // Fallback to old panels if new panel is not available
+            String winnerText;
+            if (winner == 0) {
+                winnerText = "TIE GAME";
+            } else if (winner == 1) {
+                winnerText = "PLAYER 1 WINS!";
+            } else {
+                winnerText = "PLAYER 2 WINS!";
+            }
+            
+            if (gameOverPanel1 != null) {
+                gameOverPanel1.setVisible(true);
+                gameOverPanel1.setTitle(winnerText);
+                gameOverPanel1.setSubtitle("Player 1: " + player1Score + " | Player 2: " + player2Score);
+            }
+            if (gameOverPanel2 != null) {
+                gameOverPanel2.setVisible(true);
+                gameOverPanel2.setTitle(winnerText);
+                gameOverPanel2.setSubtitle("Player 1: " + player1Score + " | Player 2: " + player2Score);
+            }
+        }
+        
+        isGameOver.setValue(true);
+    }
+    
+    /**
+     * Gets the root pane for keyboard focus management.
+     * 
+     * @return the root BorderPane
+     */
+    public BorderPane getRootPane() {
+        return rootPane;
+    }
+    
+    /**
+     * Shows a countdown (3-2-1) before starting the game.
+     * Displays countdown on each player's game panel.
+     * 
+     * @param onComplete callback to execute when countdown completes
+     */
+    public void showCountdown(Runnable onComplete) {
+        if (rootPane == null || gamePanel1 == null || gamePanel2 == null) {
+            if (onComplete != null) {
+                onComplete.run();
+            }
+            return;
+        }
+        
+        // Stop any existing countdown
+        if (countdownTimeline != null) {
+            countdownTimeline.stop();
+            countdownTimeline = null;
+        }
+        
+        // Stop game timelines during countdown (to prevent blocks from falling)
+        if (eventListener instanceof TwoPlayerGameController) {
+            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+            try {
+                java.lang.reflect.Field player1TimelineField = TwoPlayerGameController.class.getDeclaredField("player1Timeline");
+                java.lang.reflect.Field player2TimelineField = TwoPlayerGameController.class.getDeclaredField("player2Timeline");
+                java.lang.reflect.Field statsUpdateTimelineField = TwoPlayerGameController.class.getDeclaredField("statsUpdateTimeline");
+                player1TimelineField.setAccessible(true);
+                player2TimelineField.setAccessible(true);
+                statsUpdateTimelineField.setAccessible(true);
+                
+                Timeline player1Timeline = (Timeline) player1TimelineField.get(controller);
+                Timeline player2Timeline = (Timeline) player2TimelineField.get(controller);
+                Timeline statsUpdateTimeline = (Timeline) statsUpdateTimelineField.get(controller);
+                
+                if (player1Timeline != null) {
+                    player1Timeline.stop();
+                }
+                if (player2Timeline != null) {
+                    player2Timeline.stop();
+                }
+                if (statsUpdateTimeline != null) {
+                    statsUpdateTimeline.stop();
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to stop timelines during countdown: " + e.getMessage());
+            }
+        }
+        
+        // Remove any existing overlays
+        if (countdownOverlay1 != null && countdownParent1 != null) {
+            countdownParent1.getChildren().remove(countdownOverlay1);
+        }
+        if (countdownOverlay2 != null && countdownParent2 != null) {
+            countdownParent2.getChildren().remove(countdownOverlay2);
+        }
+        
+        // Save callback for later use
+        countdownCallback = onComplete;
+        
+        // Create countdown labels for each player
+        Label countdownLabel1 = new Label();
+        countdownLabel1.setFont(Font.font("Arial", FontWeight.BOLD, 80));
+        countdownLabel1.setStyle(
+            "-fx-text-fill: #4ECDC4; " +
+            "-fx-effect: dropshadow(gaussian, rgba(78, 205, 196, 1.0), 30, 0, 0, 0); " +
+            "-fx-alignment: center;"
+        );
+        countdownLabel1.setAlignment(Pos.CENTER);
+        countdownLabel1.setMouseTransparent(true);
+        
+        Label countdownLabel2 = new Label();
+        countdownLabel2.setFont(Font.font("Arial", FontWeight.BOLD, 80));
+        countdownLabel2.setStyle(
+            "-fx-text-fill: #FF6B6B; " +
+            "-fx-effect: dropshadow(gaussian, rgba(255, 107, 107, 1.0), 30, 0, 0, 0); " +
+            "-fx-alignment: center;"
+        );
+        countdownLabel2.setAlignment(Pos.CENTER);
+        countdownLabel2.setMouseTransparent(true);
+        
+        // Create overlays for each game panel
+        StackPane overlay1 = new StackPane();
+        overlay1.setAlignment(Pos.CENTER);
+        overlay1.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+        overlay1.getChildren().add(countdownLabel1);
+        overlay1.setMouseTransparent(true);
+        
+        StackPane overlay2 = new StackPane();
+        overlay2.setAlignment(Pos.CENTER);
+        overlay2.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+        overlay2.getChildren().add(countdownLabel2);
+        overlay2.setMouseTransparent(true);
+        
+        // Find parent containers for game panels (should be StackPane or Pane)
+        Node parent1 = gamePanel1.getParent();
+        Node parent2 = gamePanel2.getParent();
+        
+        if (parent1 instanceof Pane && parent2 instanceof Pane) {
+            Pane pane1 = (Pane) parent1;
+            Pane pane2 = (Pane) parent2;
+            
+            // Save parent references
+            countdownParent1 = pane1;
+            countdownParent2 = pane2;
+            countdownOverlay1 = overlay1;
+            countdownOverlay2 = overlay2;
+            
+            // Add overlays to parent containers
+            pane1.getChildren().add(overlay1);
+            pane2.getChildren().add(overlay2);
+            
+            // Bind overlay size to game panel size
+            overlay1.prefWidthProperty().bind(gamePanel1.widthProperty());
+            overlay1.prefHeightProperty().bind(gamePanel1.heightProperty());
+            overlay1.layoutXProperty().bind(gamePanel1.layoutXProperty());
+            overlay1.layoutYProperty().bind(gamePanel1.layoutYProperty());
+            
+            overlay2.prefWidthProperty().bind(gamePanel2.widthProperty());
+            overlay2.prefHeightProperty().bind(gamePanel2.heightProperty());
+            overlay2.layoutXProperty().bind(gamePanel2.layoutXProperty());
+            overlay2.layoutYProperty().bind(gamePanel2.layoutYProperty());
+        }
+        
+        // Countdown animation
+        countdownTimeline = new Timeline();
+        for (int i = 3; i >= 1; i--) {
+            final int count = i;
+            KeyFrame keyFrame = new KeyFrame(
+                Duration.millis((3 - i) * 1000),
+                e -> {
+                    countdownLabel1.setText(String.valueOf(count));
+                    countdownLabel2.setText(String.valueOf(count));
+                    // Play countdown sound
+                    com.comp2042.SoundManager.getInstance().playCountdownSound();
+                }
+            );
+            countdownTimeline.getKeyFrames().add(keyFrame);
+        }
+        
+        // Final keyframe to hide overlays and start game
+        final Pane finalParent1 = countdownParent1;
+        final Pane finalParent2 = countdownParent2;
+        
+        KeyFrame finalFrame = new KeyFrame(
+            Duration.millis(3000),
+            e -> {
+                if (finalParent1 != null && finalParent1.getChildren().contains(overlay1)) {
+                    finalParent1.getChildren().remove(overlay1);
+                }
+                if (finalParent2 != null && finalParent2.getChildren().contains(overlay2)) {
+                    finalParent2.getChildren().remove(overlay2);
+                }
+                // Clear countdown tracking
+                countdownTimeline = null;
+                countdownCallback = null;
+                countdownOverlay1 = null;
+                countdownOverlay2 = null;
+                countdownParent1 = null;
+                countdownParent2 = null;
+                if (onComplete != null) {
+                    onComplete.run();
+                }
+            }
+        );
+        countdownTimeline.getKeyFrames().add(finalFrame);
+        
+        countdownTimeline.play();
+    }
+    
+    /**
+     * Shows an attack animation on the specified player's board.
+     * 
+     * @param player the player number (1 or 2)
+     * @param attackPower the number of lines being attacked
+     */
+    public void showAttackAnimation(int player, int attackPower) {
+        if (rootPane == null) {
+            return;
+        }
+        
+        // Find the player's game board area
+        Pane playerBoard = (player == 1) ? gamePanel1 : gamePanel2;
+        if (playerBoard == null) {
+            return;
+        }
+        
+        // Create attack effect overlay
+        Rectangle attackOverlay = new Rectangle();
+        attackOverlay.setWidth(playerBoard.getWidth());
+        attackOverlay.setHeight(playerBoard.getHeight());
+        attackOverlay.setFill(player == 1 ? 
+            javafx.scene.paint.Color.rgb(255, 107, 107, 0.3) : 
+            javafx.scene.paint.Color.rgb(78, 205, 196, 0.3));
+        attackOverlay.setMouseTransparent(true);
+        
+        // Add overlay to player board
+        if (playerBoard instanceof StackPane) {
+            StackPane stackPane = (StackPane) playerBoard;
+            stackPane.getChildren().add(attackOverlay);
+        } else {
+            ((Pane) playerBoard.getParent()).getChildren().add(attackOverlay);
+        }
+        
+        // Fade out animation
+        javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(
+            Duration.millis(500), attackOverlay);
+        fadeOut.setFromValue(0.5);
+        fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished(e -> {
+            if (playerBoard instanceof StackPane) {
+                ((StackPane) playerBoard).getChildren().remove(attackOverlay);
+            } else if (playerBoard.getParent() instanceof Pane) {
+                ((Pane) playerBoard.getParent()).getChildren().remove(attackOverlay);
+            }
+        });
+        fadeOut.play();
+    }
+    
+    /**
+     * Shows a combo bonus message.
+     * 
+     * @param player the player number (1 or 2)
+     * @param combo the combo count
+     * @param linesEliminated the number of lines eliminated
+     */
+    public void showComboBonus(int player, int combo, int linesEliminated) {
+        if (rootPane == null) {
+            return;
+        }
+        
+        // Find the player's game board area
+        Pane playerBoard = (player == 1) ? gamePanel1 : gamePanel2;
+        if (playerBoard == null) {
+            return;
+        }
+        
+        // Create combo bonus label
+        Label comboLabel = new Label("COMBO x" + combo + "!\n" + linesEliminated + " lines eliminated!");
+        comboLabel.setFont(Font.font("Arial", FontWeight.BOLD, 32));
+        comboLabel.setStyle(
+            "-fx-text-fill: #FFD700; " +
+            "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 1.0), 20, 0, 0, 0); " +
+            "-fx-alignment: center; " +
+            "-fx-text-alignment: center;"
+        );
+        comboLabel.setAlignment(Pos.CENTER);
+        comboLabel.setMouseTransparent(true);
+        
+        // Position label over player board
+        StackPane comboOverlay = new StackPane();
+        comboOverlay.setAlignment(Pos.CENTER);
+        comboOverlay.getChildren().add(comboLabel);
+        comboOverlay.setMouseTransparent(true);
+        
+        // Add to root pane
+        rootPane.getChildren().add(comboOverlay);
+        
+        // Animate: scale up, then fade out
+        comboLabel.setScaleX(0.5);
+        comboLabel.setScaleY(0.5);
+        comboLabel.setOpacity(0.0);
+        
+        javafx.animation.ScaleTransition scaleUp = new javafx.animation.ScaleTransition(
+            Duration.millis(300), comboLabel);
+        scaleUp.setToX(1.2);
+        scaleUp.setToY(1.2);
+        
+        javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
+            Duration.millis(300), comboLabel);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        
+        javafx.animation.ParallelTransition appear = new javafx.animation.ParallelTransition(
+            scaleUp, fadeIn);
+        
+        javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(
+            Duration.millis(500), comboLabel);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setDelay(Duration.millis(1000));
+        
+        javafx.animation.SequentialTransition sequence = new javafx.animation.SequentialTransition(
+            appear, fadeOut);
+        sequence.setOnFinished(e -> rootPane.getChildren().remove(comboOverlay));
+        sequence.play();
     }
 }

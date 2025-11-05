@@ -1,0 +1,303 @@
+/* ===========================
+   TETRIS Two-Player Mode Styles
+   =========================== */
+
+/* Root Container - Enhanced for wider layout */
+.root-pane {
+    -fx-background-color: linear-gradient(to bottom, 
+        #0a0e27 0%, 
+        #1a1a3e 25%, 
+        #2d1b69 50%, 
+        #1a1a3e 75%, 
+        #0f0c29 100%);
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Top Panel - Title and Score Display */
+.top-panel {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-border-color: rgba(138, 43, 226, 0.6);
+    -fx-border-width: 0 0 3px 0;
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.5), 15, 0, 0, 0);
+}
+
+.game-title-two-player {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to right, #FF6BFF, #FFD700, #4DFFFF);
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 255, 1.0), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 215, 0, 1.0), 18, 0, 0, 0),
+                dropshadow(gaussian, rgba(77, 255, 255, 1.0), 16, 0, 0, 0);
+}
+
+/* Player Labels - Base Style */
+.player-label {
+    -fx-font-size: 32px;  
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 3, 0, 0, 0);
+}
+
+/* Player 1 Label */
+.player1-label {
+    -fx-text-fill: #4ECDC4;
+    -fx-font-size: 32px;  
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 3, 0, 0, 0),
+                dropshadow(gaussian, rgba(78, 205, 196, 0.9), 12, 0, 0, 0);
+}
+
+/* Player 2 Label */
+.player2-label {
+    -fx-text-fill: #FF6B6B;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 3, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 107, 107, 0.9), 12, 0, 0, 0);
+}
+
+.player-score {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFFFFF;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 3, 0, 0, 0);
+}
+
+.vs-label {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFD700;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 1.0), 20, 0, 0, 0),
+                dropshadow(gaussian, rgba(77, 255, 255, 0.9), 15, 0, 0, 0);
+}
+
+/* Boards Container */
+.boards-container {
+    -fx-background-color: transparent;
+}
+
+/* Player Area */
+.player-area {
+    -fx-padding: 10px;
+}
+
+/* Player Titles - Base Style */
+.player-title {
+    -fx-font-size: 32px;  
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 3, 0, 0, 0);
+}
+
+/* Player 1 Title */
+.player1-title {
+    -fx-text-fill: #4ECDC4;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 3, 0, 0, 0),
+                dropshadow(gaussian, rgba(78, 205, 196, 0.9), 12, 0, 0, 0);
+}
+
+/* Player 2 Title */
+.player2-title {
+    -fx-text-fill: #FF6B6B;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 3, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 107, 107, 0.9), 12, 0, 0, 0);
+}
+
+/* Divider between players */
+.divider {
+    -fx-min-width: 60px;
+    -fx-max-width: 60px;
+}
+
+.divider-label {
+    -fx-font-size: 48px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFD700;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 1.0), 25, 0, 0, 0),
+                dropshadow(gaussian,  rgba(77, 255, 255, 0.9), 20, 0, 0, 0);
+}
+
+/* Game Container for Two-Player */
+.game-container-two-player {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-padding: 0px;
+}
+
+/* Game Board - Player Specific Color */
+.gameBoard-two-player {
+    /* Layer 1: outer neon frame, Layer 2: inner dark panel */
+    -fx-background-color: linear-gradient(to bottom, #851ee5, #4B0082), rgba(10, 14, 39, 0.96);
+    -fx-background-insets: 0,10; /* inner panel inset to create frame thickness */
+    -fx-background-radius: 16, 8; /* rounded corners for both layers */
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 1.0), 25, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 107, 255, 0.5), 15, 0, 0, 0),
+                innershadow(gaussian, rgba(138, 43, 226, 0.4), 12, 0, 0, 0);
+}
+
+/* Player-specific board classes - ensure styles are applied */
+.player1-board,
+.player2-board {
+    /* Explicitly ensure background is visible with purple gradient border */
+    -fx-background-color: linear-gradient(to bottom, #851ee5, #4B0082), rgba(10, 14, 39, 0.96);
+    -fx-background-insets: 0,10; /* Creates 10px purple border */
+    -fx-background-radius: 16, 8;
+    /* Add border as backup for visibility */
+    -fx-border-color: rgba(138, 43, 226, 0.8);
+    -fx-border-width: 6px;
+    -fx-border-radius: 16px;
+}
+
+/* Game Grid */
+.game-grid {
+    -fx-background-color: #0a0e27;
+    -fx-grid-lines-visible: true;
+}
+
+.game-cell {
+    -fx-border-color: rgba(138, 43, 226, 0.25);
+    -fx-border-width: 0.5px;
+}
+
+/* Info Boxes - Player Specific */
+.info-box {
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-background-radius: 10px;
+    -fx-padding: 12px;
+    -fx-border-radius: 10px;
+    -fx-border-width: 2px;
+}
+
+.player1-info-box {
+    -fx-border-color: rgba(78, 205, 196, 0.6); /* Player 1 blue border */
+    -fx-effect: dropshadow(gaussian, rgba(78, 205, 196, 0.6), 12, 0, 0, 0),
+                innershadow(gaussian, rgba(78, 205, 196, 0.3), 8, 0, 0, 0);
+}
+
+.player2-info-box {
+    -fx-border-color: rgba(255, 107, 107, 0.6); /* Player 2 red border */
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 107, 0.6), 12, 0, 0, 0),
+                innershadow(gaussian, rgba(255, 107, 107, 0.3), 8, 0, 0, 0);
+}
+
+/* Section Titles */
+.section-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFFF00;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 3, 0, 0, 0),
+                dropshadow(gaussian, rgba(255, 255, 0, 0.9), 12, 0, 0, 0);
+    -fx-alignment: center;
+}
+
+/* Hold and Next Display */
+.hold-display, .next-display {
+    -fx-background-color: rgba(10, 14, 39, 0.8);
+    -fx-border-color: rgba(138, 43, 226, 0.8); /* Purple border */
+    -fx-border-width: 6px; 
+    -fx-padding: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.8), 15, 0, 0, 0),
+                innershadow(gaussian, rgba(77, 255, 255, 0.2), 6, 0, 0, 0); 
+}
+
+/* Player Stats */
+.player-stats {
+    -fx-spacing: 5px;
+}
+
+.stat-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFFFFF;
+}
+
+.stat-value {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFD700;
+}
+
+/* Control Hints */
+.control-hint-two-player {
+    -fx-font-size: 13px;
+    -fx-text-fill: #B0B0C0;
+    -fx-padding: 12px 15px 12px 15px;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 4, 0, 0, 1);
+}
+
+/* Bottom Panel */
+.bottom-panel {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-border-color: rgba(138, 43, 226, 0.6);
+    -fx-border-width: 3px 0 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(138, 43, 226, 0.5), 15, 0, 0, 0);
+}
+
+/* Buttons */
+.control-button, .game-button {
+    -fx-background-color: linear-gradient(to bottom, #8A2BE2, #6A1BB2);
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 15px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: rgba(138, 43, 226, 0.8);
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 2);
+    -fx-min-width: 120px;
+    -fx-max-width: 150px;
+}
+
+.control-button:hover, .game-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #9A3BF2, #7A2BC2);
+    -fx-border-color: rgba(157, 78, 221, 1.0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 8, 0, 0, 2);
+}
+
+.control-button:pressed, .game-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #6A1BB2, #5A0BA2);
+    -fx-translate-y: 2px;
+}
+
+/* Game Over Panel */
+.game-over-panel {
+    -fx-background-color: rgba(0, 0, 0, 0.95);
+    -fx-border-color: linear-gradient(to right, #FF4D4D, #FF1493);
+    -fx-border-width: 4px;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+    -fx-padding: 30px 50px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 77, 77, 0.8), 20, 0, 0, 0);
+    -fx-min-width: 200px;
+    -fx-min-height: 140px;
+}
+
+.game-over-container {
+    -fx-alignment: center;
+    -fx-spacing: 12px;
+}
+
+.game-over-title {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to bottom, #FF6B6B, #FF1493);
+    -fx-effect: dropshadow(gaussian, rgba(255, 20, 147, 0.9), 15, 0, 0, 0);
+    -fx-padding: 8px;
+}
+
+.game-over-subtitle {
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-text-fill: #FFD700;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.6), 5, 0, 0, 0);
+    -fx-padding: 4px;
+}

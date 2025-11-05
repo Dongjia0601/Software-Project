@@ -21,6 +21,7 @@ public class GameServiceImpl implements GameService {
     
     private final Board board;
     private int dropSpeed = 400; // Default drop speed in milliseconds
+    private boolean gameOver = false; // Track game over state
     
     /**
      * Constructs a GameServiceImpl with the specified board.
@@ -50,7 +51,25 @@ public class GameServiceImpl implements GameService {
     
     @Override
     public DownData processDownEvent(MoveEvent event) {
-        boolean canMove = board.moveBrickDown();
+        if (gameOver) {
+            return null;
+        }
+        
+        boolean canMove;
+        // Support hard drop (instant drop to bottom)
+        if (event != null && event.getEventType() == EventType.HARD_DROP) {
+            int dropDistance = board.hardDropBrick();
+            if (dropDistance > 0) {
+                // Match endless mode: 2 points per row hard-dropped
+                board.getScore().add(dropDistance * 2);
+            }
+            // Force landing path below
+            canMove = false;
+        } else {
+            // Soft drop: move down one cell
+            canMove = board.moveBrickDown();
+            // Note: Soft drop score is handled at the mode layer (PlayingState, TwoPlayerVSGameMode, etc.)
+        }
         ClearRow clearRow = null;
         
         if (!canMove) {
@@ -58,14 +77,13 @@ public class GameServiceImpl implements GameService {
             board.mergeBrickToBackground();
             clearRow = board.clearRows();
             
-            if (clearRow.getLinesRemoved() > 0) {
-                board.getScore().add(clearRow.getScoreBonus());
-            }
+            // Note: Score is already added in SimpleBoard.clearRows(), so no need to add it here again
             
-            // Create new brick
-            boolean gameOver = board.createNewBrick();
-            if (gameOver) {
-                // Game over logic could be handled here
+            // Create new brick - this returns true if game over (collision at spawn)
+            boolean newBrickGameOver = board.createNewBrick();
+            if (newBrickGameOver) {
+                // Game over - player reached the top
+                gameOver = true;
                 return new DownData(clearRow, board.getViewData(), true, 0);
             }
         }
@@ -104,14 +122,13 @@ public class GameServiceImpl implements GameService {
     
     @Override
     public void startNewGame() {
+        gameOver = false; // Reset game over state
         board.newGame();
     }
     
     @Override
     public boolean isGameOver() {
-        // This is a simplified implementation
-        // In a real game, you might want to check for specific game over conditions
-        return false;
+        return gameOver;
     }
     
     @Override

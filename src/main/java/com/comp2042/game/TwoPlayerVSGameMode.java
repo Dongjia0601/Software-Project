@@ -28,6 +28,10 @@ public class TwoPlayerVSGameMode implements GameMode {
     private GameResult gameResult;
     private int winner; // 1 for player1, 2 for player2, 0 for no winner yet
     
+    // Statistics tracking
+    private final PlayerStats player1Stats;
+    private final PlayerStats player2Stats;
+    
     /**
      * Constructs a new TwoPlayerVSGameMode.
      * 
@@ -46,6 +50,8 @@ public class TwoPlayerVSGameMode implements GameMode {
         this.paused = false;
         this.gameResult = null;
         this.winner = 0;
+        this.player1Stats = new PlayerStats();
+        this.player2Stats = new PlayerStats();
     }
     
     @Override
@@ -56,6 +62,10 @@ public class TwoPlayerVSGameMode implements GameMode {
         this.paused = false;
         this.gameResult = null;
         this.winner = 0;
+        
+        // Reset statistics
+        player1Stats.reset();
+        player2Stats.reset();
         
         // Set two-player mode for keyboard bindings
         if (guiController != null) {
@@ -125,6 +135,101 @@ public class TwoPlayerVSGameMode implements GameMode {
         // Process down movement through appropriate service
         DownData downData = targetService.processDownEvent(event);
         
+        // Handle line clearing, attacks, and statistics
+        if (downData != null && downData.isBrickLanded() && downData.getClearRow() != null) {
+            int linesCleared = downData.getClearRow().getLinesRemoved();
+            if (linesCleared > 0) {
+                // Determine which player cleared lines
+                boolean isPlayer1 = (targetService == player1Service);
+                PlayerStats stats = isPlayer1 ? player1Stats : player2Stats;
+                PlayerStats opponentStats = isPlayer1 ? player2Stats : player1Stats;
+                
+                // Calculate attack power based on lines cleared
+                // 1 line = 0 attack, 2 lines = 1 attack, 3 lines = 2 attacks, 4 lines = 4 attacks
+                int attackPower = calculateAttackPower(linesCleared);
+                
+                // Record statistics (this will update combo)
+                int oldCombo = stats.getCurrentCombo();
+                stats.recordLineClear(linesCleared, attackPower);
+                int newCombo = stats.getCurrentCombo();
+                
+                // Combo bonus: if combo >= 2, eliminate 2 garbage lines per combo level above 1
+                if (newCombo >= 2) {
+                    int comboBonus = (newCombo - 1) * 2; // Each combo above 1 eliminates 2 lines
+                    int linesEliminated = eliminateGarbageLines(isPlayer1 ? 1 : 2, comboBonus);
+                    if (linesEliminated > 0 && guiController != null) {
+                        // Play combo sound
+                        com.comp2042.SoundManager.getInstance().playComboSound(newCombo);
+                        
+                        // Show combo bonus message
+                        guiController.showComboBonus(isPlayer1 ? 1 : 2, newCombo, linesEliminated);
+                    }
+                }
+                
+                // Send attack to opponent if attack power > 0
+                if (attackPower > 0) {
+                    int targetPlayer = isPlayer1 ? 2 : 1;
+                    sendAttack(attackPower, targetPlayer);
+                    opponentStats.recordAttackReceived(attackPower);
+                    
+                    // Play attack sound
+                    com.comp2042.SoundManager.getInstance().playAttackSound();
+                    
+                    // Show attack animation
+                    if (guiController != null) {
+                        guiController.showAttackAnimation(targetPlayer, attackPower);
+                    }
+                    
+                    // Refresh opponent's board display after attack
+                    if (guiController != null) {
+                        GameService opponentService = isPlayer1 ? player2Service : player1Service;
+                        int[][] opponentBoard = opponentService.getBoard().getBoardMatrix();
+                        if (targetPlayer == 1) {
+                            guiController.refreshGameBackground1(opponentBoard);
+                        } else {
+                            guiController.refreshGameBackground2(opponentBoard);
+                        }
+                    }
+                }
+                
+                // Play line clear sound
+                com.comp2042.SoundManager.getInstance().playLineClearSound();
+                
+                // Update GUI with statistics
+                if (guiController != null) {
+                    guiController.updatePlayerStats(isPlayer1 ? 1 : 2, stats);
+                    guiController.updatePlayerStats(isPlayer1 ? 2 : 1, opponentStats);
+                }
+            } else {
+                // No lines cleared - reset combo
+                boolean isPlayer1 = (targetService == player1Service);
+                PlayerStats stats = isPlayer1 ? player1Stats : player2Stats;
+                stats.resetCombo();
+            }
+        }
+        
+        // Handle soft drop scoring and statistics
+        if (downData != null && !downData.isBrickLanded() && event != null) {
+            EventSource source = event.getEventSource();
+            EventType type = event.getEventType();
+            
+            // Track soft drops
+            if (type == EventType.DOWN && (source == EventSource.KEYBOARD_PLAYER_1 || 
+                source == EventSource.KEYBOARD_PLAYER_2 || source == EventSource.KEYBOARD)) {
+                targetService.getScore().add(1);
+                boolean isPlayer1 = (targetService == player1Service);
+                PlayerStats stats = isPlayer1 ? player1Stats : player2Stats;
+                stats.recordSoftDrop();
+            }
+            
+            // Track hard drops
+            if (type == EventType.HARD_DROP) {
+                boolean isPlayer1 = (targetService == player1Service);
+                PlayerStats stats = isPlayer1 ? player1Stats : player2Stats;
+                stats.recordHardDrop();
+            }
+        }
+        
         // Check for game over after movement
         if (targetService.isGameOver()) {
             update();
@@ -183,6 +288,10 @@ public class TwoPlayerVSGameMode implements GameMode {
         this.paused = false;
         this.gameResult = null;
         this.winner = 0;
+        
+        // Reset statistics
+        player1Stats.reset();
+        player2Stats.reset();
         
         // Start new games for both players
         player1Service.startNewGame();
@@ -330,5 +439,183 @@ public class TwoPlayerVSGameMode implements GameMode {
             return player2Service.getScore().getScore();
         }
         return 0;
+    }
+    
+    /**
+     * Gets the game service for player 1.
+     * 
+     * @return the game service for player 1
+     */
+    public GameService getPlayer1Service() {
+        return player1Service;
+    }
+    
+    /**
+     * Gets the game service for player 2.
+     * 
+     * @return the game service for player 2
+     */
+    public GameService getPlayer2Service() {
+        return player2Service;
+    }
+    
+    /**
+     * Gets the statistics for player 1.
+     * 
+     * @return player 1 statistics
+     */
+    public PlayerStats getPlayer1Stats() {
+        return player1Stats;
+    }
+    
+    /**
+     * Gets the statistics for player 2.
+     * 
+     * @return player 2 statistics
+     */
+    public PlayerStats getPlayer2Stats() {
+        return player2Stats;
+    }
+    
+    /**
+     * Calculates attack power based on lines cleared.
+     * Standard Tetris attack system:
+     * - 1 line = 0 attack
+     * - 2 lines = 1 attack
+     * - 3 lines = 2 attacks
+     * - 4 lines (Tetris) = 4 attacks
+     * 
+     * @param linesCleared the number of lines cleared
+     * @return attack power (number of garbage lines to send)
+     */
+    private int calculateAttackPower(int linesCleared) {
+        switch (linesCleared) {
+            case 1: return 0;
+            case 2: return 1;
+            case 3: return 2;
+            case 4: return 4; // Tetris bonus
+            default: return 0;
+        }
+    }
+    
+    /**
+     * Sends garbage lines to the opponent's board.
+     * 
+     * @param attackPower the number of garbage lines to send
+     * @param targetPlayer the target player (1 or 2)
+     */
+    private void sendAttack(int attackPower, int targetPlayer) {
+        if (attackPower <= 0) {
+            return;
+        }
+        
+        GameService targetService = (targetPlayer == 1) ? player1Service : player2Service;
+        Board targetBoard = targetService.getBoard();
+        
+        // Play attack received sound
+        com.comp2042.SoundManager.getInstance().playAttackReceivedSound();
+        
+        // Add garbage lines at the bottom of opponent's board with animation
+        // Each garbage line has one random hole
+        for (int i = 0; i < attackPower; i++) {
+            addGarbageLine(targetBoard, i == 0); // Animate first line
+        }
+        
+        System.out.println("Attack sent: " + attackPower + " lines to Player " + targetPlayer);
+    }
+    
+    /**
+     * Eliminates garbage lines from a player's board (combo bonus).
+     * Uses reflection to access the internal matrix directly.
+     * 
+     * @param player the player number (1 or 2)
+     * @param linesToEliminate the number of garbage lines to eliminate
+     * @return the actual number of lines eliminated
+     */
+    private int eliminateGarbageLines(int player, int linesToEliminate) {
+        if (linesToEliminate <= 0) {
+            return 0;
+        }
+        
+        GameService targetService = (player == 1) ? player1Service : player2Service;
+        Board targetBoard = targetService.getBoard();
+        
+        if (!(targetBoard instanceof SimpleBoard)) {
+            return 0;
+        }
+        
+        SimpleBoard simpleBoard = (SimpleBoard) targetBoard;
+        
+        // Use reflection to access the internal currentGameMatrix
+        try {
+            java.lang.reflect.Field matrixField = SimpleBoard.class.getDeclaredField("currentGameMatrix");
+            matrixField.setAccessible(true);
+            int[][] boardMatrix = (int[][]) matrixField.get(simpleBoard);
+            
+            int eliminated = 0;
+            
+            // Find and remove garbage lines (rows filled with garbage blocks)
+            for (int row = 0; row < boardMatrix.length && eliminated < linesToEliminate; row++) {
+                boolean isGarbageLine = true;
+                int garbageBlockCount = 0;
+                
+                // Check if this row is a garbage line (has garbage blocks)
+                for (int col = 0; col < boardMatrix[row].length; col++) {
+                    if (boardMatrix[row][col] == 8) { // Garbage block
+                        garbageBlockCount++;
+                    } else if (boardMatrix[row][col] != 0) {
+                        // Has non-garbage blocks, not a pure garbage line
+                        isGarbageLine = false;
+                        break;
+                    }
+                }
+                
+                // If it's a garbage line (has at least some garbage blocks), remove it
+                if (isGarbageLine && garbageBlockCount > 0) {
+                    // Shift all rows above down
+                    for (int r = row; r > 0; r--) {
+                        boardMatrix[r] = boardMatrix[r - 1].clone();
+                    }
+                    // Clear top row
+                    for (int col = 0; col < boardMatrix[0].length; col++) {
+                        boardMatrix[0][col] = 0;
+                    }
+                    eliminated++;
+                    row--; // Check same row again (it's now the row above)
+                }
+            }
+            
+            // Refresh board display
+            if (eliminated > 0 && guiController != null) {
+                int[][] updatedBoard = simpleBoard.getBoardMatrix();
+                if (player == 1) {
+                    guiController.refreshGameBackground1(updatedBoard);
+                } else {
+                    guiController.refreshGameBackground2(updatedBoard);
+                }
+            }
+            
+            return eliminated;
+        } catch (Exception e) {
+            System.err.println("Error eliminating garbage lines: " + e.getMessage());
+            return 0;
+        }
+    }
+    
+    /**
+     * Adds a garbage line to the bottom of the board.
+     * A garbage line is a full row with one random hole.
+     * 
+     * @param board the target board
+     * @param animate whether to animate the attack
+     */
+    private void addGarbageLine(Board board, boolean animate) {
+        if (board instanceof SimpleBoard) {
+            SimpleBoard simpleBoard = (SimpleBoard) board;
+            boolean gameOver = simpleBoard.addGarbageLine();
+            if (gameOver) {
+                // Game over will be detected in update()
+            }
+        }
     }
 }
