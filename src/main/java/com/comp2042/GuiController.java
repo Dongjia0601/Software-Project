@@ -412,12 +412,8 @@ public class GuiController implements Initializable {
             }
         }
 
-        // Set initial position of the brick panel using precise calculation for 25px bricks
-        // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
-        // Brick panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
-        // Position calculation: gamePanel position + (column/row * cell spacing)
         brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel.getVgap()));
-        brickPanel.setLayoutY(gamePanel.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + gamePanel.getHgap()));
+        brickPanel.setLayoutY(gamePanel.getLayoutY() + (brick.getyPosition() - 2) * (BRICK_SIZE + gamePanel.getHgap()));
         
         // Update ghost brick position
         updateGhostBrick(brick);
@@ -480,7 +476,7 @@ public class GuiController implements Initializable {
                 returnPaint = Color.BURLYWOOD;
                 break;
             case 8:
-                returnPaint = Color.GRAY; // Garbage line color
+                returnPaint = Color.GRAY;
                 break;
             default:
                 returnPaint = Color.WHITE;
@@ -495,12 +491,9 @@ public class GuiController implements Initializable {
      * @param brick The ViewData containing the new shape and position of the brick.
      */
     private void refreshBrick(ViewData brick) {
-        if (!isPause.getValue()) { // Only update position if not paused
-            // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
-            // Brick panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
-            // Position calculation: gamePanel position + (column/row * cell spacing)
+        if (!isPause.getValue()) {
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel.getVgap()));
-            brickPanel.setLayoutY(gamePanel.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + gamePanel.getHgap()));
+            brickPanel.setLayoutY(gamePanel.getLayoutY() + (brick.getyPosition() - 2) * (BRICK_SIZE + gamePanel.getHgap()));
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
@@ -543,10 +536,6 @@ public class GuiController implements Initializable {
             return;
         }
         
-        // Set ghost brick position (same x as current brick, but at ghost Y position)
-        // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
-        // Ghost panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
-        // Position calculation: gamePanel position + (column/row * cell spacing)
         ghostPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel.getVgap()));
         ghostPanel.setLayoutY(gamePanel.getLayoutY() + ghostY * (BRICK_SIZE + gamePanel.getHgap()));
         
@@ -585,7 +574,7 @@ public class GuiController implements Initializable {
      * @param board The updated board matrix.
      */
     public void refreshGameBackground(int[][] board) {
-        for (int i = 2; i < board.length; i++) {
+        for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 setRectangleData(board[i][j], displayMatrix[i][j]);
             }
@@ -2955,18 +2944,9 @@ public class GuiController implements Initializable {
             }
         }
         
-        // Center game grid within the background board
-        // FXML layout: Container 320px × 560px, Grid 259px × 519px
-        // Centered: layoutX = (320-259)/2 = 30.5px ≈ 30px, layoutY = (560-519)/2 = 20.5px ≈ 20px
-        // Grid position is already set correctly in FXML, no need to override
-        
-        // Set initial position of Player 1's brick panel
-        // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
-        // Brick panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
-        // Position calculation: gamePanel position + (column/row * cell spacing)
         if (gamePanel1 != null && brickPanel1 != null) {
             brickPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel1.getVgap()));
-            brickPanel1.setLayoutY(gamePanel1.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + gamePanel1.getHgap()));
+            brickPanel1.setLayoutY(gamePanel1.getLayoutY() + (brick.getyPosition() - 2) * (BRICK_SIZE + gamePanel1.getHgap()));
         }
         
         // Initialize next and hold displays
@@ -3066,18 +3046,9 @@ public class GuiController implements Initializable {
             }
         }
         
-        // Center game grid within the background board
-        // FXML layout: Container 320px × 560px, Grid 259px × 519px
-        // Centered: layoutX = (320-259)/2 = 30.5px ≈ 30px, layoutY = (560-519)/2 = 20.5px ≈ 20px
-        // Grid position is already set correctly in FXML, no need to override
-        
-        // Set initial position of Player 2's brick panel
-        // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
-        // Brick panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
-        // Position calculation: gamePanel position + (column/row * cell spacing)
         if (gamePanel2 != null && brickPanel2 != null) {
             brickPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel2.getVgap()));
-            brickPanel2.setLayoutY(gamePanel2.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + gamePanel2.getHgap()));
+            brickPanel2.setLayoutY(gamePanel2.getLayoutY() + (brick.getyPosition() - 2) * (BRICK_SIZE + gamePanel2.getHgap()));
         }
         
         // Initialize next and hold displays
@@ -3109,11 +3080,8 @@ public class GuiController implements Initializable {
         }
         
         if (!isPause.getValue()) {
-            // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
-            // Brick panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
-            // Position calculation: gamePanel position + (column/row * cell spacing)
             brickPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel1.getVgap()));
-            brickPanel1.setLayoutY(gamePanel1.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + gamePanel1.getHgap()));
+            brickPanel1.setLayoutY(gamePanel1.getLayoutY() + (brick.getyPosition() - 2) * (BRICK_SIZE + gamePanel1.getHgap()));
             
             for (int i = 0; i < brick.getBrickData().length && i < rectangles1.length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles1[i].length; j++) {
@@ -3146,11 +3114,8 @@ public class GuiController implements Initializable {
         }
         
         if (!isPause.getValue()) {
-            // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
-            // Brick panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
-            // Position calculation: gamePanel position + (column/row * cell spacing)
             brickPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel2.getVgap()));
-            brickPanel2.setLayoutY(gamePanel2.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + gamePanel2.getHgap()));
+            brickPanel2.setLayoutY(gamePanel2.getLayoutY() + (brick.getyPosition() - 2) * (BRICK_SIZE + gamePanel2.getHgap()));
             
             for (int i = 0; i < brick.getBrickData().length && i < rectangles2.length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles2[i].length; j++) {
@@ -3195,10 +3160,6 @@ public class GuiController implements Initializable {
             return;
         }
         
-        // Set ghost brick position (same x as current brick, but at ghost Y position)
-        // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
-        // Ghost panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
-        // Position calculation: gamePanel position + (column/row * cell spacing)
         ghostPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel1.getVgap()));
         ghostPanel1.setLayoutY(gamePanel1.getLayoutY() + ghostY * (BRICK_SIZE + gamePanel1.getHgap()));
         
@@ -3253,10 +3214,6 @@ public class GuiController implements Initializable {
             return;
         }
         
-        // Set ghost brick position (same x as current brick, but at ghost Y position)
-        // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
-        // Ghost panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
-        // Position calculation: gamePanel position + (column/row * cell spacing)
         ghostPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel2.getVgap()));
         ghostPanel2.setLayoutY(gamePanel2.getLayoutY() + ghostY * (BRICK_SIZE + gamePanel2.getHgap()));
         
@@ -3384,7 +3341,7 @@ public class GuiController implements Initializable {
         if (displayMatrix1 == null) {
             return;
         }
-        for (int i = 2; i < board.length && i < displayMatrix1.length; i++) {
+        for (int i = 0; i < board.length && i < displayMatrix1.length; i++) {
             for (int j = 0; j < board[i].length && j < displayMatrix1[i].length; j++) {
                 setRectangleData(board[i][j], displayMatrix1[i][j]);
             }
@@ -3400,7 +3357,7 @@ public class GuiController implements Initializable {
         if (displayMatrix2 == null) {
             return;
         }
-        for (int i = 2; i < board.length && i < displayMatrix2.length; i++) {
+        for (int i = 0; i < board.length && i < displayMatrix2.length; i++) {
             for (int j = 0; j < board[i].length && j < displayMatrix2[i].length; j++) {
                 setRectangleData(board[i][j], displayMatrix2[i][j]);
             }
