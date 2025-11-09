@@ -4,7 +4,6 @@ import com.comp2042.core.GameService;
 import com.comp2042.GuiController;
 import com.comp2042.game.EndlessMode;
 import com.comp2042.game.LevelManager;
-import com.comp2042.game.TwoPlayerAIGameMode;
 import com.comp2042.game.TwoPlayerVSGameMode;
 
 /**
@@ -39,8 +38,6 @@ public class GameModeFactory {
                 GameService player1Service = new com.comp2042.core.GameServiceImpl();
                 GameService player2Service = new com.comp2042.core.GameServiceImpl();
                 return new TwoPlayerVSGameMode(player1Service, player2Service, guiController);
-            case TWO_PLAYER_AI:
-                return new TwoPlayerAIGameMode();
             default:
                 throw new IllegalArgumentException("Unknown game mode type: " + type);
         }

@@ -29,7 +29,7 @@
                     <VBox spacing="20" styleClass="controls-container">
                         <!-- Single Player Mode Controls -->
                         <VBox spacing="8" styleClass="control-section">
-                            <Text text="Single Player Controls (Endless Mode / Level Mode / AI Mode)" styleClass="control-section-title"/>
+                            <Text text="Single Player Controls (Endless Mode / Level Mode)" styleClass="control-section-title"/>
                             <VBox spacing="4" styleClass="control-list">
                                 <HBox spacing="20" alignment="CENTER_LEFT">
                                     <Label text="Move Left / Right" styleClass="control-action" minWidth="200"/>

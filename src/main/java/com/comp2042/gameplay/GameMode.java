@@ -7,7 +7,7 @@ import com.comp2042.game.GameResult; // Assuming GameResult is defined
  * Interface defining the contract for all game modes in the Tetris game.
  * 
  * <p>This interface follows the Strategy pattern, allowing different game modes
- * (Endless, Level, Two Player VS, Two Player AI) to be implemented with their
+ * (Endless, Level, Two Player VS) to be implemented with their
  * own specific behaviors while maintaining a consistent interface for the game
  * controller to interact with.</p>
  * 

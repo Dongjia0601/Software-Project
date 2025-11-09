@@ -22,13 +22,7 @@ public enum GameModeType {
      * Two player versus mode - human vs human competitive gameplay.
      * Features split-screen and battle mechanics.
      */
-    TWO_PLAYER_VS("Two Player VS", "Human vs Human competitive mode"),
-
-    /**
-     * Two player AI mode - human vs AI opponent.
-     * Features adjustable AI difficulty levels.
-     */
-    TWO_PLAYER_AI("Two Player AI", "Human vs AI opponent mode");
+    TWO_PLAYER_VS("Two Player VS", "Human vs Human competitive mode");
 
     private final String displayName;
     private final String description;

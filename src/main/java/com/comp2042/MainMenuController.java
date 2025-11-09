@@ -49,9 +49,6 @@ public class MainMenuController {
     private Button levelModeBtn;
     
     @FXML
-    private Button aiModeBtn;
-    
-    @FXML
     private Button twoPlayerModeBtn;
     
     @FXML
@@ -85,7 +82,6 @@ public class MainMenuController {
         // Configure button text for different game modes
         endlessModeBtn.setText("Endless Mode");
         levelModeBtn.setText("Level Mode");
-        aiModeBtn.setText("AI Mode");
         twoPlayerModeBtn.setText("Two-Player Mode");
         
         // Set centered background image
@@ -121,13 +117,6 @@ public class MainMenuController {
             });
         }
         
-        if (aiModeBtn != null) {
-            aiModeBtn.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
-                if (event.getCode() == javafx.scene.input.KeyCode.SPACE) {
-                    event.consume();
-                }
-            });
-        }
         
         if (twoPlayerModeBtn != null) {
             twoPlayerModeBtn.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
@@ -380,30 +369,6 @@ public class MainMenuController {
         }
     }
 
-    /**
-     * Starts the AI Mode game.
-     * Creates a game service and launches AI mode.
-     */
-    @FXML
-    private void startAIMode() {
-        System.out.println("Starting AI Mode...");
-        try {
-            // Create game service and GUI controller
-            GameService gameService = new GameServiceImpl();
-            GuiController guiController = new GuiController();
-            
-            // Create AI mode
-            var gameMode = GameModeFactory.createGameMode(GameModeType.TWO_PLAYER_AI, gameService, guiController);
-            gameMode.initialize();
-            
-            // Load game layout
-            loadGameScene(guiController);
-            
-        } catch (Exception e) {
-            System.err.println("Error starting AI Mode: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Loads the game scene with the specified GUI controller.
@@ -516,7 +481,6 @@ public class MainMenuController {
             String[][] modeData = {
                 {"Endless Mode", "Play endlessly and aim for the highest score."},
                 {"Level Mode", "Clear levels with increasing difficulty and unlock new themes."},
-                {"AI Mode", "Play against an intelligent AI opponent and test your skills."},
                 {"Two-Player Mode", "Challenge a friend in local two-player battle."}
             };
             

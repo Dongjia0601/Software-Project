@@ -1764,7 +1764,6 @@ public class GuiController implements Initializable {
             String[][] modeData = {
                 {"Endless Mode", "Play endlessly and aim for the highest score."},
                 {"Level Mode", "Clear levels with increasing difficulty and unlock new themes."},
-                {"AI Mode", "Play against an intelligent AI opponent and test your skills."},
                 {"Two-Player Mode", "Challenge a friend in local two-player battle."}
             };
             

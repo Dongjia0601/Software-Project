@@ -78,19 +78,6 @@
             </effect>
         </Button>
         
-        <Button fx:id="aiModeBtn" 
-                text="AI Mode" 
-                styleClass="mode-button"
-                onAction="#startAIMode"
-                style="-fx-background-color: linear-gradient(to bottom,rgba(255, 107, 157, 0.94),rgba(255, 20, 147, 0.69)); -fx-text-fill: #1A0033; -fx-border-color: #8A2BE2; -fx-border-width: 2; -fx-background-radius: 12; -fx-border-radius: 12; -fx-padding: 10 20; -fx-cursor: hand;">
-            <font>
-                <Font name="Segoe UI" size="18.0" style="bold"/>
-            </font>
-            <effect>
-                <DropShadow color="#8A2BE2" radius="8" spread="0.4"/>
-            </effect>
-        </Button>
-        
         <Button fx:id="twoPlayerModeBtn" 
                 text="Two-Player Mode" 
                 styleClass="mode-button"

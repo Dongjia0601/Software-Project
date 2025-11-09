@@ -55,16 +55,6 @@ class GameModeFactoryTest {
     }
 
     @Test
-    void testCreateTwoPlayerAIMode() {
-        // Test creating two player AI mode
-        GameMode twoPlayerAIMode = GameModeFactory.createGameMode(
-            GameModeType.TWO_PLAYER_AI, gameService, guiController);
-        
-        assertNotNull(twoPlayerAIMode);
-        assertEquals(GameModeType.TWO_PLAYER_AI, twoPlayerAIMode.getType());
-    }
-
-    @Test
     void testGameModeFactoryNotNull() {
         // Test that factory methods return non-null objects
         assertNotNull(GameModeFactory.createGameMode(
