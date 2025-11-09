@@ -651,8 +651,7 @@ public class GuiController implements Initializable {
      * @param integerProperty The IntegerProperty representing the score.
      */
     public void bindScore(IntegerProperty integerProperty) {
-        // Binding logic might be implemented here if needed based on original code structure
-        // For now, left empty as per original placeholder
+        // Score binding is handled through direct updates rather than property binding
     }
 
     /**
@@ -1515,20 +1514,25 @@ public class GuiController implements Initializable {
     /**
      * Toggles mute state for audio.
      * When muted, sets Master Volume to 0%. When unmuted, restores previous volume.
+     * This affects all audio (both music and sound effects) through the master volume control.
      */
     @FXML
     public void toggleMute() {
-        // Play button click sound
-        SoundManager.getInstance().playButtonClickSound();
+        SoundManager soundManager = SoundManager.getInstance();
+        
         if (isMuted) {
             // Unmute: restore previous volume
             settings.setMasterVolume(previousVolume);
+            // Apply to SoundManager immediately - this will restore all audio
+            soundManager.setMasterVolume(previousVolume);
             muteButton.setText("MUTE");
             System.out.println("Audio unmuted - Master Volume: " + (int)(previousVolume * 100) + "%");
         } else {
             // Mute: save current volume and set to 0%
             previousVolume = settings.getMasterVolume();
             settings.setMasterVolume(0.0);
+            // Apply to SoundManager immediately - this will mute all audio
+            soundManager.setMasterVolume(0.0);
             muteButton.setText("UNMUTE");
             System.out.println("Audio muted - Master Volume: 0%");
         }
@@ -2533,8 +2537,9 @@ public class GuiController implements Initializable {
      * Called when a level is completed or failed.
      *
      * @param board the game board instance
+     * @param newRecords array containing [isNewBestScore, isNewBestTime], or null if not available
      */
-    public void showLevelGameOverScene(Board board) {
+    public void showLevelGameOverScene(Board board, boolean[] newRecords) {
         if (!isLevelMode) {
             return;
         }
@@ -2565,35 +2570,20 @@ public class GuiController implements Initializable {
             int completionTimeSeconds = (int) (playTimeMs / 1000);
             boolean success = linesCleared >= targetLines;
             
-            // Note: Level is already completed in PlayingState through LevelGameModeImpl
-            // This ensures best stats are updated and next level is unlocked before showing game over screen
-            // Reload current level to get updated best stats
+            // Level is already completed in PlayingState, which updates best stats and unlocks next level
             final com.comp2042.game.LevelMode finalCurrentLevel = levelManager.getCurrentLevel();
             
             int stars = finalCurrentLevel != null ? finalCurrentLevel.calculateStars(finalScore, linesCleared, completionTimeSeconds, success) : 0;
             
-            // Check if new best score/time
-            // Since completeLevel() has already been called, we need to determine if this is a new record.
-            // The logic: if current score equals best score AND best score was 0 before (meaning it's the first time),
-            // OR if we can infer from the update logic that a new record was set.
-            // Actually, the simplest way is to check: if current score > 0 and equals best score, 
-            // and best score was updated (which we can't know), OR we can check if this is the first completion.
-            // But since we can't know the previous value, we use a simpler heuristic:
-            // If current score equals best score and is greater than 0, it's likely a new record.
-            // However, this might show false positives if the previous best was also the same score.
-            // The most accurate way is to track this in completeLevel() and pass it through.
-            // For now, we'll use a simpler check: if score > 0 and equals best score, assume it's new.
+            // Use provided new record status, or determine from current level stats if not provided
             boolean isNewBestScore = false;
             boolean isNewBestTime = false;
-            if (finalCurrentLevel != null) {
-                // Check if this is a new best score by comparing with the updated best score
-                // If current score equals best score and is greater than 0, it's likely a new record
-                // But to be more accurate, we should check if the score was actually updated
-                // Since we can't know the previous value, we'll use a heuristic:
-                // If current score equals best score and best score > 0, it's likely new
-                // However, this might show false positives. The proper fix would be to track this in completeLevel().
+            if (newRecords != null && newRecords.length >= 2) {
+                isNewBestScore = newRecords[0];
+                isNewBestTime = newRecords[1];
+            } else if (finalCurrentLevel != null) {
+                // Fallback: determine from current stats (may have false positives)
                 isNewBestScore = finalScore > 0 && finalScore == finalCurrentLevel.getBestScore();
-                // For best time, check if it's a valid time and equals the best time
                 isNewBestTime = success && finalCurrentLevel.getBestTime() != Long.MAX_VALUE && 
                     playTimeMs > 0 && playTimeMs == finalCurrentLevel.getBestTime();
             }
