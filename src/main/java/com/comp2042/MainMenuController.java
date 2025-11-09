@@ -92,6 +92,9 @@ public class MainMenuController {
         
         // CRITICAL FIX: Disable Space key for all buttons to prevent accidental activation
         disableSpaceKeyForButtons();
+        
+        // Start playing background music when main menu loads
+        SoundManager.getInstance().playBackgroundMusic();
     }
     
     /**
@@ -249,6 +252,8 @@ public class MainMenuController {
      */
     @FXML
     private void startEndlessMode() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         System.out.println("Starting Endless Mode...");
         try {
             // Create game service and GUI controller
@@ -277,6 +282,8 @@ public class MainMenuController {
      */
     @FXML
     private void startLevelMode() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         System.out.println("Opening Level Selection...");
         try {
             // Load level selection scene
@@ -287,6 +294,7 @@ public class MainMenuController {
             Stage currentStage = (Stage) levelModeBtn.getScene().getWindow();
             currentStage.setScene(levelSelectionScene);
             currentStage.setTitle("Tetris - Level Selection");
+            centerWindowOnScreen(currentStage, 900, 800);
             
             // Set stage reference in controller
             com.comp2042.ui.LevelSelectionController controller = loader.getController();
@@ -306,6 +314,8 @@ public class MainMenuController {
      */
     @FXML
     private void startTwoPlayerMode() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         System.out.println("Starting Two-Player Mode...");
         try {
             // Load the two-player game layout FXML
@@ -334,6 +344,7 @@ public class MainMenuController {
             Stage currentStage = (Stage) twoPlayerModeBtn.getScene().getWindow();
             currentStage.setScene(gameScene);
             currentStage.setTitle("TetrisJFX - Two-Player Mode");
+            centerWindowOnScreen(currentStage, 1400, 900);
             
             // Set up keyboard focus for input handling AFTER scene is set
             final GuiController gc = guiController;
@@ -397,6 +408,7 @@ public class MainMenuController {
         Stage currentStage = (Stage) endlessModeBtn.getScene().getWindow();
         currentStage.setScene(gameScene);
         currentStage.setTitle("TetrisJFX - Game");
+        centerWindowOnScreen(currentStage, 900, 800);
         
         // Initialize the game controller
         new GameController(gameController);
@@ -410,6 +422,8 @@ public class MainMenuController {
      */
     @FXML
     private void openSettings() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         try {
             FXMLLoader settingsLoader = new FXMLLoader(getClass().getResource("/settings.fxml"));
             // Use same size as main menu for consistency (1000x700)
@@ -432,6 +446,7 @@ public class MainMenuController {
             Stage stage = (Stage) endlessModeBtn.getScene().getWindow();
             stage.setScene(settingsScene);
             stage.setTitle("TETRIS - Settings");
+            centerWindowOnScreen(stage, 900, 800);
             
             System.out.println("Settings page loaded successfully");
         } catch (IOException e) {
@@ -446,6 +461,8 @@ public class MainMenuController {
      */
     @FXML
     private void showHelp() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         System.out.println("Help dialog requested from main menu");
         
         try {
@@ -530,6 +547,7 @@ public class MainMenuController {
             String[] basicsRightItems = new String[] {
                 "Next: preview upcoming pieces.",
                 "Hold: store one piece to swap later (one swap per piece).",
+                "Ghost Brick: semi-transparent preview showing where the piece will land.",
                 "Statistics: shows Level, Lines cleared, Speed and Time.",
                 "Score: real-time points and the Highest Score.",
                 "Controls: Settings, Help, Back to Menu.",
@@ -612,6 +630,58 @@ public class MainMenuController {
             scoreRow.getChildren().addAll(lineScores, dropScores);
 
             scoreContainer.getChildren().addAll(scoreTitle, scoreRow);
+
+            // Ghost Brick System section
+            javafx.scene.layout.VBox ghostContainer = new javafx.scene.layout.VBox(10);
+            ghostContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+
+            javafx.scene.control.Label ghostTitle = new javafx.scene.control.Label("Ghost Brick System");
+            ghostTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
+            ghostTitle.setMaxWidth(Double.MAX_VALUE);
+            javafx.scene.layout.HBox.setHgrow(ghostTitle, javafx.scene.layout.Priority.ALWAYS);
+
+            javafx.scene.control.Label ghostDesc = new javafx.scene.control.Label(
+                "The Ghost Brick is a semi-transparent preview that shows where your current piece will land if dropped straight down. " +
+                "It helps you plan your placement strategy and make precise drops.\n\n" +
+                "Display Conditions:\n" +
+                "• Endless Mode: Shown when level is less than 5 (levels 1-4). Not shown from level 5 onwards (up to level 15).\n" +
+                "• Level Mode: Shown for Easy difficulty (Level 1 and 2)\n" +
+                "• Two-Player Mode: Always shown");
+            ghostDesc.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            ghostDesc.setWrapText(true);
+
+            ghostContainer.getChildren().addAll(ghostTitle, ghostDesc);
+
+            // Endless Mode Level Progression section
+            javafx.scene.layout.VBox endlessContainer = new javafx.scene.layout.VBox(10);
+            endlessContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+
+            javafx.scene.control.Label endlessTitle = new javafx.scene.control.Label("Endless Mode Rules");
+            endlessTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
+            endlessTitle.setMaxWidth(Double.MAX_VALUE);
+            javafx.scene.layout.HBox.setHgrow(endlessTitle, javafx.scene.layout.Priority.ALWAYS);
+
+            // Level Progression subsection
+            javafx.scene.control.Label levelProgTitle = new javafx.scene.control.Label("Level Progression");
+            levelProgTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            javafx.scene.control.Label levelProgText = new javafx.scene.control.Label(
+                "• Level increases by 1 for every 10 lines cleared\n" +
+                "• Starting level: 1, Maximum level: 15\n" +
+                "• Examples: 0-9 lines = Level 1, 10-19 lines = Level 2, ..., 140+ lines = Level 15");
+            levelProgText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            levelProgText.setWrapText(true);
+
+            // Speed Progression subsection
+            javafx.scene.control.Label speedTitle = new javafx.scene.control.Label("Speed Progression");
+            speedTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            javafx.scene.control.Label speedText = new javafx.scene.control.Label(
+                "• Speed multiplier increases every 2 levels\n" +
+                "• Starting speed: 1x, Maximum speed: 8x\n" +
+                "• Examples: Level 1-2 = 1x, Level 3-4 = 2x, ..., Level 15 = 8x");
+            speedText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            speedText.setWrapText(true);
+
+            endlessContainer.getChildren().addAll(endlessTitle, levelProgTitle, levelProgText, speedTitle, speedText);
 
             // Two-Player Mode Rules section
             javafx.scene.layout.VBox twoPlayerContainer = new javafx.scene.layout.VBox(12);
@@ -703,7 +773,7 @@ public class MainMenuController {
             buttonContainer.getChildren().add(closeButton);
             
             // Add all components
-            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, twoPlayerContainer, buttonContainer);
+            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, ghostContainer, endlessContainer, twoPlayerContainer, buttonContainer);
             scrollPane.setContent(mainContainer);
             
             // Create scene and show
@@ -721,6 +791,20 @@ public class MainMenuController {
         }
     }
 
+    /**
+     * Centers the window on the current screen (where the window is located).
+     * Handles multi-monitor setups and ensures window appears correctly on the current display.
+     * 
+     * @param stage the stage to center
+     * @param width the window width
+     * @param height the window height
+     */
+    private void centerWindowOnScreen(Stage stage, double width, double height) {
+        // Use centerOnScreen which automatically centers on the current screen
+        // This respects the user's current display setup
+        stage.centerOnScreen();
+    }
+    
     // Helper: build a bullet column with consistent wrapping and spacing
     private javafx.scene.layout.VBox createBulletedColumn(String[] items, double width) {
         javafx.scene.layout.VBox box = new javafx.scene.layout.VBox(6);

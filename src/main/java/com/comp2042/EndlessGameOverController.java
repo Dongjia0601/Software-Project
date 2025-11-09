@@ -1,5 +1,6 @@
 package com.comp2042;
 
+import com.comp2042.SoundManager;
 import com.comp2042.game.EndlessModeLeaderboard;
 import com.comp2042.game.LeaderboardEntry;
 import javafx.animation.*;
@@ -433,6 +434,8 @@ public class EndlessGameOverController implements Initializable {
      */
     @FXML
     private void onTryAgain() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         if (onTryAgain != null) {
             onTryAgain.run();
         }
@@ -443,6 +446,8 @@ public class EndlessGameOverController implements Initializable {
      */
     @FXML
     private void onResetLeaderboard() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         if (onResetLeaderboard != null) {
             onResetLeaderboard.run();
         }
@@ -453,6 +458,8 @@ public class EndlessGameOverController implements Initializable {
      */
     @FXML
     private void onBackToMenu() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         if (onBackToMenu != null) {
             onBackToMenu.run();
         }

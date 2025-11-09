@@ -1,5 +1,6 @@
 package com.comp2042.ui;
 
+import com.comp2042.SoundManager;
 import com.comp2042.config.GameSettings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -128,6 +129,15 @@ public class SettingsController {
                     alert.setHeaderText("Change Piece Randomizer?");
                     alert.setContentText("This selection will switch the piece randomizer and restart the game after you click Save.\n\nProceed with this selection?");
                     alert.getButtonTypes().setAll(javafx.scene.control.ButtonType.YES, javafx.scene.control.ButtonType.NO);
+                    
+                    // Add button click sound for dialog buttons
+                    alert.getDialogPane().getButtonTypes().forEach(buttonType -> {
+                        javafx.scene.Node button = alert.getDialogPane().lookupButton(buttonType);
+                        if (button != null) {
+                            button.setOnMouseClicked(e -> SoundManager.getInstance().playButtonClickSound());
+                        }
+                    });
+                    
                     java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
                     if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.YES) {
                         // Accept change in settings model; actual rebuild handled on Save/Reset
@@ -232,7 +242,7 @@ public class SettingsController {
     
     /**
      * Sets the saved game scene for returning to game.
-     * If a game scene is provided, both "Back to Game" and "Exit to Menu" buttons are shown.
+     * If a game scene is provided, both "Back to Game" and "Back to Menu" buttons are shown.
      * Otherwise, only "Back to Menu" button is shown.
      * 
      * @param gameScene the saved game scene, or null if opened from menu
@@ -248,7 +258,7 @@ public class SettingsController {
                 backToGameButton.setManaged(true);
             }
             if (backToMenuButton != null) {
-                backToMenuButton.setText("Exit to Menu");
+                backToMenuButton.setText("Back to Menu");
             }
         } else {
             // From menu: only show back to menu button
@@ -280,6 +290,8 @@ public class SettingsController {
      */
     @FXML
     public void saveSettings() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         // Update settings object with current UI values
         settings.setMasterVolume(masterVolumeSlider.getValue() / 100.0);
         settings.setMusicVolume(musicVolumeSlider.getValue() / 100.0);
@@ -300,6 +312,15 @@ public class SettingsController {
             alert.setHeaderText("Change Piece Randomizer?");
             alert.setContentText("Switching the piece randomizer will reset the current game.\n\nDo you want to apply the change now?");
             alert.getButtonTypes().setAll(javafx.scene.control.ButtonType.YES, javafx.scene.control.ButtonType.NO);
+            
+            // Add button click sound for dialog buttons
+            alert.getDialogPane().getButtonTypes().forEach(buttonType -> {
+                javafx.scene.Node button = alert.getDialogPane().lookupButton(buttonType);
+                if (button != null) {
+                    button.setOnMouseClicked(e -> SoundManager.getInstance().playButtonClickSound());
+                }
+            });
+            
             java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.YES) {
                 settings.setPieceRandomizer(pendingRandomizer);
@@ -346,6 +367,8 @@ public class SettingsController {
      */
     @FXML
     public void resetToDefault() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         // Capture current randomizer to decide whether we need confirmation
         String currentRandomizer = settings.getPieceRandomizer();
 
@@ -362,6 +385,15 @@ public class SettingsController {
             alert.setHeaderText("Reset Piece System to Default?");
             alert.setContentText("Resetting to defaults will switch the piece randomizer from 'Pure Random' to '7-Bag' and restart the game.\n\nApply now?");
             alert.getButtonTypes().setAll(javafx.scene.control.ButtonType.YES, javafx.scene.control.ButtonType.NO);
+            
+            // Add button click sound for dialog buttons
+            alert.getDialogPane().getButtonTypes().forEach(buttonType -> {
+                javafx.scene.Node button = alert.getDialogPane().lookupButton(buttonType);
+                if (button != null) {
+                    button.setOnMouseClicked(e -> SoundManager.getInstance().playButtonClickSound());
+                }
+            });
+            
             java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.YES) {
                 // Apply default piece system and persist
@@ -418,6 +450,8 @@ public class SettingsController {
      */
     @FXML
     public void backToGame() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         if (savedGameScene != null && stage != null) {
             // Restore the saved game scene
             stage.setScene(savedGameScene);
@@ -439,6 +473,8 @@ public class SettingsController {
      */
     @FXML
     public void backToMenu() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         System.out.println("========== backToMenu() CLICKED ==========");
         System.out.println("Stage reference: " + (stage != null ? "VALID" : "NULL"));
         
@@ -467,6 +503,8 @@ public class SettingsController {
             
             stage.setScene(scene);
             stage.setTitle("TETRIS - Main Menu");
+
+            centerWindowOnScreen(stage, 900, 800);
             System.out.println("Scene switched to main menu successfully!");
             
         } catch (IOException e) {
@@ -478,6 +516,20 @@ public class SettingsController {
             e.printStackTrace();
             showStatus("Unexpected error", "#FF6B6B");
         }
+    }
+    
+    /**
+     * Centers the window on the current screen (where the window is located).
+     * Handles multi-monitor setups and ensures window appears correctly on the current display.
+     * 
+     * @param stage the stage to center
+     * @param width the window width
+     * @param height the window height
+     */
+    private void centerWindowOnScreen(javafx.stage.Stage stage, double width, double height) {
+        // Use centerOnScreen which automatically centers on the current screen
+        // This respects the user's current display setup
+        stage.centerOnScreen();
     }
     
     /**

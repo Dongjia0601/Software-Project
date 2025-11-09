@@ -61,6 +61,10 @@ public class Main extends Application {
         Scene scene = new Scene(root, 900, 800);
         primaryStage.setScene(scene);
         primaryStage.setResizable(false); // Fixed window size for consistent UI
+        
+        // Center window on current screen (not forced to primary screen)
+        primaryStage.centerOnScreen();
+        
         primaryStage.show();
         
         // Log successful initialization

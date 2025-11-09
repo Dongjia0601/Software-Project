@@ -343,6 +343,8 @@ public class TwoPlayerGameController implements InputEventListener {
         GameService targetService = (source == EventSource.KEYBOARD_PLAYER_2) ? player2Service : player1Service;
         ViewData result = targetService.processHoldEvent(event);
         if (result != null) {
+            // Play hold sound effect
+            SoundManager.getInstance().playHoldSound();
             updatePlayerView(source, result);
         }
         return result;
@@ -387,15 +389,20 @@ public class TwoPlayerGameController implements InputEventListener {
     
     @Override
     public void onQuitEvent(MoveEvent event) {
-        // Stop timelines
+        // Stop and clear all timelines to prevent memory leaks
+        // Note: player1Service, player2Service, and gameMode are final and cannot be reassigned
+        // They will be garbage collected when this controller is no longer referenced
         if (player1Timeline != null) {
             player1Timeline.stop();
+            player1Timeline = null;
         }
         if (player2Timeline != null) {
             player2Timeline.stop();
+            player2Timeline = null;
         }
         if (statsUpdateTimeline != null) {
             statsUpdateTimeline.stop();
+            statsUpdateTimeline = null;
         }
     }
     

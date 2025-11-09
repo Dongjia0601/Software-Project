@@ -1,5 +1,6 @@
 package com.comp2042.ui;
 
+import com.comp2042.SoundManager;
 import com.comp2042.game.LevelManager;
 import com.comp2042.game.LevelMode;
 import javafx.fxml.FXML;
@@ -138,6 +139,8 @@ public class LevelSelectionController {
      */
     @FXML
     private void handleBackToMenu() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         try {
             FXMLLoader menuLoader = new FXMLLoader(getClass().getClassLoader().getResource("mainMenu.fxml"));
             Parent menuRoot = menuLoader.load();
@@ -146,6 +149,8 @@ public class LevelSelectionController {
             if (stage != null) {
                 stage.setScene(menuScene);
                 stage.setTitle("Tetris - Main Menu");
+                // Center window on primary screen to handle multi-monitor setups
+                centerWindowOnScreen(stage, 900, 800);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -203,7 +208,7 @@ public class LevelSelectionController {
         // Level name
         Label levelName = new Label(level.getLevelName());
         levelName.getStyleClass().add("level-name");
-        levelName.setMaxWidth(280); // Increased width to accommodate longer names like "Interstellar Odyssey"
+        levelName.setMaxWidth(280); 
         levelName.setWrapText(false); // Disable wrapping to keep name on one line
         levelName.setAlignment(Pos.CENTER);
         // Use CSS text-overrun: ellipsis for overflow handling
@@ -379,6 +384,11 @@ public class LevelSelectionController {
         if (!level.isUnlocked()) {
             return;
         }
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
+        
+        // Play level background music when entering level mode
+        SoundManager.getInstance().playLevelBackgroundMusic();
         
         try {
             // Set current level in manager
@@ -667,10 +677,20 @@ public class LevelSelectionController {
      */
     @FXML
     private void handleResetProgress() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
         confirmDialog.setTitle("Reset Progress");
         confirmDialog.setHeaderText("Are you sure?");
         confirmDialog.setContentText("This will reset all level progress and stars. This cannot be undone.");
+        
+        // Add button click sound for dialog buttons
+        confirmDialog.getDialogPane().getButtonTypes().forEach(buttonType -> {
+            javafx.scene.Node button = confirmDialog.getDialogPane().lookupButton(buttonType);
+            if (button != null) {
+                button.setOnMouseClicked(e -> SoundManager.getInstance().playButtonClickSound());
+            }
+        });
         
         Optional<ButtonType> result = confirmDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -686,6 +706,20 @@ public class LevelSelectionController {
     }
     
     /**
+     * Centers the window on the current screen (where the window is located).
+     * Handles multi-monitor setups and ensures window appears correctly on the current display.
+     * 
+     * @param stage the stage to center
+     * @param width the window width
+     * @param height the window height
+     */
+    private void centerWindowOnScreen(javafx.stage.Stage stage, double width, double height) {
+        // Use centerOnScreen which automatically centers on the current screen
+        // This respects the user's current display setup
+        stage.centerOnScreen();
+    }
+    
+    /**
      * Shows an error dialog.
      * @param message the error message
      */
@@ -694,6 +728,15 @@ public class LevelSelectionController {
         alert.setTitle("Error");
         alert.setHeaderText(null);
         alert.setContentText(message);
+        
+        // Add button click sound for dialog buttons
+        alert.getDialogPane().getButtonTypes().forEach(buttonType -> {
+            javafx.scene.Node button = alert.getDialogPane().lookupButton(buttonType);
+            if (button != null) {
+                button.setOnMouseClicked(e -> SoundManager.getInstance().playButtonClickSound());
+            }
+        });
+        
         alert.showAndWait();
     }
     
@@ -706,6 +749,15 @@ public class LevelSelectionController {
         alert.setTitle("Information");
         alert.setHeaderText(null);
         alert.setContentText(message);
+        
+        // Add button click sound for dialog buttons
+        alert.getDialogPane().getButtonTypes().forEach(buttonType -> {
+            javafx.scene.Node button = alert.getDialogPane().lookupButton(buttonType);
+            if (button != null) {
+                button.setOnMouseClicked(e -> SoundManager.getInstance().playButtonClickSound());
+            }
+        });
+        
         alert.showAndWait();
     }
 }

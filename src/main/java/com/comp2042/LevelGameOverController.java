@@ -1,5 +1,6 @@
 package com.comp2042;
 
+import com.comp2042.SoundManager;
 import com.comp2042.game.LevelManager;
 import com.comp2042.game.LevelMode;
 import javafx.animation.*;
@@ -220,6 +221,13 @@ public class LevelGameOverController implements Initializable {
         this.isNewBestScore = isNewBestScore;
         this.isNewBestTime = isNewBestTime;
         
+        // Play level win/fail sound effect
+        if (success) {
+            SoundManager.getInstance().playLevelWinSound();
+        } else {
+            SoundManager.getInstance().playLevelFailedSound();
+        }
+        
         // Update title - show "Win the Level X!" if successful, "Level X Failed!" if failed
         if (mainTitleLabel != null) {
             if (success) {
@@ -391,6 +399,8 @@ public class LevelGameOverController implements Initializable {
     
     @FXML
     private void onTryAgain() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         if (onTryAgain != null) {
             onTryAgain.run();
         }
@@ -398,6 +408,8 @@ public class LevelGameOverController implements Initializable {
     
     @FXML
     private void onNextLevel() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         if (onNextLevel != null) {
             onNextLevel.run();
         }
@@ -405,6 +417,8 @@ public class LevelGameOverController implements Initializable {
     
     @FXML
     private void onBackToSelection() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         if (onBackToSelection != null) {
             onBackToSelection.run();
         }
@@ -412,6 +426,8 @@ public class LevelGameOverController implements Initializable {
     
     @FXML
     private void onBackToMenu() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         if (onBackToMenu != null) {
             onBackToMenu.run();
         }
