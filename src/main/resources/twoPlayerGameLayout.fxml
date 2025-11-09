@@ -47,7 +47,7 @@
             </padding>
             
             <!-- Player 1 Game Area -->
-            <VBox spacing="15" alignment="CENTER" styleClass="player-area player1-area">
+            <VBox spacing="20" alignment="CENTER" styleClass="player-area player1-area">
                 <Label text="PLAYER 1" styleClass="player1-title"/>
                 
                 <!-- Player 1 Left Panel: Hold and Stats -->
@@ -142,16 +142,12 @@
                     </VBox>
                 </HBox>
                 
-                <!-- Spacer for control hint -->
-                <Region prefHeight="15" VBox.vgrow="NEVER"/>
+                <!-- Spacer before control hint -->
+                <Region prefHeight="80" minHeight="80" VBox.vgrow="NEVER"/>
                 
                 <!-- Player 1 Controls Hint -->
                 <Label text="[A/D] Move  [W] Rotate CW  [F] Rotate CCW  [S] Soft Drop  [Space] Hard Drop  [Shift] Hold"
-                       styleClass="control-hint-two-player">
-                    <VBox.margin>
-                        <Insets top="0" bottom="0" left="0" right="0"/>
-                    </VBox.margin>
-                </Label>
+                       styleClass="control-hint-two-player"/>
             </VBox>
             
             <!-- Divider -->
@@ -160,7 +156,7 @@
             </VBox>
             
             <!-- Player 2 Game Area -->
-            <VBox spacing="15" alignment="CENTER" styleClass="player-area player2-area">
+            <VBox spacing="20" alignment="CENTER" styleClass="player-area player2-area">
                 <Label text="PLAYER 2" styleClass="player2-title"/>
                 
                 <!-- Player 2 Left Panel: Hold and Stats -->
@@ -255,16 +251,12 @@
                     </VBox>
                 </HBox>
                 
-                <!-- Spacer for control hint -->
-                <Region prefHeight="15" VBox.vgrow="NEVER"/>
+                <!-- Spacer before control hint -->
+                <Region prefHeight="80" minHeight="80" VBox.vgrow="NEVER"/>
                 
                 <!-- Player 2 Controls Hint -->
                 <Label text="[←/→] Move  [↑] Rotate CW  [Enter] Rotate CCW  [↓] Soft Drop  [Backspace] Hard Drop  [Alt] Hold"
-                       styleClass="control-hint-two-player">
-                    <VBox.margin>
-                        <Insets top="0" bottom="0" left="0" right="0"/>
-                    </VBox.margin>
-                </Label>
+                       styleClass="control-hint-two-player"/>
             </VBox>
         </HBox>
             

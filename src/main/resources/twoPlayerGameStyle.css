@@ -226,9 +226,9 @@
     -fx-padding: 12px 15px 12px 15px;
     -fx-alignment: center;
     -fx-text-alignment: center;
-    -fx-background-color: rgba(255, 255, 255, 0.05);
-    -fx-background-radius: 5px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 4, 0, 0, 1);
+    -fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-translate-y: 30px;
 }
 
 /* Bottom Panel */
