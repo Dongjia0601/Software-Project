@@ -76,6 +76,11 @@ public class EndlessModeLeaderboard {
      * @return the rank (1-5) if entry was added, 0 if not in top 5
      */
     public synchronized int addEntry(int score, int linesCleared, long playTimeMs, int level) {
+        // Don't add entries with 0 or negative scores
+        if (score <= 0) {
+            return 0;
+        }
+        
         LeaderboardEntry newEntry = new LeaderboardEntry(score, linesCleared, playTimeMs, level);
         
         // Add the new entry
@@ -198,7 +203,10 @@ public class EndlessModeLeaderboard {
                             level = Integer.parseInt(parts[4].trim());
                         }
                         
-                        entries.add(new LeaderboardEntry(score, lines, time, level, timestamp));
+                        // Only add entries with positive scores
+                        if (score > 0) {
+                            entries.add(new LeaderboardEntry(score, lines, time, level, timestamp));
+                        }
                     } catch (NumberFormatException e) {
                         System.err.println("Invalid leaderboard entry: " + line);
                     }
