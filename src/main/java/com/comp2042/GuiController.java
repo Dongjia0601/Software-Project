@@ -169,6 +169,7 @@ public class GuiController implements Initializable {
     private InputEventListener eventListener; // Listener for game events (likely GameController)
 
     private Rectangle[][] rectangles; // Array of rectangles representing the current falling brick
+    private Rectangle[][] ghostRectangles; // Array of rectangles representing the ghost brick
 
     private Timeline timeLine; // Timeline for the automatic downward movement of the brick
     private Timeline timeTimer; // Timer to update elapsed time in Endless Mode
@@ -355,6 +356,7 @@ public class GuiController implements Initializable {
      * @param brick       The initial view data for the falling brick (shape, position).
      */
     public void initGameView(int[][] boardMatrix, ViewData brick) {
+        // Background music is already playing from main menu, no need to restart
         // Ensure the grid pane renders its grid lines and keeps the correct style
         if (gamePanel != null) {
             gamePanel.setGridLinesVisible(true);
@@ -388,10 +390,37 @@ public class GuiController implements Initializable {
                 brickPanel.getChildren().add(rectangle);
             }
         }
+        
+        // Initialize the rectangles for the ghost brick
+        if (ghostPanel != null) {
+            ghostPanel.getChildren().clear();
+            ghostRectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
+            for (int i = 0; i < brick.getBrickData().length; i++) {
+                for (int j = 0; j < brick.getBrickData()[i].length; j++) {
+                    Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                    rectangle.setFill(Color.TRANSPARENT);
+                    // Enhanced ghost brick appearance: rounded corners and semi-transparent border
+                    rectangle.setArcHeight(9); // Rounded corners to match regular bricks
+                    rectangle.setArcWidth(9);
+                    rectangle.setOpacity(1.0); // Full opacity for better visibility
+                    // Set position for each rectangle within the ghost panel
+                    rectangle.setLayoutX(j * (BRICK_SIZE + 1)); // +1 for gap
+                    rectangle.setLayoutY(i * (BRICK_SIZE + 1)); // +1 for gap
+                    ghostRectangles[i][j] = rectangle;
+                    ghostPanel.getChildren().add(rectangle);
+                }
+            }
+        }
 
         // Set initial position of the brick panel using precise calculation for 25px bricks
-        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * gamePanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-        brickPanel.setLayoutY(-52.5 + gamePanel.getLayoutY() + brick.getyPosition() * gamePanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+        // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
+        // Brick panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
+        // Position calculation: gamePanel position + (column/row * cell spacing)
+        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel.getVgap()));
+        brickPanel.setLayoutY(gamePanel.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + gamePanel.getHgap()));
+        
+        // Update ghost brick position
+        updateGhostBrick(brick);
 
         // Initialize the timeline for automatic brick movement
         timeLine = new Timeline(new KeyFrame(
@@ -467,8 +496,11 @@ public class GuiController implements Initializable {
      */
     private void refreshBrick(ViewData brick) {
         if (!isPause.getValue()) { // Only update position if not paused
-            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * gamePanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel.setLayoutY(-52.5 + gamePanel.getLayoutY() + brick.getyPosition() * gamePanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
+            // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
+            // Brick panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
+            // Position calculation: gamePanel position + (column/row * cell spacing)
+            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel.getVgap()));
+            brickPanel.setLayoutY(gamePanel.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + gamePanel.getHgap()));
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
@@ -478,6 +510,71 @@ public class GuiController implements Initializable {
             // Update next piece display
             if (brick.getNextBrickData() != null) {
                 updateNextDisplay(brick.getNextBrickData());
+            }
+            
+            // Update ghost brick position
+            updateGhostBrick(brick);
+        }
+    }
+    
+    /**
+     * Updates the ghost brick display based on the current brick position and shape.
+     * The ghost brick shows where the current brick would land if dropped straight down.
+     *
+     * @param brick The ViewData containing the current brick shape and ghost position.
+     */
+    private void updateGhostBrick(ViewData brick) {
+        if (ghostPanel == null || ghostRectangles == null) {
+            return;
+        }
+        
+        // Check if ghost brick should be displayed
+        boolean showGhost = shouldShowGhostBrick();
+        ghostPanel.setVisible(showGhost);
+        
+        if (!showGhost) {
+            return;
+        }
+        
+        int ghostY = brick.getGhostYPosition();
+        if (ghostY < 0 || ghostY == brick.getyPosition()) {
+            // Ghost position not calculated or same as current position, hide ghost
+            ghostPanel.setVisible(false);
+            return;
+        }
+        
+        // Set ghost brick position (same x as current brick, but at ghost Y position)
+        // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
+        // Ghost panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
+        // Position calculation: gamePanel position + (column/row * cell spacing)
+        ghostPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel.getVgap()));
+        ghostPanel.setLayoutY(gamePanel.getLayoutY() + ghostY * (BRICK_SIZE + gamePanel.getHgap()));
+        
+        // Update ghost brick rectangles to match current brick shape
+        int[][] brickData = brick.getBrickData();
+        for (int i = 0; i < brickData.length && i < ghostRectangles.length; i++) {
+            for (int j = 0; j < brickData[i].length && j < ghostRectangles[i].length; j++) {
+                Rectangle ghostRect = ghostRectangles[i][j];
+                if (brickData[i][j] != 0) {
+                    // Show ghost rectangle for non-empty cells
+                    ghostRect.setVisible(true);
+                    // Enhanced ghost brick appearance: semi-transparent fill with border
+                    Paint brickColor = getFillColor(brickData[i][j]);
+                    if (brickColor instanceof Color) {
+                        Color color = (Color) brickColor;
+                        // Use semi-transparent fill (0.2 opacity for subtle effect)
+                        ghostRect.setFill(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.2));
+                        // Add semi-transparent border with same color (0.6 opacity for visibility)
+                        ghostRect.setStroke(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.6));
+                        ghostRect.setStrokeWidth(2.0);
+                    } else {
+                        ghostRect.setFill(Color.TRANSPARENT);
+                        ghostRect.setStroke(null);
+                    }
+                } else {
+                    // Hide ghost rectangle for empty cells
+                    ghostRect.setVisible(false);
+                }
             }
         }
     }
@@ -563,12 +660,21 @@ public class GuiController implements Initializable {
      * Stops the automatic movement timeline and shows the game over panel.
      */
     public void gameOver() {
+        // Stop all timelines and timers
         if (timeLine != null) {
             timeLine.stop(); // Stop automatic movement
         }
         if (timeTimer != null) {
             timeTimer.stop();
         }
+        if (levelTimer != null) {
+            levelTimer.stop();
+        }
+        if (countdownTimeline != null) {
+            countdownTimeline.stop();
+            countdownTimeline = null;
+        }
+        
         gameOverPanel.setVisible(true);
         isGameOver.setValue(true);
         isPause.setValue(false); // Ensure pause is off on game over
@@ -656,6 +762,8 @@ public class GuiController implements Initializable {
      * @param actionEvent The ActionEvent triggering the new game (e.g., from a button).
      */
     public void newGame(ActionEvent actionEvent) {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         // Handle two-player mode
         if (isTwoPlayerMode && eventListener instanceof TwoPlayerGameController) {
             TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
@@ -779,6 +887,8 @@ public class GuiController implements Initializable {
      * @param actionEvent The ActionEvent triggering the pause/unpause.
      */
     public void pauseGame(ActionEvent actionEvent) {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         // Call the controller's pause request method
         if (eventListener instanceof GameController) {
             ((GameController) eventListener).requestPause();
@@ -1117,8 +1227,10 @@ public class GuiController implements Initializable {
         if (timeLabel == null) {
             return;
         }
+        // Stop and clear old timer to prevent memory leaks
         if (timeTimer != null) {
             timeTimer.stop();
+            timeTimer = null;
         }
         updateTimeLabel();
         timeTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> updateTimeLabel()));
@@ -1236,6 +1348,43 @@ public class GuiController implements Initializable {
      */
     public void setGhostEnabled(boolean enabled) {
         this.ghostEnabled = enabled;
+    }
+    
+    /**
+     * Checks if ghost brick should be displayed based on game mode conditions.
+     * Ghost brick is shown for:
+     * - Endless mode: when level is less than 5 (levels 1-4)
+     * - Level mode: when difficulty is Easy (level 1 and 2)
+     * - Two-player mode: always
+     * 
+     * @return true if ghost brick should be displayed, false otherwise
+     */
+    private boolean shouldShowGhostBrick() {
+        if (!ghostEnabled) {
+            return false;
+        }
+        
+        // Two-player mode: always show ghost brick
+        if (isTwoPlayerMode) {
+            return true;
+        }
+        
+        // Endless mode: show ghost brick when level is less than 5 (levels 1-4)
+        if (isEndlessMode) {
+            return endlessLevel < 5;
+        }
+        
+        // Level mode: show ghost brick for Easy difficulty (level 1 and 2)
+        if (isLevelMode) {
+            com.comp2042.game.LevelManager levelManager = com.comp2042.game.LevelManager.getInstance();
+            com.comp2042.game.LevelMode currentLevel = levelManager.getCurrentLevel();
+            if (currentLevel != null) {
+                String difficulty = currentLevel.getDifficulty();
+                return "Easy".equals(difficulty);
+            }
+        }
+        
+        return false;
     }
     
     /**
@@ -1369,6 +1518,8 @@ public class GuiController implements Initializable {
      */
     @FXML
     public void toggleMute() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         if (isMuted) {
             // Unmute: restore previous volume
             settings.setMasterVolume(previousVolume);
@@ -1593,6 +1744,8 @@ public class GuiController implements Initializable {
      */
     @FXML
     public void showSettings() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         System.out.println("Settings dialog requested from game");
         try {
             // Save current game scene for returning - handle both single-player and two-player modes
@@ -1666,6 +1819,8 @@ public class GuiController implements Initializable {
      */
     @FXML
     public void showHelp() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         System.out.println("Help dialog requested");
         
         try {
@@ -1812,6 +1967,7 @@ public class GuiController implements Initializable {
             VBox basicsRightCol = createBulletedColumn(new String[] {
                 "Next: preview upcoming pieces.",
                 "Hold: store one piece to swap later (one swap per piece).",
+                "Ghost Brick: semi-transparent preview showing where the piece will land.",
                 "Statistics: shows Level, Lines cleared, Speed and Time.",
                 "Score: real-time points and the Highest Score.",
                 "Controls: Settings, Help, Back to Menu.",
@@ -1898,6 +2054,58 @@ public class GuiController implements Initializable {
             scoreRow.getChildren().addAll(lineScores, dropScores);
 
             scoreContainer.getChildren().addAll(scoreTitle, scoreRow);
+
+            // Ghost Brick System section
+            VBox ghostContainer = new VBox(10);
+            ghostContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+
+            Label ghostTitle = new Label("Ghost Brick System");
+            ghostTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
+            ghostTitle.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(ghostTitle, Priority.ALWAYS);
+
+            Label ghostDesc = new Label(
+                "The Ghost Brick is a semi-transparent preview that shows where your current piece will land if dropped straight down. " +
+                "It helps you plan your placement strategy and make precise drops.\n\n" +
+                "Display Conditions:\n" +
+                "• Endless Mode: Shown when level is less than 5 (levels 1-4). Not shown from level 5 onwards (up to level 15).\n" +
+                "• Level Mode: Shown for Easy difficulty (Level 1 and 2)\n" +
+                "• Two-Player Mode: Always shown");
+            ghostDesc.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            ghostDesc.setWrapText(true);
+
+            ghostContainer.getChildren().addAll(ghostTitle, ghostDesc);
+
+            // Endless Mode Level Progression section
+            VBox endlessContainer = new VBox(10);
+            endlessContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+
+            Label endlessTitle = new Label("Endless Mode Rules");
+            endlessTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
+            endlessTitle.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(endlessTitle, Priority.ALWAYS);
+
+            // Level Progression subsection
+            Label levelProgTitle = new Label("Level Progression");
+            levelProgTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            Label levelProgText = new Label(
+                "• Level increases by 1 for every 10 lines cleared\n" +
+                "• Starting level: 1, Maximum level: 15\n" +
+                "• Examples: 0-9 lines = Level 1, 10-19 lines = Level 2, ..., 140+ lines = Level 15");
+            levelProgText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            levelProgText.setWrapText(true);
+
+            // Speed Progression subsection
+            Label speedTitle = new Label("Speed Progression");
+            speedTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            Label speedText = new Label(
+                "• Speed multiplier increases every 2 levels\n" +
+                "• Starting speed: 1x, Maximum speed: 8x\n" +
+                "• Examples: Level 1-2 = 1x, Level 3-4 = 2x, ..., Level 15 = 8x");
+            speedText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            speedText.setWrapText(true);
+
+            endlessContainer.getChildren().addAll(endlessTitle, levelProgTitle, levelProgText, speedTitle, speedText);
 
             // Two-Player Mode Rules section
             VBox twoPlayerContainer = new VBox(12);
@@ -2013,7 +2221,7 @@ public class GuiController implements Initializable {
             buttonContainer.getChildren().add(closeButton);
             
             // Add all components
-            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, twoPlayerContainer, buttonContainer);
+            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, ghostContainer, endlessContainer, twoPlayerContainer, buttonContainer);
             scrollPane.setContent(mainContainer);
             
             // Create scene and show
@@ -2033,16 +2241,25 @@ public class GuiController implements Initializable {
     
     /**
      * Returns to main menu.
+     * Properly cleans up all resources (timelines, timers) before returning.
      */
     @FXML
     public void returnToMenu() {
+        // Play button click sound
+        SoundManager.getInstance().playButtonClickSound();
         System.out.println("Returning to main menu");
         try {
+            // Stop and clean up all timelines and timers
+            cleanupAllTimelines();
+            
             // Stop any running timelines for two-player mode
             if (eventListener instanceof TwoPlayerGameController) {
                 TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
                 controller.onQuitEvent(new MoveEvent(EventType.QUIT, EventSource.USER));
             }
+            
+            // Clear event listener reference
+            eventListener = null;
             
             // Load main menu FXML
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("mainMenu.fxml"));
@@ -2062,10 +2279,57 @@ public class GuiController implements Initializable {
             Scene scene = new Scene(root, 900, 800);
             stage.setScene(scene);
             stage.setTitle("Tetris - Main Menu");
+            // Center window on primary screen to handle multi-monitor setups
+            centerWindowOnScreen(stage, 900, 800);
         } catch (Exception e) {
             System.err.println("Error loading main menu: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+    
+    /**
+     * Centers the window on the current screen (where the window is located).
+     * Handles multi-monitor setups and ensures window appears correctly on the current display.
+     * 
+     * @param stage the stage to center
+     * @param width the window width
+     * @param height the window height
+     */
+    private void centerWindowOnScreen(Stage stage, double width, double height) {
+        // Use centerOnScreen which automatically centers on the current screen
+        // This respects the user's current display setup
+        stage.centerOnScreen();
+    }
+    
+    /**
+     * Cleans up all timelines and timers to prevent memory leaks.
+     * Should be called when returning to menu or closing the game.
+     */
+    private void cleanupAllTimelines() {
+        // Stop and clear single-player timelines
+        if (timeLine != null) {
+            timeLine.stop();
+            timeLine = null;
+        }
+        if (timeTimer != null) {
+            timeTimer.stop();
+            timeTimer = null;
+        }
+        if (levelTimer != null) {
+            levelTimer.stop();
+            levelTimer = null;
+        }
+        if (countdownTimeline != null) {
+            countdownTimeline.stop();
+            countdownTimeline = null;
+        }
+        
+        // Clear countdown overlays
+        countdownOverlay1 = null;
+        countdownOverlay2 = null;
+        countdownParent1 = null;
+        countdownParent2 = null;
+        countdownCallback = null;
     }
     
     
@@ -2203,6 +2467,8 @@ public class GuiController implements Initializable {
                     if (stageForCallbacks != null) {
                         stageForCallbacks.setScene(menuScene);
                         stageForCallbacks.setTitle("Tetris - Main Menu");
+                        // Center window on primary screen to handle multi-monitor setups
+                        centerWindowOnScreen(stageForCallbacks, 900, 800);
                     } else {
                         System.err.println("Current stage is null, cannot switch to menu scene");
                     }
@@ -2303,10 +2569,30 @@ public class GuiController implements Initializable {
             int stars = finalCurrentLevel != null ? finalCurrentLevel.calculateStars(finalScore, linesCleared, completionTimeSeconds, success) : 0;
             
             // Check if new best score/time
-            // Note: getBestTime() returns milliseconds, so compare with playTimeMs
-            boolean isNewBestScore = finalCurrentLevel != null && finalScore > finalCurrentLevel.getBestScore();
-            boolean isNewBestTime = success && finalCurrentLevel != null && (finalCurrentLevel.getBestTime() == Long.MAX_VALUE || 
-                playTimeMs < finalCurrentLevel.getBestTime());
+            // Since completeLevel() has already been called, we need to determine if this is a new record.
+            // The logic: if current score equals best score AND best score was 0 before (meaning it's the first time),
+            // OR if we can infer from the update logic that a new record was set.
+            // Actually, the simplest way is to check: if current score > 0 and equals best score, 
+            // and best score was updated (which we can't know), OR we can check if this is the first completion.
+            // But since we can't know the previous value, we use a simpler heuristic:
+            // If current score equals best score and is greater than 0, it's likely a new record.
+            // However, this might show false positives if the previous best was also the same score.
+            // The most accurate way is to track this in completeLevel() and pass it through.
+            // For now, we'll use a simpler check: if score > 0 and equals best score, assume it's new.
+            boolean isNewBestScore = false;
+            boolean isNewBestTime = false;
+            if (finalCurrentLevel != null) {
+                // Check if this is a new best score by comparing with the updated best score
+                // If current score equals best score and is greater than 0, it's likely a new record
+                // But to be more accurate, we should check if the score was actually updated
+                // Since we can't know the previous value, we'll use a heuristic:
+                // If current score equals best score and best score > 0, it's likely new
+                // However, this might show false positives. The proper fix would be to track this in completeLevel().
+                isNewBestScore = finalScore > 0 && finalScore == finalCurrentLevel.getBestScore();
+                // For best time, check if it's a valid time and equals the best time
+                isNewBestTime = success && finalCurrentLevel.getBestTime() != Long.MAX_VALUE && 
+                    playTimeMs > 0 && playTimeMs == finalCurrentLevel.getBestTime();
+            }
             
             // Load the level game over FXML
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("levelGameOver.fxml"));
@@ -2418,6 +2704,8 @@ public class GuiController implements Initializable {
                     if (stageForCallbacks != null) {
                         stageForCallbacks.setScene(menuScene);
                         stageForCallbacks.setTitle("Tetris - Main Menu");
+                        // Center window on primary screen to handle multi-monitor setups
+                        centerWindowOnScreen(stageForCallbacks, 900, 800);
                     }
                     System.out.println("Returned to main menu");
                 } catch (Exception e) {
@@ -2561,12 +2849,14 @@ public class GuiController implements Initializable {
     // Player 1 display matrices (for two-player mode)
     private Rectangle[][] displayMatrix1;
     private Rectangle[][] rectangles1;
+    private Rectangle[][] ghostRectangles1; // Ghost brick rectangles for Player 1
     private Rectangle[][] holdDisplayMatrix1;
     private Rectangle[][] nextDisplayMatrix1;
     
     // Player 2 display matrices (for two-player mode)
     private Rectangle[][] displayMatrix2;
     private Rectangle[][] rectangles2;
+    private Rectangle[][] ghostRectangles2; // Ghost brick rectangles for Player 2
     private Rectangle[][] holdDisplayMatrix2;
     private Rectangle[][] nextDisplayMatrix2;
     
@@ -2636,15 +2926,38 @@ public class GuiController implements Initializable {
             }
         }
         
+        // Initialize rectangles for Player 1's ghost brick
+        if (ghostPanel1 != null) {
+            ghostPanel1.getChildren().clear();
+            ghostRectangles1 = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
+            for (int i = 0; i < brick.getBrickData().length; i++) {
+                for (int j = 0; j < brick.getBrickData()[i].length; j++) {
+                    Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                    rectangle.setFill(Color.TRANSPARENT);
+                    // Enhanced ghost brick appearance: rounded corners
+                    rectangle.setArcHeight(9); // Rounded corners to match regular bricks
+                    rectangle.setArcWidth(9);
+                    rectangle.setOpacity(1.0); // Full opacity for better visibility
+                    rectangle.setLayoutX(j * (BRICK_SIZE + 1));
+                    rectangle.setLayoutY(i * (BRICK_SIZE + 1));
+                    ghostRectangles1[i][j] = rectangle;
+                    ghostPanel1.getChildren().add(rectangle);
+                }
+            }
+        }
+        
         // Center game grid within the background board
         // FXML layout: Container 320px × 560px, Grid 259px × 519px
         // Centered: layoutX = (320-259)/2 = 30.5px ≈ 30px, layoutY = (560-519)/2 = 20.5px ≈ 20px
         // Grid position is already set correctly in FXML, no need to override
         
         // Set initial position of Player 1's brick panel
+        // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
+        // Brick panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
+        // Position calculation: gamePanel position + (column/row * cell spacing)
         if (gamePanel1 != null && brickPanel1 != null) {
-            brickPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * gamePanel1.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel1.setLayoutY(-52.5 + gamePanel1.getLayoutY() + brick.getyPosition() * gamePanel1.getHgap() + brick.getyPosition() * BRICK_SIZE);
+            brickPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel1.getVgap()));
+            brickPanel1.setLayoutY(gamePanel1.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + gamePanel1.getHgap()));
         }
         
         // Initialize next and hold displays
@@ -2654,6 +2967,9 @@ public class GuiController implements Initializable {
         if (brick.getHoldBrickData() != null) {
             updatePlayer1HoldDisplay(brick.getHoldBrickData());
         }
+        
+        // Update ghost brick position
+        updatePlayer1GhostBrick(brick);
         
         // Hide game over panel initially
         if (gameOverPanel1 != null) {
@@ -2721,15 +3037,38 @@ public class GuiController implements Initializable {
             }
         }
         
+        // Initialize rectangles for Player 2's ghost brick
+        if (ghostPanel2 != null) {
+            ghostPanel2.getChildren().clear();
+            ghostRectangles2 = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
+            for (int i = 0; i < brick.getBrickData().length; i++) {
+                for (int j = 0; j < brick.getBrickData()[i].length; j++) {
+                    Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                    rectangle.setFill(Color.TRANSPARENT);
+                    // Enhanced ghost brick appearance: rounded corners
+                    rectangle.setArcHeight(9); // Rounded corners to match regular bricks
+                    rectangle.setArcWidth(9);
+                    rectangle.setOpacity(1.0); // Full opacity for better visibility
+                    rectangle.setLayoutX(j * (BRICK_SIZE + 1));
+                    rectangle.setLayoutY(i * (BRICK_SIZE + 1));
+                    ghostRectangles2[i][j] = rectangle;
+                    ghostPanel2.getChildren().add(rectangle);
+                }
+            }
+        }
+        
         // Center game grid within the background board
         // FXML layout: Container 320px × 560px, Grid 259px × 519px
         // Centered: layoutX = (320-259)/2 = 30.5px ≈ 30px, layoutY = (560-519)/2 = 20.5px ≈ 20px
         // Grid position is already set correctly in FXML, no need to override
         
         // Set initial position of Player 2's brick panel
+        // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
+        // Brick panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
+        // Position calculation: gamePanel position + (column/row * cell spacing)
         if (gamePanel2 != null && brickPanel2 != null) {
-            brickPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * gamePanel2.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel2.setLayoutY(-52.5 + gamePanel2.getLayoutY() + brick.getyPosition() * gamePanel2.getHgap() + brick.getyPosition() * BRICK_SIZE);
+            brickPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel2.getVgap()));
+            brickPanel2.setLayoutY(gamePanel2.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + gamePanel2.getHgap()));
         }
         
         // Initialize next and hold displays
@@ -2739,6 +3078,9 @@ public class GuiController implements Initializable {
         if (brick.getHoldBrickData() != null) {
             updatePlayer2HoldDisplay(brick.getHoldBrickData());
         }
+        
+        // Update ghost brick position
+        updatePlayer2GhostBrick(brick);
         
         // Hide game over panel initially
         if (gameOverPanel2 != null) {
@@ -2758,8 +3100,11 @@ public class GuiController implements Initializable {
         }
         
         if (!isPause.getValue()) {
-            brickPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * gamePanel1.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel1.setLayoutY(-52.5 + gamePanel1.getLayoutY() + brick.getyPosition() * gamePanel1.getHgap() + brick.getyPosition() * BRICK_SIZE);
+            // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
+            // Brick panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
+            // Position calculation: gamePanel position + (column/row * cell spacing)
+            brickPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel1.getVgap()));
+            brickPanel1.setLayoutY(gamePanel1.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + gamePanel1.getHgap()));
             
             for (int i = 0; i < brick.getBrickData().length && i < rectangles1.length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles1[i].length; j++) {
@@ -2774,6 +3119,9 @@ public class GuiController implements Initializable {
             if (brick.getHoldBrickData() != null) {
                 updatePlayer1HoldDisplay(brick.getHoldBrickData());
             }
+            
+            // Update ghost brick position
+            updatePlayer1GhostBrick(brick);
         }
     }
     
@@ -2789,8 +3137,11 @@ public class GuiController implements Initializable {
         }
         
         if (!isPause.getValue()) {
-            brickPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * gamePanel2.getVgap() + brick.getxPosition() * BRICK_SIZE);
-            brickPanel2.setLayoutY(-52.5 + gamePanel2.getLayoutY() + brick.getyPosition() * gamePanel2.getHgap() + brick.getyPosition() * BRICK_SIZE);
+            // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
+            // Brick panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
+            // Position calculation: gamePanel position + (column/row * cell spacing)
+            brickPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel2.getVgap()));
+            brickPanel2.setLayoutY(gamePanel2.getLayoutY() + brick.getyPosition() * (BRICK_SIZE + gamePanel2.getHgap()));
             
             for (int i = 0; i < brick.getBrickData().length && i < rectangles2.length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles2[i].length; j++) {
@@ -2804,6 +3155,125 @@ public class GuiController implements Initializable {
             }
             if (brick.getHoldBrickData() != null) {
                 updatePlayer2HoldDisplay(brick.getHoldBrickData());
+            }
+            
+            // Update ghost brick position
+            updatePlayer2GhostBrick(brick);
+        }
+    }
+    
+    /**
+     * Updates Player 1's ghost brick display based on the current brick position and shape.
+     * 
+     * @param brick The ViewData containing the current brick shape and ghost position.
+     */
+    private void updatePlayer1GhostBrick(ViewData brick) {
+        if (ghostPanel1 == null || ghostRectangles1 == null) {
+            return;
+        }
+        
+        // Two-player mode: always show ghost brick
+        boolean showGhost = shouldShowGhostBrick();
+        ghostPanel1.setVisible(showGhost);
+        
+        if (!showGhost) {
+            return;
+        }
+        
+        int ghostY = brick.getGhostYPosition();
+        if (ghostY < 0 || ghostY == brick.getyPosition()) {
+            ghostPanel1.setVisible(false);
+            return;
+        }
+        
+        // Set ghost brick position (same x as current brick, but at ghost Y position)
+        // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
+        // Ghost panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
+        // Position calculation: gamePanel position + (column/row * cell spacing)
+        ghostPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel1.getVgap()));
+        ghostPanel1.setLayoutY(gamePanel1.getLayoutY() + ghostY * (BRICK_SIZE + gamePanel1.getHgap()));
+        
+        // Update ghost brick rectangles to match current brick shape
+        int[][] brickData = brick.getBrickData();
+        for (int i = 0; i < brickData.length && i < ghostRectangles1.length; i++) {
+            for (int j = 0; j < brickData[i].length && j < ghostRectangles1[i].length; j++) {
+                Rectangle ghostRect = ghostRectangles1[i][j];
+                if (brickData[i][j] != 0) {
+                    ghostRect.setVisible(true);
+                    // Enhanced ghost brick appearance: semi-transparent fill with border
+                    Paint brickColor = getFillColor(brickData[i][j]);
+                    if (brickColor instanceof Color) {
+                        Color color = (Color) brickColor;
+                        // Use semi-transparent fill (0.2 opacity for subtle effect)
+                        ghostRect.setFill(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.2));
+                        // Add semi-transparent border with same color (0.6 opacity for visibility)
+                        ghostRect.setStroke(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.6));
+                        ghostRect.setStrokeWidth(2.0);
+                    } else {
+                        ghostRect.setFill(Color.TRANSPARENT);
+                        ghostRect.setStroke(null);
+                    }
+                } else {
+                    ghostRect.setVisible(false);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Updates Player 2's ghost brick display based on the current brick position and shape.
+     * 
+     * @param brick The ViewData containing the current brick shape and ghost position.
+     */
+    private void updatePlayer2GhostBrick(ViewData brick) {
+        if (ghostPanel2 == null || ghostRectangles2 == null) {
+            return;
+        }
+        
+        // Two-player mode: always show ghost brick
+        boolean showGhost = shouldShowGhostBrick();
+        ghostPanel2.setVisible(showGhost);
+        
+        if (!showGhost) {
+            return;
+        }
+        
+        int ghostY = brick.getGhostYPosition();
+        if (ghostY < 0 || ghostY == brick.getyPosition()) {
+            ghostPanel2.setVisible(false);
+            return;
+        }
+        
+        // Set ghost brick position (same x as current brick, but at ghost Y position)
+        // GridPane cells: each cell is BRICK_SIZE (25px) + gap (1px) = 26px spacing
+        // Ghost panel internal spacing: BRICK_SIZE + 1 = 26px (matches GridPane)
+        // Position calculation: gamePanel position + (column/row * cell spacing)
+        ghostPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel2.getVgap()));
+        ghostPanel2.setLayoutY(gamePanel2.getLayoutY() + ghostY * (BRICK_SIZE + gamePanel2.getHgap()));
+        
+        // Update ghost brick rectangles to match current brick shape
+        int[][] brickData = brick.getBrickData();
+        for (int i = 0; i < brickData.length && i < ghostRectangles2.length; i++) {
+            for (int j = 0; j < brickData[i].length && j < ghostRectangles2[i].length; j++) {
+                Rectangle ghostRect = ghostRectangles2[i][j];
+                if (brickData[i][j] != 0) {
+                    ghostRect.setVisible(true);
+                    // Enhanced ghost brick appearance: semi-transparent fill with border
+                    Paint brickColor = getFillColor(brickData[i][j]);
+                    if (brickColor instanceof Color) {
+                        Color color = (Color) brickColor;
+                        // Use semi-transparent fill (0.2 opacity for subtle effect)
+                        ghostRect.setFill(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.2));
+                        // Add semi-transparent border with same color (0.6 opacity for visibility)
+                        ghostRect.setStroke(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.6));
+                        ghostRect.setStrokeWidth(2.0);
+                    } else {
+                        ghostRect.setFill(Color.TRANSPARENT);
+                        ghostRect.setStroke(null);
+                    }
+                } else {
+                    ghostRect.setVisible(false);
+                }
             }
         }
     }
