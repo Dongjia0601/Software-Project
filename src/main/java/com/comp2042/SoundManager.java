@@ -17,8 +17,9 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SoundManager {
     private static SoundManager instance;
     private boolean soundEnabled = true;
-    private double volume = 0.5;
-    private double musicVolume = 0.3; // Background music volume (lower than SFX)
+    private double masterVolume = 1.0; // Master volume (affects all audio)
+    private double sfxVolume = 0.8; // Sound effects volume (before master)
+    private double musicVolume = 0.5; // Background music volume (before master)
     
     // Cache for loaded media files
     private Map<String, Media> mediaCache = new HashMap<>();
@@ -99,7 +100,8 @@ public class SoundManager {
     private void playSoundOnFxThread(Media media) {
         try {
             MediaPlayer player = new MediaPlayer(media);
-            player.setVolume(volume);
+            // Apply master volume and SFX volume: final volume = masterVolume * sfxVolume
+            player.setVolume(masterVolume * sfxVolume);
             
             // Auto-dispose player when finished to prevent memory leaks
             player.setOnEndOfMedia(() -> {
@@ -296,7 +298,8 @@ public class SoundManager {
             
             try {
                 backgroundMusicPlayer = new MediaPlayer(media);
-                backgroundMusicPlayer.setVolume(musicVolume);
+                // Apply master volume and music volume: final volume = masterVolume * musicVolume
+                backgroundMusicPlayer.setVolume(masterVolume * musicVolume);
                 backgroundMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop indefinitely
                 
                 // Handle errors
@@ -343,7 +346,8 @@ public class SoundManager {
         
         try {
             backgroundMusicPlayer = new MediaPlayer(media);
-            backgroundMusicPlayer.setVolume(musicVolume);
+            // Apply master volume and music volume: final volume = masterVolume * musicVolume
+            backgroundMusicPlayer.setVolume(masterVolume * musicVolume);
             backgroundMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop indefinitely
             
             // Handle errors
@@ -418,42 +422,83 @@ public class SoundManager {
     }
     
     /**
-     * Sets the volume level for sound effects.
+     * Sets the master volume level (affects all audio).
      * 
-     * @param volume volume level (0.0 to 1.0)
+     * @param masterVolume master volume level (0.0 to 1.0)
      */
-    public void setVolume(double volume) {
-        this.volume = Math.max(0.0, Math.min(1.0, volume));
+    public void setMasterVolume(double masterVolume) {
+        this.masterVolume = Math.max(0.0, Math.min(1.0, masterVolume));
+        // Update background music volume immediately
+        if (backgroundMusicPlayer != null) {
+            backgroundMusicPlayer.setVolume(this.masterVolume * this.musicVolume);
+        }
     }
     
     /**
-     * Gets the volume level for sound effects.
+     * Gets the master volume level.
      * 
-     * @return volume level (0.0 to 1.0)
+     * @return master volume level (0.0 to 1.0)
      */
-    public double getVolume() {
-        return volume;
+    public double getMasterVolume() {
+        return masterVolume;
     }
     
     /**
-     * Sets the volume level for background music.
+     * Sets the volume level for sound effects (before master volume).
+     * 
+     * @param sfxVolume sound effects volume level (0.0 to 1.0)
+     */
+    public void setSfxVolume(double sfxVolume) {
+        this.sfxVolume = Math.max(0.0, Math.min(1.0, sfxVolume));
+    }
+    
+    /**
+     * Gets the volume level for sound effects (before master volume).
+     * 
+     * @return sound effects volume level (0.0 to 1.0)
+     */
+    public double getSfxVolume() {
+        return sfxVolume;
+    }
+    
+    /**
+     * Sets the volume level for background music (before master volume).
      * 
      * @param musicVolume music volume level (0.0 to 1.0)
      */
     public void setMusicVolume(double musicVolume) {
         this.musicVolume = Math.max(0.0, Math.min(1.0, musicVolume));
+        // Update background music volume immediately
         if (backgroundMusicPlayer != null) {
-            backgroundMusicPlayer.setVolume(this.musicVolume);
+            backgroundMusicPlayer.setVolume(this.masterVolume * this.musicVolume);
         }
     }
     
     /**
-     * Gets the volume level for background music.
+     * Gets the volume level for background music (before master volume).
      * 
      * @return music volume level (0.0 to 1.0)
      */
     public double getMusicVolume() {
         return musicVolume;
+    }
+    
+    /**
+     * Sets all volume levels at once from GameSettings.
+     * This is the recommended way to update volumes from settings.
+     * 
+     * @param masterVolume master volume level (0.0 to 1.0)
+     * @param musicVolume music volume level (0.0 to 1.0)
+     * @param sfxVolume sound effects volume level (0.0 to 1.0)
+     */
+    public void setVolumes(double masterVolume, double musicVolume, double sfxVolume) {
+        this.masterVolume = Math.max(0.0, Math.min(1.0, masterVolume));
+        this.musicVolume = Math.max(0.0, Math.min(1.0, musicVolume));
+        this.sfxVolume = Math.max(0.0, Math.min(1.0, sfxVolume));
+        // Update background music volume immediately
+        if (backgroundMusicPlayer != null) {
+            backgroundMusicPlayer.setVolume(this.masterVolume * this.musicVolume);
+        }
     }
 }
 

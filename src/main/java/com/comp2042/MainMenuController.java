@@ -93,6 +93,15 @@ public class MainMenuController {
         // CRITICAL FIX: Disable Space key for all buttons to prevent accidental activation
         disableSpaceKeyForButtons();
         
+        // Load volume settings from GameSettings and apply to SoundManager
+        com.comp2042.config.GameSettings settings = com.comp2042.config.GameSettings.getInstance();
+        SoundManager soundManager = SoundManager.getInstance();
+        soundManager.setVolumes(
+            settings.getMasterVolume(),
+            settings.getMusicVolume(),
+            settings.getSfxVolume()
+        );
+        
         // Start playing background music when main menu loads
         SoundManager.getInstance().playBackgroundMusic();
     }
@@ -763,9 +772,19 @@ public class MainMenuController {
             // Close button
             javafx.scene.control.Button closeButton = new javafx.scene.control.Button("Close");
             closeButton.setStyle("-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;");
-            closeButton.setOnAction(e -> helpStage.close());
+            closeButton.setOnAction(e -> {
+                // Play button click sound
+                SoundManager.getInstance().playButtonClickSound();
+                helpStage.close();
+            });
             // Prevent initial focus from jumping to the bottom button
             closeButton.setFocusTraversable(false);
+            
+            // Also handle the window's X (close) button
+            helpStage.setOnCloseRequest(e -> {
+                // Play button click sound
+                SoundManager.getInstance().playButtonClickSound();
+            });
             
             // Create HBox for right-aligned close button
             javafx.scene.layout.HBox buttonContainer = new javafx.scene.layout.HBox();

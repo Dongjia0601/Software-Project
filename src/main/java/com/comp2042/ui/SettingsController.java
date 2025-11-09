@@ -157,6 +157,7 @@ public class SettingsController {
     
     /**
      * Sets up a volume slider with value change listener.
+     * Updates SoundManager in real-time as user drags the slider.
      * 
      * @param slider the slider to setup
      * @param label the label to update with percentage
@@ -167,7 +168,18 @@ public class SettingsController {
         label.setText(String.format("%.0f%%", initialValue));
         
         slider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            double value = newVal.doubleValue() / 100.0;
             label.setText(String.format("%.0f%%", newVal.doubleValue()));
+            
+            // Update SoundManager in real-time
+            SoundManager soundManager = SoundManager.getInstance();
+            if (slider == masterVolumeSlider) {
+                soundManager.setMasterVolume(value);
+            } else if (slider == musicVolumeSlider) {
+                soundManager.setMusicVolume(value);
+            } else if (slider == sfxVolumeSlider) {
+                soundManager.setSfxVolume(value);
+            }
         });
     }
     
@@ -336,6 +348,14 @@ public class SettingsController {
             }
         }
 
+        // Apply volumes to SoundManager immediately
+        SoundManager soundManager = SoundManager.getInstance();
+        soundManager.setVolumes(
+            settings.getMasterVolume(),
+            settings.getMusicVolume(),
+            settings.getSfxVolume()
+        );
+        
         // Persist settings (volumes and possibly randomizer)
         boolean success = settings.saveSettings();
         
@@ -377,6 +397,14 @@ public class SettingsController {
         masterVolumeSlider.setValue(settings.getMasterVolume() * 100);
         musicVolumeSlider.setValue(settings.getMusicVolume() * 100);
         sfxVolumeSlider.setValue(settings.getSfxVolume() * 100);
+        
+        // Apply reset volumes to SoundManager immediately
+        SoundManager soundManager = SoundManager.getInstance();
+        soundManager.setVolumes(
+            settings.getMasterVolume(),
+            settings.getMusicVolume(),
+            settings.getSfxVolume()
+        );
 
         // If current piece system is pure_random, ask user before forcing 7-bag reset
         if ("pure_random".equalsIgnoreCase(currentRandomizer)) {

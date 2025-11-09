@@ -684,12 +684,14 @@ public class LevelSelectionController {
         confirmDialog.setHeaderText("Are you sure?");
         confirmDialog.setContentText("This will reset all level progress and stars. This cannot be undone.");
         
-        // Add button click sound for dialog buttons
-        confirmDialog.getDialogPane().getButtonTypes().forEach(buttonType -> {
-            javafx.scene.Node button = confirmDialog.getDialogPane().lookupButton(buttonType);
-            if (button != null) {
-                button.setOnMouseClicked(e -> SoundManager.getInstance().playButtonClickSound());
-            }
+        // Add button click sound for dialog buttons after dialog is shown
+        confirmDialog.setOnShown(e -> {
+            confirmDialog.getDialogPane().getButtonTypes().forEach(buttonType -> {
+                javafx.scene.Node button = confirmDialog.getDialogPane().lookupButton(buttonType);
+                if (button != null) {
+                    button.setOnMouseClicked(event -> SoundManager.getInstance().playButtonClickSound());
+                }
+            });
         });
         
         Optional<ButtonType> result = confirmDialog.showAndWait();
@@ -729,12 +731,14 @@ public class LevelSelectionController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         
-        // Add button click sound for dialog buttons
-        alert.getDialogPane().getButtonTypes().forEach(buttonType -> {
-            javafx.scene.Node button = alert.getDialogPane().lookupButton(buttonType);
-            if (button != null) {
-                button.setOnMouseClicked(e -> SoundManager.getInstance().playButtonClickSound());
-            }
+        // Add button click sound for dialog buttons after dialog is shown
+        alert.setOnShown(e -> {
+            alert.getDialogPane().getButtonTypes().forEach(buttonType -> {
+                javafx.scene.Node button = alert.getDialogPane().lookupButton(buttonType);
+                if (button != null) {
+                    button.setOnMouseClicked(event -> SoundManager.getInstance().playButtonClickSound());
+                }
+            });
         });
         
         alert.showAndWait();
@@ -750,12 +754,14 @@ public class LevelSelectionController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         
-        // Add button click sound for dialog buttons
-        alert.getDialogPane().getButtonTypes().forEach(buttonType -> {
-            javafx.scene.Node button = alert.getDialogPane().lookupButton(buttonType);
-            if (button != null) {
-                button.setOnMouseClicked(e -> SoundManager.getInstance().playButtonClickSound());
-            }
+        // Add button click sound for dialog buttons after dialog is shown
+        alert.setOnShown(e -> {
+            alert.getDialogPane().getButtonTypes().forEach(buttonType -> {
+                javafx.scene.Node button = alert.getDialogPane().lookupButton(buttonType);
+                if (button != null) {
+                    button.setOnMouseClicked(event -> SoundManager.getInstance().playButtonClickSound());
+                }
+            });
         });
         
         alert.showAndWait();

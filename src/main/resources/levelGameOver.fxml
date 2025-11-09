@@ -135,7 +135,7 @@
                         onAction="#onNextLevel"/>
 
                 <Button fx:id="backToSelectionButton" 
-                        text=" 🕓 BACK TO SELECTION" 
+                        text=" 🔒 BACK TO SELECTION" 
                         styleClass="action-button selection-btn"
                         mnemonicParsing="false"
                         onAction="#onBackToSelection"/>

@@ -1523,13 +1523,13 @@ public class GuiController implements Initializable {
         if (isMuted) {
             // Unmute: restore previous volume
             settings.setMasterVolume(previousVolume);
-            muteButton.setText("Mute");
+            muteButton.setText("MUTE");
             System.out.println("Audio unmuted - Master Volume: " + (int)(previousVolume * 100) + "%");
         } else {
             // Mute: save current volume and set to 0%
             previousVolume = settings.getMasterVolume();
             settings.setMasterVolume(0.0);
-            muteButton.setText("Unmute");
+            muteButton.setText("UNMUTE");
             System.out.println("Audio muted - Master Volume: 0%");
         }
         
@@ -2188,6 +2188,8 @@ public class GuiController implements Initializable {
             Button closeButton = new Button("Close");
             closeButton.setStyle("-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;");
             closeButton.setOnAction(e -> {
+                // Play button click sound
+                SoundManager.getInstance().playButtonClickSound();
                 helpStage.close();
                 // Restart countdown from beginning if it was running
                 if (wasCountdownRunning && savedCountdownCallback != null) {
@@ -2204,6 +2206,8 @@ public class GuiController implements Initializable {
 
             // Also handle the window's X (close) button to resume if needed
             helpStage.setOnCloseRequest(e -> {
+                // Play button click sound
+                SoundManager.getInstance().playButtonClickSound();
                 // Restart countdown from beginning if it was running
                 if (wasCountdownRunning && savedCountdownCallback != null) {
                     // Ensure game is not paused before restarting countdown
