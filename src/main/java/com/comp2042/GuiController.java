@@ -37,6 +37,7 @@ import javafx.stage.Stage;
 import javafx.stage.Modality;
 import javafx.geometry.Pos;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.Parent;
@@ -3518,7 +3519,8 @@ public class GuiController implements Initializable {
     }
     
     /**
-     * Shows an attack animation on the specified player's board.
+     * Shows an enhanced attack animation on the specified player's board.
+     * Includes shockwave, screen shake, and flash effects.
      * 
      * @param player the player number (1 or 2)
      * @param attackPower the number of lines being attacked
@@ -3528,42 +3530,170 @@ public class GuiController implements Initializable {
             return;
         }
         
-        // Find the player's game board area
+        // Find the player's game board container
+        Pane boardBackground = (player == 1) ? boardBackground1 : boardBackground2;
         Pane playerBoard = (player == 1) ? gamePanel1 : gamePanel2;
-        if (playerBoard == null) {
+        if (boardBackground == null || playerBoard == null) {
             return;
         }
         
-        // Create attack effect overlay
-        Rectangle attackOverlay = new Rectangle();
-        attackOverlay.setWidth(playerBoard.getWidth());
-        attackOverlay.setHeight(playerBoard.getHeight());
-        attackOverlay.setFill(player == 1 ? 
-            javafx.scene.paint.Color.rgb(255, 107, 107, 0.3) : 
-            javafx.scene.paint.Color.rgb(78, 205, 196, 0.3));
-        attackOverlay.setMouseTransparent(true);
+        // Calculate animation intensity based on attack power
+        double intensity = Math.min(attackPower / 4.0, 1.0); // Max intensity at 4+ lines
+        long duration = (long)(300 + intensity * 200); // 300-500ms based on power
         
-        // Add overlay to player board
-        if (playerBoard instanceof StackPane) {
-            StackPane stackPane = (StackPane) playerBoard;
-            stackPane.getChildren().add(attackOverlay);
-        } else {
-            ((Pane) playerBoard.getParent()).getChildren().add(attackOverlay);
+        // Get board container (parent of boardBackground)
+        Pane boardContainer = (Pane) boardBackground.getParent();
+        if (boardContainer == null) {
+            return;
         }
         
-        // Fade out animation
+        // 1. Screen shake effect
+        double shakeAmount = 3 + intensity * 5; // 3-8 pixels based on intensity
+        double originalX = boardContainer.getLayoutX();
+        double originalY = boardContainer.getLayoutY();
+        
+        javafx.animation.Timeline shakeTimeline = new javafx.animation.Timeline();
+        int shakeCount = 8;
+        for (int i = 0; i < shakeCount; i++) {
+            double offsetX = (Math.random() - 0.5) * shakeAmount * 2;
+            double offsetY = (Math.random() - 0.5) * shakeAmount * 2;
+            javafx.animation.KeyFrame keyFrame = new javafx.animation.KeyFrame(
+                Duration.millis(i * duration / shakeCount),
+                e -> {
+                    boardContainer.setLayoutX(originalX + offsetX);
+                    boardContainer.setLayoutY(originalY + offsetY);
+                }
+            );
+            shakeTimeline.getKeyFrames().add(keyFrame);
+        }
+        // Return to original position
+        javafx.animation.KeyFrame returnFrame = new javafx.animation.KeyFrame(
+            Duration.millis(duration),
+            e -> {
+                boardContainer.setLayoutX(originalX);
+                boardContainer.setLayoutY(originalY);
+            }
+        );
+        shakeTimeline.getKeyFrames().add(returnFrame);
+        shakeTimeline.play();
+        
+        // 2. Flash overlay effect
+        Rectangle flashOverlay = new Rectangle();
+        flashOverlay.setWidth(boardBackground.getWidth());
+        flashOverlay.setHeight(boardBackground.getHeight());
+        flashOverlay.setFill(player == 1 ? 
+            javafx.scene.paint.Color.rgb(255, 107, 107, 0.4 + intensity * 0.3) : 
+            javafx.scene.paint.Color.rgb(78, 205, 196, 0.4 + intensity * 0.3));
+        flashOverlay.setMouseTransparent(true);
+        flashOverlay.setLayoutX(boardBackground.getLayoutX());
+        flashOverlay.setLayoutY(boardBackground.getLayoutY());
+        
+        boardContainer.getChildren().add(flashOverlay);
+        
+        // Flash animation with multiple pulses
+        javafx.animation.SequentialTransition flashSequence = new javafx.animation.SequentialTransition();
+        
+        // First strong flash
+        javafx.animation.FadeTransition flash1 = new javafx.animation.FadeTransition(
+            Duration.millis(duration / 3), flashOverlay);
+        flash1.setFromValue(0.7 + intensity * 0.3);
+        flash1.setToValue(0.2);
+        
+        // Second pulse
+        javafx.animation.FadeTransition flash2 = new javafx.animation.FadeTransition(
+            Duration.millis(duration / 3), flashOverlay);
+        flash2.setFromValue(0.3);
+        flash2.setToValue(0.1);
+        
+        // Fade out
         javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(
-            Duration.millis(500), attackOverlay);
-        fadeOut.setFromValue(0.5);
+            Duration.millis(duration / 3), flashOverlay);
+        fadeOut.setFromValue(0.1);
         fadeOut.setToValue(0.0);
         fadeOut.setOnFinished(e -> {
-            if (playerBoard instanceof StackPane) {
-                ((StackPane) playerBoard).getChildren().remove(attackOverlay);
-            } else if (playerBoard.getParent() instanceof Pane) {
-                ((Pane) playerBoard.getParent()).getChildren().remove(attackOverlay);
-            }
+            boardContainer.getChildren().remove(flashOverlay);
         });
-        fadeOut.play();
+        
+        flashSequence.getChildren().addAll(flash1, flash2, fadeOut);
+        flashSequence.play();
+        
+        // 3. Shockwave effect (circular ripple from center)
+        Circle shockwave = new Circle();
+        double centerX = boardBackground.getWidth() / 2 + boardBackground.getLayoutX();
+        double centerY = boardBackground.getHeight() / 2 + boardBackground.getLayoutY();
+        shockwave.setCenterX(centerX);
+        shockwave.setCenterY(centerY);
+        shockwave.setRadius(10);
+        shockwave.setFill(javafx.scene.paint.Color.TRANSPARENT);
+        shockwave.setStroke(player == 1 ? 
+            javafx.scene.paint.Color.rgb(255, 107, 107, 0.8) : 
+            javafx.scene.paint.Color.rgb(78, 205, 196, 0.8));
+        shockwave.setStrokeWidth(3 + intensity * 2);
+        shockwave.setMouseTransparent(true);
+        
+        boardContainer.getChildren().add(shockwave);
+        
+        // Shockwave expansion animation
+        double maxRadius = Math.max(boardBackground.getWidth(), boardBackground.getHeight()) * 0.7;
+        javafx.animation.ScaleTransition shockwaveExpand = new javafx.animation.ScaleTransition(
+            Duration.millis(duration), shockwave);
+        shockwaveExpand.setFromX(1.0);
+        shockwaveExpand.setFromY(1.0);
+        shockwaveExpand.setToX(maxRadius / 10.0);
+        shockwaveExpand.setToY(maxRadius / 10.0);
+        
+        javafx.animation.FadeTransition shockwaveFade = new javafx.animation.FadeTransition(
+            Duration.millis(duration), shockwave);
+        shockwaveFade.setFromValue(0.8);
+        shockwaveFade.setToValue(0.0);
+        
+        javafx.animation.ParallelTransition shockwaveAnimation = new javafx.animation.ParallelTransition(
+            shockwaveExpand, shockwaveFade);
+        shockwaveAnimation.setOnFinished(e -> {
+            boardContainer.getChildren().remove(shockwave);
+        });
+        shockwaveAnimation.play();
+        
+        // 4. Particle effect (small circles radiating outward)
+        if (attackPower >= 2) {
+            int particleCount = (int)(5 + intensity * 10); // 5-15 particles
+            for (int i = 0; i < particleCount; i++) {
+                Circle particle = new Circle(2 + Math.random() * 3);
+                particle.setCenterX(centerX);
+                particle.setCenterY(centerY);
+                particle.setFill(player == 1 ? 
+                    javafx.scene.paint.Color.rgb(255, 107, 107, 0.9) : 
+                    javafx.scene.paint.Color.rgb(78, 205, 196, 0.9));
+                particle.setMouseTransparent(true);
+                
+                boardContainer.getChildren().add(particle);
+                
+                // Random direction and distance
+                double angle = Math.random() * 2 * Math.PI;
+                double distance = 30 + Math.random() * 50;
+                double endX = centerX + Math.cos(angle) * distance;
+                double endY = centerY + Math.sin(angle) * distance;
+                
+                javafx.animation.TranslateTransition particleMove = new javafx.animation.TranslateTransition(
+                    Duration.millis(duration), particle);
+                particleMove.setFromX(0);
+                particleMove.setFromY(0);
+                particleMove.setToX(endX - centerX);
+                particleMove.setToY(endY - centerY);
+                
+                javafx.animation.FadeTransition particleFade = new javafx.animation.FadeTransition(
+                    Duration.millis(duration), particle);
+                particleFade.setFromValue(0.9);
+                particleFade.setToValue(0.0);
+                
+                javafx.animation.ParallelTransition particleAnimation = new javafx.animation.ParallelTransition(
+                    particleMove, particleFade);
+                particleAnimation.setOnFinished(e -> {
+                    boardContainer.getChildren().remove(particle);
+                });
+                particleAnimation.play();
+            }
+        }
     }
     
     /**

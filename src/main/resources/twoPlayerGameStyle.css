@@ -144,10 +144,6 @@
     -fx-background-color: linear-gradient(to bottom, #851ee5, #4B0082), rgba(10, 14, 39, 0.96);
     -fx-background-insets: 0,10; /* Creates 10px purple border */
     -fx-background-radius: 16, 8;
-    /* Add border as backup for visibility */
-    -fx-border-color: rgba(138, 43, 226, 0.8);
-    -fx-border-width: 6px;
-    -fx-border-radius: 16px;
 }
 
 /* Game Grid */
