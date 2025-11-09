@@ -96,8 +96,8 @@
 
 /* Individual grid cells - visible borders for Tetris grid */
 .game-cell {
-    -fx-border-color: rgba(138, 43, 226, 0.25);  /* Brighter border */
-    -fx-border-width: 0.5px;
+    -fx-border-color: rgba(138, 43, 226, 0.7);  /* Brighter border - increased opacity from 0.5 to 0.7 for better visibility */
+    -fx-border-width: 0.75px;  /* Slightly thicker for better visibility */
 }
 
 /* Hold and Next Display Areas - Border color will be set dynamically by theme */
