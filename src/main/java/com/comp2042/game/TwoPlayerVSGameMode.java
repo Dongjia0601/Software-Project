@@ -360,9 +360,7 @@ public class TwoPlayerVSGameMode implements GameMode {
      * @return the appropriate game service, or null if event source is unknown
      */
     private GameService getTargetService(MoveEvent event) {
-        // For now, we'll use a simple approach based on event source
-        // In a more sophisticated implementation, this could be based on
-        // keyboard layout, controller assignment, or other input mapping
+        // Determines target service based on event source
         EventSource source = event.getEventSource();
         
         // Simple mapping: assume player 1 uses default source, player 2 uses alternative

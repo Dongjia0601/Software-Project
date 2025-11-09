@@ -120,8 +120,7 @@ public class BrickFactory {
      * @return A new Brick instance with the specified color.
      */
     public static Brick createColoredBrick(String brickType, int colorValue) {
-        // For now, return a standard brick
-        // This method can be enhanced to support colored bricks
+        // Returns a standard brick; color customization can be added in the future
         return createBrick(brickType);
     }
 }

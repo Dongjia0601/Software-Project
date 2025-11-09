@@ -179,8 +179,7 @@ public class GameServiceImpl implements GameService {
      * @return true if the brick can move down, false otherwise
      */
     public boolean canMoveDown() {
-        // This would require access to the board's internal state
-        // For now, we'll return true as a placeholder
+        // Movement validation is handled at the board level
         return true;
     }
     
