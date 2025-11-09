@@ -218,18 +218,26 @@ public class LevelMode {
      * @param score the score achieved
      * @param stars the number of stars earned
      * @param timeMillis the completion time in milliseconds
+     * @return an array of two booleans: [isNewBestScore, isNewBestTime]
      */
-    public void updateBest(int score, int stars, long timeMillis) {
+    public boolean[] updateBest(int score, int stars, long timeMillis) {
+        boolean isNewBestScore = false;
+        boolean isNewBestTime = false;
+        
         if (stars > this.bestStars) {
             this.bestStars = stars;
         }
         if (score > this.bestScore) {
             this.bestScore = score;
+            isNewBestScore = true;
         }
         // Update best time only if it's faster (smaller) and valid
         if (timeMillis < this.bestTime && timeMillis > 0) {
             this.bestTime = timeMillis;
+            isNewBestTime = true;
         }
+        
+        return new boolean[]{isNewBestScore, isNewBestTime};
     }
 
     /**

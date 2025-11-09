@@ -194,20 +194,21 @@ public class LevelManager {
      * @param linesCleared the number of lines cleared
      * @param completionTimeMillis the completion time in milliseconds
      * @param success whether the level was completed successfully
+     * @return an array of two booleans: [isNewBestScore, isNewBestTime]
      */
-    public void completeLevel(int levelId, int score, int linesCleared,
+    public boolean[] completeLevel(int levelId, int score, int linesCleared,
                               long completionTimeMillis, boolean success) {
         LevelMode level = getLevel(levelId);
         if (level == null) {
-            return;
+            return new boolean[]{false, false};
         }
 
         int completionTimeSeconds = (int) (completionTimeMillis / 1000);
         // Calculate stars based on level's own logic
         int stars = level.calculateStars(score, linesCleared, completionTimeSeconds, success);
 
-        // Update the level's best performance
-        level.updateBest(score, stars, completionTimeMillis);
+        // Update the level's best performance and get whether new records were set
+        boolean[] newRecords = level.updateBest(score, stars, completionTimeMillis);
 
         // Unlock next level if earned at least 1 star
         if (stars > 0) {
@@ -228,6 +229,8 @@ public class LevelManager {
                 "  Best Stars: %d, Best Score: %d",
                 level.getBestStars(), level.getBestScore()
         ));
+        
+        return newRecords;
     }
 
 
