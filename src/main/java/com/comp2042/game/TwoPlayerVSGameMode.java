@@ -220,6 +220,8 @@ public class TwoPlayerVSGameMode implements GameMode {
                 boolean isPlayer1 = (targetService == player1Service);
                 PlayerStats stats = isPlayer1 ? player1Stats : player2Stats;
                 stats.recordSoftDrop();
+                // Play soft drop sound effect
+                com.comp2042.SoundManager.getInstance().playSoftDropSound();
             }
             
             // Track hard drops
@@ -227,6 +229,8 @@ public class TwoPlayerVSGameMode implements GameMode {
                 boolean isPlayer1 = (targetService == player1Service);
                 PlayerStats stats = isPlayer1 ? player1Stats : player2Stats;
                 stats.recordHardDrop();
+                // Play hard drop sound effect
+                com.comp2042.SoundManager.getInstance().playHardDropSound();
             }
         }
         
@@ -249,7 +253,12 @@ public class TwoPlayerVSGameMode implements GameMode {
             return null;
         }
         
-        return targetService.processLeftEvent(event);
+        ViewData result = targetService.processLeftEvent(event);
+        if (result != null) {
+            // Play move sound effect
+            com.comp2042.SoundManager.getInstance().playMoveSound();
+        }
+        return result;
     }
 
     @Override
@@ -263,7 +272,12 @@ public class TwoPlayerVSGameMode implements GameMode {
             return null;
         }
         
-        return targetService.processRightEvent(event);
+        ViewData result = targetService.processRightEvent(event);
+        if (result != null) {
+            // Play move sound effect
+            com.comp2042.SoundManager.getInstance().playMoveSound();
+        }
+        return result;
     }
 
     @Override
@@ -277,7 +291,12 @@ public class TwoPlayerVSGameMode implements GameMode {
             return null;
         }
         
-        return targetService.processRotateEvent(event);
+        ViewData result = targetService.processRotateEvent(event);
+        if (result != null) {
+            // Play rotate sound effect
+            com.comp2042.SoundManager.getInstance().playRotateSound();
+        }
+        return result;
     }
 
     @Override
@@ -512,6 +531,9 @@ public class TwoPlayerVSGameMode implements GameMode {
         GameService targetService = (targetPlayer == 1) ? player1Service : player2Service;
         Board targetBoard = targetService.getBoard();
         
+        // Play warning garbage sound before attack
+        com.comp2042.SoundManager.getInstance().playWarningGarbageSound();
+        
         // Play attack received sound
         com.comp2042.SoundManager.getInstance().playAttackReceivedSound();
         
@@ -519,6 +541,10 @@ public class TwoPlayerVSGameMode implements GameMode {
         // Each garbage line has one random hole
         for (int i = 0; i < attackPower; i++) {
             addGarbageLine(targetBoard, i == 0); // Animate first line
+            // Play garbage lines sound for each line added
+            if (i == 0) {
+                com.comp2042.SoundManager.getInstance().playGarbageLinesSound();
+            }
         }
         
         System.out.println("Attack sent: " + attackPower + " lines to Player " + targetPlayer);

@@ -56,6 +56,8 @@ public class PlayingState implements GameState {
                 // Update score display immediately for hard drop with current high score
                 int currentHighScore = getCurrentHighScore();
                 guiController.updateScore(board.getScore().getScore(), currentHighScore);
+                // Play hard drop sound effect
+                SoundManager.getInstance().playHardDropSound();
             }
             canMove = false; // Hard drop always lands the brick
         } else {
@@ -67,6 +69,8 @@ public class PlayingState implements GameState {
             board.mergeBrickToBackground();
             clearRow = board.clearRows();
             if (clearRow.getLinesRemoved() > 0) {
+                // Play line clear sound effect
+                SoundManager.getInstance().playLineClearSound();
               
                 // Update lines display in GUI
                 // Endless Mode updates lines in GuiController.moveDown() using endlessLinesClearedUI
@@ -137,6 +141,8 @@ public class PlayingState implements GameState {
                 // Update score display immediately for soft drop with current high score
                 int currentHighScore = getCurrentHighScore();
                 guiController.updateScore(board.getScore().getScore(), currentHighScore);
+                // Play soft drop sound effect
+                SoundManager.getInstance().playSoftDropSound();
             }
         }
         return new DownData(clearRow, board.getViewData());
@@ -149,7 +155,11 @@ public class PlayingState implements GameState {
      * @return ViewData containing the updated brick position and shape.
      */
     public ViewData onLeftEvent(MoveEvent event) {
-        board.moveBrickLeft();
+        boolean success = board.moveBrickLeft();
+        if (success) {
+            // Play move sound effect
+            SoundManager.getInstance().playMoveSound();
+        }
         return board.getViewData();
     }
 
@@ -160,7 +170,11 @@ public class PlayingState implements GameState {
      * @return ViewData containing the updated brick position and shape.
      */
     public ViewData onRightEvent(MoveEvent event) {
-        board.moveBrickRight();
+        boolean success = board.moveBrickRight();
+        if (success) {
+            // Play move sound effect
+            SoundManager.getInstance().playMoveSound();
+        }
         return board.getViewData();
     }
 
@@ -171,7 +185,11 @@ public class PlayingState implements GameState {
      * @return ViewData containing the updated brick position and shape.
      */
     public ViewData onRotateEvent(MoveEvent event) {
-        board.rotateLeftBrick();
+        boolean success = board.rotateLeftBrick();
+        if (success) {
+            // Play rotate sound effect
+            SoundManager.getInstance().playRotateSound();
+        }
         return board.getViewData();
     }
 
@@ -182,7 +200,11 @@ public class PlayingState implements GameState {
      * @return ViewData containing the updated brick position and shape.
      */
     public ViewData onRotateCCWEvent(MoveEvent event) {
-        board.rotateRightBrick();
+        boolean success = board.rotateRightBrick();
+        if (success) {
+            // Play rotate sound effect
+            SoundManager.getInstance().playRotateSound();
+        }
         return board.getViewData();
     }
 
@@ -203,6 +225,7 @@ public class PlayingState implements GameState {
      */
     public GameState handleNewGameRequest() {
         board.newGame();
+
         guiController.refreshGameBackground(board.getBoardMatrix());
         // Update lines display - different for Endless vs Level Mode
         if (guiController.isEndlessMode()) {

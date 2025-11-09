@@ -73,6 +73,8 @@ public class GameController implements InputEventListener {
     public void requestPause() {
         GameState newState = currentState.handlePauseRequest();
         if (newState != currentState) {
+            // Play pause/resume sound effect
+            SoundManager.getInstance().playPauseResumeSound();
             this.currentState = newState;
         }
     }
@@ -181,6 +183,10 @@ public class GameController implements InputEventListener {
     public ViewData onHoldEvent(MoveEvent event) {
         // Delegate to board
         boolean success = board.holdBrick();
+        if (success) {
+            // Play hold sound effect
+            SoundManager.getInstance().playHoldSound();
+        }
         return success ? board.getViewData() : null;
     }
 
