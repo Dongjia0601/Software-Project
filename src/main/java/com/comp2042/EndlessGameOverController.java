@@ -115,7 +115,7 @@ public class EndlessGameOverController implements Initializable {
         
         try {
             // Load the game over background image
-            Image bgImage = new Image(getClass().getClassLoader().getResourceAsStream("GameOver_bg.jpg"));
+            Image bgImage = new Image(getClass().getClassLoader().getResourceAsStream("images/backgrounds/GameOver_bg.jpg"));
             
             // Window dimensions
             double windowWidth = 900.0;

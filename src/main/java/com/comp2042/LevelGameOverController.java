@@ -171,7 +171,7 @@ public class LevelGameOverController implements Initializable {
     private void setGameOverBackground() {
         try {
             javafx.scene.image.Image bgImage = new javafx.scene.image.Image(
-                getClass().getClassLoader().getResourceAsStream("GameOver_bg.jpg")
+                getClass().getClassLoader().getResourceAsStream("images/backgrounds/GameOver_bg.jpg")
             );
             if (bgImage != null) {
                 javafx.scene.image.ImageView bgImageView = new javafx.scene.image.ImageView(bgImage);

@@ -13,7 +13,7 @@ public class MagicCastleTheme implements LevelTheme {
 
     private static final String THEME_ID = "magic_castle";
     private static final String THEME_NAME = "Magic Castle";
-    private static final String BACKGROUND_IMAGE = "/magic_castle_bg.jpg";
+    private static final String BACKGROUND_IMAGE = "/images/backgrounds/magic_castle_bg.jpg";
     private static final String BACKGROUND_MUSIC = "/themes/magic_castle_music.mp3";
     private static final String PRIMARY_COLOR = "#4169E1"; // Royal Blue
     private static final String SECONDARY_COLOR = "#8A2BE2"; // Blue Violet

@@ -13,7 +13,7 @@ public class FutureWarfareTheme implements LevelTheme {
 
     private static final String THEME_ID = "future_warfare";
     private static final String THEME_NAME = "Future Warfare";
-    private static final String BACKGROUND_IMAGE = "/Future_War_bg.jpg";
+    private static final String BACKGROUND_IMAGE = "/images/backgrounds/Future_War_bg.jpg";
     private static final String BACKGROUND_MUSIC = "/themes/future_warfare_music.mp3";
     private static final String PRIMARY_COLOR = "#00FFFF"; // Cyan
     private static final String ACCENT_COLOR = "#00FF00"; // Lime

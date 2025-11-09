@@ -180,7 +180,7 @@ public class MainMenuController {
     private void setCenteredBackground() {
         try {
             // Load the background image
-            Image bgImage = new Image(getClass().getClassLoader().getResourceAsStream("main_menu_bg1.jpg"));
+            Image bgImage = new Image(getClass().getClassLoader().getResourceAsStream("images/backgrounds/main_menu_bg1.jpg"));
             
             // Window dimensions
             double windowWidth = 900.0;

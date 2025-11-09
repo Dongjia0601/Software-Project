@@ -864,8 +864,8 @@ public class GuiController implements Initializable {
         }
         
         eventListener.onNewGameEvent(new MoveEvent(EventType.NEW_GAME, EventSource.USER));
-            gamePanel.requestFocus();
-        }
+        gamePanel.requestFocus();
+        
         // Restart timeline after state transition (assuming PlayingState starts the game loop)
         if (timeLine != null) {
             timeLine.play(); // Restart automatic movement
