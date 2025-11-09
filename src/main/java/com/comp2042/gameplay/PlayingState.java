@@ -101,7 +101,7 @@ public class PlayingState implements GameState {
                             }
                             
                             // Complete the level in LevelManager to update best stats and unlock next level
-                            levelManager.completeLevel(
+                            boolean[] newRecords = levelManager.completeLevel(
                                 currentLevel.getLevelId(),
                                 board.getScore().getScore(),
                                 linesClearedInLevel,
@@ -111,7 +111,7 @@ public class PlayingState implements GameState {
                             
                             // Then trigger game over to show completion screen
                             System.out.println("Level Mode: Target lines reached! Showing completion screen...");
-                            guiController.showLevelGameOverScene(board);
+                            guiController.showLevelGameOverScene(board, newRecords);
                             return new DownData(clearRow, board.getViewData());
                         }
                     }
@@ -125,7 +125,8 @@ public class PlayingState implements GameState {
                     guiController.showEndlessGameOverScene(board);
                 } else if (guiController.isLevelMode()) {
                     System.out.println("Showing Level Game Over UI...");
-                    guiController.showLevelGameOverScene(board);
+                    // Level failed, no new records
+                    guiController.showLevelGameOverScene(board, new boolean[]{false, false});
                 } else {
                     System.out.println("Showing regular Game Over UI...");
                     guiController.gameOver(); // Notify GUI
