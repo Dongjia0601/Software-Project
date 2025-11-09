@@ -684,13 +684,37 @@ public class LevelSelectionController {
         confirmDialog.setHeaderText("Are you sure?");
         confirmDialog.setContentText("This will reset all level progress and stars. This cannot be undone.");
         
-        // Add button click sound for dialog buttons after dialog is shown
-        confirmDialog.setOnShown(e -> {
-            confirmDialog.getDialogPane().getButtonTypes().forEach(buttonType -> {
-                javafx.scene.Node button = confirmDialog.getDialogPane().lookupButton(buttonType);
-                if (button != null) {
-                    button.setOnMouseClicked(event -> SoundManager.getInstance().playButtonClickSound());
+        // Force dialog pane creation by getting it
+        javafx.scene.control.DialogPane dialogPane = confirmDialog.getDialogPane();
+        
+        // Add button click sound for dialog buttons using event filter on dialog pane
+        // This approach works more reliably than setOnMouseClicked
+        dialogPane.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
+            javafx.scene.Node target = (javafx.scene.Node) event.getTarget();
+            // Check if the clicked node is a button in the dialog
+            if (target instanceof javafx.scene.control.Button) {
+                javafx.scene.control.Button button = (javafx.scene.control.Button) target;
+                // Check if this button is one of the dialog buttons
+                for (ButtonType buttonType : dialogPane.getButtonTypes()) {
+                    if (dialogPane.lookupButton(buttonType) == button) {
+                        SoundManager.getInstance().playButtonClickSound();
+                        break;
+                    }
                 }
+            }
+        });
+        
+        // Also try the direct approach when dialog is shown
+        confirmDialog.setOnShown(e -> {
+            javafx.application.Platform.runLater(() -> {
+                dialogPane.getButtonTypes().forEach(buttonType -> {
+                    javafx.scene.Node button = dialogPane.lookupButton(buttonType);
+                    if (button != null && button instanceof javafx.scene.control.Button) {
+                        ((javafx.scene.control.Button) button).setOnAction(actionEvent -> {
+                            SoundManager.getInstance().playButtonClickSound();
+                        });
+                    }
+                });
             });
         });
         
@@ -702,8 +726,6 @@ public class LevelSelectionController {
             levelGrid.getChildren().clear();
             populateLevelGrid();
             updateStats();
-            
-            showInfo("Progress reset successfully!");
         }
     }
     
