@@ -9,6 +9,7 @@ public final class ViewData {
     private final int[][] brickData; // The shape matrix of the currently falling brick
     private final int xPosition;     // The x-coordinate (column) of the currently falling brick
     private final int yPosition;     // The y-coordinate (row) of the currently falling brick
+    private final int ghostYPosition; // The y-coordinate (row) where the ghost brick would land (-1 if not calculated)
     private final int[][] nextBrickData; // The shape matrix of the next brick to be generated
     private final int[][] holdBrickData; // The shape matrix of the held brick (null if no brick is held)
 
@@ -18,20 +19,22 @@ public final class ViewData {
      * @param brickData      The shape matrix of the current brick.
      * @param xPosition      The x-coordinate of the current brick.
      * @param yPosition      The y-coordinate of the current brick.
+     * @param ghostYPosition The y-coordinate where the ghost brick would land (-1 if not calculated).
      * @param nextBrickData  The shape matrix of the next brick.
      * @param holdBrickData  The shape matrix of the held brick (null if no brick is held).
      */
-    public ViewData(int[][] brickData, int xPosition, int yPosition, int[][] nextBrickData, int[][] holdBrickData) {
+    public ViewData(int[][] brickData, int xPosition, int yPosition, int ghostYPosition, int[][] nextBrickData, int[][] holdBrickData) {
         this.brickData = brickData;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
+        this.ghostYPosition = ghostYPosition;
         this.nextBrickData = nextBrickData;
         this.holdBrickData = holdBrickData;
     }
 
     /**
      * Constructs a ViewData object with the specified data (backward compatibility).
-     * Hold brick data will be set to null.
+     * Hold brick data will be set to null, ghost position will be set to -1.
      *
      * @param brickData      The shape matrix of the current brick.
      * @param xPosition      The x-coordinate of the current brick.
@@ -39,7 +42,7 @@ public final class ViewData {
      * @param nextBrickData  The shape matrix of the next brick.
      */
     public ViewData(int[][] brickData, int xPosition, int yPosition, int[][] nextBrickData) {
-        this(brickData, xPosition, yPosition, nextBrickData, null);
+        this(brickData, xPosition, yPosition, -1, nextBrickData, null);
     }
 
     /**
@@ -68,6 +71,15 @@ public final class ViewData {
      */
     public int getyPosition() {
         return yPosition;
+    }
+    
+    /**
+     * Gets the y-coordinate (row) where the ghost brick would land.
+     *
+     * @return The ghost brick y-coordinate, or -1 if not calculated.
+     */
+    public int getGhostYPosition() {
+        return ghostYPosition;
     }
 
     /**
@@ -100,6 +112,7 @@ public final class ViewData {
         return "ViewData{" +
                 "xPosition=" + xPosition +
                 ", yPosition=" + yPosition +
+                ", ghostYPosition=" + ghostYPosition +
                 ", hasBrickData=" + (brickData != null) +
                 ", hasNextBrickData=" + (nextBrickData != null) +
                 ", hasHoldBrickData=" + (holdBrickData != null) +
@@ -120,6 +133,7 @@ public final class ViewData {
         ViewData viewData = (ViewData) obj;
         return xPosition == viewData.xPosition &&
                yPosition == viewData.yPosition &&
+               ghostYPosition == viewData.ghostYPosition &&
                java.util.Arrays.deepEquals(brickData, viewData.brickData) &&
                java.util.Arrays.deepEquals(nextBrickData, viewData.nextBrickData) &&
                java.util.Arrays.deepEquals(holdBrickData, viewData.holdBrickData);
@@ -134,6 +148,7 @@ public final class ViewData {
     public int hashCode() {
         int result = xPosition;
         result = 31 * result + yPosition;
+        result = 31 * result + ghostYPosition;
         result = 31 * result + java.util.Arrays.deepHashCode(brickData);
         result = 31 * result + java.util.Arrays.deepHashCode(nextBrickData);
         result = 31 * result + java.util.Arrays.deepHashCode(holdBrickData);

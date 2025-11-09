@@ -130,4 +130,13 @@ public interface Board {
      * @return the held brick, or null if no brick is held
      */
     Brick getHeldBrick();
+    
+    /**
+     * Calculates the ghost brick position (where the brick would land if dropped straight down).
+     * The ghost brick has the same shape and x-position as the current brick, but with the y-position
+     * adjusted to show where it would land.
+     * 
+     * @return the y-coordinate (row) where the ghost brick would land, or -1 if calculation fails
+     */
+    int getGhostBrickY();
 }

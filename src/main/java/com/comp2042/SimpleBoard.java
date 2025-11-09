@@ -260,7 +260,10 @@ public class SimpleBoard implements Board {
             holdBrickShape = heldBrick.getShapeMatrix().get(0);
         }
         
-        return new ViewData(brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY(), nextBrickShape, holdBrickShape);
+        // Calculate ghost brick Y position
+        int ghostY = getGhostBrickY();
+        
+        return new ViewData(brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY(), ghostY, nextBrickShape, holdBrickShape);
     }
 
     @Override
@@ -431,5 +434,47 @@ public class SimpleBoard implements Board {
         heldBrick = null; // Clear held brick
         canHold = true;   // Re-enable hold
         createNewBrick(); // Start the game by creating the first brick
+    }
+    
+    @Override
+    /**
+     * Calculates the ghost brick position (where the brick would land if dropped straight down).
+     * The ghost brick has the same shape and x-position as the current brick, but with the y-position
+     * adjusted to show where it would land.
+     * 
+     * @return the y-coordinate (row) where the ghost brick would land, or -1 if calculation fails
+     */
+    public int getGhostBrickY() {
+        if (currentOffset == null || brickRotator.getCurrentShape() == null) {
+            return -1; // No brick to calculate ghost position for
+        }
+        
+        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
+        int currentX = (int) currentOffset.getX();
+        int currentY = (int) currentOffset.getY();
+        int[][] currentShape = brickRotator.getCurrentShape();
+        
+        int ghostY = currentY;
+        
+        // Start from current position and move down until we hit a collision
+        while (true) {
+            // Check if moving down one more position would cause a collision
+            int testY = ghostY + 1;
+            
+            // Check for collision with other bricks or out of bounds
+            boolean conflict = MatrixOperations.intersect(currentMatrix, currentShape, currentX, testY);
+            if (conflict) {
+                break; // Hit another brick or out of bounds
+            }
+            
+            ghostY = testY; // Move down one position
+        }
+        
+        // Only return ghost position if it's different from current position
+        if (ghostY == currentY) {
+            return -1; // Ghost position same as current, no need to show
+        }
+        
+        return ghostY;
     }
 }
