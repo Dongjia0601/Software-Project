@@ -27,10 +27,13 @@ public class SoundManager {
     // Background music player
     private MediaPlayer backgroundMusicPlayer;
     
+    // Countdown sound player (to prevent duplicate playback)
+    private MediaPlayer countdownSoundPlayer;
+    private boolean isCountdownSoundPlaying = false;
+    
     // Throttling for move sound (prevent too frequent playback)
     private AtomicLong lastMoveSoundTime = new AtomicLong(0);
-    private static final long MOVE_SOUND_THROTTLE_MS = 120; 
-    
+    private static final long MOVE_SOUND_THROTTLE_MS = 120;
     private SoundManager() {
         // Initialize sound manager
     }
@@ -179,10 +182,87 @@ public class SoundManager {
     
     /**
      * Plays a game start countdown sound.
+     * Uses a dedicated MediaPlayer to prevent duplicate playback.
      */
     public void playCountdownSound() {
-        // Using ClickButtonSFX for countdown sound
-        playSound("audio/ClickButtonSFX.mp3");
+        if (!soundEnabled) return;
+        
+        // Stop and dispose previous countdown sound if still playing
+        if (countdownSoundPlayer != null) {
+            countdownSoundPlayer.stop();
+            countdownSoundPlayer.dispose();
+            countdownSoundPlayer = null;
+        }
+        
+        // Reset flag when stopping previous sound
+        isCountdownSoundPlaying = false;
+        
+        Media media = loadMedia("audio/RaceCountdownSFX.mp3");
+        if (media == null) return;
+        
+        // Set flag to prevent duplicate calls
+        isCountdownSoundPlaying = true;
+        
+        // Check if we're already on JavaFX thread
+        if (Platform.isFxApplicationThread()) {
+            playCountdownSoundOnFxThread(media);
+        } else {
+            Platform.runLater(() -> playCountdownSoundOnFxThread(media));
+        }
+    }
+    
+    /**
+     * Plays countdown sound on the JavaFX application thread.
+     * This method should only be called from the JavaFX thread.
+     * 
+     * @param media the Media object to play
+     */
+    private void playCountdownSoundOnFxThread(Media media) {
+        try {
+            countdownSoundPlayer = new MediaPlayer(media);
+            countdownSoundPlayer.setVolume(masterVolume * sfxVolume);
+            
+            // Auto-dispose player when finished
+            countdownSoundPlayer.setOnEndOfMedia(() -> {
+                if (countdownSoundPlayer != null) {
+                    countdownSoundPlayer.dispose();
+                    countdownSoundPlayer = null;
+                }
+                isCountdownSoundPlaying = false;
+            });
+            
+            // Handle errors
+            countdownSoundPlayer.setOnError(() -> {
+                System.err.println("Countdown sound error: " + countdownSoundPlayer.getError());
+                if (countdownSoundPlayer != null) {
+                    countdownSoundPlayer.dispose();
+                    countdownSoundPlayer = null;
+                }
+                isCountdownSoundPlaying = false;
+            });
+            
+            countdownSoundPlayer.play();
+        } catch (Exception e) {
+            System.err.println("Failed to play countdown sound: " + e.getMessage());
+            if (countdownSoundPlayer != null) {
+                countdownSoundPlayer.dispose();
+                countdownSoundPlayer = null;
+            }
+            isCountdownSoundPlaying = false;
+        }
+    }
+    
+    /**
+     * Stops the countdown sound if it's currently playing.
+     * Called when countdown ends to prevent sound from continuing into gameplay.
+     */
+    public void stopCountdownSound() {
+        if (countdownSoundPlayer != null) {
+            countdownSoundPlayer.stop();
+            countdownSoundPlayer.dispose();
+            countdownSoundPlayer = null;
+        }
+        isCountdownSoundPlaying = false;
     }
     
     /**

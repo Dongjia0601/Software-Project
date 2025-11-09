@@ -672,6 +672,8 @@ public class GuiController implements Initializable {
         if (countdownTimeline != null) {
             countdownTimeline.stop();
             countdownTimeline = null;
+            // Stop countdown sound when countdown is stopped
+            com.comp2042.SoundManager.getInstance().stopCountdownSound();
         }
         
         gameOverPanel.setVisible(true);
@@ -930,6 +932,16 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Sets the pause state directly without triggering pause logic.
+     * Used when restoring countdown state.
+     * 
+     * @param paused whether the game should be paused
+     */
+    public void setPauseStateDirectly(boolean paused) {
+        isPause.setValue(paused);
+    }
+    
     /**
      * Resumes the game by restarting the timeline if it exists.
      * This method is called when returning from settings to ensure the game continues.
@@ -1760,6 +1772,30 @@ public class GuiController implements Initializable {
             
             Stage stage = (Stage) currentGameScene.getWindow();
             
+            // Stop countdown if running (will restart from beginning when Settings closes)
+            // Save callback before stopping to ensure we can restart countdown correctly
+            final boolean wasCountdownRunning = (countdownTimeline != null && countdownTimeline.getStatus() == Animation.Status.RUNNING);
+            final Runnable savedCountdownCallback;
+            if (wasCountdownRunning && countdownTimeline != null) {
+                // Save callback before stopping
+                savedCountdownCallback = countdownCallback;
+                countdownTimeline.stop();
+                countdownTimeline = null;
+                // Stop countdown sound when countdown is stopped
+                com.comp2042.SoundManager.getInstance().stopCountdownSound();
+                // Remove overlays
+                if (countdownOverlay1 != null && countdownParent1 != null) {
+                    countdownParent1.getChildren().remove(countdownOverlay1);
+                    countdownOverlay1 = null;
+                }
+                if (countdownOverlay2 != null && countdownParent2 != null) {
+                    countdownParent2.getChildren().remove(countdownOverlay2);
+                    countdownOverlay2 = null;
+                }
+            } else {
+                savedCountdownCallback = null;
+            }
+            
             // Ensure the game is paused while settings are open
             boolean wasGamePaused = isPause.getValue();
             if (!wasGamePaused) {
@@ -1786,8 +1822,8 @@ public class GuiController implements Initializable {
             com.comp2042.ui.SettingsController settingsController = settingsLoader.getController();
             settingsController.setStage(stage);
             settingsController.setSavedGameScene(currentGameScene); // Pass current game scene
-            // Pass whether it was already paused before opening settings
-            settingsController.setGameController(this, wasGamePaused);
+            // Pass whether it was already paused before opening settings, and countdown state
+            settingsController.setGameController(this, wasGamePaused, wasCountdownRunning, savedCountdownCallback);
             
             // Set up keyboard handling to prevent space key conflicts
             settingsController.setupKeyboardHandling(settingsScene);
@@ -1826,6 +1862,8 @@ public class GuiController implements Initializable {
                 savedCountdownCallback = countdownCallback;
                 countdownTimeline.stop();
                 countdownTimeline = null;
+                // Stop countdown sound when countdown is stopped
+                com.comp2042.SoundManager.getInstance().stopCountdownSound();
                 // Remove overlays
                 if (countdownOverlay1 != null && countdownParent1 != null) {
                     countdownParent1.getChildren().remove(countdownOverlay1);
@@ -2316,6 +2354,8 @@ public class GuiController implements Initializable {
         if (countdownTimeline != null) {
             countdownTimeline.stop();
             countdownTimeline = null;
+            // Stop countdown sound when countdown is stopped
+            com.comp2042.SoundManager.getInstance().stopCountdownSound();
         }
         
         // Clear countdown overlays
@@ -3804,6 +3844,8 @@ public class GuiController implements Initializable {
         if (countdownTimeline != null) {
             countdownTimeline.stop();
             countdownTimeline = null;
+            // Stop countdown sound when countdown is stopped
+            com.comp2042.SoundManager.getInstance().stopCountdownSound();
         }
         
         // Stop game timelines during countdown (to prevent blocks from falling)
@@ -3912,6 +3954,16 @@ public class GuiController implements Initializable {
         
         // Countdown animation
         countdownTimeline = new Timeline();
+        
+        // Play countdown sound once at the start (4-second audio)
+        KeyFrame soundFrame = new KeyFrame(
+            Duration.millis(0),
+            e -> {
+                com.comp2042.SoundManager.getInstance().playCountdownSound();
+            }
+        );
+        countdownTimeline.getKeyFrames().add(soundFrame);
+        
         for (int i = 3; i >= 1; i--) {
             final int count = i;
             KeyFrame keyFrame = new KeyFrame(
@@ -3919,19 +3971,27 @@ public class GuiController implements Initializable {
                 e -> {
                     countdownLabel1.setText(String.valueOf(count));
                     countdownLabel2.setText(String.valueOf(count));
-                    // Play countdown sound
-                    com.comp2042.SoundManager.getInstance().playCountdownSound();
                 }
             );
             countdownTimeline.getKeyFrames().add(keyFrame);
         }
         
-        // Final keyframe to hide overlays and start game
+        // Show "Start!" at 3000ms
+        KeyFrame startFrame = new KeyFrame(
+            Duration.millis(3000),
+            e -> {
+                countdownLabel1.setText("Start!");
+                countdownLabel2.setText("Start!");
+            }
+        );
+        countdownTimeline.getKeyFrames().add(startFrame);
+        
+        // Final keyframe to hide overlays and start game (at 4000ms to allow audio to finish)
         final Pane finalParent1 = countdownParent1;
         final Pane finalParent2 = countdownParent2;
         
         KeyFrame finalFrame = new KeyFrame(
-            Duration.millis(3000),
+            Duration.millis(4000),
             e -> {
                 if (finalParent1 != null && finalParent1.getChildren().contains(overlay1)) {
                     finalParent1.getChildren().remove(overlay1);

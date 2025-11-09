@@ -76,6 +76,9 @@ public class TwoPlayerGameController implements InputEventListener {
      * Starts the game after countdown.
      */
     private void startGame() {
+        // Stop countdown sound before starting game (in case it's still playing)
+        com.comp2042.SoundManager.getInstance().stopCountdownSound();
+        
         // Initialize the game mode
         gameMode.initialize();
         

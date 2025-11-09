@@ -69,7 +69,9 @@ public class SettingsController {
     private Stage stage;
     private Scene savedGameScene; // Saved game scene for returning to game
     private com.comp2042.GuiController guiController; // Reference to GUI controller for resuming game
-    private boolean wasGamePausedBeforeSettings; // Track if game was already paused 
+    private boolean wasGamePausedBeforeSettings; // Track if game was already paused
+    private boolean wasCountdownRunningBeforeSettings; // Track if countdown was running before opening settings
+    private Runnable savedCountdownCallback; // Saved countdown callback to restart countdown 
 
     // Gameplay: piece randomizer
     @FXML
@@ -284,11 +286,15 @@ public class SettingsController {
      * 
      * @param guiController the GUI controller managing the game
      * @param wasAlreadyPaused whether the game was paused before opening settings
+     * @param wasCountdownRunning whether the countdown was running before opening settings
+     * @param countdownCallback the countdown callback to restart countdown if it was running
      */
-    public void setGameController(com.comp2042.GuiController guiController, boolean wasAlreadyPaused) {
+    public void setGameController(com.comp2042.GuiController guiController, boolean wasAlreadyPaused, 
+                                  boolean wasCountdownRunning, Runnable countdownCallback) {
         this.guiController = guiController;
         this.wasGamePausedBeforeSettings = wasAlreadyPaused;
-        
+        this.wasCountdownRunningBeforeSettings = wasCountdownRunning;
+        this.savedCountdownCallback = countdownCallback;
     }
     
     /**
@@ -479,10 +485,15 @@ public class SettingsController {
             stage.setScene(savedGameScene);
             stage.setTitle("TETRIS - Game");
             
-            // CRITICAL FIX: Resume game automatically if it wasn't paused before settings
-            if (guiController != null && !wasGamePausedBeforeSettings) {
+            // Restart countdown from beginning if it was running
+            if (guiController != null && wasCountdownRunningBeforeSettings && savedCountdownCallback != null) {
+                // Ensure game is not paused before restarting countdown
+                guiController.setPauseStateDirectly(false);
+                // Restart countdown from beginning
+                guiController.showCountdown(savedCountdownCallback);
+            } else if (guiController != null && !wasGamePausedBeforeSettings) {
+                // CRITICAL FIX: Resume game automatically if it wasn't paused before settings
                 guiController.resumeFromOverlay(); // Toggle state and resume
-            } else {
             }
         }
     }
