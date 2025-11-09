@@ -256,7 +256,7 @@ public class GuiController implements Initializable {
             gameOverPanel2.setVisible(false);
         }
         
-        // Apply visual effects - using DropShadow instead of deprecated Reflection
+        // Apply visual effects
         final DropShadow dropShadow = new DropShadow();
         dropShadow.setRadius(8.0);
         dropShadow.setOffsetX(0.0);
@@ -863,8 +863,7 @@ public class GuiController implements Initializable {
             }
         }
         
-        eventListener.createNewGame(); // Delegate to state/controller
-        if (gamePanel != null) {
+        eventListener.onNewGameEvent(new MoveEvent(EventType.NEW_GAME, EventSource.USER));
             gamePanel.requestFocus();
         }
         // Restart timeline after state transition (assuming PlayingState starts the game loop)
@@ -938,7 +937,6 @@ public class GuiController implements Initializable {
     public void resumeGame() {
         if (timeLine != null && !isGameOver.getValue()) {
             timeLine.play();
-            System.out.println("Game timeline resumed");
         }
         if (timeTimer != null && !isGameOver.getValue()) {
             timeTimer.play();
@@ -1084,8 +1082,6 @@ public class GuiController implements Initializable {
             highScoreLabel.setVisible(false);
             highScoreLabel.setManaged(false);
         }
-        
-        System.out.println("Level mode UI enabled (left panel)");
     }
     
     /**
@@ -1526,7 +1522,6 @@ public class GuiController implements Initializable {
             // Apply to SoundManager immediately - this will restore all audio
             soundManager.setMasterVolume(previousVolume);
             muteButton.setText("MUTE");
-            System.out.println("Audio unmuted - Master Volume: " + (int)(previousVolume * 100) + "%");
         } else {
             // Mute: save current volume and set to 0%
             previousVolume = settings.getMasterVolume();
@@ -1534,7 +1529,6 @@ public class GuiController implements Initializable {
             // Apply to SoundManager immediately - this will mute all audio
             soundManager.setMasterVolume(0.0);
             muteButton.setText("UNMUTE");
-            System.out.println("Audio muted - Master Volume: 0%");
         }
         
         isMuted = !isMuted;
@@ -1549,7 +1543,6 @@ public class GuiController implements Initializable {
      */
     public void setGameMode(boolean isTwoPlayer) {
         this.isTwoPlayerMode = isTwoPlayer;
-        System.out.println("Game mode set to: " + (isTwoPlayer ? "Two-Player" : "Single-Player"));
     }
     
     /**
@@ -1563,12 +1556,10 @@ public class GuiController implements Initializable {
                 // Volume is not 0, so we're not muted
                 isMuted = false;
                 muteButton.setText("Mute");
-                System.out.println("Mute button updated: Volume is " + (int)(currentVolume * 100) + "% - showing Mute");
             } else {
                 // Volume is 0, so we're muted
                 isMuted = true;
                 muteButton.setText("Unmute");
-                System.out.println("Mute button updated: Volume is 0% - showing Unmute");
             }
         }
     }
@@ -1750,7 +1741,6 @@ public class GuiController implements Initializable {
     public void showSettings() {
         // Play button click sound
         SoundManager.getInstance().playButtonClickSound();
-        System.out.println("Settings dialog requested from game");
         try {
             // Save current game scene for returning - handle both single-player and two-player modes
             Scene currentGameScene;
@@ -1810,8 +1800,6 @@ public class GuiController implements Initializable {
             // Switch to settings scene
             stage.setScene(settingsScene);
             stage.setTitle("TETRIS - Settings");
-            
-            System.out.println("Settings page loaded successfully from game");
         } catch (Exception e) {
             System.err.println("Error loading settings page: " + e.getMessage());
             e.printStackTrace();
@@ -1825,7 +1813,6 @@ public class GuiController implements Initializable {
     public void showHelp() {
         // Play button click sound
         SoundManager.getInstance().playButtonClickSound();
-        System.out.println("Help dialog requested");
         
         try {
             boolean wasPaused = isPause.getValue();
@@ -2255,7 +2242,6 @@ public class GuiController implements Initializable {
     public void returnToMenu() {
         // Play button click sound
         SoundManager.getInstance().playButtonClickSound();
-        System.out.println("Returning to main menu");
         try {
             // Stop and clean up all timelines and timers
             cleanupAllTimelines();
@@ -2445,7 +2431,6 @@ public class GuiController implements Initializable {
                     }
                     
                     new GameController(gameController);
-                    System.out.println("New Endless Mode game started");
                 } catch (Exception e) {
                     System.err.println("Error starting new Endless Mode: " + e.getMessage());
                     e.printStackTrace();
@@ -2460,7 +2445,6 @@ public class GuiController implements Initializable {
                     
                     // Refresh the leaderboard display by recreating the entries
                     controller.refreshLeaderboard();
-                    System.out.println("Leaderboard cleared successfully");
                 } catch (Exception e) {
                     System.err.println("Error clearing leaderboard: " + e.getMessage());
                     e.printStackTrace();
@@ -2480,7 +2464,6 @@ public class GuiController implements Initializable {
                     } else {
                         System.err.println("Current stage is null, cannot switch to menu scene");
                     }
-                    System.out.println("Returned to main menu");
                 } catch (Exception e) {
                     System.err.println("Error loading main menu: " + e.getMessage());
                 }
@@ -2497,7 +2480,6 @@ public class GuiController implements Initializable {
                 String cssPath = getClass().getClassLoader().getResource("endlessGameOverStyle.css").toExternalForm();
                 if (cssPath != null) {
                     gameOverScene.getStylesheets().add(cssPath);
-                    System.out.println("CSS loaded: " + cssPath);
                 }
             } catch (Exception e) {
                 System.err.println("Error loading CSS: " + e.getMessage());
@@ -2521,8 +2503,6 @@ public class GuiController implements Initializable {
             }
             isGameOver.setValue(true);
             isPause.setValue(false);
-            
-            System.out.println("Endless Game Over scene loaded successfully");
             
         } catch (Exception e) {
             System.err.println("Error loading Endless Game Over scene: " + e.getMessage());
@@ -2680,7 +2660,6 @@ public class GuiController implements Initializable {
                         stageForCallbacks.setScene(levelSelectionScene);
                         stageForCallbacks.setTitle("Tetris - Level Selection");
                     }
-                    System.out.println("Returned to level selection");
                 } catch (Exception e) {
                     System.err.println("Error loading level selection: " + e.getMessage());
                     e.printStackTrace();
@@ -2701,7 +2680,6 @@ public class GuiController implements Initializable {
                         // Center window on primary screen to handle multi-monitor setups
                         centerWindowOnScreen(stageForCallbacks, 900, 800);
                     }
-                    System.out.println("Returned to main menu");
                 } catch (Exception e) {
                     System.err.println("Error loading main menu: " + e.getMessage());
                     e.printStackTrace();
@@ -2721,7 +2699,6 @@ public class GuiController implements Initializable {
                 String cssPath = getClass().getClassLoader().getResource("levelGameOverStyle.css").toExternalForm();
                 if (cssPath != null) {
                     gameOverScene.getStylesheets().add(cssPath);
-                    System.out.println("CSS loaded: " + cssPath);
                 }
             } catch (Exception e) {
                 System.err.println("Error loading CSS: " + e.getMessage());
@@ -2743,8 +2720,6 @@ public class GuiController implements Initializable {
             }
             isGameOver.setValue(true);
             isPause.setValue(false);
-            
-            System.out.println("Level Game Over scene loaded successfully");
             
         } catch (Exception e) {
             System.err.println("Error loading Level Game Over scene: " + e.getMessage());

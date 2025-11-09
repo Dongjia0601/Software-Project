@@ -68,7 +68,6 @@ public class GameServiceImpl implements GameService {
         } else {
             // Soft drop: move down one cell
             canMove = board.moveBrickDown();
-            // Note: Soft drop score is handled at the mode layer (PlayingState, TwoPlayerVSGameMode, etc.)
         }
         ClearRow clearRow = null;
         
@@ -76,8 +75,6 @@ public class GameServiceImpl implements GameService {
             // Brick landed, merge to background and clear rows
             board.mergeBrickToBackground();
             clearRow = board.clearRows();
-            
-            // Note: Score is already added in SimpleBoard.clearRows(), so no need to add it here again
             
             // Create new brick - this returns true if game over (collision at spawn)
             boolean newBrickGameOver = board.createNewBrick();

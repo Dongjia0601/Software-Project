@@ -176,7 +176,6 @@ public class EndlessModeLeaderboard {
         entries.clear();
         
         if (!Files.exists(leaderboardPath)) {
-            System.out.println("No existing leaderboard found. Starting fresh.");
             return;
         }
         
@@ -241,7 +240,6 @@ public class EndlessModeLeaderboard {
                 writer.newLine();
             }
             
-            System.out.println("Saved " + entries.size() + " leaderboard entries.");
             
         } catch (IOException e) {
             System.err.println("Failed to save leaderboard: " + e.getMessage());

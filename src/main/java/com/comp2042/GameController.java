@@ -238,15 +238,4 @@ public class GameController implements InputEventListener {
         System.exit(0);
     }
 
-    @Override
-    /**
-     * Handles the request to start a new game.
-     * Delegates the request to the current GameState instance.
-     * @deprecated Use onNewGameEvent(MoveEvent) instead.
-     */
-    @Deprecated
-    public void createNewGame() {
-        // Delegate to current state
-        this.currentState = currentState.handleNewGameRequest();
-    }
 }

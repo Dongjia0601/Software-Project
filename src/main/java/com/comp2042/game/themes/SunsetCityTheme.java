@@ -3,7 +3,6 @@ package com.comp2042.game.themes;
 import com.comp2042.game.LevelTheme;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,18 +23,10 @@ public class SunsetCityTheme implements LevelTheme {
     private static final String GRADIENT_END_COLOR = "#5D3A3A";
     private static final String TEXT_COLOR = "#FFF8DC";
 
-    private final Map<String, String> soundEffects;
-
     /**
-     * Constructs a SunsetCityTheme instance and initializes its sound effects map.
+     * Constructs a SunsetCityTheme instance.
      */
     public SunsetCityTheme() {
-        Map<String, String> seMap = new HashMap<>();
-        seMap.put("line_clear", "/sounds/city_cheer.wav");
-        seMap.put("block_land", "/sounds/block_place.wav");
-        seMap.put("level_complete", "/sounds/city_celebration.wav");
-        seMap.put("level_fail", "/sounds/city_sigh.wav");
-        this.soundEffects = Collections.unmodifiableMap(seMap);
     }
 
     @Override
@@ -85,21 +76,11 @@ public class SunsetCityTheme implements LevelTheme {
 
     @Override
     public Map<String, String> getSoundEffects() {
-        return soundEffects; // Return unmodifiable map
+        return Collections.emptyMap(); // No theme-specific sound effects
     }
 
     @Override
     public String getTextColor() {
         return TEXT_COLOR;
-    }
-
-    @Override
-    public boolean hasParticleEffects() {
-        return true; // Enable particle effects for this theme
-    }
-
-    @Override
-    public String getParticleConfig() {
-        return "{\"type\":\"confetti\",\"color\":\"multi\",\"density\":\"medium\"}";
     }
 }

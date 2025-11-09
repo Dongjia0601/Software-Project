@@ -177,7 +177,7 @@ public class SimpleBoard implements Board {
      *
      * @return true if the rotation was successful, false if a collision occurred.
      */
-    public boolean rotateLeftBrick() { // Note: Name suggests 'left' rotation, logic is 'next' shape in list
+    public boolean rotateLeftBrick() {
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
         NextShapeInfo nextShape = brickRotator.calculateNextShapeInfo(); // Assuming renamed method
         boolean conflict = MatrixOperations.intersect(currentMatrix, nextShape.getShape(), (int) currentOffset.getX(), (int) currentOffset.getY());

@@ -67,8 +67,6 @@ public class Main extends Application {
         
         primaryStage.show();
         
-        // Log successful initialization
-        System.out.println("Main menu loaded successfully");
     }
 
     /**

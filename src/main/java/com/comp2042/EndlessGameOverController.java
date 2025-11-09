@@ -381,17 +381,6 @@ public class EndlessGameOverController implements Initializable {
         
         pulse.play();
         
-        // Confetti animation (simplified)
-        playConfettiAnimation();
-    }
-    
-    /**
-     * Plays a simple confetti animation.
-     * Note: Your Score card now uses the same style for all ranks (no special animation).
-     */
-    private void playConfettiAnimation() {
-        // Confetti animation removed - Your Score card now uses standard style for all ranks
-        // Title animation is still played to celebrate new high score
     }
     
     /**

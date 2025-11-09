@@ -80,7 +80,6 @@ public class TwoPlayerVSGameMode implements GameMode {
         player1Service.setDropSpeed(400);
         player2Service.setDropSpeed(400);
         
-        System.out.println("TwoPlayerVSGameMode initialized - both players ready");
     }
 
     @Override
@@ -316,7 +315,6 @@ public class TwoPlayerVSGameMode implements GameMode {
         player1Service.startNewGame();
         player2Service.startNewGame();
         
-        System.out.println("TwoPlayerVSGameMode: New game started for both players");
     }
 
     @Override
@@ -328,7 +326,6 @@ public class TwoPlayerVSGameMode implements GameMode {
     public void pause() {
         if (!gameOver) {
             this.paused = true;
-            System.out.println("TwoPlayerVSGameMode: Game paused");
         }
     }
 
@@ -336,7 +333,6 @@ public class TwoPlayerVSGameMode implements GameMode {
     public void resume() {
         if (paused && !gameOver) {
             this.paused = false;
-            System.out.println("TwoPlayerVSGameMode: Game resumed");
         }
     }
 
@@ -416,11 +412,6 @@ public class TwoPlayerVSGameMode implements GameMode {
         
         String winnerText = winner == 0 ? "Tie Game" : 
                            winner == 1 ? "Player 1 Wins!" : "Player 2 Wins!";
-        
-        System.out.println("TwoPlayerVSGameMode: Game ended - " + winnerText + 
-                         ", P1 Score: " + player1Score + 
-                         ", P2 Score: " + player2Score + 
-                         ", Time: " + (playTime / 1000) + "s");
     }
     
     /**
@@ -545,7 +536,6 @@ public class TwoPlayerVSGameMode implements GameMode {
             }
         }
         
-        System.out.println("Attack sent: " + attackPower + " lines to Player " + targetPlayer);
     }
     
     /**

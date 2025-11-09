@@ -191,7 +191,6 @@ public class LevelGameOverController implements Initializable {
                 ));
             }
         } catch (Exception e) {
-            System.out.println("Could not load game over background: " + e.getMessage());
         }
     }
     
@@ -266,7 +265,6 @@ public class LevelGameOverController implements Initializable {
         }
         
         // Update best stats - reload level from manager to get latest data
-        // Note: Level is already completed in GuiController.showLevelGameOverScene, just reload to get latest stats
         if (level != null) {
             LevelMode refreshedLevel = levelManager.getLevel(levelId);
             if (refreshedLevel != null) {

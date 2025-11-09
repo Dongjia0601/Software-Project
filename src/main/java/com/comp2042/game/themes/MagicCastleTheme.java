@@ -3,7 +3,6 @@ package com.comp2042.game.themes;
 import com.comp2042.game.LevelTheme;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,18 +22,10 @@ public class MagicCastleTheme implements LevelTheme {
     private static final String GRADIENT_END_COLOR = "#2d4a7c"; // Dark Blue
     private static final String TEXT_COLOR = "#E6E6FA"; // Lavender
 
-    private final Map<String, String> soundEffects;
-
     /**
-     * Constructs a MagicCastleTheme instance and initializes its sound effects map.
+     * Constructs a MagicCastleTheme instance.
      */
     public MagicCastleTheme() {
-        Map<String, String> seMap = new HashMap<>();
-        seMap.put("line_clear", "/sounds/magic_chime.wav");
-        seMap.put("block_land", "/sounds/crystal_tap.wav");
-        seMap.put("level_complete", "/sounds/magic_success.wav");
-        seMap.put("level_fail", "/sounds/magic_dispel.wav");
-        this.soundEffects = Collections.unmodifiableMap(seMap);
     }
 
     @Override
@@ -84,21 +75,11 @@ public class MagicCastleTheme implements LevelTheme {
 
     @Override
     public Map<String, String> getSoundEffects() {
-        return soundEffects; // Return unmodifiable map
+        return Collections.emptyMap(); // No theme-specific sound effects
     }
 
     @Override
     public String getTextColor() {
         return TEXT_COLOR;
-    }
-
-    @Override
-    public boolean hasParticleEffects() {
-        return true; // Enable particle effects for this theme
-    }
-
-    @Override
-    public String getParticleConfig() {
-        return "{\"type\":\"sparkle\",\"color\":\"#00BFFF\",\"density\":\"medium\"}";
     }
 }

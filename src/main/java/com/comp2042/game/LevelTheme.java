@@ -87,18 +87,4 @@ public interface LevelTheme {
      * @return the text color in CSS format
      */
     String getTextColor();
-
-    /**
-     * Checks if this theme uses particle effects.
-     *
-     * @return true if particle effects are enabled
-     */
-    boolean hasParticleEffects();
-
-    /**
-     * Gets the particle effect configuration JSON.
-     *
-     * @return JSON string with particle configuration, or null if no particles
-     */
-    String getParticleConfig();
 }

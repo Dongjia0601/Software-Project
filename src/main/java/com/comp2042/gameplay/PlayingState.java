@@ -110,7 +110,6 @@ public class PlayingState implements GameState {
                             );
                             
                             // Then trigger game over to show completion screen
-                            System.out.println("Level Mode: Target lines reached! Showing completion screen...");
                             guiController.showLevelGameOverScene(board, newRecords);
                             return new DownData(clearRow, board.getViewData());
                         }
@@ -118,17 +117,13 @@ public class PlayingState implements GameState {
                 }
             }
             if (board.createNewBrick()) { // Check for game over after landing/creating new brick
-                System.out.println("Game Over detected! isEndlessMode: " + guiController.isEndlessMode());
                 // Check if we're in Endless Mode and show appropriate game over screen
                 if (guiController.isEndlessMode()) {
-                    System.out.println("Showing Endless Game Over UI...");
                     guiController.showEndlessGameOverScene(board);
                 } else if (guiController.isLevelMode()) {
-                    System.out.println("Showing Level Game Over UI...");
                     // Level failed, no new records
                     guiController.showLevelGameOverScene(board, new boolean[]{false, false});
                 } else {
-                    System.out.println("Showing regular Game Over UI...");
                     guiController.gameOver(); // Notify GUI
                     gameController.transitionToState(new GameOverState(board, guiController)); // Transition state
                 }

@@ -203,7 +203,6 @@ public class SettingsController {
             saveButton.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
                 if (event.getCode() == javafx.scene.input.KeyCode.SPACE) {
                     event.consume();
-                    System.out.println("Space key intercepted (CAPTURE) for Save button");
                 }
             });
         }
@@ -212,7 +211,6 @@ public class SettingsController {
             resetButton.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
                 if (event.getCode() == javafx.scene.input.KeyCode.SPACE) {
                     event.consume();
-                    System.out.println("Space key intercepted (CAPTURE) for Reset button");
                 }
             });
         }
@@ -221,7 +219,6 @@ public class SettingsController {
             backToGameButton.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
                 if (event.getCode() == javafx.scene.input.KeyCode.SPACE) {
                     event.consume();
-                    System.out.println("Space key intercepted (CAPTURE) for Back to Game button");
                 }
             });
         }
@@ -230,7 +227,6 @@ public class SettingsController {
             backToMenuButton.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
                 if (event.getCode() == javafx.scene.input.KeyCode.SPACE) {
                     event.consume();
-                    System.out.println("Space key intercepted (CAPTURE) for Back to Menu button");
                 }
             });
         }
@@ -247,7 +243,6 @@ public class SettingsController {
         scene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == javafx.scene.input.KeyCode.SPACE) {
                 event.consume();
-                System.out.println("Space key intercepted (CAPTURE) at Scene level - settings");
             }
         });
     }
@@ -294,7 +289,6 @@ public class SettingsController {
         this.guiController = guiController;
         this.wasGamePausedBeforeSettings = wasAlreadyPaused;
         
-        System.out.println("SettingsController: Game controller set (was already paused: " + wasAlreadyPaused + ")");
     }
     
     /**
@@ -488,9 +482,7 @@ public class SettingsController {
             // CRITICAL FIX: Resume game automatically if it wasn't paused before settings
             if (guiController != null && !wasGamePausedBeforeSettings) {
                 guiController.resumeFromOverlay(); // Toggle state and resume
-                System.out.println("Game automatically resumed after settings");
             } else {
-                System.out.println("Returned to game from settings (kept paused)");
             }
         }
     }
@@ -503,8 +495,6 @@ public class SettingsController {
     public void backToMenu() {
         // Play button click sound
         SoundManager.getInstance().playButtonClickSound();
-        System.out.println("========== backToMenu() CLICKED ==========");
-        System.out.println("Stage reference: " + (stage != null ? "VALID" : "NULL"));
         
         if (stage == null) {
             System.err.println("ERROR: Stage is null! Cannot navigate.");
@@ -513,27 +503,22 @@ public class SettingsController {
         }
         
         try {
-            System.out.println("Loading main menu FXML...");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainMenu.fxml"));
             Parent root = loader.load();
-            System.out.println("Main menu FXML loaded successfully");
             
             com.comp2042.MainMenuController menuController = loader.getController();
 
             
             // Create scene with main menu size
             Scene scene = new Scene(root, 900, 800);
-            System.out.println("Scene created: 900x800");
             
             // Apply inline theme
             scene.getRoot().setStyle("-fx-background-color: linear-gradient(to bottom, #0a0e27 0%, #1a1a3e 25%, #2d1b69 50%, #1a1a3e 75%, #0f0c29 100%);");
-            System.out.println("Theme applied");
             
             stage.setScene(scene);
             stage.setTitle("TETRIS - Main Menu");
 
             centerWindowOnScreen(stage, 900, 800);
-            System.out.println("Scene switched to main menu successfully!");
             
         } catch (IOException e) {
             System.err.println("ERROR loading main menu: " + e.getMessage());

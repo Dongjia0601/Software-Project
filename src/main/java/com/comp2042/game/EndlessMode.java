@@ -209,7 +209,6 @@ public class EndlessMode implements GameMode {
         // Start new game in service
         gameService.startNewGame();
         
-        System.out.println("EndlessMode: New game started");
     }
 
     @Override
@@ -221,7 +220,6 @@ public class EndlessMode implements GameMode {
     public void pause() {
         if (!gameOver) {
             this.paused = true;
-            System.out.println("EndlessMode: Game paused");
         }
     }
 
@@ -229,7 +227,6 @@ public class EndlessMode implements GameMode {
     public void resume() {
         if (paused && !gameOver) {
             this.paused = false;
-            System.out.println("EndlessMode: Game resumed");
         }
     }
 
@@ -285,15 +282,6 @@ public class EndlessMode implements GameMode {
             0, // No level reached in endless mode
             false // Endless mode doesn't have "completion" - only game over
         );
-        
-        System.out.println("EndlessMode: Game ended - Score: " + finalScore + 
-                          ", High Score: " + highScore + 
-                          ", Rank: " + (currentRank > 0 ? "#" + currentRank : "Not in Top 5") +
-                          ", Time: " + (playTime / 1000) + "s");
-        
-        // Note: Game over is now handled by PlayingState, not by EndlessMode
-        // This method is kept for compatibility but should not be called in the current architecture
-        System.out.println("EndlessMode.endGame() called - this should not happen in current architecture");
     }
     
     /**

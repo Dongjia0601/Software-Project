@@ -105,12 +105,4 @@ public interface InputEventListener {
      * @param event The MoveEvent containing event type and source.
      */
     void onQuitEvent(MoveEvent event);
-
-    // Legacy method for backward compatibility
-    /**
-     * Handles the request to start a new game.
-     * @deprecated Use onNewGameEvent(MoveEvent) instead.
-     */
-    @Deprecated
-    void createNewGame();
 }

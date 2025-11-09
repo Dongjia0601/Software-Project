@@ -263,7 +263,6 @@ public class MainMenuController {
     private void startEndlessMode() {
         // Play button click sound
         SoundManager.getInstance().playButtonClickSound();
-        System.out.println("Starting Endless Mode...");
         try {
             // Create game service and GUI controller
             GameService gameService = new GameServiceImpl();
@@ -293,7 +292,6 @@ public class MainMenuController {
     private void startLevelMode() {
         // Play button click sound
         SoundManager.getInstance().playButtonClickSound();
-        System.out.println("Opening Level Selection...");
         try {
             // Load level selection scene
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("levelSelection.fxml"));
@@ -325,7 +323,6 @@ public class MainMenuController {
     private void startTwoPlayerMode() {
         // Play button click sound
         SoundManager.getInstance().playButtonClickSound();
-        System.out.println("Starting Two-Player Mode...");
         try {
             // Load the two-player game layout FXML
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("twoPlayerGameLayout.fxml"));
@@ -378,10 +375,8 @@ public class MainMenuController {
                     sceneRoot.requestFocus();
                     sceneRoot.setOnKeyPressed(gc::handleKeyPressEvent);
                 }
-                System.out.println("Keyboard focus set for two-player mode");
             });
             
-            System.out.println("Two-Player Mode scene loaded successfully");
             
         } catch (Exception e) {
             System.err.println("Error starting Two-Player Mode: " + e.getMessage());
@@ -422,7 +417,6 @@ public class MainMenuController {
         // Initialize the game controller
         new GameController(gameController);
         
-        System.out.println("Game scene loaded successfully");
     }
     
     /**
@@ -457,7 +451,6 @@ public class MainMenuController {
             stage.setTitle("TETRIS - Settings");
             centerWindowOnScreen(stage, 900, 800);
             
-            System.out.println("Settings page loaded successfully");
         } catch (IOException e) {
             System.err.println("Error loading settings page: " + e.getMessage());
             e.printStackTrace();
@@ -472,7 +465,6 @@ public class MainMenuController {
     private void showHelp() {
         // Play button click sound
         SoundManager.getInstance().playButtonClickSound();
-        System.out.println("Help dialog requested from main menu");
         
         try {
             // Create help dialog

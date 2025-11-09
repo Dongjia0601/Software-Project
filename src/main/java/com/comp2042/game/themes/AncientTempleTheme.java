@@ -2,7 +2,6 @@ package com.comp2042.game.themes;
 import com.comp2042.game.LevelTheme;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -22,18 +21,10 @@ public class AncientTempleTheme implements LevelTheme {
     private static final String GRADIENT_END_COLOR = "#5D4E37"; // Medium Brown
     private static final String TEXT_COLOR = "#F5E6D3"; // Light Cream
 
-    private final Map<String, String> soundEffects;
-
     /**
-     * Constructs an AncientTempleTheme instance and initializes its sound effects map.
+     * Constructs an AncientTempleTheme instance.
      */
     public AncientTempleTheme() {
-        Map<String, String> seMap = new HashMap<>();
-        seMap.put("line_clear", "/sounds/ancient_stone_break.wav");
-        seMap.put("block_land", "/sounds/stone_thud.wav");
-        seMap.put("level_complete", "/sounds/ancient_gong.wav");
-        seMap.put("level_fail", "/sounds/ancient_rumble.wav");
-        this.soundEffects = Collections.unmodifiableMap(seMap);
     }
 
     @Override
@@ -83,21 +74,11 @@ public class AncientTempleTheme implements LevelTheme {
 
     @Override
     public Map<String, String> getSoundEffects() {
-        return soundEffects; // Return unmodifiable map
+        return Collections.emptyMap();
     }
 
     @Override
     public String getTextColor() {
         return TEXT_COLOR;
-    }
-
-    @Override
-    public boolean hasParticleEffects() {
-        return true; // Enable particle effects for this theme
-    }
-
-    @Override
-    public String getParticleConfig() {
-        return "{\"type\":\"dust\",\"color\":\"#D4AF37\",\"density\":\"low\"}";
     }
 }

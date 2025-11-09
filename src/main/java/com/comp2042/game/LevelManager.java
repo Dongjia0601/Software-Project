@@ -123,8 +123,6 @@ public class LevelManager {
                 3000,   // threeStarScore
                 50      // threeStarTime (50 seconds)
         ));
-
-        System.out.println("LevelManager: Initialized " + levels.size() + " themed levels");
     }
 
 
@@ -217,18 +215,6 @@ public class LevelManager {
 
         // Save progress after completion
         saveProgress();
-
-        System.out.println(String.format(
-                "=== Level Manager: Level %d Completed ===", levelId
-        ));
-        System.out.println(String.format(
-                "  Stars: %d, Score: %d, Time: %ds",
-                stars, score, completionTimeSeconds
-        ));
-        System.out.println(String.format(
-                "  Best Stars: %d, Best Score: %d",
-                level.getBestStars(), level.getBestScore()
-        ));
         
         return newRecords;
     }
@@ -244,7 +230,6 @@ public class LevelManager {
             LevelMode nextLevel = getLevel(currentLevelId + 1);
             if (nextLevel != null && !nextLevel.isUnlocked()) {
                 nextLevel.unlock();
-                System.out.println("Unlocked level " + (currentLevelId + 1));
             }
         }
     }
@@ -324,7 +309,6 @@ public class LevelManager {
         }
 
         saveProgress();
-        System.out.println("Level progress reset - all levels locked except Level 1, all stars and scores cleared");
     }
 
     /**
@@ -348,8 +332,6 @@ public class LevelManager {
             // Clear preferences
             prefs.clear(); // Clear all preferences under this node
             prefs.flush(); // Force write to backing store
-
-            System.out.println("Level progress data cleared from Preferences");
         } catch (Exception e) {
             System.err.println("Failed to clear level progress  " + e.getMessage());
             e.printStackTrace();
@@ -373,7 +355,6 @@ public class LevelManager {
                 prefs.putLong(keyPrefix + "bestTime", level.getBestTime());
             }
             prefs.flush(); // Ensure data is written to persistent storage
-            System.out.println("Level progress saved using Preferences API");
         } catch (Exception e) {
             System.err.println("Failed to save level progress: " + e.getMessage());
             e.printStackTrace();
@@ -409,11 +390,6 @@ public class LevelManager {
                 level.updateBest(bestScore, bestStars, bestTime);
             }
 
-            if (anyProgressFound) {
-                System.out.println("Level progress loaded from Preferences API");
-            } else {
-                System.out.println("No saved progress found, starting fresh");
-            }
         } catch (Exception e) {
             System.err.println("Failed to load level progress: " + e.getMessage());
             // Start fresh on load error

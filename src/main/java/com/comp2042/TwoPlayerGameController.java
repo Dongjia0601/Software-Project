@@ -390,7 +390,6 @@ public class TwoPlayerGameController implements InputEventListener {
     @Override
     public void onQuitEvent(MoveEvent event) {
         // Stop and clear all timelines to prevent memory leaks
-        // Note: player1Service, player2Service, and gameMode are final and cannot be reassigned
         // They will be garbage collected when this controller is no longer referenced
         if (player1Timeline != null) {
             player1Timeline.stop();
@@ -406,11 +405,6 @@ public class TwoPlayerGameController implements InputEventListener {
         }
     }
     
-    @Override
-    @Deprecated
-    public void createNewGame() {
-        onNewGameEvent(new MoveEvent(EventType.NEW_GAME, EventSource.USER));
-    }
     
     /**
      * Updates the appropriate player's view based on the event source.

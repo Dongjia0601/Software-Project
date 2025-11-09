@@ -3,7 +3,6 @@ package com.comp2042.game.themes;
 import com.comp2042.game.LevelTheme;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,18 +22,10 @@ public class InterstellarTheme implements LevelTheme {
     private static final String GRADIENT_END_COLOR = "#1e1e3f"; // Dark Purple
     private static final String TEXT_COLOR = "#B0E0E6"; // Powder Blue
 
-    private final Map<String, String> soundEffects;
-
     /**
-     * Constructs an InterstellarTheme instance and initializes its sound effects map.
+     * Constructs an InterstellarTheme instance.
      */
     public InterstellarTheme() {
-        Map<String, String> seMap = new HashMap<>();
-        seMap.put("line_clear", "/sounds/cosmic_burst.wav");
-        seMap.put("block_land", "/sounds/space_thud.wav");
-        seMap.put("level_complete", "/sounds/space_triumph.wav");
-        seMap.put("level_fail", "/sounds/void_echo.wav");
-        this.soundEffects = Collections.unmodifiableMap(seMap);
     }
 
     @Override
@@ -84,21 +75,11 @@ public class InterstellarTheme implements LevelTheme {
 
     @Override
     public Map<String, String> getSoundEffects() {
-        return soundEffects; // Return unmodifiable map
+        return Collections.emptyMap();
     }
 
     @Override
     public String getTextColor() {
         return TEXT_COLOR;
-    }
-
-    @Override
-    public boolean hasParticleEffects() {
-        return true; // Enable particle effects for this theme
-    }
-
-    @Override
-    public String getParticleConfig() {
-        return "{\"type\":\"stars\",\"color\":\"#FFFFFF\",\"density\":\"high\"}";
     }
 }

@@ -89,10 +89,6 @@ public class GameSettings {
         File settingsFile = getSettingsFile();
         try (FileOutputStream out = new FileOutputStream(settingsFile)) {
             props.store(out, "Tetris Game Settings");
-            System.out.println("Settings saved to file: " + settingsFile.getAbsolutePath());
-            System.out.println("Master volume: " + masterVolume);
-            System.out.println("Music volume: " + musicVolume);
-            System.out.println("SFX volume: " + sfxVolume);
             return true;
         } catch (IOException e) {
             System.err.println("Failed to save settings: " + e.getMessage());
@@ -107,7 +103,6 @@ public class GameSettings {
     public boolean loadSettings() {
         File file = getSettingsFile();
         if (!file.exists()) {
-            System.out.println("Settings file not found, using defaults: " + file.getAbsolutePath());
             return false;
         }
         
@@ -121,11 +116,6 @@ public class GameSettings {
             defaultDifficulty = Integer.parseInt(props.getProperty("defaultDifficulty", String.valueOf(DEFAULT_DIFFICULTY)));
             pieceRandomizer = props.getProperty("pieceRandomizer", DEFAULT_RANDOMIZER);
             
-            System.out.println("Settings loaded from file: " + file.getAbsolutePath());
-            System.out.println("Master volume: " + masterVolume);
-            System.out.println("Music volume: " + musicVolume);
-            System.out.println("SFX volume: " + sfxVolume);
-            System.out.println("Piece randomizer: " + pieceRandomizer);
             return true;
         } catch (IOException | NumberFormatException e) {
             System.err.println("Failed to load settings: " + e.getMessage());

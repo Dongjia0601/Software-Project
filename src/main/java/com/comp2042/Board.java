@@ -47,7 +47,7 @@ public interface Board {
      *
      * @return true if the rotation was successful, false if a collision occurred.
      */
-    boolean rotateLeftBrick(); // Note: Method name suggests 'left' rotation logic
+    boolean rotateLeftBrick();
 
     /**
      * Attempts to rotate the currently falling brick counterclockwise.

@@ -235,7 +235,6 @@ public class LevelSelectionController {
                 themePreview.setClip(clip);
             }
         } catch (Exception e) {
-            System.out.println("Could not load theme image for level " + level.getLevelId() + ": " + e.getMessage());
         }
         
         // Difficulty badge
@@ -471,7 +470,6 @@ public class LevelSelectionController {
                         ((javafx.scene.layout.Region) root).setStyle(backgroundStyle);
                     }
                     
-                    System.out.println("Applied theme background: " + bgImagePath);
                 } else {
                     System.err.println("Resource URL is null for: " + bgImagePath);
                     // Fallback to gradient
@@ -508,7 +506,6 @@ public class LevelSelectionController {
         if (root instanceof javafx.scene.layout.Region) {
             ((javafx.scene.layout.Region) root).setStyle(gradientStyle);
         }
-        System.out.println("Applied gradient background: " + theme.getPrimaryColor() + " to " + theme.getSecondaryColor());
     }
     
     /**
@@ -530,7 +527,6 @@ public class LevelSelectionController {
             applyThemeToElementType(root, "Button[fx:id='settingsButton']", createSettingsButtonStyle(theme));
             applyThemeToElementType(root, ".control-hint", createControlHintStyle());
             
-            System.out.println("Applied theme colors to UI elements");
         });
     }
     

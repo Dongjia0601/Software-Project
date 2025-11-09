@@ -65,7 +65,6 @@ public class LevelGameModeImpl implements GameMode {
             );
         }
 
-        System.out.println("LevelGameModeImpl initialized for level: " + currentLevelMode.getLevelName());
     }
 
     @Override
@@ -180,7 +179,6 @@ public class LevelGameModeImpl implements GameMode {
             );
         }
 
-        System.out.println("LevelGameModeImpl: New game started for level: " + currentLevelMode.getLevelName());
     }
 
     @Override
@@ -201,14 +199,12 @@ public class LevelGameModeImpl implements GameMode {
     public void pause() {
         // Pause logic is handled by the GameController/GuiController
         // This is just part of the GameMode contract
-        System.out.println("LevelGameModeImpl: Pause requested");
     }
 
     @Override
     public void resume() {
         // Resume logic is handled by the GameController/GuiController
         // This is just part of the GameMode contract
-        System.out.println("LevelGameModeImpl: Resume requested");
     }
 
     @Override
@@ -287,9 +283,6 @@ public class LevelGameModeImpl implements GameMode {
                 true // success
         );
 
-        System.out.println("LevelGameModeImpl: Level completed! ID=" + currentLevelMode.getLevelId() +
-                ", Score=" + finalScore + ", Lines=" + linesClearedInLevel +
-                ", Time=" + (completionTimeMillis / 1000) + "s, Stars=" + stars);
 
         // Update UI to reflect completion (handled by GuiController/GameController based on isGameOver)
     }
@@ -314,9 +307,6 @@ public class LevelGameModeImpl implements GameMode {
                 false // success = false
         );
 
-        System.out.println("LevelGameModeImpl: Level failed! ID=" + currentLevelMode.getLevelId() +
-                ", Reason=" + reason + ", Score=" + finalScore +
-                ", Lines=" + linesClearedInLevel + ", Time=" + (completionTimeMillis / 1000) + "s");
 
         // Update UI to reflect failure (handled by GuiController/GameController based on isGameOver)
     }
