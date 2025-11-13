@@ -54,6 +54,7 @@ public class LevelGameModeImpl implements GameMode {
         if (guiController != null) {
             guiController.setGameMode(false);
             guiController.showLevelModeUI();
+            guiController.setGameTitleForLevel(currentLevelMode.getLevelId());
             guiController.updateTime(currentLevelMode.getTimeLimitSeconds());
             guiController.updateProgress(linesClearedInLevel, currentLevelMode.getTargetLines());
             guiController.updateStarDisplay(0);
@@ -168,6 +169,7 @@ public class LevelGameModeImpl implements GameMode {
         if (guiController != null) {
             guiController.hideLevelModeUI();
             guiController.showLevelModeUI();
+            guiController.setGameTitleForLevel(currentLevelMode.getLevelId());
             guiController.updateTime(currentLevelMode.getTimeLimitSeconds());
             guiController.updateProgress(linesClearedInLevel, currentLevelMode.getTargetLines());
             guiController.updateStarDisplay(0);

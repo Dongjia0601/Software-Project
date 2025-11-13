@@ -15,12 +15,13 @@ public class MagicCastleTheme implements LevelTheme {
     private static final String THEME_NAME = "Magic Castle";
     private static final String BACKGROUND_IMAGE = "/images/backgrounds/magic_castle_bg.jpg";
     private static final String BACKGROUND_MUSIC = "/themes/magic_castle_music.mp3";
-    private static final String PRIMARY_COLOR = "#4169E1"; // Royal Blue
-    private static final String SECONDARY_COLOR = "#8A2BE2"; // Blue Violet
-    private static final String ACCENT_COLOR = "#00BFFF"; // Deep Sky Blue
-    private static final String GRADIENT_START_COLOR = "#1a0f2e"; // Dark Purple
-    private static final String GRADIENT_END_COLOR = "#2d4a7c"; // Dark Blue
-    private static final String TEXT_COLOR = "#E6E6FA"; // Lavender
+    private static final String BASE_COLOR = "#3A4CFF";
+    private static final String PRIMARY_COLOR = BASE_COLOR;
+    private static final String SECONDARY_COLOR = BASE_COLOR;
+    private static final String ACCENT_COLOR = "#91A3FF";
+    private static final String GRADIENT_START_COLOR = BASE_COLOR;
+    private static final String GRADIENT_END_COLOR = BASE_COLOR;
+    private static final String TEXT_COLOR = "#F2F4FF";
 
     /**
      * Constructs a MagicCastleTheme instance.
@@ -75,7 +76,7 @@ public class MagicCastleTheme implements LevelTheme {
 
     @Override
     public Map<String, String> getSoundEffects() {
-        return Collections.emptyMap(); // No theme-specific sound effects
+        return Collections.emptyMap();
     }
 
     @Override

@@ -15,12 +15,13 @@ public class InterstellarTheme implements LevelTheme {
     private static final String THEME_NAME = "Interstellar Odyssey";
     private static final String BACKGROUND_IMAGE = "/images/backgrounds/interstellar_bg.jpg";
     private static final String BACKGROUND_MUSIC = "/themes/interstellar_music.mp3";
-    private static final String PRIMARY_COLOR = "#9370DB"; // Medium Purple
-    private static final String SECONDARY_COLOR = "#4B0082"; // Indigo
-    private static final String ACCENT_COLOR = "#FF69B4"; // Hot Pink
-    private static final String GRADIENT_START_COLOR = "#0a0a1a"; // Almost Black
-    private static final String GRADIENT_END_COLOR = "#1e1e3f"; // Dark Purple
-    private static final String TEXT_COLOR = "#B0E0E6"; // Powder Blue
+    private static final String BASE_COLOR = "#1F4CFF";
+    private static final String PRIMARY_COLOR = BASE_COLOR;
+    private static final String SECONDARY_COLOR = BASE_COLOR;
+    private static final String ACCENT_COLOR = "#6A8CFF";
+    private static final String GRADIENT_START_COLOR = BASE_COLOR;
+    private static final String GRADIENT_END_COLOR = BASE_COLOR;
+    private static final String TEXT_COLOR = "#D6E4FF";
 
     /**
      * Constructs an InterstellarTheme instance.
