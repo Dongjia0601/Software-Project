@@ -311,6 +311,7 @@ public class SettingsController {
 
         String pendingRandomizer = originalRandomizer;
         boolean randomizerChanged = false;
+        boolean randomizerConfirmed = false; // Track if user confirmed the change
         if (randomizerChoice != null) {
             String selected = randomizerChoice.getValue();
             pendingRandomizer = (selected != null && selected.startsWith("Pure Random") ? "pure_random" : "seven_bag");
@@ -336,7 +337,8 @@ public class SettingsController {
             java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.YES) {
                 settings.setPieceRandomizer(pendingRandomizer);
-                originalRandomizer = pendingRandomizer; 
+                originalRandomizer = pendingRandomizer;
+                randomizerConfirmed = true; // Mark that user confirmed the change
             } else {
                 // Revert UI selection
                 if (randomizerChoice != null) {
@@ -365,14 +367,17 @@ public class SettingsController {
             // Update Mute button state in game interface
             if (guiController != null) {
                 guiController.updateMuteButtonState();
-                // If randomizer was applied and we are in-game, rebuild the board immediately
-                if (randomizerChanged && pendingRandomizer.equals(settings.getPieceRandomizer())) {
+                // If randomizer was confirmed by user, rebuild the board immediately
+                if (randomizerConfirmed) {
                     // Return to game scene if we are currently in the settings scene
                     if (savedGameScene != null && stage != null) {
                         stage.setScene(savedGameScene);
                         stage.setTitle("TETRIS - Game");
                     }
-                    guiController.rebuildGameForRandomizerChange();
+                    // Use Platform.runLater to ensure scene is fully switched before rebuilding
+                    javafx.application.Platform.runLater(() -> {
+                        guiController.rebuildGameForRandomizerChange();
+                    });
                     // Update baseline to new value for subsequent saves
                     originalRandomizer = settings.getPieceRandomizer();
                 }

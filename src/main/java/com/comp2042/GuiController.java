@@ -784,6 +784,75 @@ public class GuiController implements Initializable {
      * re-initializes the view. Any running timers are stopped beforehand.
      */
     public void rebuildGameForRandomizerChange() {
+        // Handle two-player mode separately
+        if (isTwoPlayerMode && eventListener instanceof TwoPlayerGameController) {
+            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+            
+            // Stop timelines before rebuilding
+            try {
+                java.lang.reflect.Field player1TimelineField = TwoPlayerGameController.class.getDeclaredField("player1Timeline");
+                java.lang.reflect.Field player2TimelineField = TwoPlayerGameController.class.getDeclaredField("player2Timeline");
+                java.lang.reflect.Field statsUpdateTimelineField = TwoPlayerGameController.class.getDeclaredField("statsUpdateTimeline");
+                player1TimelineField.setAccessible(true);
+                player2TimelineField.setAccessible(true);
+                statsUpdateTimelineField.setAccessible(true);
+                
+                Timeline player1Timeline = (Timeline) player1TimelineField.get(controller);
+                Timeline player2Timeline = (Timeline) player2TimelineField.get(controller);
+                Timeline statsUpdateTimeline = (Timeline) statsUpdateTimelineField.get(controller);
+                
+                if (player1Timeline != null) {
+                    player1Timeline.stop();
+                }
+                if (player2Timeline != null) {
+                    player2Timeline.stop();
+                }
+                if (statsUpdateTimeline != null) {
+                    statsUpdateTimeline.stop();
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to stop two-player timelines: " + e.getMessage());
+            }
+            
+            // Clear all panels before rebuilding
+            clearPlayer1Panels();
+            clearPlayer2Panels();
+            
+            // Hide game over panels
+            if (gameOverPanel1 != null) {
+                gameOverPanel1.setVisible(false);
+            }
+            if (gameOverPanel2 != null) {
+                gameOverPanel2.setVisible(false);
+            }
+            if (twoPlayerGameOverPanel != null) {
+                twoPlayerGameOverPanel.setVisible(false);
+                twoPlayerGameOverPanel.setManaged(false);
+            }
+            
+            isPause.setValue(false);
+            isGameOver.setValue(false);
+            
+            // Clear old event listener before creating new controller
+            eventListener = null;
+            
+            // Recreate VS mode with new randomizer settings
+            com.comp2042.core.GameService player1Service = new com.comp2042.core.GameServiceImpl();
+            com.comp2042.core.GameService player2Service = new com.comp2042.core.GameServiceImpl();
+            com.comp2042.game.TwoPlayerVSGameMode newGameMode = 
+                new com.comp2042.game.TwoPlayerVSGameMode(player1Service, player2Service, this);
+            
+            // Create new two-player controller which will automatically show countdown and start game
+            new TwoPlayerGameController(newGameMode, this);
+            
+            // Request focus for keyboard input
+            if (rootPane != null) {
+                rootPane.requestFocus();
+            }
+            return;
+        }
+        
+        // Single-player mode handling
         // Stop timers
         if (timeLine != null) {
             timeLine.stop();
@@ -1947,7 +2016,10 @@ public class GuiController implements Initializable {
 
             // Load settings FXML
             FXMLLoader settingsLoader = new FXMLLoader(getClass().getResource("/settings.fxml"));
-            Scene settingsScene = new Scene(settingsLoader.load(), 900, 800);
+            Parent settingsRoot = settingsLoader.load();
+            double settingsWidth = isTwoPlayerMode ? 1400 : 900;
+            double settingsHeight = isTwoPlayerMode ? 900 : 800;
+            Scene settingsScene = new Scene(settingsRoot, settingsWidth, settingsHeight);
             
             // Get the settings controller and configure it
             com.comp2042.ui.SettingsController settingsController = settingsLoader.getController();
@@ -1967,6 +2039,7 @@ public class GuiController implements Initializable {
             // Switch to settings scene
             stage.setScene(settingsScene);
             stage.setTitle("TETRIS - Settings");
+            centerWindowOnScreen(stage, settingsWidth, settingsHeight);
         } catch (Exception e) {
             System.err.println("Error loading settings page: " + e.getMessage());
             e.printStackTrace();
@@ -4076,13 +4149,13 @@ public class GuiController implements Initializable {
         // Create overlays for each game panel
         StackPane overlay1 = new StackPane();
         overlay1.setAlignment(Pos.CENTER);
-        overlay1.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+        overlay1.setStyle("-fx-background-color: rgba(0, 0, 0, 0.55); -fx-background-radius: 8;");
         overlay1.getChildren().add(countdownLabel1);
         overlay1.setMouseTransparent(true);
         
         StackPane overlay2 = new StackPane();
         overlay2.setAlignment(Pos.CENTER);
-        overlay2.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+        overlay2.setStyle("-fx-background-color: rgba(0, 0, 0, 0.55); -fx-background-radius: 8;");
         overlay2.getChildren().add(countdownLabel2);
         overlay2.setMouseTransparent(true);
         
@@ -4104,16 +4177,30 @@ public class GuiController implements Initializable {
             pane1.getChildren().add(overlay1);
             pane2.getChildren().add(overlay2);
             
-            // Bind overlay size to game panel size
-            overlay1.prefWidthProperty().bind(gamePanel1.widthProperty());
-            overlay1.prefHeightProperty().bind(gamePanel1.heightProperty());
-            overlay1.layoutXProperty().bind(gamePanel1.layoutXProperty());
-            overlay1.layoutYProperty().bind(gamePanel1.layoutYProperty());
+            // Bind overlay size to cover entire board background
+            if (boardBackground1 != null) {
+                overlay1.prefWidthProperty().bind(boardBackground1.widthProperty().subtract(20));
+                overlay1.prefHeightProperty().bind(boardBackground1.heightProperty().subtract(20));
+                overlay1.layoutXProperty().bind(boardBackground1.layoutXProperty().add(10));
+                overlay1.layoutYProperty().bind(boardBackground1.layoutYProperty().add(10));
+            } else {
+                overlay1.prefWidthProperty().bind(gamePanel1.widthProperty());
+                overlay1.prefHeightProperty().bind(gamePanel1.heightProperty());
+                overlay1.layoutXProperty().bind(gamePanel1.layoutXProperty());
+                overlay1.layoutYProperty().bind(gamePanel1.layoutYProperty());
+            }
             
-            overlay2.prefWidthProperty().bind(gamePanel2.widthProperty());
-            overlay2.prefHeightProperty().bind(gamePanel2.heightProperty());
-            overlay2.layoutXProperty().bind(gamePanel2.layoutXProperty());
-            overlay2.layoutYProperty().bind(gamePanel2.layoutYProperty());
+            if (boardBackground2 != null) {
+                overlay2.prefWidthProperty().bind(boardBackground2.widthProperty().subtract(20));
+                overlay2.prefHeightProperty().bind(boardBackground2.heightProperty().subtract(20));
+                overlay2.layoutXProperty().bind(boardBackground2.layoutXProperty().add(10));
+                overlay2.layoutYProperty().bind(boardBackground2.layoutYProperty().add(10));
+            } else {
+                overlay2.prefWidthProperty().bind(gamePanel2.widthProperty());
+                overlay2.prefHeightProperty().bind(gamePanel2.heightProperty());
+                overlay2.layoutXProperty().bind(gamePanel2.layoutXProperty());
+                overlay2.layoutYProperty().bind(gamePanel2.layoutYProperty());
+            }
         }
         
         // Countdown animation

@@ -77,7 +77,7 @@
                                 
                                 <GridPane fx:id="gamePanel1" 
                                          hgap="1" vgap="1" 
-                                         layoutX="30" layoutY="20" 
+                                         layoutX="30" layoutY="15" 
                                          prefWidth="259" prefHeight="519"
                                          styleClass="game-grid"
                                          maxHeight="519"
@@ -143,7 +143,7 @@
                 </HBox>
                 
                 <!-- Spacer before control hint -->
-                <Region prefHeight="80" minHeight="80" VBox.vgrow="NEVER"/>
+                <Region prefHeight="100" minHeight="100" VBox.vgrow="NEVER"/>
                 
                 <!-- Player 1 Controls Hint -->
                 <Label text="[A/D] Move  [W] Rotate CW  [F] Rotate CCW  [S] Soft Drop  [Space] Hard Drop  [Shift] Hold"
@@ -186,7 +186,7 @@
                                 
                                 <GridPane fx:id="gamePanel2" 
                                          hgap="1" vgap="1" 
-                                         layoutX="30" layoutY="20" 
+                                         layoutX="30" layoutY="15" 
                                          prefWidth="259" prefHeight="519"
                                          styleClass="game-grid"
                                          maxHeight="519"
@@ -252,7 +252,7 @@
                 </HBox>
                 
                 <!-- Spacer before control hint -->
-                <Region prefHeight="80" minHeight="80" VBox.vgrow="NEVER"/>
+                <Region prefHeight="100" minHeight="100" VBox.vgrow="NEVER"/>
                 
                 <!-- Player 2 Controls Hint -->
                 <Label text="[←/→] Move  [↑] Rotate CW  [↓] Soft Drop  [0] Hard Drop  [1] Hold [2] Rotate CCW "
