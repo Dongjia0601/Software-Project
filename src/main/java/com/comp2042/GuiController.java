@@ -1879,7 +1879,7 @@ public class GuiController implements Initializable {
     /**
      * Handles keyboard controls for two-player mode.
      * Player 1: A/D - Move, W - Rotate, S - Soft Drop, Space - Hard Drop, Shift/C - Hold, F - Rotate CCW
-     * Player 2: ←/→ - Move, ↑ - Rotate, ↓ - Soft Drop, 0 - Hard Drop, 1 - Hold, 2 - Rotate CCW
+     * Player 2: ←/→ - Move, ↑ - Rotate, ↓ - Soft Drop, 0 - Hard Drop, 3 - Hold, 2 - Rotate CCW
      */
     private void handleTwoPlayerControls(KeyEvent keyEvent) {
         // === Player 1 Controls (WASD Keys) ===
@@ -1981,8 +1981,8 @@ public class GuiController implements Initializable {
             }
             keyEvent.consume();
         }
-        if (keyEvent.getCode() == KeyCode.DIGIT1 || keyEvent.getCode() == KeyCode.NUMPAD1) {
-            // Player 2: Hold brick (1 / NumPad1)
+        if (keyEvent.getCode() == KeyCode.DIGIT3 || keyEvent.getCode() == KeyCode.NUMPAD3) {
+            // Player 2: Hold brick (3 / NumPad3)
             ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_2));
             if (result != null) {
                 refreshPlayer2Brick(result);
