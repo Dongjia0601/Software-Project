@@ -29,7 +29,7 @@
                     <VBox spacing="20" styleClass="controls-container">
                         <!-- Single Player Mode Controls -->
                         <VBox spacing="8" styleClass="control-section">
-                            <Text text="Single Player Controls (Endless Mode / Level Mode)" styleClass="control-section-title"/>
+                            <Text text="Single Player &amp; Player 1 Controls" styleClass="control-section-title"/>
                             <VBox spacing="4" styleClass="control-list">
                                 <HBox spacing="20" alignment="CENTER_LEFT">
                                     <Label text="Move Left / Right" styleClass="control-action" minWidth="200"/>
@@ -61,38 +61,7 @@
                         <!-- Two Player Mode Controls -->
                         <VBox spacing="8" styleClass="control-section">
                             <Text text="Two-Player Controls (Two-Player Mode)" styleClass="control-section-title"/>
-                            
-                            <!-- Player 1 -->
-                            <VBox spacing="4" styleClass="player-controls">
-                                <Text text="Player 1" styleClass="player-title"/>
-                                <VBox spacing="4" styleClass="control-list">
-                                    <HBox spacing="20" alignment="CENTER_LEFT">
-                                        <Label text="Move Left / Right" styleClass="control-action" minWidth="200"/>
-                                        <Label text="A / D" styleClass="control-key"/>
-                                    </HBox>
-                                    <HBox spacing="20" alignment="CENTER_LEFT">
-                                        <Label text="Rotate (Clockwise)" styleClass="control-action" minWidth="200"/>
-                                        <Label text="W" styleClass="control-key"/>
-                                    </HBox>
-                                    <HBox spacing="20" alignment="CENTER_LEFT">
-                                        <Label text="Rotate (Counterclockwise)" styleClass="control-action" minWidth="200"/>
-                                        <Label text="F" styleClass="control-key"/>
-                                    </HBox>
-                                    <HBox spacing="20" alignment="CENTER_LEFT">
-                                        <Label text="Soft Drop" styleClass="control-action" minWidth="200"/>
-                                        <Label text="S" styleClass="control-key"/>
-                                    </HBox>
-                                    <HBox spacing="20" alignment="CENTER_LEFT">
-                                        <Label text="Hard Drop" styleClass="control-action" minWidth="200"/>
-                                        <Label text="Space" styleClass="control-key"/>
-                                    </HBox>
-                                    <HBox spacing="20" alignment="CENTER_LEFT">
-                                        <Label text="Hold Block" styleClass="control-action" minWidth="200"/>
-                                        <Label text="Shift" styleClass="control-key"/>
-                                    </HBox>
-                                </VBox>
-                            </VBox>
-                            
+
                             <!-- Player 2 -->
                             <VBox spacing="4" styleClass="player-controls">
                                 <Text text="Player 2" styleClass="player-title"/>
@@ -127,7 +96,7 @@
                         
                 <!-- Game Controls -->
                         <VBox spacing="4" styleClass="control-section">
-                            <Text text="Controls" styleClass="control-section-title"/>
+                            <Text text="Actions" styleClass="control-section-title"/>
                             <VBox spacing="4" styleClass="control-list">
                                 <HBox spacing="20" alignment="CENTER_LEFT">
                                     <Label text="Pause/Resume" styleClass="control-action" minWidth="200"/>

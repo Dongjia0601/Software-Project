@@ -212,6 +212,12 @@
     -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.6), 3, 0, 0, 0);
 }
 
+.player-note {
+    -fx-text-fill: #C8D2FF;
+    -fx-font-size: 13px;
+    -fx-font-style: italic;
+}
+
 .control-list {
     -fx-spacing: 6px;
 }

@@ -531,11 +531,11 @@ public class MainMenuController {
             javafx.scene.control.Label basicsLeftTitle = new javafx.scene.control.Label("Gameplay Basics");
             basicsLeftTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
             String[] basicsLeftItems = new String[] {
-                "Place falling tetrominoes to complete rows.",
-                "Clear full horizontal lines to earn points.",
-                "Clear multiple lines at once for higher points.",
-                "Pieces fall faster as you clear more lines.",
-                "Topping out (stack reaches top) ends the game."
+                "Stack falling pieces(bricks) to fill horizontal rows while planning ahead with the Next preview.",
+                "Clearing lines awards points, 100/300/500/800 points for single/double/triple/tetris.",
+                "Speed increases as more lines are cleared—plan placements early.",
+                "The game ends when the stack reaches the top of the board.",
+                "Use A/D to move, W or F to rotate(clockwise/counterclockwise), S for soft drop(accelerated), Space for hard drop(instant), Shift to hold."
             };
             javafx.scene.layout.VBox basicsLeftCol = createBulletedColumn(basicsLeftItems, 330);
             basicsLeftBox.getChildren().addAll(basicsLeftTitle, basicsLeftCol);
@@ -548,10 +548,9 @@ public class MainMenuController {
             String[] basicsRightItems = new String[] {
                 "Next: preview upcoming pieces.",
                 "Hold: store one piece to swap later (one swap per piece).",
-                "Ghost Brick: semi-transparent preview showing where the piece will land.",
                 "Statistics: shows Level, Lines cleared, Speed and Time.",
                 "Score: real-time points and the Highest Score.",
-                "Controls: Settings, Help, Back to Menu.",
+                "Controls: Settings, Help, Back to Menu, Back to Selection",
                 "Actions: New Game (N), Pause & Resume (P), Mute / Unmute (M)."
             };
             javafx.scene.layout.VBox basicsRightCol = createBulletedColumn(basicsRightItems, 330);
@@ -682,7 +681,60 @@ public class MainMenuController {
             speedText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
             speedText.setWrapText(true);
 
-            endlessContainer.getChildren().addAll(endlessTitle, levelProgTitle, levelProgText, speedTitle, speedText);
+            // Reset Leaderboard tip
+            javafx.scene.control.Label endlessResetNote = new javafx.scene.control.Label(
+                "Tip: After an Endless run, use the \"Reset Leaderboard\" button on the Game Over screen to clear your local high scores.");
+            endlessResetNote.setStyle("-fx-font-size: 13px; -fx-text-fill: #C8C8C8;");
+            endlessResetNote.setWrapText(true);
+
+            endlessContainer.getChildren().addAll(endlessTitle, levelProgTitle, levelProgText, speedTitle, speedText, endlessResetNote);
+
+            // Level Mode Rules section
+            javafx.scene.layout.VBox levelModeContainer = new javafx.scene.layout.VBox(10);
+            levelModeContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
+
+            javafx.scene.control.Label levelModeTitle = new javafx.scene.control.Label("Level Mode Rules");
+            levelModeTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
+            levelModeTitle.setMaxWidth(Double.MAX_VALUE);
+            javafx.scene.layout.HBox.setHgrow(levelModeTitle, javafx.scene.layout.Priority.ALWAYS);
+
+            // Objective subsection
+            javafx.scene.control.Label levelObjectiveTitle = new javafx.scene.control.Label("Objective & Completion");
+            levelObjectiveTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            javafx.scene.control.Label levelObjectiveText = new javafx.scene.control.Label(
+                "Each level has a target number of lines to clear within a time limit.\n" +
+                "Complete the objective to unlock the next level and earn stars based on your performance.");
+            levelObjectiveText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            levelObjectiveText.setWrapText(true);
+
+            // Star Rating subsection
+            javafx.scene.control.Label starTitle = new javafx.scene.control.Label("Star Rating System");
+            starTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            javafx.scene.control.Label starText = new javafx.scene.control.Label(
+                "Earn up to 3 stars per level based on:\n" +
+                "• Score achieved\n" +
+                "• Lines cleared\n" +
+                "• Completion time\n" +
+                "Higher performance = more stars!");
+            starText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            starText.setWrapText(true);
+
+            // Difficulty & Themes subsection
+            javafx.scene.control.Label difficultyTitle = new javafx.scene.control.Label("Difficulty & Themes");
+            difficultyTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            javafx.scene.control.Label difficultyText = new javafx.scene.control.Label(
+                "Levels are organized by difficulty: Easy, Medium, Hard, Expert.\n" +
+                "Each difficulty tier features unique visual themes that unlock as you progress.");
+            difficultyText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            difficultyText.setWrapText(true);
+
+            // Reset Progress tip
+            javafx.scene.control.Label levelResetNote = new javafx.scene.control.Label(
+                "Tip: To restart your Level Mode journey, use the \"Reset Progress\" button on the level selection screen (bottom-right corner).");
+            levelResetNote.setStyle("-fx-font-size: 13px; -fx-text-fill: #C8C8C8;");
+            levelResetNote.setWrapText(true);
+
+            levelModeContainer.getChildren().addAll(levelModeTitle, levelObjectiveTitle, levelObjectiveText, starTitle, starText, difficultyTitle, difficultyText, levelResetNote);
 
             // Two-Player Mode Rules section
             javafx.scene.layout.VBox twoPlayerContainer = new javafx.scene.layout.VBox(12);
@@ -784,7 +836,7 @@ public class MainMenuController {
             buttonContainer.getChildren().add(closeButton);
             
             // Add all components
-            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, ghostContainer, endlessContainer, twoPlayerContainer, buttonContainer);
+            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, ghostContainer, endlessContainer, levelModeContainer, twoPlayerContainer, buttonContainer);
             scrollPane.setContent(mainContainer);
             
             // Create scene and show
