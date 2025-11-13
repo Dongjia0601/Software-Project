@@ -223,6 +223,7 @@ public class PlayingState implements GameState {
         board.newGame();
 
         guiController.refreshGameBackground(board.getBoardMatrix());
+        guiController.refreshActiveBrick(board.getViewData());
         // Update lines display - different for Endless vs Level Mode
         if (guiController.isEndlessMode()) {
             guiController.updateLines(0);

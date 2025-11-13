@@ -218,7 +218,7 @@ public class SimpleBoard implements Board {
     public boolean createNewBrick() {
         Brick currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
-        currentOffset = new Point(4, 0); // Make sure that the brick falls from the middle of the top.
+        currentOffset = new Point(4, 0); // Spawn so that the brick occupies the top row (index 0).
         // Check if the new brick's initial position collides (game over condition)
         return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
     }
@@ -341,7 +341,7 @@ public class SimpleBoard implements Board {
             Brick temp = heldBrick;
             heldBrick = currentBrick;
             brickRotator.setBrick(temp);
-            currentOffset = new Point(3, 0); // Reset position to spawn point
+            currentOffset = new Point(4, 0); // Reset position to spawn point (top row)
         }
         
         canHold = false; // Disable hold until next brick

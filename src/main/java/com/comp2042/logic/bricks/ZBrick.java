@@ -11,9 +11,9 @@ final class ZBrick implements Brick {
 
     public ZBrick() {
         brickMatrix.add(new int[][]{
-                {0, 0, 0, 0},
                 {7, 7, 0, 0},
                 {0, 7, 7, 0},
+                {0, 0, 0, 0},
                 {0, 0, 0, 0}
         });
         brickMatrix.add(new int[][]{

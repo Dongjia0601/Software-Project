@@ -23,8 +23,8 @@ class SimpleBoardTest {
         SimpleBoard testBoard = new SimpleBoard(10, 20);
         assertNotNull(testBoard);
         assertNotNull(testBoard.getBoardMatrix());
-        assertEquals(10, testBoard.getBoardMatrix().length);
-        assertEquals(20, testBoard.getBoardMatrix()[0].length);
+        assertEquals(20, testBoard.getBoardMatrix().length);
+        assertEquals(10, testBoard.getBoardMatrix()[0].length);
     }
 
     @Test
@@ -69,16 +69,34 @@ class SimpleBoardTest {
     }
 
     @Test
+    void testNewBrickSpawnsAtTopRow() {
+        board.createNewBrick();
+        ViewData viewData = board.getViewData();
+        assertNotNull(viewData);
+        assertEquals(0, viewData.getyPosition(), "Brick should start at board row index 0");
+
+        int[][] brickData = viewData.getBrickData();
+        boolean topRowOccupied = false;
+        for (int cell : brickData[0]) {
+            if (cell != 0) {
+                topRowOccupied = true;
+                break;
+            }
+        }
+        assertTrue(topRowOccupied, "Brick shape must occupy the top row to be visible at spawn");
+    }
+
+    @Test
     void testBoardInitialization() {
         // Test that board is properly initialized
         int[][] matrix = board.getBoardMatrix();
         assertNotNull(matrix);
-        assertEquals(10, matrix.length);
-        assertEquals(20, matrix[0].length);
+        assertEquals(20, matrix.length);
+        assertEquals(10, matrix[0].length);
         
         // Verify all cells are initially empty (0)
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 20; j++) {
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
                 assertEquals(0, matrix[i][j]);
             }
         }

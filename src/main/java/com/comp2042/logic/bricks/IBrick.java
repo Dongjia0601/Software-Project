@@ -11,8 +11,8 @@ final class IBrick implements Brick {
 
     public IBrick() {
         brickMatrix.add(new int[][]{
-                {0, 0, 0, 0},
                 {1, 1, 1, 1},
+                {0, 0, 0, 0},
                 {0, 0, 0, 0},
                 {0, 0, 0, 0}
         });

@@ -29,6 +29,9 @@ public class MatrixOperations {
      */
     public static boolean intersect(final int[][] matrix, final int[][] brick, int x, int y) {
         // Iterate through the rows of the brick matrix
+        int matrixHeight = matrix.length;
+        int matrixWidth = matrixHeight > 0 ? matrix[0].length : 0;
+
         for (int i = 0; i < brick.length; i++) {
             // Iterate through the columns of the brick matrix for the current row
             for (int j = 0; j < brick[i].length; j++) {
@@ -41,32 +44,30 @@ public class MatrixOperations {
                 // Check if the current brick cell is non-zero (part of the brick shape)
                 // and if placing it at (targetX, targetY) would cause a collision.
                 // Collision occurs if the target position is out of bounds or already occupied.
-                if (brick[i][j] != 0 && (checkOutOfBound(matrix, targetX, targetY) || matrix[targetY][targetX] != 0)) {
-                    return true; // Intersection found
+                if (brick[i][j] != 0) {
+                    // Horizontal out-of-bounds: treat as collision
+                    if (targetX < 0 || targetX >= matrixWidth) {
+                        return true;
+                    }
+
+                    // Below the board: treat as collision
+                    if (targetY >= matrixHeight) {
+                        return true;
+                    }
+
+                    // Above the board: allow spawn buffer (no collision)
+                    if (targetY < 0) {
+                        continue;
+                    }
+
+                    // Occupied cell: collision
+                    if (matrix[targetY][targetX] != 0) {
+                        return true;
+                    }
                 }
             }
         }
         return false; // No intersection found
-    }
-
-    /**
-     * Helper method to check if given coordinates (targetX, targetY) are out of the matrix bounds.
-     * Assumes standard matrix notation: matrix[row][column].
-     *
-     * @param matrix   The matrix to check against.
-     * @param targetX  The column index to check.
-     * @param targetY  The row index to check.
-     * @return true if the coordinates are out of bounds, false otherwise.
-     */
-    private static boolean checkOutOfBound(int[][] matrix, int targetX, int targetY) {
-        boolean outOfBounds = true;
-        // Check if targetX and targetY are within the valid range for the matrix
-        // targetY must be a valid row index (0 <= targetY < matrix.length)
-        // targetX must be a valid column index for the row matrix[targetY] (0 <= targetX < matrix[targetY].length)
-        if (targetX >= 0 && targetY < matrix.length && targetX < matrix[targetY].length) {
-            outOfBounds = false; // Coordinates are within bounds
-        }
-        return outOfBounds;
     }
 
     /**

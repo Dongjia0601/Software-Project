@@ -685,6 +685,32 @@ public class GuiController implements Initializable {
     }
 
     /**
+     * Forces the active brick to refresh its position and shape based on supplied view data.
+     * Used when the underlying board resets (e.g., starting a new game) to ensure the brick
+     * appears at the intended spawn location before the timeline ticks.
+     *
+     * @param brick the current ViewData for the active brick
+     */
+    public void refreshActiveBrick(ViewData brick) {
+        if (brick == null || isTwoPlayerMode) {
+            return; // Only handle single-player boards here
+        }
+
+        boolean wasPaused = isPause.getValue();
+        if (wasPaused) {
+            isPause.setValue(false);
+        }
+
+        try {
+            refreshBrick(brick);
+        } finally {
+            if (wasPaused) {
+                isPause.setValue(true);
+            }
+        }
+    }
+
+    /**
      * Sets the color and styling for a specific rectangle based on its value.
      *
      * @param color      The integer value representing the color/state.
