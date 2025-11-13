@@ -682,6 +682,13 @@ public class LevelSelectionController {
         
         // Force dialog pane creation by getting it
         javafx.scene.control.DialogPane dialogPane = confirmDialog.getDialogPane();
+        // Fix text truncation
+        dialogPane.setPrefWidth(450);
+        javafx.scene.control.Label contentLabel = (javafx.scene.control.Label) dialogPane.lookup(".content.label");
+        if (contentLabel != null) {
+            contentLabel.setWrapText(true);
+            contentLabel.setMaxWidth(Double.MAX_VALUE);
+        }
         
         // Add button click sound for dialog buttons using event filter on dialog pane
         // This approach works more reliably than setOnMouseClicked
@@ -749,6 +756,15 @@ public class LevelSelectionController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         
+        // Fix text truncation
+        javafx.scene.control.DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setPrefWidth(450);
+        javafx.scene.control.Label contentLabel = (javafx.scene.control.Label) dialogPane.lookup(".content.label");
+        if (contentLabel != null) {
+            contentLabel.setWrapText(true);
+            contentLabel.setMaxWidth(Double.MAX_VALUE);
+        }
+        
         // Add button click sound for dialog buttons after dialog is shown
         alert.setOnShown(e -> {
             alert.getDialogPane().getButtonTypes().forEach(buttonType -> {
@@ -771,6 +787,15 @@ public class LevelSelectionController {
         alert.setTitle("Information");
         alert.setHeaderText(null);
         alert.setContentText(message);
+        
+        // Fix text truncation
+        javafx.scene.control.DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setPrefWidth(450);
+        javafx.scene.control.Label contentLabel = (javafx.scene.control.Label) dialogPane.lookup(".content.label");
+        if (contentLabel != null) {
+            contentLabel.setWrapText(true);
+            contentLabel.setMaxWidth(Double.MAX_VALUE);
+        }
         
         // Add button click sound for dialog buttons after dialog is shown
         alert.setOnShown(e -> {

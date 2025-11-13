@@ -88,7 +88,7 @@
                                     </HBox>
                                     <HBox spacing="20" alignment="CENTER_LEFT">
                                         <Label text="Hold Block" styleClass="control-action" minWidth="200"/>
-                                        <Label text="1 / NumPad1" styleClass="control-key"/>
+                                        <Label text="3 / NumPad3" styleClass="control-key"/>
                                     </HBox>
                                 </VBox>
                             </VBox>

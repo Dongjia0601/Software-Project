@@ -193,13 +193,17 @@
     -fx-font-size: 18px;
     -fx-font-weight: bold;
     -fx-text-fill: #FFFFFF;
-    -fx-min-width: 110px;
+    -fx-min-width: 120px;
+    -fx-pref-width: 130px;
+    -fx-text-overrun: clip;
 }
 
 .entry-lines {
     -fx-font-size: 14px;
     -fx-text-fill: #AAAAAA;
-    -fx-min-width: 80px;
+    -fx-min-width: 90px;
+    -fx-pref-width: 100px;
+    -fx-text-overrun: clip;
 }
 
 .highlight-indicator {
@@ -220,6 +224,8 @@
     -fx-font-size: 14px;
     -fx-text-fill: #AAAAAA; /* same as lines */
     -fx-min-width: 70px;    /* slightly narrower to stay within border */
+    -fx-pref-width: 80px;
+    -fx-text-overrun: clip;
 }
 
 /* Button Section */

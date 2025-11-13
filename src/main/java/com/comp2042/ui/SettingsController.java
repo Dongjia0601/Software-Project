@@ -129,8 +129,22 @@ public class SettingsController {
                     javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
                     alert.setTitle("Confirm Selection");
                     alert.setHeaderText("Change Piece Randomizer?");
-                    alert.setContentText("This selection will switch the piece randomizer and restart the game after you click Save.\n\nProceed with this selection?");
-                    alert.getButtonTypes().setAll(javafx.scene.control.ButtonType.YES, javafx.scene.control.ButtonType.NO);
+                    String fullText = "This selection will switch the piece randomizer and restart the game after you click Save.\n\nProceed with this selection?";
+                    // Use custom content node to prevent truncation
+                    javafx.scene.text.Text textNode = new javafx.scene.text.Text(fullText);
+                    textNode.setWrappingWidth(400);
+                    textNode.setStyle("-fx-font-size: 13px;");
+                    javafx.scene.layout.VBox contentBox = new javafx.scene.layout.VBox(10);
+                    contentBox.setPadding(new javafx.geometry.Insets(10));
+                    contentBox.getChildren().add(textNode);
+                    alert.getDialogPane().setContent(contentBox);
+                    // Fix text truncation by setting dialog pane properties
+                    javafx.scene.control.DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.setPrefWidth(450);
+                    dialogPane.setMinWidth(450);
+                    // Remove height restrictions and allow content to expand
+                    dialogPane.setPrefHeight(javafx.scene.control.DialogPane.USE_COMPUTED_SIZE);
+                    dialogPane.setMaxHeight(Double.MAX_VALUE);                    alert.getButtonTypes().setAll(javafx.scene.control.ButtonType.YES, javafx.scene.control.ButtonType.NO);
                     
                     // Add button click sound for dialog buttons
                     alert.getDialogPane().getButtonTypes().forEach(buttonType -> {
@@ -324,6 +338,29 @@ public class SettingsController {
             alert.setTitle("Confirm Gameplay Change");
             alert.setHeaderText("Change Piece Randomizer?");
             alert.setContentText("Switching the piece randomizer will reset the current game.\n\nDo you want to apply the change now?");
+            // Fix text truncation by setting dialog pane properties
+            javafx.scene.control.DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.setPrefWidth(450);
+            dialogPane.setMinWidth(450);
+            // Remove height restrictions and allow content to expand
+            dialogPane.setPrefHeight(javafx.scene.control.DialogPane.USE_COMPUTED_SIZE);
+            dialogPane.setMaxHeight(Double.MAX_VALUE);
+            // Use Text node instead of Label for better text wrapping
+            alert.setOnShown(e -> {
+                javafx.scene.control.Label contentLabel = (javafx.scene.control.Label) dialogPane.lookup(".content.label");
+                if (contentLabel != null) {
+                    contentLabel.setWrapText(true);
+                    contentLabel.setMaxWidth(Double.MAX_VALUE);
+                    contentLabel.setPrefWidth(400);
+                    contentLabel.setMaxHeight(Double.MAX_VALUE);
+                    contentLabel.setStyle("-fx-text-overflow: clip; -fx-wrap-text: true;");
+                }
+                // Also try to find and update the content area
+                javafx.scene.Node content = dialogPane.lookup(".content");
+                if (content != null) {
+                    content.setStyle("-fx-max-width: 400px; -fx-wrap-text: true;");
+                }
+            });
             alert.getButtonTypes().setAll(javafx.scene.control.ButtonType.YES, javafx.scene.control.ButtonType.NO);
             
             // Add button click sound for dialog buttons
@@ -374,7 +411,6 @@ public class SettingsController {
                         stage.setScene(savedGameScene);
                         stage.setTitle("TETRIS - Game");
                     }
-                    // Use Platform.runLater to ensure scene is fully switched before rebuilding
                     javafx.application.Platform.runLater(() -> {
                         guiController.rebuildGameForRandomizerChange();
                     });
@@ -417,6 +453,29 @@ public class SettingsController {
             alert.setTitle("Confirm Gameplay Change");
             alert.setHeaderText("Reset Piece System to Default?");
             alert.setContentText("Resetting to defaults will switch the piece randomizer from 'Pure Random' to '7-Bag' and restart the game.\n\nApply now?");
+            // Fix text truncation by setting dialog pane properties
+            javafx.scene.control.DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.setPrefWidth(450);
+            dialogPane.setMinWidth(450);
+            // Remove height restrictions and allow content to expand
+            dialogPane.setPrefHeight(javafx.scene.control.DialogPane.USE_COMPUTED_SIZE);
+            dialogPane.setMaxHeight(Double.MAX_VALUE);
+            // Use Text node instead of Label for better text wrapping
+            alert.setOnShown(e -> {
+                javafx.scene.control.Label contentLabel = (javafx.scene.control.Label) dialogPane.lookup(".content.label");
+                if (contentLabel != null) {
+                    contentLabel.setWrapText(true);
+                    contentLabel.setMaxWidth(Double.MAX_VALUE);
+                    contentLabel.setPrefWidth(400);
+                    contentLabel.setMaxHeight(Double.MAX_VALUE);
+                    contentLabel.setStyle("-fx-text-overflow: clip; -fx-wrap-text: true;");
+                }
+                // Also try to find and update the content area
+                javafx.scene.Node content = dialogPane.lookup(".content");
+                if (content != null) {
+                    content.setStyle("-fx-max-width: 400px; -fx-wrap-text: true;");
+                }
+            });
             alert.getButtonTypes().setAll(javafx.scene.control.ButtonType.YES, javafx.scene.control.ButtonType.NO);
             
             // Add button click sound for dialog buttons

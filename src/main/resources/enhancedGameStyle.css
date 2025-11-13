@@ -196,10 +196,11 @@ VBox#leftObjectiveBox .stat-label {
     -fx-border-width: 2px;  
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 2);  
     -fx-min-width: 140px;  
-    -fx-max-width: 200px;  
+    -fx-max-width: 250px;  
     -fx-pref-width: 200px;  
-    -fx-text-overrun: ellipsis;  
+    -fx-text-overrun: clip;  
     -fx-alignment: center;  
+    -fx-wrap-text: true;
 }
 
 .control-button:hover, .game-button:hover {

@@ -299,14 +299,20 @@ public class EndlessGameOverController implements Initializable {
         // Score
         Label scoreLabel = new Label(String.format("%,d pts", entry.getScore()));
         scoreLabel.getStyleClass().add("entry-score");
+        scoreLabel.setWrapText(false);
+        scoreLabel.setTextOverrun(javafx.scene.control.OverrunStyle.CLIP);
         
         // Lines
         Label linesLabel = new Label(String.format("%d lines", entry.getLinesCleared()));
         linesLabel.getStyleClass().add("entry-lines");
+        linesLabel.setWrapText(false);
+        linesLabel.setTextOverrun(javafx.scene.control.OverrunStyle.CLIP);
         
         // Level
         Label levelLabel = new Label(String.format("Lv.%d", entry.getLevel()));
         levelLabel.getStyleClass().add("entry-level");
+        levelLabel.setWrapText(false);
+        levelLabel.setTextOverrun(javafx.scene.control.OverrunStyle.CLIP);
         
         box.getChildren().addAll(rankBadge, rankNum, scoreLabel, linesLabel, levelLabel);
         return box;

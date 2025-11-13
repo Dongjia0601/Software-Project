@@ -884,25 +884,66 @@ public class GuiController implements Initializable {
                 twoPlayerGameOverPanel.setManaged(false);
             }
             
+            if (countdownTimeline != null) {
+                countdownTimeline.stop();
+                countdownTimeline = null;
+                com.comp2042.SoundManager.getInstance().stopCountdownSound();
+            }
+            if (countdownOverlay1 != null && countdownParent1 != null) {
+                try {
+                    countdownParent1.getChildren().remove(countdownOverlay1);
+                } catch (Exception e) {
+                    // Parent may have been removed, ignore
+                }
+            }
+            if (countdownOverlay2 != null && countdownParent2 != null) {
+                try {
+                    countdownParent2.getChildren().remove(countdownOverlay2);
+                } catch (Exception e) {
+                    // Parent may have been removed, ignore
+                }
+            }
+            countdownOverlay1 = null;
+            countdownOverlay2 = null;
+            countdownParent1 = null;
+            countdownParent2 = null;
+            countdownCallback = null;
+            
             isPause.setValue(false);
             isGameOver.setValue(false);
             
-            // Clear old event listener before creating new controller
             eventListener = null;
+            isTwoPlayerMode = true;
             
-            // Recreate VS mode with new randomizer settings
-            com.comp2042.core.GameService player1Service = new com.comp2042.core.GameServiceImpl();
-            com.comp2042.core.GameService player2Service = new com.comp2042.core.GameServiceImpl();
-            com.comp2042.game.TwoPlayerVSGameMode newGameMode = 
-                new com.comp2042.game.TwoPlayerVSGameMode(player1Service, player2Service, this);
-            
-            // Create new two-player controller which will automatically show countdown and start game
-            new TwoPlayerGameController(newGameMode, this);
-            
-            // Request focus for keyboard input
-            if (rootPane != null) {
-                rootPane.requestFocus();
-            }
+            javafx.application.Platform.runLater(() -> {
+                javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(250));
+                delay.setOnFinished(e -> {
+                    if (rootPane != null && gamePanel1 != null && gamePanel2 != null &&
+                        gamePanel1.getParent() != null && gamePanel2.getParent() != null) {
+                        com.comp2042.core.GameService player1Service = new com.comp2042.core.GameServiceImpl();
+                        com.comp2042.core.GameService player2Service = new com.comp2042.core.GameServiceImpl();
+                        com.comp2042.game.TwoPlayerVSGameMode newGameMode = 
+                            new com.comp2042.game.TwoPlayerVSGameMode(player1Service, player2Service, this);
+                        new TwoPlayerGameController(newGameMode, this);
+                        rootPane.requestFocus();
+                    } else {
+                        javafx.animation.PauseTransition retryDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(200));
+                        retryDelay.setOnFinished(retryEvent -> {
+                            if (rootPane != null && gamePanel1 != null && gamePanel2 != null && 
+                                gamePanel1.getParent() != null && gamePanel2.getParent() != null) {
+                                com.comp2042.core.GameService player1Service = new com.comp2042.core.GameServiceImpl();
+                                com.comp2042.core.GameService player2Service = new com.comp2042.core.GameServiceImpl();
+                                com.comp2042.game.TwoPlayerVSGameMode newGameMode = 
+                                    new com.comp2042.game.TwoPlayerVSGameMode(player1Service, player2Service, this);
+                                new TwoPlayerGameController(newGameMode, this);
+                                rootPane.requestFocus();
+                            }
+                        });
+                        retryDelay.play();
+                    }
+                });
+                delay.play();
+            });
             return;
         }
         
@@ -4176,7 +4217,35 @@ public class GuiController implements Initializable {
     public void showCountdown(Runnable onComplete) {
         if (rootPane == null || gamePanel1 == null || gamePanel2 == null) {
             if (onComplete != null) {
-                onComplete.run();
+                javafx.application.Platform.runLater(() -> {
+                    javafx.animation.PauseTransition retryDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(200));
+                    retryDelay.setOnFinished(e -> {
+                        if (rootPane != null && gamePanel1 != null && gamePanel2 != null) {
+                            showCountdown(onComplete);
+                        } else if (onComplete != null) {
+                            onComplete.run();
+                        }
+                    });
+                    retryDelay.play();
+                });
+            }
+            return;
+        }
+        
+        if (gamePanel1.getParent() == null || gamePanel2.getParent() == null) {
+            if (onComplete != null) {
+                javafx.application.Platform.runLater(() -> {
+                    javafx.animation.PauseTransition retryDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(200));
+                    retryDelay.setOnFinished(e -> {
+                        if (rootPane != null && gamePanel1 != null && gamePanel2 != null &&
+                            gamePanel1.getParent() != null && gamePanel2.getParent() != null) {
+                            showCountdown(onComplete);
+                        } else if (onComplete != null) {
+                            onComplete.run();
+                        }
+                    });
+                    retryDelay.play();
+                });
             }
             return;
         }
