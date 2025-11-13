@@ -1756,7 +1756,7 @@ public class GuiController implements Initializable {
     /**
      * Handles keyboard controls for two-player mode.
      * Player 1: A/D - Move, W - Rotate, S - Soft Drop, Space - Hard Drop, Shift/C - Hold, F - Rotate CCW
-     * Player 2: ←/→ - Move, ↑ - Rotate, ↓ - Soft Drop, Ctrl - Hard Drop, Right Shift - Hold, Enter - Rotate CCW
+     * Player 2: ←/→ - Move, ↑ - Rotate, ↓ - Soft Drop, 0 - Hard Drop, 1 - Hold, 2 - Rotate CCW
      */
     private void handleTwoPlayerControls(KeyEvent keyEvent) {
         // === Player 1 Controls (WASD Keys) ===
@@ -1850,24 +1850,24 @@ public class GuiController implements Initializable {
             }
             keyEvent.consume();
         }
-        if (keyEvent.getCode() == KeyCode.BACK_SPACE) {
-            // Player 2: Hard drop (Backspace)
+        if (keyEvent.getCode() == KeyCode.DIGIT0 || keyEvent.getCode() == KeyCode.NUMPAD0) {
+            // Player 2: Hard drop (0 / NumPad0)
             DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_2));
             if (downData != null) {
                 handlePlayer2DownEvent(downData);
             }
             keyEvent.consume();
         }
-        if (keyEvent.getCode() == KeyCode.ALT || keyEvent.getCode() == KeyCode.ALT_GRAPH) {
-            // Player 2: Hold brick (Alt / AltGr)
+        if (keyEvent.getCode() == KeyCode.DIGIT1 || keyEvent.getCode() == KeyCode.NUMPAD1) {
+            // Player 2: Hold brick (1 / NumPad1)
             ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_2));
             if (result != null) {
                 refreshPlayer2Brick(result);
             }
             keyEvent.consume();
         }
-        if (keyEvent.getCode() == KeyCode.ENTER) {
-            // Player 2: Rotate counterclockwise
+        if (keyEvent.getCode() == KeyCode.DIGIT2 || keyEvent.getCode() == KeyCode.NUMPAD2) {
+            // Player 2: Rotate counterclockwise (2 / NumPad2)
             ViewData result = eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_2));
             if (result != null) {
                 refreshPlayer2Brick(result);

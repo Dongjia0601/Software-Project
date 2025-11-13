@@ -552,7 +552,7 @@ public class MainMenuController {
                 "Statistics: shows Level, Lines cleared, Speed and Time.",
                 "Score: real-time points and the Highest Score.",
                 "Controls: Settings, Help, Back to Menu.",
-                "Actions: New Game (N), Pause & Resume (P), Mute."
+                "Actions: New Game (N), Pause & Resume (P), Mute / Unmute (M)."
             };
             javafx.scene.layout.VBox basicsRightCol = createBulletedColumn(basicsRightItems, 330);
             basicsRightBox.getChildren().addAll(basicsRightTitle, basicsRightCol);

@@ -107,7 +107,7 @@
                                     </HBox>
                                     <HBox spacing="20" alignment="CENTER_LEFT">
                                         <Label text="Rotate (Counterclockwise)" styleClass="control-action" minWidth="200"/>
-                                        <Label text="Enter" styleClass="control-key"/>
+                                        <Label text="2 / NumPad2" styleClass="control-key"/>
                                     </HBox>
                                     <HBox spacing="20" alignment="CENTER_LEFT">
                                         <Label text="Soft Drop" styleClass="control-action" minWidth="200"/>
@@ -115,11 +115,11 @@
                                     </HBox>
                                     <HBox spacing="20" alignment="CENTER_LEFT">
                                         <Label text="Hard Drop" styleClass="control-action" minWidth="200"/>
-                                        <Label text="Backspace" styleClass="control-key"/>
+                                        <Label text="0 / NumPad0" styleClass="control-key"/>
                                     </HBox>
                                     <HBox spacing="20" alignment="CENTER_LEFT">
                                         <Label text="Hold Block" styleClass="control-action" minWidth="200"/>
-                                        <Label text="Alt" styleClass="control-key"/>
+                                        <Label text="1 / NumPad1" styleClass="control-key"/>
                                     </HBox>
                                 </VBox>
                             </VBox>
@@ -136,6 +136,10 @@
                                 <HBox spacing="20" alignment="CENTER_LEFT">
                                     <Label text="New Game" styleClass="control-action" minWidth="200"/>
                                     <Label text="N" styleClass="control-key"/>
+                                </HBox>
+                                <HBox spacing="20" alignment="CENTER_LEFT">
+                                    <Label text="Mute / Unmute" styleClass="control-action" minWidth="200"/>
+                                    <Label text="M" styleClass="control-key"/>
                                 </HBox>
                             </VBox>
                         </VBox>
