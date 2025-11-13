@@ -286,7 +286,7 @@
                        mnemonicParsing="false"
                        onAction="#showHelp"/>
                 <Button fx:id="muteButton" 
-                       text="Mute" 
+                       text="MUTE (M)" 
                        styleClass="game-button"
                        mnemonicParsing="false"
                        onAction="#toggleMute"/>

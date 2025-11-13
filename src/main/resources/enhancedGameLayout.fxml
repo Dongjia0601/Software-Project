@@ -95,6 +95,12 @@
                 <Button text="Back to Menu" 
                        styleClass="control-button"
                        onAction="#returnToMenu"/>
+                <Button fx:id="backToSelectionButton"
+                        text="Back to Selection" 
+                        styleClass="control-button"
+                        onAction="#returnToLevelSelection"
+                        visible="false"
+                        managed="false"/>
             </VBox>
             
         </VBox>
@@ -109,7 +115,7 @@
                 </padding>
                 
                 <!-- Game Title - Centered and moved up -->
-                <Label text="TETRIS" styleClass="game-title" alignment="CENTER">
+                <Label fx:id="gameTitleLabel" text="TETRIS" styleClass="game-title" alignment="CENTER">
                     <VBox.margin>
                         <Insets left="0" right="0" top="0" bottom="5"/>
                     </VBox.margin>
@@ -158,7 +164,7 @@
             <VBox spacing="2" alignment="CENTER">
                 <Label text="[A/D] Move  [W] Rotate(Clockwise) [F] Rotate Counter-Clockwise"
                        styleClass="control-hint"/>
-                <Label text=" [S] Soft Drop [Space] Hard Drop [Shift] Hold"
+                <Label text="[S] Soft Drop  [Space] Hard Drop  [Shift] Hold "
                        styleClass="control-hint"/>
             </VBox>
             </VBox>
@@ -226,7 +232,7 @@
                        styleClass="game-button"
                        onAction="#newGame"/>
                 <Button fx:id="muteButton" 
-                       text="Mute" 
+                       text="MUTE (M)" 
                        styleClass="game-button"
                        onAction="#toggleMute"/>
                 <Button fx:id="pauseButton" 

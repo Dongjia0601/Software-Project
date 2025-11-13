@@ -81,7 +81,7 @@ public class SoundManager {
     private void playSound(String resourcePath) {
         if (!soundEnabled) return;
         
-        Media media = loadMedia(resourcePath);
+            Media media = loadMedia(resourcePath);
         if (media == null) return;
         
         // Check if we're already on JavaFX thread to avoid unnecessary Platform.runLater() calls
@@ -220,7 +220,7 @@ public class SoundManager {
     private void playCountdownSoundOnFxThread(Media media) {
         try {
             countdownSoundPlayer = new MediaPlayer(media);
-            countdownSoundPlayer.setVolume(masterVolume * sfxVolume);
+            updateCountdownPlayerVolume();
             
             // Auto-dispose player when finished
             countdownSoundPlayer.setOnEndOfMedia(() -> {
@@ -512,6 +512,7 @@ public class SoundManager {
         if (backgroundMusicPlayer != null) {
             backgroundMusicPlayer.setVolume(this.masterVolume * this.musicVolume);
         }
+        updateCountdownPlayerVolume();
     }
     
     /**
@@ -530,6 +531,7 @@ public class SoundManager {
      */
     public void setSfxVolume(double sfxVolume) {
         this.sfxVolume = Math.max(0.0, Math.min(1.0, sfxVolume));
+        updateCountdownPlayerVolume();
     }
     
     /**
@@ -578,6 +580,13 @@ public class SoundManager {
         // Update background music volume immediately
         if (backgroundMusicPlayer != null) {
             backgroundMusicPlayer.setVolume(this.masterVolume * this.musicVolume);
+        }
+        updateCountdownPlayerVolume();
+    }
+
+    private void updateCountdownPlayerVolume() {
+        if (countdownSoundPlayer != null) {
+            countdownSoundPlayer.setVolume(this.masterVolume * this.sfxVolume);
         }
     }
 }

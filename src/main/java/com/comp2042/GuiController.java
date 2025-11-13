@@ -25,6 +25,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.geometry.Rectangle2D;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -69,8 +70,8 @@ public class GuiController implements Initializable {
     // Extracted constants for better readability and maintainability
     private static final int BRICK_SIZE = 25; // Size of a single brick cell in pixels (enlarged for better visibility)
     private static final int TIMELINE_DURATION_MS = 400; // Duration for automatic brick drop (milliseconds)
-    private static final int LAYOUT_OFFSET_Y = 0; // Vertical layout offset for brick panel
-    private static final int LAYOUT_OFFSET_X = 0; // Horizontal layout offset for brick panel
+    private static final int DEFAULT_GRID_GAP = 1; // Fallback gap when GridPane spacing not yet initialised
+    private static final int VISIBLE_ROW_OFFSET = 0; // Number of hidden rows above the visible board
 
     @FXML
     private BorderPane rootPane; // Root BorderPane container
@@ -124,6 +125,9 @@ public class GuiController implements Initializable {
     private Label timeLabel;
     
     @FXML
+    private Label gameTitleLabel;
+    
+    @FXML
     private VBox statisticsBox;
     
     @FXML
@@ -135,7 +139,8 @@ public class GuiController implements Initializable {
     @FXML
     private javafx.scene.control.Button muteButton;
 
-    // Level Mode UI components
+    @FXML
+    private Button backToSelectionButton;
     @FXML
     private VBox leftObjectiveBox;
     @FXML
@@ -179,6 +184,98 @@ public class GuiController implements Initializable {
     private boolean isMuted = false;
     private double currentBrickOpacity = 1.0;
     private boolean ghostEnabled = true; // Whether ghost piece should be displayed
+
+    /**
+     * Calculates the absolute X position for the specified column within a given grid.
+     *
+     * @param grid   the GridPane representing the board (may be null before initialization)
+     * @param matrix the matrix of rectangles corresponding to the grid
+     * @param column the zero-based column index
+     * @return the computed X coordinate in pixels
+     */
+    private double calculateGridX(GridPane grid, Rectangle[][] matrix, int column) {
+        GridMetrics metrics = measureGrid(grid, matrix);
+        return metrics.originX + column * metrics.cellWidth;
+    }
+
+    /**
+     * Calculates the absolute Y position for the specified row within a given grid.
+     *
+     * @param grid the GridPane representing the board (may be null before initialization)
+     * @param matrix the matrix of rectangles corresponding to the grid
+     * @param row  the zero-based row index
+     * @return the computed Y coordinate in pixels
+     */
+    private double calculateGridY(GridPane grid, Rectangle[][] matrix, int row) {
+        GridMetrics metrics = measureGrid(grid, matrix);
+        return metrics.originY + row * metrics.cellHeight;
+    }
+
+    /**
+     * Measures grid origin and cell dimensions using the provided rectangle matrix.
+     * Falls back to configured brick size and gaps when layout bounds are unavailable.
+     *
+     * @param grid the GridPane associated with the matrix
+     * @param matrix the rectangles composing the static board background for the grid
+     * @return GridMetrics containing origin coordinates and cell dimensions
+     */
+    private GridMetrics measureGrid(GridPane grid, Rectangle[][] matrix) {
+        double gapX = DEFAULT_GRID_GAP;
+        double gapY = DEFAULT_GRID_GAP;
+        double originX = 0;
+        double originY = 0;
+
+        if (grid != null) {
+            gapX = grid.getHgap() > 0 ? grid.getHgap() : DEFAULT_GRID_GAP;
+            gapY = grid.getVgap() > 0 ? grid.getVgap() : DEFAULT_GRID_GAP;
+            originX = grid.getLayoutX();
+            originY = grid.getLayoutY();
+            grid.applyCss();
+            grid.layout();
+        }
+
+        double cellWidth = BRICK_SIZE + gapX;
+        double cellHeight = BRICK_SIZE + gapY;
+
+        if (matrix != null && matrix.length > 0 && matrix[0].length > 0) {
+            Rectangle cell00 = matrix[0][0];
+            if (cell00 != null) {
+                Bounds bounds00 = cell00.getBoundsInParent();
+                double minX00 = bounds00.getMinX();
+                double minY00 = bounds00.getMinY();
+                originX = (grid != null ? grid.getLayoutX() : 0) + minX00;
+                originY = (grid != null ? grid.getLayoutY() : 0) + minY00;
+
+                if (matrix[0].length > 1 && matrix[0][1] != null) {
+                    Bounds bounds01 = matrix[0][1].getBoundsInParent();
+                    cellWidth = bounds01.getMinX() - minX00;
+                }
+                if (matrix.length > 1 && matrix[1][0] != null) {
+                    Bounds bounds10 = matrix[1][0].getBoundsInParent();
+                    cellHeight = bounds10.getMinY() - minY00;
+                }
+            }
+        }
+
+        return new GridMetrics(originX, originY, cellWidth, cellHeight);
+    }
+
+    /**
+     * Holds grid measurement data for alignment calculations.
+     */
+    private static final class GridMetrics {
+        final double originX;
+        final double originY;
+        final double cellWidth;
+        final double cellHeight;
+
+        GridMetrics(double originX, double originY, double cellWidth, double cellHeight) {
+            this.originX = originX;
+            this.originY = originY;
+            this.cellWidth = cellWidth;
+            this.cellHeight = cellHeight;
+        }
+    }
 
     private final BooleanProperty isPause = new SimpleBooleanProperty(); // Property indicating if the game is paused
 
@@ -346,6 +443,12 @@ public class GuiController implements Initializable {
             newGame(null);
             keyEvent.consume();
         }
+
+        // Toggle mute with M key
+        if (keyEvent.getCode() == KeyCode.M) {
+            toggleMute();
+            keyEvent.consume();
+        }
     }
 
     /**
@@ -412,8 +515,8 @@ public class GuiController implements Initializable {
             }
         }
 
-        brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel.getVgap()));
-        brickPanel.setLayoutY(gamePanel.getLayoutY() + (brick.getyPosition() - 2) * (BRICK_SIZE + gamePanel.getHgap()));
+        brickPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getxPosition()));
+        brickPanel.setLayoutY(calculateGridY(gamePanel, displayMatrix, brick.getyPosition()));
         
         // Update ghost brick position
         updateGhostBrick(brick);
@@ -492,8 +595,8 @@ public class GuiController implements Initializable {
      */
     private void refreshBrick(ViewData brick) {
         if (!isPause.getValue()) {
-            brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel.getVgap()));
-            brickPanel.setLayoutY(gamePanel.getLayoutY() + (brick.getyPosition() - 2) * (BRICK_SIZE + gamePanel.getHgap()));
+            brickPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getxPosition()));
+            brickPanel.setLayoutY(calculateGridY(gamePanel, displayMatrix, brick.getyPosition()));
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
@@ -536,8 +639,8 @@ public class GuiController implements Initializable {
             return;
         }
         
-        ghostPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel.getVgap()));
-        ghostPanel.setLayoutY(gamePanel.getLayoutY() + ghostY * (BRICK_SIZE + gamePanel.getHgap()));
+        ghostPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getxPosition()));
+        ghostPanel.setLayoutY(calculateGridY(gamePanel, displayMatrix, ghostY));
         
         // Update ghost brick rectangles to match current brick shape
         int[][] brickData = brick.getBrickData();
@@ -1026,6 +1129,26 @@ public class GuiController implements Initializable {
             }
         }
     }
+
+    /**
+     * Updates the central game title to indicate the active level.
+     *
+     * @param levelId the numeric level identifier to display
+     */
+    public void setGameTitleForLevel(int levelId) {
+        if (gameTitleLabel != null) {
+            gameTitleLabel.setText("Level " + levelId);
+        }
+    }
+
+    /**
+     * Resets the central game title to the default label for non-level modes.
+     */
+    public void resetGameTitle() {
+        if (gameTitleLabel != null) {
+            gameTitleLabel.setText("TETRIS");
+        }
+    }
     
     /**
      * Applies theme colors to Hold and Next preview displays.
@@ -1083,6 +1206,11 @@ public class GuiController implements Initializable {
             highScoreLabel.setVisible(false);
             highScoreLabel.setManaged(false);
         }
+
+        if (backToSelectionButton != null) {
+            backToSelectionButton.setVisible(true);
+            backToSelectionButton.setManaged(true);
+        }
     }
     
     /**
@@ -1117,6 +1245,12 @@ public class GuiController implements Initializable {
         }
         
         stopLevelTimer();
+        resetGameTitle();
+
+        if (backToSelectionButton != null) {
+            backToSelectionButton.setVisible(false);
+            backToSelectionButton.setManaged(false);
+        }
     }
 
     public void updateTime(int timeLimitSeconds) {
@@ -1522,14 +1656,18 @@ public class GuiController implements Initializable {
             settings.setMasterVolume(previousVolume);
             // Apply to SoundManager immediately - this will restore all audio
             soundManager.setMasterVolume(previousVolume);
-            muteButton.setText("MUTE");
+            if (muteButton != null) {
+                muteButton.setText("MUTE (M)");
+            }
         } else {
             // Mute: save current volume and set to 0%
             previousVolume = settings.getMasterVolume();
             settings.setMasterVolume(0.0);
             // Apply to SoundManager immediately - this will mute all audio
             soundManager.setMasterVolume(0.0);
-            muteButton.setText("UNMUTE");
+            if (muteButton != null) {
+                muteButton.setText("UNMUTE (M)");
+            }
         }
         
         isMuted = !isMuted;
@@ -1556,11 +1694,15 @@ public class GuiController implements Initializable {
             if (currentVolume > 0) {
                 // Volume is not 0, so we're not muted
                 isMuted = false;
-                muteButton.setText("Mute");
+                if (muteButton != null) {
+                    muteButton.setText("MUTE (M)");
+                }
             } else {
                 // Volume is 0, so we're muted
                 isMuted = true;
-                muteButton.setText("Unmute");
+                if (muteButton != null) {
+                    muteButton.setText("UNMUTE (M)");
+                }
             }
         }
     }
@@ -2307,6 +2449,52 @@ public class GuiController implements Initializable {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Returns to the level selection screen when in Level Mode.
+     */
+    @FXML
+    public void returnToLevelSelection() {
+        if (!isLevelMode) {
+            returnToMenu();
+            return;
+        }
+
+        SoundManager.getInstance().playButtonClickSound();
+
+        try {
+            hideLevelModeUI();
+            cleanupAllTimelines();
+
+            FXMLLoader levelSelectionLoader = new FXMLLoader(getClass().getClassLoader().getResource("levelSelection.fxml"));
+            Parent levelSelectionRoot = levelSelectionLoader.load();
+
+            Stage stage;
+            if (rootPane != null && rootPane.getScene() != null) {
+                stage = (Stage) rootPane.getScene().getWindow();
+            } else if (gamePanel != null && gamePanel.getScene() != null) {
+                stage = (Stage) gamePanel.getScene().getWindow();
+            } else {
+                System.err.println("Cannot determine current stage");
+                return;
+            }
+
+            com.comp2042.ui.LevelSelectionController controller = levelSelectionLoader.getController();
+            if (controller != null) {
+                controller.setStage(stage);
+                controller.refreshData();
+            }
+
+            Scene scene = new Scene(levelSelectionRoot, 900, 800);
+            stage.setScene(scene);
+            stage.setTitle("Tetris - Level Selection");
+            centerWindowOnScreen(stage, 900, 800);
+        } catch (Exception e) {
+            System.err.println("Error returning to level selection: " + e.getMessage());
+            e.printStackTrace();
+            returnToMenu();
+        }
+    }
     
     /**
      * Centers the window on the current screen (where the window is located).
@@ -2386,6 +2574,11 @@ public class GuiController implements Initializable {
         if (endlessMode) {
             this.gameStartTime = System.currentTimeMillis();
             startTimeTimer();
+            resetGameTitle();
+            if (backToSelectionButton != null) {
+                backToSelectionButton.setVisible(false);
+                backToSelectionButton.setManaged(false);
+            }
             // Initialize endless progression UI
             endlessLevel = 1;
             endlessLinesClearedUI = 0;
@@ -2945,8 +3138,8 @@ public class GuiController implements Initializable {
         }
         
         if (gamePanel1 != null && brickPanel1 != null) {
-            brickPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel1.getVgap()));
-            brickPanel1.setLayoutY(gamePanel1.getLayoutY() + (brick.getyPosition() - 2) * (BRICK_SIZE + gamePanel1.getHgap()));
+            brickPanel1.setLayoutX(calculateGridX(gamePanel1, displayMatrix1, brick.getxPosition()));
+            brickPanel1.setLayoutY(calculateGridY(gamePanel1, displayMatrix1, brick.getyPosition()));
         }
         
         // Initialize next and hold displays
@@ -3047,8 +3240,8 @@ public class GuiController implements Initializable {
         }
         
         if (gamePanel2 != null && brickPanel2 != null) {
-            brickPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel2.getVgap()));
-            brickPanel2.setLayoutY(gamePanel2.getLayoutY() + (brick.getyPosition() - 2) * (BRICK_SIZE + gamePanel2.getHgap()));
+            brickPanel2.setLayoutX(calculateGridX(gamePanel2, displayMatrix2, brick.getxPosition()));
+            brickPanel2.setLayoutY(calculateGridY(gamePanel2, displayMatrix2, brick.getyPosition()));
         }
         
         // Initialize next and hold displays
@@ -3080,8 +3273,8 @@ public class GuiController implements Initializable {
         }
         
         if (!isPause.getValue()) {
-            brickPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel1.getVgap()));
-            brickPanel1.setLayoutY(gamePanel1.getLayoutY() + (brick.getyPosition() - 2) * (BRICK_SIZE + gamePanel1.getHgap()));
+            brickPanel1.setLayoutX(calculateGridX(gamePanel1, displayMatrix1, brick.getxPosition()));
+            brickPanel1.setLayoutY(calculateGridY(gamePanel1, displayMatrix1, brick.getyPosition()));
             
             for (int i = 0; i < brick.getBrickData().length && i < rectangles1.length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles1[i].length; j++) {
@@ -3114,8 +3307,8 @@ public class GuiController implements Initializable {
         }
         
         if (!isPause.getValue()) {
-            brickPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel2.getVgap()));
-            brickPanel2.setLayoutY(gamePanel2.getLayoutY() + (brick.getyPosition() - 2) * (BRICK_SIZE + gamePanel2.getHgap()));
+            brickPanel2.setLayoutX(calculateGridX(gamePanel2, displayMatrix2, brick.getxPosition()));
+            brickPanel2.setLayoutY(calculateGridY(gamePanel2, displayMatrix2, brick.getyPosition()));
             
             for (int i = 0; i < brick.getBrickData().length && i < rectangles2.length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles2[i].length; j++) {
@@ -3160,8 +3353,8 @@ public class GuiController implements Initializable {
             return;
         }
         
-        ghostPanel1.setLayoutX(gamePanel1.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel1.getVgap()));
-        ghostPanel1.setLayoutY(gamePanel1.getLayoutY() + ghostY * (BRICK_SIZE + gamePanel1.getHgap()));
+        ghostPanel1.setLayoutX(calculateGridX(gamePanel1, displayMatrix1, brick.getxPosition()));
+        ghostPanel1.setLayoutY(calculateGridY(gamePanel1, displayMatrix1, ghostY));
         
         // Update ghost brick rectangles to match current brick shape
         int[][] brickData = brick.getBrickData();
@@ -3214,8 +3407,8 @@ public class GuiController implements Initializable {
             return;
         }
         
-        ghostPanel2.setLayoutX(gamePanel2.getLayoutX() + brick.getxPosition() * (BRICK_SIZE + gamePanel2.getVgap()));
-        ghostPanel2.setLayoutY(gamePanel2.getLayoutY() + ghostY * (BRICK_SIZE + gamePanel2.getHgap()));
+        ghostPanel2.setLayoutX(calculateGridX(gamePanel2, displayMatrix2, brick.getxPosition()));
+        ghostPanel2.setLayoutY(calculateGridY(gamePanel2, displayMatrix2, ghostY));
         
         // Update ghost brick rectangles to match current brick shape
         int[][] brickData = brick.getBrickData();
@@ -3647,6 +3840,13 @@ public class GuiController implements Initializable {
         
         // Clear next display
         updatePlayer1NextDisplay(null);
+
+        // Clear ghost brick
+        if (ghostPanel1 != null) {
+            ghostPanel1.setVisible(false);
+            ghostPanel1.getChildren().clear();
+        }
+        ghostRectangles1 = null;
         
         // Clear falling brick
         if (brickPanel1 != null) {
@@ -3677,6 +3877,13 @@ public class GuiController implements Initializable {
         
         // Clear next display
         updatePlayer2NextDisplay(null);
+
+        // Clear ghost brick
+        if (ghostPanel2 != null) {
+            ghostPanel2.setVisible(false);
+            ghostPanel2.getChildren().clear();
+        }
+        ghostRectangles2 = null;
         
         // Clear falling brick
         if (brickPanel2 != null) {
