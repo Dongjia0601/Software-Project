@@ -168,6 +168,7 @@ public class GuiController implements Initializable {
     }
 
     private Rectangle[][] displayMatrix; // Array of rectangles representing the static board background
+    private int[][] cachedBoardMatrix; // Cached board matrix for incremental rendering optimization
     private Rectangle[][] holdDisplayMatrix; // Array of rectangles for hold display
     private Rectangle[][] nextDisplayMatrix; // Array of rectangles for next piece display
 
@@ -470,6 +471,8 @@ public class GuiController implements Initializable {
         // Initialize the display matrix for the static board background
         // Render all 20 rows (10 columns × 20 rows)
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
+        // Initialize cache for incremental rendering optimization
+        cachedBoardMatrix = new int[boardMatrix.length][boardMatrix[0].length];
         for (int i = 0; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
@@ -477,6 +480,7 @@ public class GuiController implements Initializable {
                 rectangle.getStyleClass().add("game-cell");
                 displayMatrix[i][j] = rectangle;
                 gamePanel.add(rectangle, j, i);
+                cachedBoardMatrix[i][j] = boardMatrix[i][j]; // Initialize cache
             }
         }
 
@@ -673,13 +677,37 @@ public class GuiController implements Initializable {
 
     /**
      * Updates the visual representation of the static game board background.
+     * PERFORMANCE OPTIMIZATION: Only updates cells that have actually changed.
      *
      * @param board The updated board matrix.
      */
     public void refreshGameBackground(int[][] board) {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                setRectangleData(board[i][j], displayMatrix[i][j]);
+        if (displayMatrix == null || board == null) {
+            return;
+        }
+        
+        // Initialize cache on first call
+        if (cachedBoardMatrix == null || 
+            cachedBoardMatrix.length != board.length || 
+            cachedBoardMatrix[0].length != board[0].length) {
+            cachedBoardMatrix = new int[board.length][board[0].length];
+            // Force full update on first call
+            for (int i = 0; i < board.length; i++) {
+                for (int j = 0; j < board[i].length; j++) {
+                    cachedBoardMatrix[i][j] = board[i][j];
+                    setRectangleData(board[i][j], displayMatrix[i][j]);
+                }
+            }
+            return;
+        }
+        
+        // Incremental update: only update changed cells
+        for (int i = 0; i < board.length && i < displayMatrix.length; i++) {
+            for (int j = 0; j < board[i].length && j < displayMatrix[i].length; j++) {
+                if (cachedBoardMatrix[i][j] != board[i][j]) {
+                    cachedBoardMatrix[i][j] = board[i][j];
+                    setRectangleData(board[i][j], displayMatrix[i][j]);
+                }
             }
         }
     }
@@ -3138,6 +3166,7 @@ public class GuiController implements Initializable {
     
     // Player 1 display matrices (for two-player mode)
     private Rectangle[][] displayMatrix1;
+    private int[][] cachedBoardMatrix1; // Cached board matrix for Player 1 incremental rendering
     private Rectangle[][] rectangles1;
     private Rectangle[][] ghostRectangles1; // Ghost brick rectangles for Player 1
     private Rectangle[][] holdDisplayMatrix1;
@@ -3145,6 +3174,7 @@ public class GuiController implements Initializable {
     
     // Player 2 display matrices (for two-player mode)
     private Rectangle[][] displayMatrix2;
+    private int[][] cachedBoardMatrix2; // Cached board matrix for Player 2 incremental rendering
     private Rectangle[][] rectangles2;
     private Rectangle[][] ghostRectangles2; // Ghost brick rectangles for Player 2
     private Rectangle[][] holdDisplayMatrix2;
@@ -3193,6 +3223,8 @@ public class GuiController implements Initializable {
         // Initialize display matrix for Player 1's static board background
         // Render all 20 rows (10 columns × 20 rows)
         displayMatrix1 = new Rectangle[boardMatrix.length][boardMatrix[0].length];
+        // Initialize cache for Player 1 incremental rendering optimization
+        cachedBoardMatrix1 = new int[boardMatrix.length][boardMatrix[0].length];
         for (int i = 0; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
@@ -3200,6 +3232,7 @@ public class GuiController implements Initializable {
                 rectangle.getStyleClass().add("game-cell");
                 displayMatrix1[i][j] = rectangle;
                 gamePanel1.add(rectangle, j, i);
+                cachedBoardMatrix1[i][j] = boardMatrix[i][j]; // Initialize cache
             }
         }
         
@@ -3295,6 +3328,8 @@ public class GuiController implements Initializable {
         // Initialize display matrix for Player 2's static board background
         // Render all 20 rows (10 columns × 20 rows)
         displayMatrix2 = new Rectangle[boardMatrix.length][boardMatrix[0].length];
+        // Initialize cache for Player 2 incremental rendering optimization
+        cachedBoardMatrix2 = new int[boardMatrix.length][boardMatrix[0].length];
         for (int i = 0; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
@@ -3302,6 +3337,7 @@ public class GuiController implements Initializable {
                 rectangle.getStyleClass().add("game-cell");
                 displayMatrix2[i][j] = rectangle;
                 gamePanel2.add(rectangle, j, i);
+                cachedBoardMatrix2[i][j] = boardMatrix[i][j]; // Initialize cache
             }
         }
         
@@ -3626,32 +3662,74 @@ public class GuiController implements Initializable {
     
     /**
      * Refreshes Player 1's game board background display.
+     * PERFORMANCE OPTIMIZATION: Only updates cells that have actually changed.
      * 
      * @param board the updated board matrix
      */
     public void refreshGameBackground1(int[][] board) {
-        if (displayMatrix1 == null) {
+        if (displayMatrix1 == null || board == null) {
             return;
         }
+        
+        // Initialize cache on first call
+        if (cachedBoardMatrix1 == null || 
+            cachedBoardMatrix1.length != board.length || 
+            cachedBoardMatrix1[0].length != board[0].length) {
+            cachedBoardMatrix1 = new int[board.length][board[0].length];
+            // Force full update on first call
+            for (int i = 0; i < board.length && i < displayMatrix1.length; i++) {
+                for (int j = 0; j < board[i].length && j < displayMatrix1[i].length; j++) {
+                    cachedBoardMatrix1[i][j] = board[i][j];
+                    setRectangleData(board[i][j], displayMatrix1[i][j]);
+                }
+            }
+            return;
+        }
+        
+        // Incremental update: only update changed cells
         for (int i = 0; i < board.length && i < displayMatrix1.length; i++) {
             for (int j = 0; j < board[i].length && j < displayMatrix1[i].length; j++) {
-                setRectangleData(board[i][j], displayMatrix1[i][j]);
+                if (cachedBoardMatrix1[i][j] != board[i][j]) {
+                    cachedBoardMatrix1[i][j] = board[i][j];
+                    setRectangleData(board[i][j], displayMatrix1[i][j]);
+                }
             }
         }
     }
     
     /**
      * Refreshes Player 2's game board background display.
+     * PERFORMANCE OPTIMIZATION: Only updates cells that have actually changed.
      * 
      * @param board the updated board matrix
      */
     public void refreshGameBackground2(int[][] board) {
-        if (displayMatrix2 == null) {
+        if (displayMatrix2 == null || board == null) {
             return;
         }
+        
+        // Initialize cache on first call
+        if (cachedBoardMatrix2 == null || 
+            cachedBoardMatrix2.length != board.length || 
+            cachedBoardMatrix2[0].length != board[0].length) {
+            cachedBoardMatrix2 = new int[board.length][board[0].length];
+            // Force full update on first call
+            for (int i = 0; i < board.length && i < displayMatrix2.length; i++) {
+                for (int j = 0; j < board[i].length && j < displayMatrix2[i].length; j++) {
+                    cachedBoardMatrix2[i][j] = board[i][j];
+                    setRectangleData(board[i][j], displayMatrix2[i][j]);
+                }
+            }
+            return;
+        }
+        
+        // Incremental update: only update changed cells
         for (int i = 0; i < board.length && i < displayMatrix2.length; i++) {
             for (int j = 0; j < board[i].length && j < displayMatrix2[i].length; j++) {
-                setRectangleData(board[i][j], displayMatrix2[i][j]);
+                if (cachedBoardMatrix2[i][j] != board[i][j]) {
+                    cachedBoardMatrix2[i][j] = board[i][j];
+                    setRectangleData(board[i][j], displayMatrix2[i][j]);
+                }
             }
         }
     }

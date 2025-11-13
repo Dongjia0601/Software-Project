@@ -71,7 +71,7 @@ public class SimpleBoard implements Board {
             return false; // No brick to move
         }
         
-        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
+        // PERFORMANCE OPTIMIZATION: intersect() is read-only, no need to copy matrix
         Point p = new Point(currentOffset);
         p.translate(0, 1); // Move down (increase y)
         
@@ -80,7 +80,7 @@ public class SimpleBoard implements Board {
             return false; // Cannot move down, brick lands
         }
         
-        boolean conflict = MatrixOperations.intersect(currentMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
+        boolean conflict = MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
         if (conflict) {
             return false; // Cannot move down, brick lands
         } else {
@@ -101,7 +101,7 @@ public class SimpleBoard implements Board {
             return 0; // No brick to drop
         }
         
-        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
+        // PERFORMANCE OPTIMIZATION: intersect() is read-only, no need to copy matrix
         int dropDistance = 0;
         Point originalPosition = new Point(currentOffset);
         
@@ -116,7 +116,7 @@ public class SimpleBoard implements Board {
             }
             
             // Check for collision with other bricks
-            boolean conflict = MatrixOperations.intersect(currentMatrix, brickRotator.getCurrentShape(), (int) testPosition.getX(), (int) testPosition.getY());
+            boolean conflict = MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) testPosition.getX(), (int) testPosition.getY());
             if (conflict) {
                 break; // Hit another brick
             }
@@ -138,10 +138,10 @@ public class SimpleBoard implements Board {
      * @return true if the move was successful, false if a collision occurred.
      */
     public boolean moveBrickLeft() {
-        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
+        // PERFORMANCE OPTIMIZATION: intersect() is read-only, no need to copy matrix
         Point p = new Point(currentOffset);
         p.translate(-1, 0); // Move left (decrease x)
-        boolean conflict = MatrixOperations.intersect(currentMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
+        boolean conflict = MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
         if (conflict) {
             return false; // Cannot move left
         } else {
@@ -158,10 +158,10 @@ public class SimpleBoard implements Board {
      * @return true if the move was successful, false if a collision occurred.
      */
     public boolean moveBrickRight() {
-        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
+        // PERFORMANCE OPTIMIZATION: intersect() is read-only, no need to copy matrix
         Point p = new Point(currentOffset);
         p.translate(1, 0); // Move right (increase x)
-        boolean conflict = MatrixOperations.intersect(currentMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
+        boolean conflict = MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
         if (conflict) {
             return false; // Cannot move right
         } else {
@@ -178,9 +178,9 @@ public class SimpleBoard implements Board {
      * @return true if the rotation was successful, false if a collision occurred.
      */
     public boolean rotateLeftBrick() {
-        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
+        // PERFORMANCE OPTIMIZATION: intersect() is read-only, no need to copy matrix
         NextShapeInfo nextShape = brickRotator.calculateNextShapeInfo(); // Assuming renamed method
-        boolean conflict = MatrixOperations.intersect(currentMatrix, nextShape.getShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
+        boolean conflict = MatrixOperations.intersect(currentGameMatrix, nextShape.getShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
         if (conflict) {
             return false; // Cannot rotate
         } else {
@@ -196,9 +196,9 @@ public class SimpleBoard implements Board {
      * @return true if the rotation was successful, false if a collision occurred.
      */
     public boolean rotateRightBrick() {
-        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
+        // PERFORMANCE OPTIMIZATION: intersect() is read-only, no need to copy matrix
         NextShapeInfo prevShape = brickRotator.calculatePreviousShapeInfo();
-        boolean conflict = MatrixOperations.intersect(currentMatrix, prevShape.getShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
+        boolean conflict = MatrixOperations.intersect(currentGameMatrix, prevShape.getShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
         if (conflict) {
             return false; // Cannot rotate
         } else {
@@ -449,7 +449,7 @@ public class SimpleBoard implements Board {
             return -1; // No brick to calculate ghost position for
         }
         
-        int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
+        // PERFORMANCE OPTIMIZATION: intersect() is read-only, no need to copy matrix
         int currentX = (int) currentOffset.getX();
         int currentY = (int) currentOffset.getY();
         int[][] currentShape = brickRotator.getCurrentShape();
@@ -462,7 +462,7 @@ public class SimpleBoard implements Board {
             int testY = ghostY + 1;
             
             // Check for collision with other bricks or out of bounds
-            boolean conflict = MatrixOperations.intersect(currentMatrix, currentShape, currentX, testY);
+            boolean conflict = MatrixOperations.intersect(currentGameMatrix, currentShape, currentX, testY);
             if (conflict) {
                 break; // Hit another brick or out of bounds
             }
