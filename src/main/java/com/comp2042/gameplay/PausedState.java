@@ -20,6 +20,8 @@ import com.comp2042.ViewData;
  *   <li>Process new game requests to restart</li>
  *   <li>Maintain current game state for resumption</li>
  * </ul>
+ * 
+ * @author Dong, Jia.
  */
 public class PausedState implements GameState {
     private final Board board; // Reference to the main game board logic to get current state

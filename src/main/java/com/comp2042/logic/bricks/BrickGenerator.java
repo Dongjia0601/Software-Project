@@ -3,6 +3,8 @@ package com.comp2042.logic.bricks;
 /**
  * Interface for generating Tetris bricks during gameplay.
  * Defines methods for retrieving the current brick and the next brick to be generated.
+ * 
+ * @author Dong, Jia.
  */
 public interface BrickGenerator {
 

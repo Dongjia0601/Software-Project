@@ -17,6 +17,8 @@ import com.comp2042.*;
  *   <li>Process row clearing and score updates</li>
  *   <li>Detect game over conditions and trigger state transitions</li>
  * </ul>
+ * 
+ * @author Dong, Jia.
  */
 public class PlayingState implements GameState {
     private final Board board; // Reference to the main game board logic
@@ -69,8 +71,8 @@ public class PlayingState implements GameState {
             board.mergeBrickToBackground();
             clearRow = board.clearRows();
             if (clearRow.getLinesRemoved() > 0) {
-                // Play line clear sound effect
-                SoundManager.getInstance().playLineClearSound();
+                // Play line clear sound effect based on number of lines cleared
+                SoundManager.getInstance().playLineClearSound(clearRow.getLinesRemoved());
               
                 // Update lines display in GUI
                 // Endless Mode updates lines in GuiController.moveDown() using endlessLinesClearedUI

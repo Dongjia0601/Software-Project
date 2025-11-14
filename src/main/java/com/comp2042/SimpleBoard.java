@@ -13,6 +13,8 @@ import java.awt.*;
  * Manages the board grid, the currently falling brick, its position,
  * brick generation, movement rules (collision, landing), merging bricks
  * to the background, clearing completed rows, and score tracking.
+ * 
+ * @author Dong, Jia.
  */
 public class SimpleBoard implements Board {
 

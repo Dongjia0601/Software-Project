@@ -192,7 +192,7 @@ public class TwoPlayerVSGameMode implements GameMode {
                 }
                 
                 // Play line clear sound
-                com.comp2042.SoundManager.getInstance().playLineClearSound();
+                com.comp2042.SoundManager.getInstance().playLineClearSound(linesCleared);
                 
                 // Update GUI with statistics
                 if (guiController != null) {
@@ -207,7 +207,7 @@ public class TwoPlayerVSGameMode implements GameMode {
             }
         }
         
-        // Handle soft drop scoring and statistics
+        // Handle soft drop scoring and statistics (only when brick hasn't landed)
         if (downData != null && !downData.isBrickLanded() && event != null) {
             EventSource source = event.getEventSource();
             EventType type = event.getEventType();
@@ -222,15 +222,15 @@ public class TwoPlayerVSGameMode implements GameMode {
                 // Play soft drop sound effect
                 com.comp2042.SoundManager.getInstance().playSoftDropSound();
             }
-            
-            // Track hard drops
-            if (type == EventType.HARD_DROP) {
-                boolean isPlayer1 = (targetService == player1Service);
-                PlayerStats stats = isPlayer1 ? player1Stats : player2Stats;
-                stats.recordHardDrop();
-                // Play hard drop sound effect
-                com.comp2042.SoundManager.getInstance().playHardDropSound();
-            }
+        }
+        
+        // Handle hard drop (always lands, so check separately)
+        if (downData != null && event != null && event.getEventType() == EventType.HARD_DROP) {
+            boolean isPlayer1 = (targetService == player1Service);
+            PlayerStats stats = isPlayer1 ? player1Stats : player2Stats;
+            stats.recordHardDrop();
+            // Play hard drop sound effect
+            com.comp2042.SoundManager.getInstance().playHardDropSound();
         }
         
         // Check for game over after movement

@@ -5,6 +5,8 @@ import java.util.List;
 /**
  * Interface representing a Tetris brick (Tetromino).
  * Defines the method to retrieve the list of possible shape matrices for this brick type.
+ * 
+ * @author Dong, Jia.
  */
 public interface Brick {
 

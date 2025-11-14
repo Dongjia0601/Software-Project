@@ -6,6 +6,8 @@ package com.comp2042;
  * 
  * <p>This class serves as the primary event communication mechanism between
  * different components of the Tetris game system.</p>
+ * 
+ * @author Dong, Jia.
  */
 public final class MoveEvent {
     private final EventType eventType;

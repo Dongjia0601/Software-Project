@@ -20,6 +20,8 @@ import com.comp2042.gameplay.GameOverState;
  *   <li>Handle input event delegation to current game state</li>
  *   <li>Manage game state lifecycle (playing, paused, game over)</li>
  * </ul>
+ * 
+ * @author Dong, Jia.
  */
 public class GameController implements InputEventListener {
 

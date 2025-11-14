@@ -20,6 +20,8 @@ import com.comp2042.ViewData;
  *   <li>Maintain final game state and score information</li>
  *   <li>Display game over screen and final statistics</li>
  * </ul>
+ * 
+ * @author Dong, Jia.
  */
 public class GameOverState implements GameState {
     private final Board board; // Reference to the main game board logic (might be needed for final score display)

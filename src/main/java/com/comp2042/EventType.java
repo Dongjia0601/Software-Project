@@ -3,6 +3,8 @@ package com.comp2042;
 /**
  * Enumeration of all possible game events in the Tetris game.
  * Defines the complete set of actions that can be triggered during gameplay.
+ * 
+ * @author Dong, Jia.
  */
 public enum EventType {
     /** Move brick down one position */

@@ -10,6 +10,8 @@ import com.comp2042.game.TwoPlayerVSGameMode;
  * Factory class for creating game mode instances.
  * This class implements the Factory pattern to create appropriate game mode
  * implementations based on the requested game mode type.
+ * 
+ * @author Dong, Jia.
  */
 public class GameModeFactory {
 

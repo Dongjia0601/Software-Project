@@ -6,6 +6,8 @@ import com.comp2042.logic.bricks.Brick;
  * Interface defining the core game logic operations for the Tetris board.
  * Implementations handle the state of the board grid, the active brick,
  * movement rules, row clearing, and game state management.
+ * 
+ * @author Dong, Jia.
  */
 public interface Board {
 

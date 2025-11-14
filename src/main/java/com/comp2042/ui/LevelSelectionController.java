@@ -386,12 +386,13 @@ public class LevelSelectionController {
         // Play button click sound
         SoundManager.getInstance().playButtonClickSound();
         
-        // Play level background music when entering level mode
-        SoundManager.getInstance().playLevelBackgroundMusic();
+        // Set current level in manager first to get level ID
+        levelManager.setCurrentLevel(level);
+        
+        // Play level background music based on level number
+        SoundManager.getInstance().playLevelBackgroundMusic(level.getLevelId());
         
         try {
-            // Set current level in manager
-            levelManager.setCurrentLevel(level);
             
             // Load game screen with level mode
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("enhancedGameLayout.fxml"));

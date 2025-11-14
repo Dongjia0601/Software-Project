@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
  * Utility class for performing various operations on 2D integer arrays (matrices).
  * These matrices represent the game board state and brick shapes.
  * Contains methods for collision detection, merging bricks, clearing rows, etc.
+ * 
+ * @author Dong, Jia.
  */
 public class MatrixOperations {
 

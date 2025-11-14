@@ -3,6 +3,8 @@ package com.comp2042;
 /**
  * Enumeration indicating the source of a game event.
  * Helps distinguish between different types of event origins for proper handling.
+ * 
+ * @author Dong, Jia.
  */
 public enum EventSource {
     /**

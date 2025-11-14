@@ -16,6 +16,8 @@ import com.comp2042.*;
  *   <li>Manage game state transitions and scoring</li>
  *   <li>Provide clean abstraction for game mode implementations</li>
  * </ul>
+ * 
+ * @author Dong, Jia.
  */
 public class GameServiceImpl implements GameService {
     

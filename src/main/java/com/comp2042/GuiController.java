@@ -805,6 +805,9 @@ public class GuiController implements Initializable {
      * Stops the automatic movement timeline and shows the game over panel.
      */
     public void gameOver() {
+        // Play game over sound effect
+        SoundManager.getInstance().playGameOverSound();
+        
         // Stop all timelines and timers
         if (timeLine != null) {
             timeLine.stop(); // Stop automatic movement
@@ -912,6 +915,15 @@ public class GuiController implements Initializable {
             isPause.setValue(false);
             isGameOver.setValue(false);
             
+            // Reset scores and statistics UI BEFORE creating new game controller
+            // This ensures cleared data is shown during countdown
+            updatePlayer1Score(0);
+            updatePlayer2Score(0);
+            // Create empty stats to show cleared statistics
+            com.comp2042.game.PlayerStats emptyStats = new com.comp2042.game.PlayerStats();
+            updatePlayerStats(1, emptyStats);
+            updatePlayerStats(2, emptyStats);
+            
             eventListener = null;
             isTwoPlayerMode = true;
             
@@ -986,6 +998,33 @@ public class GuiController implements Initializable {
         updateNextDisplay(null);
         isGameOver.setValue(false);
         isPause.setValue(false);
+        
+        // Reset score and lines display BEFORE creating new controller
+        // This ensures cleared data is shown immediately
+        if (isEndlessMode) {
+            try {
+                com.comp2042.game.EndlessModeLeaderboard leaderboard = 
+                    com.comp2042.game.EndlessModeLeaderboard.getInstance();
+                int highScore = leaderboard.getHighScore();
+                updateScore(0, highScore);
+            } catch (Exception e) {
+                updateScore(0, 0);
+            }
+            updateLines(0);
+        } else if (isLevelMode) {
+            com.comp2042.game.LevelManager levelManager = com.comp2042.game.LevelManager.getInstance();
+            com.comp2042.game.LevelMode currentLevel = levelManager.getCurrentLevel();
+            if (currentLevel != null) {
+                updateScore(0, currentLevel.getBestScore());
+                updateProgress(0, currentLevel.getTargetLines());
+            } else {
+                updateScore(0, 0);
+            }
+        } else {
+            updateScore(0, 0);
+            updateLines(0);
+        }
+        
         // Recreate controller which will read settings and build a new Board
         new GameController(this);
         // Re-assert grid lines visibility and style just in case
@@ -1072,9 +1111,22 @@ public class GuiController implements Initializable {
             isPause.setValue(false);
             isGameOver.setValue(false);
             
+            // Reset scores and statistics BEFORE countdown so UI shows cleared data during countdown
+            com.comp2042.game.TwoPlayerVSGameMode gameMode = controller.getGameMode();
+            if (gameMode != null) {
+                // Reset game state, scores, and statistics
+                gameMode.startNewGame();
+                
+                // Update UI to show cleared scores and statistics immediately
+                updatePlayer1Score(0);
+                updatePlayer2Score(0);
+                updatePlayerStats(1, gameMode.getPlayer1Stats());
+                updatePlayerStats(2, gameMode.getPlayer2Stats());
+            }
+            
             // Show countdown before starting new game
             showCountdown(() -> {
-                // After countdown, start the new game
+                // After countdown, reinitialize the view with the already-reset game state
                 controller.onNewGameEvent(new MoveEvent(EventType.NEW_GAME, EventSource.USER));
                 
                 // Request focus for keyboard input
@@ -2629,6 +2681,9 @@ public class GuiController implements Initializable {
         }
 
         SoundManager.getInstance().playButtonClickSound();
+        
+        // Stop level background music and play main menu music when returning to level selection
+        SoundManager.getInstance().playMainMenuBackgroundMusic();
 
         try {
             hideLevelModeUI();
@@ -2765,6 +2820,9 @@ public class GuiController implements Initializable {
         if (!isEndlessMode) {
             return; 
         }
+        
+        // Play endless game over sound effect
+        SoundManager.getInstance().playEndlessGameOverSound();
         
         try {
             // Get final game data from board
@@ -2914,10 +2972,19 @@ public class GuiController implements Initializable {
             return;
         }
         
-        try {
-            // Get level data from LevelManager
+        // Play appropriate sound effect based on success/failure
             com.comp2042.game.LevelManager levelManager = com.comp2042.game.LevelManager.getInstance();
             com.comp2042.game.LevelMode currentLevel = levelManager.getCurrentLevel();
+        if (currentLevel != null && board.getTotalLinesCleared() >= currentLevel.getTargetLines()) {
+            // Level completed successfully
+            SoundManager.getInstance().playLevelWinSound();
+        } else {
+            // Level failed
+            SoundManager.getInstance().playLevelFailedSound();
+        }
+        
+        try {
+            // Get level data from LevelManager (already retrieved above)
             
             if (currentLevel == null) {
                 System.err.println("No current level found");
@@ -3035,6 +3102,9 @@ public class GuiController implements Initializable {
             });
             
             controller.setOnBackToSelection(() -> {
+                // Stop level background music and play main menu music when returning to level selection
+                SoundManager.getInstance().playMainMenuBackgroundMusic();
+                
                 // Return to level selection (to show updated stars and unlocked levels)
                 try {
                     FXMLLoader levelSelectionLoader = new FXMLLoader(getClass().getClassLoader().getResource("levelSelection.fxml"));

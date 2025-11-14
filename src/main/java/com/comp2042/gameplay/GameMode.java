@@ -18,6 +18,8 @@ import com.comp2042.game.GameResult; // Assuming GameResult is defined
  *   <li>Provide game state information and results</li>
  *   <li>Support different gameplay variations</li>
  * </ul>
+ * 
+ * @author Dong, Jia.
  */
 public interface GameMode {
 

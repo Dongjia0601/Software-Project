@@ -6,6 +6,8 @@ package com.comp2042;
  * 
  * <p>This interface serves as the primary contract for event handling in the game,
  * supporting both basic and advanced Tetris features.</p>
+ * 
+ * @author Dong, Jia.
  */
 public interface InputEventListener {
 

@@ -7,6 +7,8 @@ import com.comp2042.ViewData;
 /**
  * Interface defining methods for different game states (e.g., Playing, Paused, GameOver).
  * Each state handles input events and game logic updates according to its specific rules.
+ * 
+ * @author Dong, Jia.
  */
 public interface GameState {
     /**

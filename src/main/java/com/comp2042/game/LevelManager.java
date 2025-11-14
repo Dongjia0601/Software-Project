@@ -102,7 +102,7 @@ public class LevelManager {
                 "Future Warfare",
                 new FutureWarfareTheme(),
                 250,    // fallSpeed (ms) - Fast
-                8,      // targetLines
+                12,     // targetLines
                 90,     // timeLimitSeconds (1.5 minutes)
                 800,    // baseTargetScore
                 1600,   // twoStarScore
@@ -116,7 +116,7 @@ public class LevelManager {
                 "Interstellar",
                 new InterstellarTheme(),
                 150,    // fallSpeed (ms) - Very Fast
-                6,      // targetLines
+                15,     // targetLines
                 60,     // timeLimitSeconds (1 minute)
                 1000,   // baseTargetScore
                 2000,   // twoStarScore

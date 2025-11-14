@@ -102,8 +102,8 @@ public class MainMenuController {
             settings.getSfxVolume()
         );
         
-        // Start playing background music when main menu loads
-        SoundManager.getInstance().playBackgroundMusic();
+        // Start playing main menu background music when main menu loads
+        SoundManager.getInstance().playMainMenuBackgroundMusic();
     }
     
     /**
@@ -275,6 +275,9 @@ public class MainMenuController {
             // Set Endless Mode flag in GUI controller
             guiController.setEndlessMode(true);
             
+            // Play endless mode background music
+            SoundManager.getInstance().playEndlessBackgroundMusic();
+            
             // Transition to game scene
             loadGameScene(guiController);
             
@@ -336,6 +339,9 @@ public class MainMenuController {
             
             // Set two-player mode flag BEFORE creating game mode
             guiController.setGameMode(true);
+            
+            // Play two-player mode background music
+            SoundManager.getInstance().playTwoPlayerBackgroundMusic();
             
             // Create VS mode (it will create its own game services)
             var gameMode = GameModeFactory.createGameMode(GameModeType.TWO_PLAYER_VS, null, guiController);

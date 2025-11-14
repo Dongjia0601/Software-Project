@@ -6,6 +6,8 @@ import com.comp2042.logic.bricks.Brick;
  * Manages the rotation state of a given Tetris brick.
  * Keeps track of the current shape index and provides methods to get the current shape
  * and calculate the potential next shape if a rotation occurs.
+ * 
+ * @author Dong, Jia.
  */
 public class BrickRotator {
 

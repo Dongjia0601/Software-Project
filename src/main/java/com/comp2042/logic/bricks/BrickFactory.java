@@ -10,6 +10,8 @@ import java.util.Random;
  * 
  * <p>This factory supports the Strategy pattern by providing different brick creation strategies
  * and implements the Factory pattern for centralized brick instantiation.</p>
+ * 
+ * @author Dong, Jia.
  */
 public class BrickFactory {
     

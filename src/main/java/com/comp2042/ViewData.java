@@ -3,6 +3,8 @@ package com.comp2042;
 /**
  * Value object (DTO) containing the necessary data for the GUI to render the current game state.
  * Includes the shape and position of the currently falling brick and the shape of the next brick.
+ * 
+ * @author Dong, Jia.
  */
 public final class ViewData {
 

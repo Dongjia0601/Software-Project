@@ -20,6 +20,8 @@ import com.comp2042.MoveEvent;
  *   <li>Manage game state transitions</li>
  *   <li>Control game timing and speed</li>
  * </ul>
+ * 
+ * @author Dong, Jia.
  */
 public interface GameService {
 

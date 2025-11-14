@@ -13,6 +13,19 @@ import java.util.concurrent.atomic.AtomicLong;
  * Provides methods to play various sound effects like attacks, line clears, etc.
  * Uses JavaFX Media API to load and play audio files from resources.
  * Optimized to prevent performance issues by throttling frequent sounds and properly disposing MediaPlayers.
+ * 
+ * <p>Supports different background music for different game modes:
+ * <ul>
+ *   <li>Main Menu: MainMenuBGM.mp3</li>
+ *   <li>Endless Mode: EndlessBGM.mp3</li>
+ *   <li>Two-Player Mode: TwoPlayerBGM.mp3</li>
+ *   <li>Level 1 & 3: Level13BGM.mp3</li>
+ *   <li>Level 2 & 5: Level25BGM.mp3</li>
+ *   <li>Level 4: Level4BGM.mp3</li>
+ * </ul>
+ * </p>
+ * 
+ * @author Dong, Jia.
  */
 public class SoundManager {
     private static SoundManager instance;
@@ -164,10 +177,41 @@ public class SoundManager {
     }
     
     /**
-     * Plays a line clear sound effect.
+     * Plays a line clear sound effect based on the number of lines cleared.
+     * Uses different sound effects for 1, 2, 3, or 4 lines cleared.
+     * 
+     * @param linesCleared the number of lines cleared (1-4)
+     * @author Dong, Jia.
+     */
+    public void playLineClearSound(int linesCleared) {
+        String soundFile;
+        switch (linesCleared) {
+            case 1:
+                soundFile = "audio/CLear1SFX.mp3";
+                break;
+            case 2:
+                soundFile = "audio/Clear2SFX.mp3";
+                break;
+            case 3:
+                soundFile = "audio/CLear3SFX.mp3";
+                break;
+            case 4:
+                soundFile = "audio/CLear4SFX.mp3";
+                break;
+            default:
+                // Fallback to single line clear sound
+                soundFile = "audio/CLear1SFX.mp3";
+                break;
+        }
+        playSound(soundFile);
+    }
+    
+    /**
+     * Plays a line clear sound effect (default - single line).
+     * Maintains backward compatibility.
      */
     public void playLineClearSound() {
-        playSound("audio/ClearLinesSFX.mp3");
+        playLineClearSound(1);
     }
     
     /**
@@ -291,19 +335,23 @@ public class SoundManager {
     
     /**
      * Plays a hold brick sound effect.
-     * Uses ClickButtonSFX for consistency with other game actions.
+     * Uses HoldSFX for hold actions.
+     * 
+     * @author Dong, Jia.
      */
     public void playHoldSound() {
-        playSound("audio/ClickButtonSFX.mp3");
+        playSound("audio/HoldSFX.mp3");
     }
     
     /**
      * Plays a move brick sound effect.
      * Uses throttling to prevent too frequent playback during rapid movements.
-     * Uses ClickButtonSFX for consistency with other game actions.
+     * Uses MoveBrickSFX for move actions.
+     * 
+     * @author Dong, Jia.
      */
     public void playMoveSound() {
-        playSoundThrottled("audio/ClickButtonSFX.mp3", MOVE_SOUND_THROTTLE_MS);
+        playSoundThrottled("audio/MoveBrickSFX.mp3", MOVE_SOUND_THROTTLE_MS);
     }
     
     /**
@@ -339,16 +387,41 @@ public class SoundManager {
     
     /**
      * Plays a level win sound effect.
+     * Uses GameWinSFX for level completion.
+     * 
+     * @author Dong, Jia.
      */
     public void playLevelWinSound() {
-        playSound("audio/LevelWinSFX.mp3");
+        playSound("audio/GameWinSFX.mp3");
     }
     
     /**
      * Plays a level failed sound effect.
+     * 
+     * @author Dong, Jia.
      */
     public void playLevelFailedSound() {
         playSound("audio/LevelFailedSFX.mp3");
+    }
+    
+    /**
+     * Plays a game over sound effect.
+     * Used for general game over scenarios.
+     * 
+     * @author Dong, Jia.
+     */
+    public void playGameOverSound() {
+        playSound("audio/GameOverSFX.mp3");
+    }
+    
+    /**
+     * Plays an endless mode game over sound effect.
+     * Used specifically for endless mode game over.
+     * 
+     * @author Dong, Jia.
+     */
+    public void playEndlessGameOverSound() {
+        playSound("audio/EndlessGameOverSFX.mp3");
     }
     
     /**
@@ -359,9 +432,52 @@ public class SoundManager {
     }
     
     /**
+     * Starts playing main menu background music in a loop.
+     * Used when the main menu is displayed.
+     * 
+     * @author Dong, Jia.
+     */
+    public void playMainMenuBackgroundMusic() {
+        playBackgroundMusicFromFile("audio/MainMenuBGM.mp3");
+    }
+    
+    /**
+     * Starts playing endless mode background music in a loop.
+     * Used when entering endless mode.
+     * 
+     * @author Dong, Jia.
+     */
+    public void playEndlessBackgroundMusic() {
+        playBackgroundMusicFromFile("audio/EndlessBGM.mp3");
+    }
+    
+    /**
+     * Starts playing two-player mode background music in a loop.
+     * Used when entering two-player VS mode.
+     * 
+     * @author Dong, Jia.
+     */
+    public void playTwoPlayerBackgroundMusic() {
+        playBackgroundMusicFromFile("audio/TwoPlayerBGM.mp3");
+    }
+    
+    /**
      * Starts playing background music in a loop.
+     * Maintains backward compatibility - defaults to main menu music.
+     * 
+     * @author Dong, Jia.
      */
     public void playBackgroundMusic() {
+        playMainMenuBackgroundMusic();
+    }
+    
+    /**
+     * Internal method to play background music from a specific file.
+     * 
+     * @param musicFile the path to the music file
+     * @author Dong, Jia.
+     */
+    private void playBackgroundMusicFromFile(String musicFile) {
         if (!soundEnabled) return;
         
         // Ensure audio operations run on JavaFX thread
@@ -373,7 +489,7 @@ public class SoundManager {
                 backgroundMusicPlayer = null;
             }
             
-            Media media = loadMedia("audio/BackgroundMusic.mp3");
+            Media media = loadMedia(musicFile);
             if (media == null) return;
             
             try {
@@ -395,50 +511,43 @@ public class SoundManager {
     }
     
     /**
-     * Starts playing level background music in a loop.
-     * Used when entering level mode (levels 1-5).
+     * Starts playing level background music in a loop based on level number.
+     * Used when entering level mode.
+     * 
+     * <p>Music mapping:
+     * <ul>
+     *   <li>Level 1 & 3: Level13BGM.mp3</li>
+     *   <li>Level 2 & 5: Level25BGM.mp3</li>
+     *   <li>Level 4: Level4BGM.mp3</li>
+     * </ul>
+     * </p>
+     * 
+     * @param levelId the level ID (1-5)
+     * @author Dong, Jia.
      */
-    public void playLevelBackgroundMusic() {
-        if (!soundEnabled) return;
-        
-        // Ensure audio operations run on JavaFX thread
-        if (Platform.isFxApplicationThread()) {
-            playLevelBackgroundMusicOnFxThread();
+    public void playLevelBackgroundMusic(int levelId) {
+        String musicFile;
+        if (levelId == 1 || levelId == 3) {
+            musicFile = "audio/Level13BGM.mp3";
+        } else if (levelId == 2 || levelId == 5) {
+            musicFile = "audio/Level25BGM.mp3";
+        } else if (levelId == 4) {
+            musicFile = "audio/Level4BGM.mp3";
         } else {
-            Platform.runLater(() -> playLevelBackgroundMusicOnFxThread());
+            // Default to Level13BGM for invalid level IDs
+            musicFile = "audio/Level13BGM.mp3";
         }
+        playBackgroundMusicFromFile(musicFile);
     }
     
     /**
-     * Plays level background music on the JavaFX application thread.
-     * This method should only be called from the JavaFX thread.
+     * Starts playing level background music in a loop.
+     * Defaults to Level13BGM (level 1 music) for backward compatibility.
+     * 
+     * @author Dong, Jia.
      */
-    private void playLevelBackgroundMusicOnFxThread() {
-        // Stop any existing background music
-        if (backgroundMusicPlayer != null) {
-            backgroundMusicPlayer.stop();
-            backgroundMusicPlayer.dispose();
-            backgroundMusicPlayer = null;
-        }
-        
-        Media media = loadMedia("audio/LevelBackgroundMusic.mp3");
-        if (media == null) return;
-        
-        try {
-            backgroundMusicPlayer = new MediaPlayer(media);
-            // Apply master volume and music volume: final volume = masterVolume * musicVolume
-            backgroundMusicPlayer.setVolume(masterVolume * musicVolume);
-            backgroundMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop indefinitely
-            
-            // Handle errors
-            backgroundMusicPlayer.setOnError(() -> {
-                System.err.println("Level background music error: " + backgroundMusicPlayer.getError());
-            });
-            
-            backgroundMusicPlayer.play();
-        } catch (Exception e) {
-            System.err.println("Failed to play level background music: " + e.getMessage());
-        }
+    public void playLevelBackgroundMusic() {
+        playLevelBackgroundMusic(1); // Default to level 1 music (Level13BGM)
     }
     
     /**

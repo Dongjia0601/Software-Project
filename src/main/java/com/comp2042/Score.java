@@ -5,6 +5,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 
 /**
  * Manages the game score using a JavaFX IntegerProperty for binding to the GUI.
+ * 
+ * @author Dong, Jia.
  */
 public final class Score {
 
@@ -36,6 +38,11 @@ public final class Score {
         score.setValue(0);
     }
 
+    /**
+     * Gets the current score value.
+     *
+     * @return The current score value.
+     */
     public int getScore() {
         return score.getValue();
     }

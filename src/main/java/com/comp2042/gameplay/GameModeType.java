@@ -3,6 +3,8 @@ package com.comp2042.gameplay;
 /**
  * Enumeration defining the different types of game modes available in the Tetris game.
  * This enum is used by the GameModeFactory to create appropriate game mode instances.
+ * 
+ * @author Dong, Jia.
  */
 public enum GameModeType {
 
