@@ -946,8 +946,11 @@ public class GuiController implements Initializable {
                         retryDelay.setOnFinished(retryEvent -> {
                             if (rootPane != null && gamePanel1 != null && gamePanel2 != null && 
                                 gamePanel1.getParent() != null && gamePanel2.getParent() != null) {
-                                com.comp2042.core.GameService player1Service = new com.comp2042.core.GameServiceImpl();
-                                com.comp2042.core.GameService player2Service = new com.comp2042.core.GameServiceImpl();
+                                // Use dependency injection: create Board instances explicitly and inject them
+                                com.comp2042.Board player1Board = new com.comp2042.SimpleBoard(10, 20);
+                                com.comp2042.Board player2Board = new com.comp2042.SimpleBoard(10, 20);
+                                com.comp2042.core.GameService player1Service = new com.comp2042.core.GameServiceImpl(player1Board);
+                                com.comp2042.core.GameService player2Service = new com.comp2042.core.GameServiceImpl(player2Board);
                                 com.comp2042.game.TwoPlayerVSGameMode newGameMode = 
                                     new com.comp2042.game.TwoPlayerVSGameMode(player1Service, player2Service, this);
                                 new TwoPlayerGameController(newGameMode, this);
@@ -2824,9 +2827,6 @@ public class GuiController implements Initializable {
             return; 
         }
         
-        // Play endless game over sound effect
-        SoundManager.getInstance().playEndlessGameOverSound();
-        
         try {
             // Get final game data from board
             int finalScore = board.getScore().getScore();
@@ -2843,6 +2843,13 @@ public class GuiController implements Initializable {
                 com.comp2042.game.EndlessModeLeaderboard.getInstance();
             boolean isNewHighScore = leaderboard.isNewHighScore(finalScore);
             
+            // Play appropriate sound effect based on whether it's a new record
+            if (isNewHighScore) {
+                SoundManager.getInstance().playEndlessNewRecordSound();
+            } else {
+                SoundManager.getInstance().playEndlessGameOverSound();
+            }
+            
             // Add entry to leaderboard and get rank
             int rank = leaderboard.addEntry(finalScore, linesCleared, playTimeMs, getCurrentLevel());
             
@@ -2858,8 +2865,8 @@ public class GuiController implements Initializable {
                 // Start a new Endless Mode game (same as clicking Endless Mode button)
                 try {
                     // Use dependency injection: create Board explicitly and inject it
-                    com.comp2042.Board board = new com.comp2042.SimpleBoard(10, 20);
-                    com.comp2042.core.GameService gameService = new com.comp2042.core.GameServiceImpl(board);
+                    com.comp2042.Board newBoard = new com.comp2042.SimpleBoard(10, 20);
+                    com.comp2042.core.GameService gameService = new com.comp2042.core.GameServiceImpl(newBoard);
                     GuiController newGuiController = new GuiController();
                     var gameMode = com.comp2042.gameplay.GameModeFactory.createGameMode(com.comp2042.gameplay.GameModeType.ENDLESS, gameService, newGuiController);
                     gameMode.initialize();
