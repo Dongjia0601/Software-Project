@@ -6,7 +6,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml" 
             fx:id="rootPane"
-            fx:controller="com.comp2042.EndlessGameOverController"
+            fx:controller="com.comp2042.controller.menu.EndlessGameOverController"
             prefWidth="900" 
             prefHeight="800"
             styleClass="endless-gameover-root">
@@ -118,7 +118,7 @@
                         onAction="#onResetLeaderboard"/>
 
                 <Button fx:id="backToMenuButton" 
-                        text="🏠 BACK TO MENU" 
+                        text="🏠 Back TO MENU" 
                         styleClass="action-button menu-btn"
                         onAction="#onBackToMenu"/>
             </HBox>

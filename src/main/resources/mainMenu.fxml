@@ -10,7 +10,7 @@
 <?import javafx.scene.text.Text?>
 
 <AnchorPane fx:id="rootPane" 
-            fx:controller="com.comp2042.MainMenuController"
+            fx:controller="com.comp2042.controller.menu.MainMenuController"
             xmlns:fx="http://javafx.com/fxml"
             styleClass="main-menu-background"
             prefWidth="900.0"

@@ -1,8 +1,8 @@
-package com.comp2042;
+﻿package com.comp2042;
 
 import com.comp2042.config.GameSettings;
-import com.comp2042.game.EndlessModeLeaderboard;
-import com.comp2042.game.LevelManager;
+import com.comp2042.model.mode.EndlessModeLeaderboard;
+import com.comp2042.model.mode.LevelManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;

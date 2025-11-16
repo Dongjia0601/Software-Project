@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Text?>
 
 <StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.comp2042.ui.SettingsController"
+           fx:controller="com.comp2042.controller.menu.SettingsController"
            styleClass="settings-root">
     
     <VBox spacing="20" alignment="CENTER" styleClass="settings-container" maxWidth="700" maxHeight="600">

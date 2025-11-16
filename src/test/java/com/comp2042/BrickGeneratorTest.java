@@ -1,9 +1,9 @@
-package com.comp2042;
+﻿package com.comp2042;
 
-import com.comp2042.logic.bricks.Brick;
-import com.comp2042.logic.bricks.BrickGenerator;
-import com.comp2042.logic.bricks.RandomBrickGenerator;
-import com.comp2042.logic.bricks.SevenBagBrickGenerator;
+import com.comp2042.model.brick.Brick;
+import com.comp2042.model.brick.BrickGenerator;
+import com.comp2042.model.brick.RandomBrickGenerator;
+import com.comp2042.model.brick.SevenBagBrickGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;

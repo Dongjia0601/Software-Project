@@ -1,7 +1,7 @@
-package com.comp2042;
+﻿package com.comp2042;
 
-import com.comp2042.logic.bricks.Brick;
-import com.comp2042.logic.bricks.IBrick;
+import com.comp2042.model.brick.Brick;
+import com.comp2042.model.brick.IBrick;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

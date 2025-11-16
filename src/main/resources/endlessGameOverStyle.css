@@ -158,10 +158,10 @@
     -fx-border-color: rgba(138, 43, 226, 0.18);
     -fx-border-radius: 10px;
     -fx-border-width: 1px;
-    -fx-padding: 10px 16px; /* consistent row height */
+    -fx-padding: 10px 16px; 
     -fx-min-width: 350px;
-    -fx-max-width: 450px;
-    -fx-pref-width: 400px;
+    -fx-max-width: 500px;
+    -fx-pref-width: 480px;
 }
 
 .leaderboard-entry.current-player {
@@ -193,16 +193,16 @@
     -fx-font-size: 18px;
     -fx-font-weight: bold;
     -fx-text-fill: #FFFFFF;
-    -fx-min-width: 120px;
-    -fx-pref-width: 130px;
+    -fx-min-width: 110px;
+    -fx-pref-width: 120px;
     -fx-text-overrun: clip;
 }
 
 .entry-lines {
     -fx-font-size: 14px;
     -fx-text-fill: #AAAAAA;
-    -fx-min-width: 90px;
-    -fx-pref-width: 100px;
+    -fx-min-width: 80px;
+    -fx-pref-width: 90px;
     -fx-text-overrun: clip;
 }
 
@@ -222,9 +222,9 @@
 /* New statistics labels */
 .entry-level {
     -fx-font-size: 14px;
-    -fx-text-fill: #AAAAAA; /* same as lines */
-    -fx-min-width: 70px;    /* slightly narrower to stay within border */
-    -fx-pref-width: 80px;
+    -fx-text-fill: #AAAAAA;
+    -fx-min-width: 60px;    /* compact width to stay within border */
+    -fx-pref-width: 70px;
     -fx-text-overrun: clip;
 }
 

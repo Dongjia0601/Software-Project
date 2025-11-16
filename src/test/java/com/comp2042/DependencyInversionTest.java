@@ -1,7 +1,7 @@
-package com.comp2042;
+﻿package com.comp2042;
 
-import com.comp2042.core.GameService;
-import com.comp2042.core.GameServiceImpl;
+import com.comp2042.service.gameloop.GameService;
+import com.comp2042.service.gameloop.GameServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;

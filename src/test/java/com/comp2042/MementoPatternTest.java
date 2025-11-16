@@ -1,7 +1,7 @@
-package com.comp2042;
+﻿package com.comp2042;
 
-import com.comp2042.memento.GameStateMemento;
-import com.comp2042.memento.GameStateCaretaker;
+import com.comp2042.model.savestate.GameStateMemento;
+import com.comp2042.model.savestate.GameStateCaretaker;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;

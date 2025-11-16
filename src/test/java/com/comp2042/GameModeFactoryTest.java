@@ -1,10 +1,10 @@
-package com.comp2042;
+﻿package com.comp2042;
 
-import com.comp2042.gameplay.GameMode;
-import com.comp2042.gameplay.GameModeFactory;
-import com.comp2042.gameplay.GameModeType;
-import com.comp2042.core.GameService;
-import com.comp2042.core.GameServiceImpl;
+import com.comp2042.controller.factory.GameMode;
+import com.comp2042.controller.factory.GameModeFactory;
+import com.comp2042.controller.factory.GameModeType;
+import com.comp2042.service.gameloop.GameService;
+import com.comp2042.service.gameloop.GameServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;

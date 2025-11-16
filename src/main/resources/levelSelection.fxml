@@ -8,7 +8,7 @@
 <?import javafx.scene.shape.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.comp2042.ui.LevelSelectionController"
+            fx:controller="com.comp2042.controller.menu.LevelSelectionController"
             stylesheets="@levelSelection.css"
             styleClass="level-selection-root">
     

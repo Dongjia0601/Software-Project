@@ -6,7 +6,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml" 
             fx:id="rootPane"
-            fx:controller="com.comp2042.LevelGameOverController"
+            fx:controller="com.comp2042.controller.menu.LevelGameOverController"
             prefWidth="900" 
             prefHeight="800"
             styleClass="level-gameover-root">
