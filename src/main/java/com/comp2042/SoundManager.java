@@ -53,10 +53,11 @@ public class SoundManager {
     
     /**
      * Gets the singleton instance of SoundManager.
+     * Uses synchronized method to ensure thread-safe lazy initialization.
      * 
      * @return the SoundManager instance
      */
-    public static SoundManager getInstance() {
+    public static synchronized SoundManager getInstance() {
         if (instance == null) {
             instance = new SoundManager();
         }

@@ -53,9 +53,11 @@ public class GameSettings {
     
     /**
      * Gets the singleton instance of GameSettings.
+     * Uses synchronized method to ensure thread-safe lazy initialization.
+     * 
      * @return the game settings instance
      */
-    public static GameSettings getInstance() {
+    public static synchronized GameSettings getInstance() {
         if (instance == null) {
             instance = new GameSettings();
         }
