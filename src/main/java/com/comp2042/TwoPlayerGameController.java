@@ -36,6 +36,7 @@ public class TwoPlayerGameController implements InputEventListener {
     private Timeline statsUpdateTimeline;
     
     private boolean paused = false;
+    private boolean countdownActive = true; // Track countdown state to prevent input during countdown
     
     /**
      * Constructs a TwoPlayerGameController.
@@ -51,6 +52,22 @@ public class TwoPlayerGameController implements InputEventListener {
         this.player1Service = gameMode.getPlayer1Service();
         this.player2Service = gameMode.getPlayer2Service();
         
+        // Initialize game state before countdown (ensures clean start)
+        // This prevents blocks from being placed during countdown
+        gameMode.startNewGame();
+        
+        // Clear the view to show empty boards during countdown
+        if (guiController != null) {
+            int[][] emptyBoard1 = new int[20][10];
+            int[][] emptyBoard2 = new int[20][10];
+            guiController.refreshGameBackground1(emptyBoard1);
+            guiController.refreshGameBackground2(emptyBoard2);
+            
+            // Note: We don't call refreshPlayer1Brick/refreshPlayer2Brick here
+            // because the game state has been reset, so there are no bricks to display.
+            // The bricks will be displayed when startGame() calls initializeTwoPlayerView().
+        }
+        
         // Show countdown before starting the game
         showCountdownAndStart();
     }
@@ -61,28 +78,42 @@ public class TwoPlayerGameController implements InputEventListener {
     private void showCountdownAndStart() {
         if (guiController == null) {
             // If no GUI controller, start immediately
+            countdownActive = false;
             startGame();
             return;
         }
         
+        // Set countdown active flag
+        countdownActive = true;
+        
         // Show countdown
         guiController.showCountdown(() -> {
             // After countdown completes, start the game
+            countdownActive = false;
             startGame();
         });
     }
     
     /**
      * Starts the game after countdown.
+     * This method initializes the game state and starts the game timelines.
+     * The game state has already been reset in onNewGameEvent() before the countdown,
+     * so we can safely start the game here.
      */
     private void startGame() {
         // Stop countdown sound before starting game (in case it's still playing)
         com.comp2042.SoundManager.getInstance().stopCountdownSound();
         
-        // Initialize the game mode
-        gameMode.initialize();
+        // The game state has already been reset in onNewGameEvent() before countdown,
+        // so we just need to initialize the view and start the timelines.
+        // This ensures that no blocks can be placed during countdown.
         
-        // Set up the GUI for two-player mode
+        // IMPORTANT: Start game timer NOW (after countdown completes)
+        // This ensures the countdown time is not included in the game time
+        gameMode.getPlayer1Stats().startGameTime();
+        gameMode.getPlayer2Stats().startGameTime();
+        
+        // Set up the GUI for two-player mode (refresh view with current state)
         initializeTwoPlayerView();
         
         // Start automatic descent timelines for both players
@@ -91,7 +122,7 @@ public class TwoPlayerGameController implements InputEventListener {
         // Start statistics update timeline
         startStatsUpdateTimeline();
         
-        // Set this controller as the event listener
+        // Set this controller as the event listener (only after countdown completes)
         guiController.setEventListener(this);
         
         // Play game start sound
@@ -257,7 +288,8 @@ public class TwoPlayerGameController implements InputEventListener {
     
     @Override
     public DownData onDownEvent(MoveEvent event) {
-        if (paused || gameMode.isGameOver()) {
+        // Block all input during countdown
+        if (countdownActive || paused || gameMode.isGameOver()) {
             return null;
         }
         return gameMode.onDownEvent(event);
@@ -265,7 +297,8 @@ public class TwoPlayerGameController implements InputEventListener {
     
     @Override
     public ViewData onLeftEvent(MoveEvent event) {
-        if (paused || gameMode.isGameOver()) {
+        // Block all input during countdown
+        if (countdownActive || paused || gameMode.isGameOver()) {
             return null;
         }
         ViewData result = gameMode.onLeftEvent(event);
@@ -277,7 +310,8 @@ public class TwoPlayerGameController implements InputEventListener {
     
     @Override
     public ViewData onRightEvent(MoveEvent event) {
-        if (paused || gameMode.isGameOver()) {
+        // Block all input during countdown
+        if (countdownActive || paused || gameMode.isGameOver()) {
             return null;
         }
         ViewData result = gameMode.onRightEvent(event);
@@ -289,7 +323,8 @@ public class TwoPlayerGameController implements InputEventListener {
     
     @Override
     public ViewData onRotateEvent(MoveEvent event) {
-        if (paused || gameMode.isGameOver()) {
+        // Block all input during countdown
+        if (countdownActive || paused || gameMode.isGameOver()) {
             return null;
         }
         ViewData result = gameMode.onRotateEvent(event);
@@ -301,7 +336,8 @@ public class TwoPlayerGameController implements InputEventListener {
     
     @Override
     public ViewData onRotateCCWEvent(MoveEvent event) {
-        if (paused || gameMode.isGameOver()) {
+        // Block all input during countdown
+        if (countdownActive || paused || gameMode.isGameOver()) {
             return null;
         }
         ViewData result = gameMode.onRotateEvent(event);
@@ -313,7 +349,8 @@ public class TwoPlayerGameController implements InputEventListener {
     
     @Override
     public ViewData onHardDropEvent(MoveEvent event) {
-        if (paused || gameMode.isGameOver()) {
+        // Block all input during countdown
+        if (countdownActive || paused || gameMode.isGameOver()) {
             return null;
         }
         DownData downData = onDownEvent(new MoveEvent(EventType.HARD_DROP, event.getEventSource()));
@@ -322,7 +359,8 @@ public class TwoPlayerGameController implements InputEventListener {
     
     @Override
     public ViewData onSoftDropEvent(MoveEvent event) {
-        if (paused || gameMode.isGameOver()) {
+        // Block all input during countdown
+        if (countdownActive || paused || gameMode.isGameOver()) {
             return null;
         }
         DownData downData = onDownEvent(new MoveEvent(EventType.DOWN, event.getEventSource()));
@@ -338,7 +376,8 @@ public class TwoPlayerGameController implements InputEventListener {
     
     @Override
     public ViewData onHoldEvent(MoveEvent event) {
-        if (paused || gameMode.isGameOver()) {
+        // Block all input during countdown
+        if (countdownActive || paused || gameMode.isGameOver()) {
             return null;
         }
         // Process hold event through the appropriate service
@@ -367,6 +406,7 @@ public class TwoPlayerGameController implements InputEventListener {
     public void onNewGameEvent(MoveEvent event) {
         // Reset game state
         paused = false;
+        countdownActive = true; // Start countdown for new game
         
         // Stop timelines
         if (player1Timeline != null) {
@@ -379,15 +419,26 @@ public class TwoPlayerGameController implements InputEventListener {
             statsUpdateTimeline.stop();
         }
         
-        // Start new game
+        // IMPORTANT: Reset game state BEFORE countdown to ensure clean start
+        // This clears any blocks that might have been placed during previous countdown
         gameMode.startNewGame();
         
-        // Reinitialize view
-        initializeTwoPlayerView();
+        // Clear the view to show empty boards during countdown
+        if (guiController != null) {
+            // Clear both players' boards visually
+            int[][] emptyBoard1 = new int[20][10];
+            int[][] emptyBoard2 = new int[20][10];
+            guiController.refreshGameBackground1(emptyBoard1);
+            guiController.refreshGameBackground2(emptyBoard2);
+            
+            // Note: We don't call refreshPlayer1Brick/refreshPlayer2Brick here
+            // because the game state has been reset, so there are no bricks to display.
+            // The bricks will be displayed when startGame() calls initializeTwoPlayerView().
+        }
         
-        // Restart timelines
-        startPlayerTimelines();
-        startStatsUpdateTimeline();
+        // Show countdown before starting new game
+        // The game will actually start after countdown completes
+        showCountdownAndStart();
     }
     
     @Override

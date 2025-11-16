@@ -26,6 +26,8 @@ public class PlayerStats {
     
     /**
      * Resets all statistics to initial values.
+     * Note: gameStartTime is NOT set here - it should be set when the game actually starts
+     * (after countdown) using startGameTime().
      */
     public void reset() {
         linesCleared = 0;
@@ -33,11 +35,19 @@ public class PlayerStats {
         attacksReceived = 0;
         maxCombo = 0;
         currentCombo = 0;
-        gameStartTime = System.currentTimeMillis();
+        gameStartTime = 0; // Don't start timer yet - wait for countdown to finish
         tetrisCount = 0;
         allClears = 0;
         hardDrops = 0;
         softDrops = 0;
+    }
+    
+    /**
+     * Starts the game timer. This should be called when the game actually starts,
+     * after the countdown completes.
+     */
+    public void startGameTime() {
+        gameStartTime = System.currentTimeMillis();
     }
     
     /**

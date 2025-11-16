@@ -1117,29 +1117,26 @@ public class GuiController implements Initializable {
             isPause.setValue(false);
             isGameOver.setValue(false);
             
-            // Reset scores and statistics BEFORE countdown so UI shows cleared data during countdown
+            // Update UI to show cleared scores and statistics immediately (before countdown)
+            updatePlayer1Score(0);
+            updatePlayer2Score(0);
             com.comp2042.game.TwoPlayerVSGameMode gameMode = controller.getGameMode();
             if (gameMode != null) {
-                // Reset game state, scores, and statistics
-                gameMode.startNewGame();
-                
-                // Update UI to show cleared scores and statistics immediately
-                updatePlayer1Score(0);
-                updatePlayer2Score(0);
+                // Reset statistics only (not game state yet - that happens in onNewGameEvent)
+                gameMode.getPlayer1Stats().reset();
+                gameMode.getPlayer2Stats().reset();
                 updatePlayerStats(1, gameMode.getPlayer1Stats());
                 updatePlayerStats(2, gameMode.getPlayer2Stats());
             }
             
-            // Show countdown before starting new game
-            showCountdown(() -> {
-                // After countdown, reinitialize the view with the already-reset game state
-                controller.onNewGameEvent(new MoveEvent(EventType.NEW_GAME, EventSource.USER));
-                
-                // Request focus for keyboard input
-                if (rootPane != null) {
-                    rootPane.requestFocus();
-                }
-            });
+            // Let TwoPlayerGameController handle the countdown and game start
+            // It will call showCountdownAndStart() internally
+            controller.onNewGameEvent(new MoveEvent(EventType.NEW_GAME, EventSource.USER));
+            
+            // Request focus for keyboard input
+            if (rootPane != null) {
+                rootPane.requestFocus();
+            }
             return;
         }
         
@@ -1981,6 +1978,13 @@ public class GuiController implements Initializable {
      * Player 2: ←/→ - Move, ↑ - Rotate, ↓ - Soft Drop, 0 - Hard Drop, 3 - Hold, 2 - Rotate CCW
      */
     private void handleTwoPlayerControls(KeyEvent keyEvent) {
+        // Check if eventListener is null (e.g., during countdown)
+        // This prevents NullPointerException when keys are pressed before game starts
+        if (eventListener == null) {
+            keyEvent.consume();
+            return;
+        }
+        
         // === Player 1 Controls (WASD Keys) ===
         if (keyEvent.getCode() == KeyCode.A) {
             // Player 1: Move left
