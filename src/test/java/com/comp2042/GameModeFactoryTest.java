@@ -20,7 +20,8 @@ class GameModeFactoryTest {
 
     @BeforeEach
     void setUp() {
-        gameService = new GameServiceImpl();
+        Board board = new SimpleBoard(10, 20);
+        gameService = new GameServiceImpl(board);
         guiController = new GuiController();
     }
 

@@ -405,7 +405,9 @@ public class LevelSelectionController {
             }
             
             // Create game service and game mode
-            com.comp2042.core.GameService gameService = new com.comp2042.core.GameServiceImpl();
+            // Use dependency injection: create Board explicitly and inject it
+            com.comp2042.Board board = new com.comp2042.SimpleBoard(10, 20);
+            com.comp2042.core.GameService gameService = new com.comp2042.core.GameServiceImpl(board);
             com.comp2042.gameplay.GameMode gameMode = 
                 new com.comp2042.gameplay.LevelGameModeImpl(gameService, guiController, levelManager, level);
             gameMode.initialize();

@@ -265,7 +265,9 @@ public class MainMenuController {
         SoundManager.getInstance().playButtonClickSound();
         try {
             // Create game service and GUI controller
-            GameService gameService = new GameServiceImpl();
+            // Use dependency injection: create Board explicitly and inject it
+            Board board = new SimpleBoard(10, 20);
+            GameService gameService = new GameServiceImpl(board);
             GuiController guiController = new GuiController();
             
             // Create endless mode using factory pattern

@@ -37,8 +37,11 @@ public class GameModeFactory {
                 return new LevelGameModeImpl(gameService, guiController, levelManager, availableLevels.get(0));
             case TWO_PLAYER_VS:
                 // Create two separate game services for VS mode
-                GameService player1Service = new com.comp2042.core.GameServiceImpl();
-                GameService player2Service = new com.comp2042.core.GameServiceImpl();
+                // Use dependency injection: create Board instances explicitly and inject them
+                com.comp2042.Board player1Board = new com.comp2042.SimpleBoard(10, 20);
+                com.comp2042.Board player2Board = new com.comp2042.SimpleBoard(10, 20);
+                GameService player1Service = new com.comp2042.core.GameServiceImpl(player1Board);
+                GameService player2Service = new com.comp2042.core.GameServiceImpl(player2Board);
                 return new TwoPlayerVSGameMode(player1Service, player2Service, guiController);
             default:
                 throw new IllegalArgumentException("Unknown game mode type: " + type);

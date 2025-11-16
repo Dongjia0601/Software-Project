@@ -29,12 +29,21 @@ class GameServiceImplTest {
     }
 
     @Test
-    @DisplayName("Constructor: Default constructor creates SimpleBoard")
-    void testDefaultConstructor() {
-        GameService service = new GameServiceImpl();
+    @DisplayName("Constructor: createDefault factory method creates GameServiceImpl with default board")
+    void testCreateDefaultFactoryMethod() {
+        GameService service = GameServiceImpl.createDefault();
         
         assertNotNull(service.getBoard());
         assertNotNull(service.getScore());
+        assertTrue(service.getBoard() instanceof SimpleBoard);
+    }
+    
+    @Test
+    @DisplayName("Constructor: Throws exception for null board")
+    void testConstructorWithNullBoard() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new GameServiceImpl(null);
+        }, "Should throw exception for null board");
     }
 
     @Test

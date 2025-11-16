@@ -27,18 +27,27 @@ public class GameServiceImpl implements GameService {
     
     /**
      * Constructs a GameServiceImpl with the specified board.
+     * Uses dependency injection to follow Dependency Inversion Principle (DIP).
      * 
-     * @param board the game board instance
+     * @param board the game board instance (must not be null)
+     * @throws IllegalArgumentException if board is null
      */
     public GameServiceImpl(Board board) {
+        if (board == null) {
+            throw new IllegalArgumentException("Board cannot be null");
+        }
         this.board = board;
     }
     
     /**
-     * Constructs a GameServiceImpl with a default SimpleBoard.
+     * Creates a GameServiceImpl with a default SimpleBoard.
+     * This factory method provides a convenient way to create a service with default configuration
+     * while still maintaining DIP compliance (the board creation is explicit).
+     * 
+     * @return a new GameServiceImpl instance with a default SimpleBoard (10x20)
      */
-    public GameServiceImpl() {
-        this.board = new SimpleBoard(10, 20);
+    public static GameServiceImpl createDefault() {
+        return new GameServiceImpl(new SimpleBoard(10, 20));
     }
     
     @Override
@@ -139,6 +148,8 @@ public class GameServiceImpl implements GameService {
     @Override
     public int[][] getNextBrick() {
         // Get next brick from the board's brick generator
+        // Note: This method requires SimpleBoard-specific functionality
+        // For better DIP compliance, consider adding this to Board interface
         if (board instanceof SimpleBoard) {
             return ((SimpleBoard) board).getNextBrick();
         }
