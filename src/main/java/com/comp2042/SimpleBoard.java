@@ -4,7 +4,9 @@ import com.comp2042.logic.bricks.Brick;
 import com.comp2042.logic.bricks.BrickGenerator;
 import com.comp2042.logic.bricks.RandomBrickGenerator;
 import com.comp2042.logic.bricks.SevenBagBrickGenerator;
+import com.comp2042.logic.bricks.BrickFactory;
 import com.comp2042.config.GameSettings;
+import com.comp2042.memento.GameStateMemento;
 
 import java.awt.*;
 
@@ -478,5 +480,192 @@ public class SimpleBoard implements Board {
         }
         
         return ghostY;
+    }
+    
+    // ========== Memento Pattern Support ==========
+    
+    /**
+     * Creates a memento containing the current game state.
+     * Implements the Memento Pattern's Originator role.
+     * 
+     * @return a GameStateMemento containing the current game state
+     */
+    public GameStateMemento createMemento() {
+        // Get current brick information
+        Brick currentBrick = brickRotator.getBrick();
+        int[][] currentBrickShape = currentBrick != null ? brickRotator.getCurrentShape() : null;
+        String currentBrickType = currentBrick != null ? getBrickType(currentBrick) : null;
+        int currentShapeIndex = getCurrentShapeIndex();
+        
+        // Get current position
+        int currentX = currentOffset != null ? (int) currentOffset.getX() : 0;
+        int currentY = currentOffset != null ? (int) currentOffset.getY() : 0;
+        
+        // Get held brick information
+        int[][] heldBrickShape = null;
+        String heldBrickType = null;
+        if (heldBrick != null && heldBrick.getShapeMatrix() != null && !heldBrick.getShapeMatrix().isEmpty()) {
+            heldBrickShape = heldBrick.getShapeMatrix().get(0);
+            heldBrickType = getBrickType(heldBrick);
+        }
+        
+        // Get next brick information
+        int[][] nextBrickShape = null;
+        String nextBrickType = null;
+        try {
+            Brick nextBrick = brickGenerator.getNextBrick();
+            if (nextBrick != null && nextBrick.getShapeMatrix() != null && !nextBrick.getShapeMatrix().isEmpty()) {
+                nextBrickShape = nextBrick.getShapeMatrix().get(0);
+                nextBrickType = getBrickType(nextBrick);
+            }
+        } catch (Exception e) {
+            // Handle gracefully
+        }
+        
+        // Get brick generator type
+        String generatorType = brickGenerator instanceof SevenBagBrickGenerator ? "seven_bag" : "pure_random";
+        
+        return new GameStateMemento(
+                currentGameMatrix,
+                width,
+                height,
+                currentBrickShape,
+                currentX,
+                currentY,
+                currentShapeIndex,
+                currentBrickType,
+                score.getScore(),
+                totalLinesCleared,
+                heldBrickShape,
+                heldBrickType,
+                nextBrickShape,
+                nextBrickType,
+                canHold,
+                generatorType
+        );
+    }
+    
+    /**
+     * Restores the game state from a memento.
+     * Implements the Memento Pattern's Originator role.
+     * 
+     * @param memento the GameStateMemento to restore from
+     * @throws IllegalArgumentException if memento is null or dimensions don't match
+     */
+    public void restoreFromMemento(GameStateMemento memento) {
+        if (memento == null) {
+            throw new IllegalArgumentException("Memento cannot be null");
+        }
+        
+        // Verify dimensions match
+        if (memento.getBoardWidth() != width || memento.getBoardHeight() != height) {
+            throw new IllegalArgumentException(
+                String.format("Memento dimensions (%dx%d) don't match board dimensions (%dx%d)",
+                    memento.getBoardWidth(), memento.getBoardHeight(), width, height));
+        }
+        
+        // Restore board matrix
+        currentGameMatrix = memento.getBoardMatrix();
+        
+        // Restore score
+        score.reset();
+        score.add(memento.getScore());
+        
+        // Restore lines cleared
+        totalLinesCleared = memento.getTotalLinesCleared();
+        
+        // Restore hold state
+        canHold = memento.canHold();
+        
+        // Restore held brick
+        if (memento.getHeldBrickType() != null) {
+            heldBrick = BrickFactory.createBrick(memento.getHeldBrickType());
+        } else {
+            heldBrick = null;
+        }
+        
+        // Restore current brick
+        if (memento.getCurrentBrickType() != null) {
+            Brick currentBrick = BrickFactory.createBrick(memento.getCurrentBrickType());
+            brickRotator.setBrick(currentBrick);
+            brickRotator.setCurrentShape(memento.getCurrentShapeIndex());
+            currentOffset = new Point(memento.getCurrentBrickX(), memento.getCurrentBrickY());
+        } else {
+            currentOffset = null;
+        }
+        
+        // Note: BrickGenerator state cannot be fully restored, but we can ensure
+        // the next brick matches if possible. This is a limitation of the current design.
+    }
+    
+    /**
+     * Helper method to extract brick type from a Brick instance.
+     * 
+     * @param brick the Brick instance
+     * @return the brick type (I, J, L, O, S, T, Z) or null if unknown
+     */
+    private String getBrickType(Brick brick) {
+        if (brick == null) {
+            return null;
+        }
+        
+        String className = brick.getClass().getSimpleName();
+        // Extract type from class name (e.g., "IBrick" -> "I", "JBrick" -> "J")
+        if (className.endsWith("Brick") && className.length() > 5) {
+            return className.substring(0, className.length() - 5);
+        }
+        return null;
+    }
+    
+    /**
+     * Gets the current shape index from the brick rotator.
+     * 
+     * @return the current shape index
+     */
+    private int getCurrentShapeIndex() {
+        // BrickRotator doesn't expose currentShape directly, so we need to calculate it
+        // by comparing current shape with all possible shapes
+        Brick currentBrick = brickRotator.getBrick();
+        if (currentBrick == null) {
+            return 0;
+        }
+        
+        int[][] currentShape = brickRotator.getCurrentShape();
+        var allShapes = currentBrick.getShapeMatrix();
+        
+        for (int i = 0; i < allShapes.size(); i++) {
+            if (shapesEqual(currentShape, allShapes.get(i))) {
+                return i;
+            }
+        }
+        
+        return 0; // Default to first shape if not found
+    }
+    
+    /**
+     * Helper method to compare two shape matrices for equality.
+     * 
+     * @param shape1 first shape matrix
+     * @param shape2 second shape matrix
+     * @return true if shapes are equal
+     */
+    private boolean shapesEqual(int[][] shape1, int[][] shape2) {
+        if (shape1 == null || shape2 == null) {
+            return shape1 == shape2;
+        }
+        if (shape1.length != shape2.length) {
+            return false;
+        }
+        for (int i = 0; i < shape1.length; i++) {
+            if (shape1[i].length != shape2[i].length) {
+                return false;
+            }
+            for (int j = 0; j < shape1[i].length; j++) {
+                if (shape1[i][j] != shape2[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
