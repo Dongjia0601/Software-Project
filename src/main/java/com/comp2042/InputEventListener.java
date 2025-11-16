@@ -2,109 +2,26 @@ package com.comp2042;
 
 /**
  * Interface for handling all types of input events in the Tetris game.
- * Provides methods for processing movement, rotation, drop, hold, and game control events.
  * 
- * <p>This interface serves as the primary contract for event handling in the game,
- * supporting both basic and advanced Tetris features.</p>
+ * <p>This interface extends both BrickMovementListener and GameControlListener
+ * to provide a complete event handling contract. It serves as a convenience
+ * interface for classes that need to handle both brick movement and game control events.</p>
+ * 
+ * <p>This design follows the Interface Segregation Principle by:
+ * <ul>
+ *   <li>Separating concerns into BrickMovementListener and GameControlListener</li>
+ *   <li>Allowing clients to implement only the interfaces they need</li>
+ *   <li>Providing a combined interface for convenience when both are needed</li>
+ * </ul>
+ * </p>
+ * 
+ * <p>For classes that only need brick movement handling, implement BrickMovementListener.
+ * For classes that only need game control handling, implement GameControlListener.
+ * For classes that need both, implement InputEventListener (or both interfaces separately).</p>
  * 
  * @author Dong, Jia.
  */
-public interface InputEventListener {
-
-    // Basic movement events
-    /**
-     * Handles the DOWN event (both user-initiated and automatic descent).
-     *
-     * @param event The MoveEvent containing event type and source.
-     * @return DownData containing view and row-clearing information.
-     */
-    DownData onDownEvent(MoveEvent event);
-
-    /**
-     * Handles the LEFT event.
-     *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
-     */
-    ViewData onLeftEvent(MoveEvent event);
-
-    /**
-     * Handles the RIGHT event.
-     *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
-     */
-    ViewData onRightEvent(MoveEvent event);
-
-    // Rotation events
-    /**
-     * Handles the ROTATE event (clockwise rotation).
-     *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
-     */
-    ViewData onRotateEvent(MoveEvent event);
-
-    /**
-     * Handles the ROTATE_CCW event (counterclockwise rotation).
-     *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
-     */
-    ViewData onRotateCCWEvent(MoveEvent event);
-
-    // Drop events
-    /**
-     * Handles the HARD_DROP event (instant drop to bottom).
-     *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
-     */
-    ViewData onHardDropEvent(MoveEvent event);
-
-    /**
-     * Handles the SOFT_DROP event (faster downward movement).
-     *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
-     */
-    ViewData onSoftDropEvent(MoveEvent event);
-
-    // Hold functionality
-    /**
-     * Handles the HOLD event (store current brick for later use).
-     *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and hold state.
-     */
-    ViewData onHoldEvent(MoveEvent event);
-
-    // Game control events
-    /**
-     * Handles the PAUSE event.
-     *
-     * @param event The MoveEvent containing event type and source.
-     */
-    void onPauseEvent(MoveEvent event);
-
-    /**
-     * Handles the RESUME event.
-     *
-     * @param event The MoveEvent containing event type and source.
-     */
-    void onResumeEvent(MoveEvent event);
-
-    /**
-     * Handles the NEW_GAME event.
-     *
-     * @param event The MoveEvent containing event type and source.
-     */
-    void onNewGameEvent(MoveEvent event);
-
-    /**
-     * Handles the QUIT event.
-     *
-     * @param event The MoveEvent containing event type and source.
-     */
-    void onQuitEvent(MoveEvent event);
+public interface InputEventListener extends BrickMovementListener, GameControlListener {
+    // This interface now extends the segregated interfaces
+    // All methods are inherited from BrickMovementListener and GameControlListener
 }
