@@ -81,9 +81,9 @@ public class SoundManager {
     private void playSound(String resourcePath) {
         if (!soundEnabled) return;
         
-        Media media = loadMedia(resourcePath);
+            Media media = loadMedia(resourcePath);
         if (media == null) return;
-
+        
         if (Platform.isFxApplicationThread()) {
             playSoundOnFxThread(media);
         } else {
@@ -355,6 +355,14 @@ public class SoundManager {
      */
     public void playEndlessNewRecordSound() {
         playSound("audio/EndlessGameNewRecordSFX.mp3");
+    }
+    
+    /**
+     * Plays a two-player mode game over sound effect.
+     * Used when Two-Player Mode game ends.
+     */
+    public void playTwoPlayerGameOverSound() {
+        playSound("audio/TwoPlayerGameOverSFX.mp3");
     }
     
     /**

@@ -2838,20 +2838,22 @@ public class GuiController implements Initializable {
                 playTimeMs = System.currentTimeMillis() - gameStartTime;
             }
             
-            // Get leaderboard instance and check for high score
+            // Get leaderboard instance and add entry to get rank
             com.comp2042.game.EndlessModeLeaderboard leaderboard = 
                 com.comp2042.game.EndlessModeLeaderboard.getInstance();
-            boolean isNewHighScore = leaderboard.isNewHighScore(finalScore);
             
-            // Play appropriate sound effect based on whether it's a new record
-            if (isNewHighScore) {
+            // Add entry to leaderboard and get rank (1-5 if in top 5, 0 otherwise)
+            int rank = leaderboard.addEntry(finalScore, linesCleared, playTimeMs, getCurrentLevel());
+            
+            // Play appropriate sound effect based on whether entry is in top 5
+            if (rank > 0 && rank <= 5) {
                 SoundManager.getInstance().playEndlessNewRecordSound();
             } else {
                 SoundManager.getInstance().playEndlessGameOverSound();
             }
             
-            // Add entry to leaderboard and get rank
-            int rank = leaderboard.addEntry(finalScore, linesCleared, playTimeMs, getCurrentLevel());
+            // Check if this is a new high score for display purposes
+            boolean isNewHighScore = leaderboard.isNewHighScore(finalScore);
             
             // Load the endless game over FXML
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("endlessGameOver.fxml"));
@@ -4200,6 +4202,9 @@ public class GuiController implements Initializable {
      * @param player2Score Player 2's final score
      */
     public void showTwoPlayerGameOver(int winner, int player1Score, int player2Score) {
+        // Play two-player game over sound effect
+        SoundManager.getInstance().playTwoPlayerGameOverSound();
+        
         // Get statistics from game mode
         com.comp2042.game.PlayerStats player1Stats = null;
         com.comp2042.game.PlayerStats player2Stats = null;
