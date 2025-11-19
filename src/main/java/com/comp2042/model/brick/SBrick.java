@@ -5,6 +5,10 @@ import com.comp2042.util.MatrixOperations;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * S-shaped tetromino.
+ * Has 2 unique rotational states.
+ */
 final class SBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();

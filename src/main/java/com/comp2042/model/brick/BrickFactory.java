@@ -5,11 +5,8 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Factory class for creating Tetris bricks with enhanced functionality.
- * Provides methods for creating specific brick types, random bricks, and managing brick instances.
- * 
- * <p>This factory supports the Strategy pattern by providing different brick creation strategies
- * and implements the Factory pattern for centralized brick instantiation.</p>
+ * Factory class for creating Tetris bricks (Factory Pattern).
+ * Provides type-safe brick creation and supports multiple randomization strategies.
  * 
  * @author Dong, Jia.
  */
@@ -38,9 +35,9 @@ public class BrickFactory {
     /**
      * Creates a brick of the specified type.
      * 
-     * @param brickType The type of brick to create (I, J, L, O, S, T, Z).
-     * @return A new Brick instance of the specified type.
-     * @throws IllegalArgumentException if the brick type is not supported.
+     * @param brickType Type to create (I, J, L, O, S, T, Z)
+     * @return New Brick instance
+     * @throws IllegalArgumentException if type is unsupported
      */
     public static Brick createBrick(String brickType) {
         Class<? extends Brick> brickClass = BRICK_TYPES.get(brickType.toUpperCase());
@@ -56,9 +53,9 @@ public class BrickFactory {
     }
     
     /**
-     * Creates a random brick from all available types.
+     * Creates a random brick using pure random selection.
      * 
-     * @return A random Brick instance.
+     * @return Random Brick instance
      */
     public static Brick createRandomBrick() {
         String[] brickTypes = BRICK_TYPES.keySet().toArray(new String[0]);
@@ -67,19 +64,19 @@ public class BrickFactory {
     }
     
     /**
-     * Creates a brick generator that produces random bricks.
+     * Creates a pure random brick generator.
      * 
-     * @return A BrickGenerator instance that creates random bricks.
+     * @return RandomBrickGenerator instance
      */
     public static BrickGenerator createRandomBrickGenerator() {
         return new RandomBrickGenerator();
     }
 
     /**
-     * Creates a brick generator that uses the 7-bag randomizer
-     * (one of each piece per bag, then shuffled).
+     * Creates a 7-bag brick generator (one of each piece per bag, shuffled).
+     * This provides fairer randomization than pure random.
      *
-     * @return A BrickGenerator instance that follows the 7-bag randomizer.
+     * @return SevenBagBrickGenerator instance
      */
     public static BrickGenerator createSevenBagBrickGenerator() {
         return new SevenBagBrickGenerator();
@@ -88,7 +85,7 @@ public class BrickFactory {
     /**
      * Gets all available brick types.
      * 
-     * @return An array of all supported brick type names.
+     * @return Array of supported brick type names
      */
     public static String[] getAvailableBrickTypes() {
         return BRICK_TYPES.keySet().toArray(new String[0]);
@@ -97,8 +94,8 @@ public class BrickFactory {
     /**
      * Checks if a brick type is supported.
      * 
-     * @param brickType The brick type to check.
-     * @return true if the brick type is supported, false otherwise.
+     * @param brickType Type to check
+     * @return true if supported, false otherwise
      */
     public static boolean isBrickTypeSupported(String brickType) {
         return BRICK_TYPES.containsKey(brickType.toUpperCase());
@@ -107,19 +104,19 @@ public class BrickFactory {
     /**
      * Gets the number of available brick types.
      * 
-     * @return The number of supported brick types.
+     * @return Number of supported types (always 7)
      */
     public static int getBrickTypeCount() {
         return BRICK_TYPES.size();
     }
     
     /**
-     * Creates a brick with a specific color value.
-     * This method can be extended to support colored bricks in the future.
+     * Creates a brick with a specific color value (future extension point).
+     * Currently returns a standard brick; color customization not yet implemented.
      * 
-     * @param brickType The type of brick to create.
-     * @param colorValue The color value to assign to the brick.
-     * @return A new Brick instance with the specified color.
+     * @param brickType Type to create
+     * @param colorValue Color value (currently unused)
+     * @return New Brick instance
      */
     public static Brick createColoredBrick(String brickType, int colorValue) {
         // Returns a standard brick; color customization can be added in the future

@@ -4,17 +4,17 @@ import java.util.List;
 
 /**
  * Interface representing a Tetris brick (Tetromino).
- * Defines the method to retrieve the list of possible shape matrices for this brick type.
+ * Provides access to the brick's rotational states as shape matrices.
  * 
  * @author Dong, Jia.
  */
 public interface Brick {
 
     /**
-     * Gets the list of shape matrices representing the different rotational states of this brick.
-     * Each matrix in the list corresponds to a possible orientation of the brick.
+     * Gets all rotational states of this brick as shape matrices.
+     * Each matrix represents one possible orientation.
      *
-     * @return A List of 2D integer arrays representing the brick's shapes.
+     * @return List of shape matrices for each rotation
      */
     List<int[][]> getShapeMatrix();
 }

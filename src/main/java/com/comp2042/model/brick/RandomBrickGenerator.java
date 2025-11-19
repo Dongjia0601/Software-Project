@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Implementation of BrickGenerator that randomly selects bricks from a predefined list.
- * Uses a queue to hold the current brick to be played and the next one to come,
- * ensuring the next brick is always available.
+ * Pure random brick generator implementation.
+ * Each brick is independently and uniformly selected from all seven types.
+ * Uses a lookahead queue to support next brick preview.
+ * 
+ * @author Dong, Jia.
  */
 public class RandomBrickGenerator implements BrickGenerator {
 
@@ -18,8 +20,7 @@ public class RandomBrickGenerator implements BrickGenerator {
     private final Deque<Brick> nextBricks = new ArrayDeque<>(); // Queue holding the current and next bricks
 
     /**
-     * Constructs a RandomBrickGenerator.
-     * Initializes the list of all brick types and fills the queue with two randomly selected bricks.
+     * Constructs a RandomBrickGenerator with an initial lookahead queue.
      */
     public RandomBrickGenerator() {
         brickList = new ArrayList<>();
@@ -35,14 +36,13 @@ public class RandomBrickGenerator implements BrickGenerator {
         nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
     }
 
-    @Override
     /**
-     * Gets the current brick from the queue.
-     * Ensures the queue always has at least one brick ahead by adding a new random one if needed.
-     * Removes and returns the first brick in the queue.
+     * Gets and consumes the current brick.
+     * Maintains at least one brick lookahead.
      *
-     * @return The current Brick instance.
+     * @return Current Brick instance
      */
+    @Override
     public Brick getBrick() {
         if (nextBricks.size() <= 1) {
             nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
@@ -50,12 +50,12 @@ public class RandomBrickGenerator implements BrickGenerator {
         return nextBricks.poll(); // Remove and return the first brick
     }
 
-    @Override
     /**
-     * Gets the next brick in the queue without removing it.
+     * Peeks at the next brick without consuming it.
      *
-     * @return The next Brick instance.
+     * @return Next Brick instance
      */
+    @Override
     public Brick getNextBrick() {
         return nextBricks.peek(); // Return the first brick without removing it
     }

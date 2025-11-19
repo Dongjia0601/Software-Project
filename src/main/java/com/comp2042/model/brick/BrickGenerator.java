@@ -1,25 +1,25 @@
 package com.comp2042.model.brick;
 
 /**
- * Interface for generating Tetris bricks during gameplay.
- * Defines methods for retrieving the current brick and the next brick to be generated.
+ * Strategy interface for Tetris brick generation during gameplay (Strategy Pattern).
+ * Provides lookahead functionality for displaying the next brick.
  * 
  * @author Dong, Jia.
  */
 public interface BrickGenerator {
 
     /**
-     * Gets the current brick (likely the one currently falling).
-     * This action typically advances the internal state to prepare the next brick.
+     * Gets and consumes the current brick.
+     * Advances the internal state to prepare the next brick.
      *
-     * @return The current Brick instance.
+     * @return Current Brick instance
      */
     Brick getBrick();
 
     /**
-     * Gets the next brick that will be generated (often displayed in a preview area).
+     * Peeks at the next brick without consuming it (for preview display).
      *
-     * @return The next Brick instance.
+     * @return Next Brick instance
      */
     Brick getNextBrick();
 }

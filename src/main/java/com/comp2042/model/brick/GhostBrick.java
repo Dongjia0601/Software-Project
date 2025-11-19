@@ -3,19 +3,9 @@ package com.comp2042.model.brick;
 import com.comp2042.util.MatrixOperations;
 
 /**
- * Represents a ghost brick that shows where the current falling brick would land.
- * The ghost brick has the same shape and x-position as the current brick,
- * but with the y-position adjusted to show the landing position.
- * 
- * <p>This class encapsulates the logic for calculating the ghost brick position
- * and provides a clean interface for ghost brick operations.</p>
- * 
- * <p>Key features:</p>
- * <ul>
- *   <li>Calculates landing position based on current brick and board state</li>
- *   <li>Maintains the same shape and x-position as the current brick</li>
- *   <li>Provides position information for rendering</li>
- * </ul>
+ * Ghost piece that shows where the current brick would land if dropped straight down.
+ * Has the same shape and x-position as the current brick, but y-position adjusted to landing spot.
+ * Improves player UX by showing the drop destination.
  */
 public class GhostBrick {
     
@@ -24,11 +14,11 @@ public class GhostBrick {
     private final int yPosition;       // The y-coordinate (row) where the ghost brick would land
     
     /**
-     * Constructs a GhostBrick with the specified shape and position.
+     * Constructs a GhostBrick with shape and landing position.
      * 
-     * @param shape the shape matrix of the ghost brick (same as current brick)
-     * @param xPosition the x-coordinate (column) of the ghost brick
-     * @param yPosition the y-coordinate (row) where the ghost brick would land
+     * @param shape     Shape matrix (copied defensively)
+     * @param xPosition X-coordinate (column)
+     * @param yPosition Landing y-coordinate (row)
      */
     public GhostBrick(int[][] shape, int xPosition, int yPosition) {
         this.shape = shape != null ? MatrixOperations.copy(shape) : null;
@@ -37,16 +27,15 @@ public class GhostBrick {
     }
     
     /**
-     * Calculates the ghost brick position for a given current brick and board state.
-     * The ghost brick will have the same shape and x-position as the current brick,
-     * but the y-position will be adjusted to show where it would land if dropped straight down.
+     * Calculates where the current brick would land if dropped straight down.
+     * Returns null if ghost position equals current position or calculation fails.
      * 
-     * @param currentShape the shape matrix of the current falling brick
-     * @param currentX the x-coordinate of the current brick
-     * @param currentY the y-coordinate of the current brick
-     * @param boardMatrix the current state of the game board matrix
-     * @param boardHeight the height of the game board
-     * @return a GhostBrick instance representing where the brick would land, or null if calculation fails
+     * @param currentShape Current brick shape matrix
+     * @param currentX     Current x-coordinate
+     * @param currentY     Current y-coordinate
+     * @param boardMatrix  Board state
+     * @param boardHeight  Board height
+     * @return GhostBrick at landing position, or null
      */
     public static GhostBrick calculate(int[][] currentShape, int currentX, int currentY, 
                                        int[][] boardMatrix, int boardHeight) {
@@ -87,46 +76,46 @@ public class GhostBrick {
     }
     
     /**
-     * Gets the shape matrix of the ghost brick.
-     * Returns a copy to prevent external modification.
+     * Gets the ghost brick shape matrix.
+     * Returns a defensive copy.
      * 
-     * @return a copy of the ghost brick's shape matrix
+     * @return Copy of shape matrix, or null
      */
     public int[][] getShape() {
         return shape != null ? MatrixOperations.copy(shape) : null;
     }
     
     /**
-     * Gets the x-coordinate (column) of the ghost brick.
+     * Gets the x-coordinate.
      * 
-     * @return the x-coordinate
+     * @return X-coordinate (column)
      */
     public int getXPosition() {
         return xPosition;
     }
     
     /**
-     * Gets the y-coordinate (row) where the ghost brick would land.
+     * Gets the landing y-coordinate.
      * 
-     * @return the y-coordinate
+     * @return Landing y-coordinate (row)
      */
     public int getYPosition() {
         return yPosition;
     }
     
     /**
-     * Checks if the ghost brick is valid (has a valid shape and position).
+     * Checks if the ghost brick is valid.
      * 
-     * @return true if the ghost brick is valid, false otherwise
+     * @return true if valid, false otherwise
      */
     public boolean isValid() {
         return shape != null && yPosition >= 0;
     }
     
     /**
-     * Returns a string representation of this GhostBrick.
+     * Returns a string representation.
      * 
-     * @return a string representation of this GhostBrick
+     * @return String representation
      */
     @Override
     public String toString() {

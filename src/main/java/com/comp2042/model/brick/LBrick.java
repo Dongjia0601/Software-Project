@@ -5,6 +5,10 @@ import com.comp2042.util.MatrixOperations;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * L-shaped tetromino.
+ * Has 4 unique rotational states.
+ */
 final class LBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();

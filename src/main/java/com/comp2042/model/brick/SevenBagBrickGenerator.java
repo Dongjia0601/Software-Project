@@ -7,19 +7,19 @@ import java.util.Deque;
 import java.util.List;
 
 /**
- * A BrickGenerator that implements the "7-bag" randomizer.
- * Each bag contains exactly one of each of the seven tetrominoes
- * (I, O, T, S, Z, J, L) in a random order. Bricks are dealt from the bag until
- * it is empty, then a new shuffled bag is created.
- *
- * This generator also maintains a small lookahead queue so callers can ask for
- * the next brick without consuming it, matching the semantics of
- * RandomBrickGenerator#getNextBrick.
+ * "7-bag" randomizer implementation for fairer brick distribution.
+ * Each bag contains exactly one of each tetromino (I, O, T, S, Z, J, L) in random order.
+ * Guarantees no piece appears more than 13 bricks apart, reducing frustrating droughts.
+ * 
+ * @author Dong, Jia.
  */
 public class SevenBagBrickGenerator implements BrickGenerator {
 
     private final Deque<Brick> queue = new ArrayDeque<>();
 
+    /**
+     * Constructs a SevenBagBrickGenerator with an initial shuffled bag.
+     */
     public SevenBagBrickGenerator() {
         // Prime the queue with an initial bag so that getNextBrick() works
         refillIfNeeded();
@@ -29,18 +29,31 @@ public class SevenBagBrickGenerator implements BrickGenerator {
         }
     }
 
+    /**
+     * Gets and consumes the current brick from the bag.
+     * 
+     * @return Current Brick instance
+     */
     @Override
     public Brick getBrick() {
         refillIfNeeded();
         return queue.pollFirst();
     }
 
+    /**
+     * Peeks at the next brick without consuming it.
+     * 
+     * @return Next Brick instance
+     */
     @Override
     public Brick getNextBrick() {
         refillIfNeeded();
         return queue.peekFirst();
     }
 
+    /**
+     * Refills the queue with a new shuffled bag when empty.
+     */
     private void refillIfNeeded() {
         if (queue.isEmpty()) {
             // Build a fresh bag with one of each tetromino
