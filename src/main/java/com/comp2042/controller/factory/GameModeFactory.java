@@ -4,7 +4,7 @@ import com.comp2042.service.gameloop.GameService;
 import com.comp2042.controller.game.GameViewController;
 import com.comp2042.model.mode.EndlessMode;
 import com.comp2042.model.mode.LevelManager;
-import com.comp2042.model.mode.TwoPlayerVSGameMode;
+import com.comp2042.model.mode.TwoPlayerMode;
 
 /**
  * Factory class for creating game mode instances.
@@ -42,7 +42,7 @@ public class GameModeFactory {
                 com.comp2042.model.board.Board player2Board = new com.comp2042.model.board.SimpleBoard(10, 20);
                 GameService player1Service = new com.comp2042.service.gameloop.GameServiceImpl(player1Board);
                 GameService player2Service = new com.comp2042.service.gameloop.GameServiceImpl(player2Board);
-                return new TwoPlayerVSGameMode(player1Service, player2Service, guiController);
+                return new TwoPlayerMode(player1Service, player2Service, guiController);
             default:
                 throw new IllegalArgumentException("Unknown game mode type: " + type);
         }

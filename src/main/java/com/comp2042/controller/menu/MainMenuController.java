@@ -357,7 +357,7 @@ public class MainMenuController {
             var gameMode = GameModeFactory.createGameMode(GameModeType.TWO_PLAYER_VS, null, guiController);
             
             // Create two-player game controller to manage both players
-            TwoPlayerGameController twoPlayerController = new TwoPlayerGameController((com.comp2042.model.mode.TwoPlayerVSGameMode) gameMode, guiController);
+            TwoPlayerGameController twoPlayerController = new TwoPlayerGameController((com.comp2042.model.mode.TwoPlayerMode) gameMode, guiController);
             
             // Create new scene with two-player layout size
             Scene gameScene = new Scene(root, 1400, 900);

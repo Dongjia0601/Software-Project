@@ -242,7 +242,6 @@
     -fx-effect: dropshadow(gaussian, rgba(77, 255, 255, 0.3), 2, 0, 0, 0);
 }
 
-/* Legacy styles for backward compatibility */
 .controls-grid {
     -fx-padding: 10px 0;
 }
@@ -275,7 +274,6 @@
     -fx-font-weight: bold;
 }
 
-/* Volume Sliders */
 .volume-slider {
     -fx-pref-width: 300px;
 }
@@ -319,7 +317,6 @@
     -fx-alignment: center-right;
 }
 
-/* Checkboxes */
 .sound-checkbox, .display-checkbox {
     -fx-text-fill: white;
 }

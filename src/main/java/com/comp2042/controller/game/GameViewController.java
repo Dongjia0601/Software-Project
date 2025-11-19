@@ -1152,8 +1152,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
                         com.comp2042.model.board.Board player2Board = new com.comp2042.model.board.SimpleBoard(10, 20);
                         com.comp2042.service.gameloop.GameService player1Service = new com.comp2042.service.gameloop.GameServiceImpl(player1Board);
                         com.comp2042.service.gameloop.GameService player2Service = new com.comp2042.service.gameloop.GameServiceImpl(player2Board);
-                        com.comp2042.model.mode.TwoPlayerVSGameMode newGameMode = 
-                            new com.comp2042.model.mode.TwoPlayerVSGameMode(player1Service, player2Service, this);
+                        com.comp2042.model.mode.TwoPlayerMode newGameMode = 
+                            new com.comp2042.model.mode.TwoPlayerMode(player1Service, player2Service, this);
                         new TwoPlayerGameController(newGameMode, this);
                         rootPane.requestFocus();
                     } else {
@@ -1166,8 +1166,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
                                 com.comp2042.model.board.Board player2Board = new com.comp2042.model.board.SimpleBoard(10, 20);
                                 com.comp2042.service.gameloop.GameService player1Service = new com.comp2042.service.gameloop.GameServiceImpl(player1Board);
                                 com.comp2042.service.gameloop.GameService player2Service = new com.comp2042.service.gameloop.GameServiceImpl(player2Board);
-                                com.comp2042.model.mode.TwoPlayerVSGameMode newGameMode = 
-                                    new com.comp2042.model.mode.TwoPlayerVSGameMode(player1Service, player2Service, this);
+                                com.comp2042.model.mode.TwoPlayerMode newGameMode = 
+                                    new com.comp2042.model.mode.TwoPlayerMode(player1Service, player2Service, this);
                                 new TwoPlayerGameController(newGameMode, this);
                                 rootPane.requestFocus();
                             }
@@ -1335,7 +1335,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             // Update UI to show cleared scores and statistics immediately (before countdown)
             updatePlayer1Score(0);
             updatePlayer2Score(0);
-            com.comp2042.model.mode.TwoPlayerVSGameMode gameMode = controller.getGameMode();
+            com.comp2042.model.mode.TwoPlayerMode gameMode = controller.getGameMode();
             if (gameMode != null) {
                 // Reset statistics only (not game state yet - that happens in onNewGameEvent)
                 gameMode.getPlayer1Stats().reset();
@@ -4430,9 +4430,9 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         
         if (eventListener instanceof TwoPlayerGameController) {
             TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
-            if (controller.getGameMode() instanceof com.comp2042.model.mode.TwoPlayerVSGameMode) {
-                com.comp2042.model.mode.TwoPlayerVSGameMode gameMode = 
-                    (com.comp2042.model.mode.TwoPlayerVSGameMode) controller.getGameMode();
+            if (controller.getGameMode() instanceof com.comp2042.model.mode.TwoPlayerMode) {
+                com.comp2042.model.mode.TwoPlayerMode gameMode = 
+                    (com.comp2042.model.mode.TwoPlayerMode) controller.getGameMode();
                 player1Stats = gameMode.getPlayer1Stats();
                 player2Stats = gameMode.getPlayer2Stats();
             }
