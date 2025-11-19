@@ -11,42 +11,18 @@ import java.util.ResourceBundle;
 
 /**
  * Main entry point for the Tetris application.
- * 
- * <p>This class serves as the application launcher and initializes the main menu interface.
- * It follows the JavaFX Application lifecycle and sets up the primary stage with the main menu.</p>
- * 
- * <p>Key responsibilities:</p>
- * <ul>
- *   <li>Initialize the JavaFX application</li>
- *   <li>Load the main menu FXML layout</li>
- *   <li>Configure the primary stage with appropriate settings</li>
- *   <li>Display the main menu to the user</li>
- * </ul>
+ * Initializes the JavaFX application and displays the main menu.
  * 
  * @author Dong, Jia.
  */
 public class Main extends Application {
 
     /**
-     * The main entry point for the JavaFX application.
+     * Initializes the primary stage with the main menu.
+     * Loads the FXML layout and configures the window as a fixed-size, centered interface.
      * 
-     * <p>This method is called after the JavaFX runtime has been initialized.
-     * It sets up the primary stage with the main menu interface and configures
-     * the application window properties.</p>
-     * 
-     * <p>The method performs the following operations:</p>
-     * <ul>
-     *   <li>Loads the main menu FXML file from resources</li>
-     *   <li>Creates a new scene with the loaded FXML content</li>
-     *   <li>Configures the stage title and window properties</li>
-     *   <li>Displays the main menu to the user</li>
-     * </ul>
-     * 
-     * @param primaryStage The primary stage for this application, onto which
-     *                    the application scene can be set. Applications may create other stages,
-     *                    if needed, but they will not be primary stages.
-     * @throws Exception if the FXML file cannot be loaded or if there are issues
-     *                   with scene creation or stage configuration.
+     * @param primaryStage The primary stage for this application
+     * @throws Exception if FXML loading or scene configuration fails
      */
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -70,14 +46,9 @@ public class Main extends Application {
     }
 
     /**
-     * The main method that launches the JavaFX application.
+     * Application entry point that launches the JavaFX runtime.
      * 
-     * <p>This method serves as the entry point for the application and delegates
-     * control to the JavaFX Application.launch() method, which handles the
-     * initialization of the JavaFX runtime and calls the start() method.</p>
-     * 
-     * @param args Command line arguments passed to the application.
-     *             Currently not used, but maintained for future extensibility.
+     * @param args Command line arguments (currently unused)
      */
     public static void main(String[] args) {
         launch(args);

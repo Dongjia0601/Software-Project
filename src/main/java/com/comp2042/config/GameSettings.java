@@ -18,6 +18,12 @@ public class GameSettings {
     private static final String SETTINGS_DIR = System.getProperty("user.home") + File.separator + ".tetris";
     private static final String SETTINGS_FILE_NAME = "tetris_settings.properties";
     
+    /**
+     * Gets the settings file path in the user's home directory.
+     * Creates the .tetris directory if it doesn't exist.
+     * 
+     * @return the settings file in ~/.tetris/
+     */
     private File getSettingsFile() {
         File dir = new File(SETTINGS_DIR);
         if (!dir.exists()) {
@@ -27,14 +33,17 @@ public class GameSettings {
         return new File(dir, SETTINGS_FILE_NAME);
     }
     
-    // Audio settings
+    /** Master volume level (0.0-1.0) */
     private double masterVolume;
+    /** Background music volume (0.0-1.0) */
     private double musicVolume;
+    /** Sound effects volume (0.0-1.0) */
     private double sfxVolume;
     
-    // Gameplay settings
+    /** Default difficulty level (1-10) */
     private int defaultDifficulty;
-    private String pieceRandomizer; // "seven_bag" or "pure_random"
+    /** Piece randomization algorithm: "seven_bag" or "pure_random" */
+    private String pieceRandomizer;
     
     // Default values
     private static final double DEFAULT_MASTER_VOLUME = 0.7;
@@ -45,6 +54,7 @@ public class GameSettings {
     
     /**
      * Private constructor for Singleton pattern.
+     * Initializes settings with defaults and attempts to load from file.
      */
     private GameSettings() {
         resetToDefaults();
@@ -76,7 +86,8 @@ public class GameSettings {
     }
     
     /**
-     * Saves current settings to file.
+     * Persists current settings to the properties file.
+     * 
      * @return true if save was successful, false otherwise
      */
     public boolean saveSettings() {
@@ -99,7 +110,9 @@ public class GameSettings {
     }
     
     /**
-     * Loads settings from file.
+     * Loads settings from the properties file.
+     * Falls back to defaults if file is missing or corrupted.
+     * 
      * @return true if load was successful, false otherwise
      */
     public boolean loadSettings() {
@@ -126,44 +139,93 @@ public class GameSettings {
         }
     }
     
-    // Getters and setters
-    
+    /**
+     * Gets the master volume level.
+     * 
+     * @return volume level between 0.0 and 1.0
+     */
     public double getMasterVolume() {
         return masterVolume;
     }
     
+    /**
+     * Sets the master volume level. Value is clamped to [0.0, 1.0].
+     * 
+     * @param masterVolume the volume level to set
+     */
     public void setMasterVolume(double masterVolume) {
         this.masterVolume = Math.max(0.0, Math.min(1.0, masterVolume));
     }
     
+    /**
+     * Gets the background music volume level.
+     * 
+     * @return volume level between 0.0 and 1.0
+     */
     public double getMusicVolume() {
         return musicVolume;
     }
     
+    /**
+     * Sets the music volume level. Value is clamped to [0.0, 1.0].
+     * 
+     * @param musicVolume the volume level to set
+     */
     public void setMusicVolume(double musicVolume) {
         this.musicVolume = Math.max(0.0, Math.min(1.0, musicVolume));
     }
     
+    /**
+     * Gets the sound effects volume level.
+     * 
+     * @return volume level between 0.0 and 1.0
+     */
     public double getSfxVolume() {
         return sfxVolume;
     }
     
+    /**
+     * Sets the sound effects volume level. Value is clamped to [0.0, 1.0].
+     * 
+     * @param sfxVolume the volume level to set
+     */
     public void setSfxVolume(double sfxVolume) {
         this.sfxVolume = Math.max(0.0, Math.min(1.0, sfxVolume));
     }
     
+    /**
+     * Gets the default difficulty level.
+     * 
+     * @return difficulty level between 1 and 10
+     */
     public int getDefaultDifficulty() {
         return defaultDifficulty;
     }
     
+    /**
+     * Sets the default difficulty level. Value is clamped to [1, 10].
+     * 
+     * @param defaultDifficulty the difficulty level to set
+     */
     public void setDefaultDifficulty(int defaultDifficulty) {
         this.defaultDifficulty = Math.max(1, Math.min(10, defaultDifficulty));
     }
 
+    /**
+     * Gets the piece randomization algorithm.
+     * 
+     * @return "seven_bag" or "pure_random"
+     */
     public String getPieceRandomizer() {
         return pieceRandomizer;
     }
 
+    /**
+     * Sets the piece randomization algorithm.
+     * Only "seven_bag" and "pure_random" are valid; defaults to "seven_bag" otherwise.
+     * 
+     * @param pieceRandomizer the algorithm to use
+     */
     public void setPieceRandomizer(String pieceRandomizer) {
         if (pieceRandomizer == null) {
             this.pieceRandomizer = DEFAULT_RANDOMIZER;
