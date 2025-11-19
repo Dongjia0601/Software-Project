@@ -74,7 +74,10 @@ import java.util.ResourceBundle;
  *   <li>{@link BrickRenderer} - Handles brick rendering (current, ghost, hold, next)</li>
  *   <li>{@link AnimationController} - Manages all animations and visual effects</li>
  *   <li>{@link GameInputHandler} - Processes keyboard input</li>
- *   <li>{@link GameUIManager} - Updates UI components (labels, stats)</li>
+ *   <li>{@link HudManager} - Updates HUD elements (labels, stats)</li>
+ *   <li>{@link TwoPlayerPanelManager} - Coordinates two-player specific panels</li>
+ *   <li>{@link CountdownManager} - Handles pre-game countdown overlays</li>
+ *   <li>{@link AudioVolumeManager} - Synchronises mute state and audio UI</li>
  * </ul>
  * 
  * <p>Key responsibilities (now delegated):</p>
@@ -210,7 +213,6 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     
     // EndlessMode specific fields
     private int currentDropSpeed = 400; // Default speed in milliseconds
-    private boolean isMuted = false;
     private double currentBrickOpacity = 1.0;
     private boolean ghostEnabled = true; // Whether ghost piece should be displayed
 
@@ -219,9 +221,10 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     private BrickRenderer brickRenderer; // Manages brick rendering (current, ghost, hold, next)
     private AnimationController animationController; // Manages animations and effects
     private GameInputHandler inputHandler; // Handles keyboard input
-    private GameUIManager uiManager; // Manages UI component updates
+    private HudManager uiManager; // Manages UI component updates
     private GameModeUIManager modeUIManager; // Manages game mode-specific UI (Phase 3+)
     private DialogManager dialogManager; // Manages dialogs and navigation (Phase 3+)
+    private TwoPlayerPanelManager twoPlayerPanelManager; // Manages two-player specific UI
     
     /**
      * Calculates the absolute X position for the specified column within a given grid.
@@ -326,7 +329,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     private GameSettings settings;
     
     // Store previous volume before muting
-    private double previousVolume = 0.7; // Default volume
+    private AudioVolumeManager audioVolumeManager;
     
     // Time tracking (exclude paused duration)
     private long totalPausedMillis = 0L;
@@ -337,12 +340,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     private int endlessLinesClearedUI = 0;
     
     // Countdown tracking
-    private Timeline countdownTimeline = null;
-    private Runnable countdownCallback = null;
-    private StackPane countdownOverlay1 = null;
-    private StackPane countdownOverlay2 = null;
-    private Pane countdownParent1 = null;
-    private Pane countdownParent2 = null;
+    private CountdownManager countdownManager;
 
     @Override
     /**
@@ -364,6 +362,10 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     public void initialize(URL location, ResourceBundle resources) {
         // Initialize settings
         settings = GameSettings.getInstance();
+
+        // Initialize audio volume manager
+        audioVolumeManager = new AudioVolumeManager(settings, SoundManager.getInstance());
+        audioVolumeManager.bindMuteButton(muteButton);
         
         // Load the digital font for UI elements
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
@@ -431,8 +433,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         inputHandler.setEventListener(eventListener);
         inputHandler.setTwoPlayerMode(isTwoPlayerMode);
         
-        // 5. Initialize GameUIManager
-        uiManager = new GameUIManager();
+        // 5. Initialize HudManager (previously GameUIManager)
+        uiManager = new HudManager();
         uiManager.setScoreLabel(scoreLabel);
         uiManager.setHighScoreLabel(highScoreLabel);
         uiManager.setLinesLabel(linesLabel);
@@ -475,6 +477,52 @@ public class GameViewController implements Initializable, GameInputHandler.Input
                 loadLevelSelection(stage);
             }
         });
+
+        // 8. Initialize TwoPlayerPanelManager when two-player layout is present
+        if (isTwoPlayerMode) {
+            twoPlayerPanelManager = new TwoPlayerPanelManager(
+                BRICK_SIZE,
+                DEFAULT_GRID_GAP,
+                rootPane,
+                gamePanel1,
+                gamePanel2,
+                brickPanel1,
+                brickPanel2,
+                ghostPanel1,
+                ghostPanel2,
+                holdPanel1,
+                holdPanel2,
+                nextBrickPanel1,
+                nextBrickPanel2,
+                groupNotification1,
+                groupNotification2,
+                gameOverPanel1,
+                gameOverPanel2,
+                twoPlayerGameOverPanel,
+                boardBackground1,
+                boardBackground2,
+                player1ScoreLabel,
+                player1LinesLabel,
+                player1ComboLabel,
+                player1AttackLabel,
+                player1DefenseLabel,
+                player1TetrisLabel,
+                player1TimeLabel,
+                player2ScoreLabel,
+                player2LinesLabel,
+                player2ComboLabel,
+                player2AttackLabel,
+                player2DefenseLabel,
+                player2TetrisLabel,
+                player2TimeLabel,
+                isPause,
+                this::shouldShowGhostBrick
+            );
+        } else {
+            twoPlayerPanelManager = null;
+        }
+
+        countdownManager = new CountdownManager(SoundManager.getInstance());
     }
     
     /**
@@ -1033,11 +1081,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         if (levelTimer != null) {
             levelTimer.stop();
         }
-        if (countdownTimeline != null) {
-            countdownTimeline.stop();
-            countdownTimeline = null;
-            // Stop countdown sound when countdown is stopped
-            SoundManager.getInstance().stopCountdownSound();
+        if (countdownManager != null) {
+            countdownManager.cancelCountdown();
         }
         
         gameOverPanel.setVisible(true);
@@ -1102,30 +1147,9 @@ public class GameViewController implements Initializable, GameInputHandler.Input
                 twoPlayerGameOverPanel.setManaged(false);
             }
             
-            if (countdownTimeline != null) {
-                countdownTimeline.stop();
-                countdownTimeline = null;
-                SoundManager.getInstance().stopCountdownSound();
+            if (countdownManager != null) {
+                countdownManager.cancelCountdown();
             }
-            if (countdownOverlay1 != null && countdownParent1 != null) {
-                try {
-                    countdownParent1.getChildren().remove(countdownOverlay1);
-                } catch (Exception e) {
-                    // Parent may have been removed, ignore
-                }
-            }
-            if (countdownOverlay2 != null && countdownParent2 != null) {
-                try {
-                    countdownParent2.getChildren().remove(countdownOverlay2);
-                } catch (Exception e) {
-                    // Parent may have been removed, ignore
-                }
-            }
-            countdownOverlay1 = null;
-            countdownOverlay2 = null;
-            countdownParent1 = null;
-            countdownParent2 = null;
-            countdownCallback = null;
             
             isPause.setValue(false);
             isGameOver.setValue(false);
@@ -1507,60 +1531,26 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     }
 
     public void updateProgress(int linesClearedInLevel, int targetLines) {
-        if (leftProgressLabel != null) {
-            String progressText = String.format("%d/%d", linesClearedInLevel, targetLines);
-            leftProgressLabel.setText(progressText);
-            
-            // Change color based on progress (large font size)
-            double progress = (double) linesClearedInLevel / targetLines;
-            if (progress >= 1.0) {
-                leftProgressLabel.setStyle("-fx-text-fill: #00FF00; -fx-font-weight: bold; -fx-font-size: 32px;");
-            } else if (progress >= 0.75) {
-                leftProgressLabel.setStyle("-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-font-size: 32px;");
-            } else {
-                leftProgressLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 32px; -fx-text-fill: #FF0000;");
-            }
+        if (uiManager != null) {
+            uiManager.updateProgress(linesClearedInLevel, targetLines);
         }
     }
 
     public void updateStarDisplay(int stars) {
-        if (leftStarDisplay != null) {
-            leftStarDisplay.getChildren().clear();
-            
-            for (int i = 0; i < 3; i++) {
-                Label star = new Label(i < stars ? "★" : "☆");
-                star.setStyle("-fx-font-size: 28px; " + 
-                             (i < stars ? "-fx-text-fill: #FFD700;" : "-fx-text-fill: #666666;"));
-                leftStarDisplay.getChildren().add(star);
-            }
+        if (uiManager != null) {
+            uiManager.updateStarDisplay(stars);
         }
     }
 
     public void updateLevelSpeedDisplay(int levelId) {
-        if (leftSpeedLabel != null) {
-            // Calculate speed based on level ID (simple display)
-            double speed = 1.0 + (levelId - 1) * 0.2;
-            leftSpeedLabel.setText(String.format("%.1fx", speed));
-            // Set large font size to match other objective labels
-            leftSpeedLabel.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
+        if (uiManager != null) {
+            uiManager.updateLevelSpeedDisplay(levelId);
         }
     }
 
     public void updateBestStats(int bestScore, long bestTimeMillis) {
-        if (bestScoreLabel != null) {
-            bestScoreLabel.setText("Best Score: " + bestScore);
-        }
-        
-        if (bestTimeLabel != null) {
-            if (bestTimeMillis == Long.MAX_VALUE || bestTimeMillis <= 0) {
-                bestTimeLabel.setText("Best Time: --:--");
-            } else {
-                int bestTimeSeconds = (int) (bestTimeMillis / 1000);
-                int minutes = bestTimeSeconds / 60;
-                int seconds = bestTimeSeconds % 60;
-                String timeText = String.format("Best Time: %d:%02d", minutes, seconds);
-                bestTimeLabel.setText(timeText);
-            }
+        if (uiManager != null) {
+            uiManager.updateBestStats(bestScore, bestTimeMillis);
         }
     }
 
@@ -1696,7 +1686,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
 
     private void startLevelTimer() {
         stopLevelTimer();
-        if (leftTimerLabel == null) {
+        if (uiManager == null) {
             return;
         }
         
@@ -1709,8 +1699,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
                     // Color is set in updateTimeDisplay()
                 } else {
                     // Time's up
-                    leftTimerLabel.setText("0:00");
-                    leftTimerLabel.setStyle("-fx-text-fill: #FF0000; -fx-font-weight: bold; -fx-font-size: 32px;");
+                    uiManager.updateLevelTimer(0);
                 }
             }
         }));
@@ -1728,19 +1717,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     }
 
     private void updateTimeDisplay() {
-        if (leftTimerLabel != null) {
-            int minutes = levelTimeRemainingSeconds / 60;
-            int seconds = levelTimeRemainingSeconds % 60;
-            leftTimerLabel.setText(String.format("%d:%02d", minutes, seconds));
-            
-            // Change color if time is running out (large font size)
-            if (levelTimeRemainingSeconds <= 30) {
-                leftTimerLabel.setStyle("-fx-text-fill: #FF0000; -fx-font-weight: bold; -fx-font-size: 32px;");
-            } else if (levelTimeRemainingSeconds <= 60) {
-                leftTimerLabel.setStyle("-fx-text-fill: #FFA500; -fx-font-weight: bold; -fx-font-size: 32px;");
-            } else {
-                leftTimerLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 32px; -fx-text-fill: #00FF00;");
-            }
+        if (uiManager != null) {
+            uiManager.updateLevelTimer(levelTimeRemainingSeconds);
         }
     }
 
@@ -1805,16 +1783,14 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     }
 
     private void updateTimeLabel() {
-        if (timeLabel == null) {
+        if (uiManager == null) {
             return;
         }
         long now = System.currentTimeMillis();
         long pausedSoFar = totalPausedMillis + (isPause.getValue() && lastPauseStartMillis > 0L ? (now - lastPauseStartMillis) : 0L);
         long elapsed = (gameStartTime > 0) ? (now - gameStartTime - pausedSoFar) : 0;
         long totalSeconds = elapsed / 1000;
-        long mm = totalSeconds / 60;
-        long ss = totalSeconds % 60;
-        timeLabel.setText(String.format("%02d:%02d", mm, ss));
+        uiManager.updateElapsedTime(totalSeconds);
     }
     
     /**
@@ -1824,11 +1800,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param highScore the high score
      */
     public void updateScore(int currentScore, int highScore) {
-        if (scoreLabel != null) {
-            scoreLabel.setText(String.valueOf(currentScore));
-        }
-        if (highScoreLabel != null) {
-            highScoreLabel.setText("Best Score: " + highScore);
+        if (uiManager != null) {
+            uiManager.updateScore(currentScore, highScore);
         }
     }
     
@@ -1838,8 +1811,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param linesCleared the number of lines cleared
      */
     public void updateLines(int linesCleared) {
-        if (linesLabel != null) {
-            linesLabel.setText(String.valueOf(linesCleared));
+        if (uiManager != null) {
+            uiManager.updateLines(linesCleared);
         }
     }
     
@@ -1849,8 +1822,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param level the current level
      */
     public void updateLevel(int level) {
-        if (levelLabel != null) {
-            levelLabel.setText(String.valueOf(level));
+        if (uiManager != null) {
+            uiManager.updateLevel(level);
         }
     }
     
@@ -1860,8 +1833,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param speedLevel the current speed level
      */
     public void updateSpeed(int speedLevel) {
-        if (speedLabel != null) {
-            speedLabel.setText(speedLevel + "x");
+        if (uiManager != null) {
+            uiManager.updateSpeed(speedLevel);
         }
     }
     
@@ -2083,31 +2056,9 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      */
     @FXML
     public void toggleMute() {
-        SoundManager soundManager = SoundManager.getInstance();
-        
-        if (isMuted) {
-            // Unmute: restore previous volume
-            settings.setMasterVolume(previousVolume);
-            // Apply to SoundManager immediately - this will restore all audio
-            soundManager.setMasterVolume(previousVolume);
-            if (muteButton != null) {
-                muteButton.setText("MUTE (M)");
+        if (audioVolumeManager != null) {
+            audioVolumeManager.toggleMute();
             }
-        } else {
-            // Mute: save current volume and set to 0%
-            previousVolume = settings.getMasterVolume();
-            settings.setMasterVolume(0.0);
-            // Apply to SoundManager immediately - this will mute all audio
-            soundManager.setMasterVolume(0.0);
-            if (muteButton != null) {
-                muteButton.setText("UNMUTE (M)");
-            }
-        }
-        
-        isMuted = !isMuted;
-        
-        // Save settings to persist the mute state
-        settings.saveSettings();
     }
     
     /**
@@ -2123,21 +2074,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * Called when settings are saved from the settings dialog.
      */
     public void updateMuteButtonState() {
-        if (settings != null) {
-            double currentVolume = settings.getMasterVolume();
-            if (currentVolume > 0) {
-                // Volume is not 0, so we're not muted
-                isMuted = false;
-                if (muteButton != null) {
-                    muteButton.setText("MUTE (M)");
-                }
-            } else {
-                // Volume is 0, so we're muted
-                isMuted = true;
-                if (muteButton != null) {
-                    muteButton.setText("UNMUTE (M)");
-                }
-            }
+        if (audioVolumeManager != null) {
+            audioVolumeManager.syncFromSettings();
         }
     }
     
@@ -2344,29 +2282,10 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             
             Stage stage = (Stage) currentGameScene.getWindow();
             
-            // Stop countdown if running (will restart from beginning when Settings closes)
-            // Save callback before stopping to ensure we can restart countdown correctly
-            final boolean wasCountdownRunning = (countdownTimeline != null && countdownTimeline.getStatus() == Animation.Status.RUNNING);
-            final Runnable savedCountdownCallback;
-            if (wasCountdownRunning && countdownTimeline != null) {
-                // Save callback before stopping
-                savedCountdownCallback = countdownCallback;
-                countdownTimeline.stop();
-                countdownTimeline = null;
-                // Stop countdown sound when countdown is stopped
-                SoundManager.getInstance().stopCountdownSound();
-                // Remove overlays
-                if (countdownOverlay1 != null && countdownParent1 != null) {
-                    countdownParent1.getChildren().remove(countdownOverlay1);
-                    countdownOverlay1 = null;
-                }
-                if (countdownOverlay2 != null && countdownParent2 != null) {
-                    countdownParent2.getChildren().remove(countdownOverlay2);
-                    countdownOverlay2 = null;
-                }
-            } else {
-                savedCountdownCallback = null;
-            }
+            final boolean wasCountdownRunning = countdownManager != null && countdownManager.isRunning();
+            final Runnable savedCountdownCallback = (wasCountdownRunning && countdownManager != null)
+                ? countdownManager.pauseCountdown()
+                : null;
             
             // Ensure the game is paused while settings are open
             boolean wasGamePaused = isPause.getValue();
@@ -2428,30 +2347,11 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         
         try {
             boolean wasPaused = isPause.getValue();
-            final boolean wasCountdownRunning = (countdownTimeline != null && countdownTimeline.getStatus() == Animation.Status.RUNNING);
+            final boolean wasCountdownRunning = countdownManager != null && countdownManager.isRunning();
             
-            // Stop countdown if running (will restart from beginning when Help closes)
-            // Save callback before stopping to ensure we can restart countdown correctly
-            final Runnable savedCountdownCallback;
-            if (wasCountdownRunning && countdownTimeline != null) {
-                // Save callback before stopping
-                savedCountdownCallback = countdownCallback;
-                countdownTimeline.stop();
-                countdownTimeline = null;
-                // Stop countdown sound when countdown is stopped
-                SoundManager.getInstance().stopCountdownSound();
-                // Remove overlays
-                if (countdownOverlay1 != null && countdownParent1 != null) {
-                    countdownParent1.getChildren().remove(countdownOverlay1);
-                    countdownOverlay1 = null;
-                }
-                if (countdownOverlay2 != null && countdownParent2 != null) {
-                    countdownParent2.getChildren().remove(countdownOverlay2);
-                    countdownOverlay2 = null;
-                }
-            } else {
-                savedCountdownCallback = null;
-            }
+            final Runnable savedCountdownCallback = (wasCountdownRunning && countdownManager != null)
+                ? countdownManager.pauseCountdown()
+                : null;
             
             // Pause game if it's running (but not during countdown - countdown means game hasn't started yet)
             if (!wasPaused && !wasCountdownRunning) {
@@ -2976,19 +2876,9 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             levelTimer.stop();
             levelTimer = null;
         }
-        if (countdownTimeline != null) {
-            countdownTimeline.stop();
-            countdownTimeline = null;
-            // Stop countdown sound when countdown is stopped
-            SoundManager.getInstance().stopCountdownSound();
+        if (countdownManager != null) {
+            countdownManager.cancelCountdown();
         }
-        
-        // Clear countdown overlays
-        countdownOverlay1 = null;
-        countdownOverlay2 = null;
-        countdownParent1 = null;
-        countdownParent2 = null;
-        countdownCallback = null;
     }
     
     
@@ -3508,22 +3398,6 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     @FXML
     private TwoPlayerGameOverPanel twoPlayerGameOverPanel;
     
-    // Player 1 display matrices (for two-player mode)
-    private Rectangle[][] displayMatrix1;
-    private int[][] cachedBoardMatrix1; // Cached board matrix for Player 1 incremental rendering
-    private Rectangle[][] rectangles1;
-    private Rectangle[][] ghostRectangles1; // Ghost brick rectangles for Player 1
-    private Rectangle[][] holdDisplayMatrix1;
-    private Rectangle[][] nextDisplayMatrix1;
-    
-    // Player 2 display matrices (for two-player mode)
-    private Rectangle[][] displayMatrix2;
-    private int[][] cachedBoardMatrix2; // Cached board matrix for Player 2 incremental rendering
-    private Rectangle[][] rectangles2;
-    private Rectangle[][] ghostRectangles2; // Ghost brick rectangles for Player 2
-    private Rectangle[][] holdDisplayMatrix2;
-    private Rectangle[][] nextDisplayMatrix2;
-    
     // Background board panes for precise centering
     @FXML
     private Pane boardBackground1;
@@ -3538,100 +3412,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param brick the initial view data for Player 1's falling brick
      */
     public void initPlayer1View(int[][] boardMatrix, ViewData brick) {
-        if (gamePanel1 == null) {
-            return; // Two-player layout not loaded
-        }
-        
-        // Set border style for Player 1's board background (same as endless mode)
-        // Apply CSS styles directly to ensure visibility
-        if (boardBackground1 != null) {
-            boardBackground1.getStyleClass().add("gameBoard-two-player");
-            boardBackground1.getStyleClass().add("player1-board");
-            // Ensure styles are applied
-            boardBackground1.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, #851ee5, #4B0082), rgba(10, 14, 39, 0.96); " +
-                "-fx-background-insets: 0,10; " +
-                "-fx-background-radius: 16, 8; " +
-                "-fx-border-color: rgba(138, 43, 226, 0.8); " +
-                "-fx-border-width: 6px; " +
-                "-fx-border-radius: 16px;"
-            );
-        }
-        
-        // Ensure grid lines are visible
-        gamePanel1.setGridLinesVisible(true);
-        if (!gamePanel1.getStyleClass().contains("game-grid")) {
-            gamePanel1.getStyleClass().add("game-grid");
-        }
-        
-        // Initialize display matrix for Player 1's static board background
-        // Render all 20 rows (10 columns × 20 rows)
-        displayMatrix1 = new Rectangle[boardMatrix.length][boardMatrix[0].length];
-        // Initialize cache for Player 1 incremental rendering optimization
-        cachedBoardMatrix1 = new int[boardMatrix.length][boardMatrix[0].length];
-        for (int i = 0; i < boardMatrix.length; i++) {
-            for (int j = 0; j < boardMatrix[i].length; j++) {
-                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                rectangle.setFill(Color.TRANSPARENT);
-                rectangle.getStyleClass().add("game-cell");
-                displayMatrix1[i][j] = rectangle;
-                gamePanel1.add(rectangle, j, i);
-                cachedBoardMatrix1[i][j] = boardMatrix[i][j]; // Initialize cache
-            }
-        }
-        
-        // Initialize rectangles for Player 1's current falling brick
-        rectangles1 = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
-        for (int i = 0; i < brick.getBrickData().length; i++) {
-            for (int j = 0; j < brick.getBrickData()[i].length; j++) {
-                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                rectangle.setFill(getFillColor(brick.getBrickData()[i][j]));
-                rectangle.setLayoutX(j * (BRICK_SIZE + 1));
-                rectangle.setLayoutY(i * (BRICK_SIZE + 1));
-                rectangles1[i][j] = rectangle;
-                brickPanel1.getChildren().add(rectangle);
-            }
-        }
-        
-        // Initialize rectangles for Player 1's ghost brick
-        if (ghostPanel1 != null) {
-            ghostPanel1.getChildren().clear();
-            ghostRectangles1 = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
-            for (int i = 0; i < brick.getBrickData().length; i++) {
-                for (int j = 0; j < brick.getBrickData()[i].length; j++) {
-                    Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                    rectangle.setFill(Color.TRANSPARENT);
-                    // Enhanced ghost brick appearance: rounded corners
-                    rectangle.setArcHeight(9); // Rounded corners to match regular bricks
-                    rectangle.setArcWidth(9);
-                    rectangle.setOpacity(1.0); // Full opacity for better visibility
-                    rectangle.setLayoutX(j * (BRICK_SIZE + 1));
-                    rectangle.setLayoutY(i * (BRICK_SIZE + 1));
-                    ghostRectangles1[i][j] = rectangle;
-                    ghostPanel1.getChildren().add(rectangle);
-                }
-            }
-        }
-        
-        if (gamePanel1 != null && brickPanel1 != null) {
-            brickPanel1.setLayoutX(calculateGridX(gamePanel1, displayMatrix1, brick.getxPosition()));
-            brickPanel1.setLayoutY(calculateGridY(gamePanel1, displayMatrix1, brick.getyPosition()));
-        }
-        
-        // Initialize next and hold displays
-        if (brick.getNextBrickData() != null) {
-            updatePlayer1NextDisplay(brick.getNextBrickData());
-        }
-        if (brick.getHoldBrickData() != null) {
-            updatePlayer1HoldDisplay(brick.getHoldBrickData());
-        }
-        
-        // Update ghost brick position
-        updatePlayer1GhostBrick(brick);
-        
-        // Hide game over panel initially
-        if (gameOverPanel1 != null) {
-            gameOverPanel1.setVisible(false);
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.initPlayer1View(boardMatrix, brick);
         }
     }
     
@@ -3643,100 +3425,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param brick the initial view data for Player 2's falling brick
      */
     public void initPlayer2View(int[][] boardMatrix, ViewData brick) {
-        if (gamePanel2 == null) {
-            return; // Two-player layout not loaded
-        }
-        
-        // Set border style for Player 2's board background
-        // Apply CSS styles directly to ensure visibility
-        if (boardBackground2 != null) {
-            boardBackground2.getStyleClass().add("gameBoard-two-player");
-            boardBackground2.getStyleClass().add("player2-board");
-            // Ensure styles are applied
-            boardBackground2.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, #851ee5, #4B0082), rgba(10, 14, 39, 0.96); " +
-                "-fx-background-insets: 0,10; " +
-                "-fx-background-radius: 16, 8; " +
-                "-fx-border-color: rgba(138, 43, 226, 0.8); " +
-                "-fx-border-width: 6px; " +
-                "-fx-border-radius: 16px;"
-            );
-        }
-        
-        // Ensure grid lines are visible
-        gamePanel2.setGridLinesVisible(true);
-        if (!gamePanel2.getStyleClass().contains("game-grid")) {
-            gamePanel2.getStyleClass().add("game-grid");
-        }
-        
-        // Initialize display matrix for Player 2's static board background
-        // Render all 20 rows (10 columns × 20 rows)
-        displayMatrix2 = new Rectangle[boardMatrix.length][boardMatrix[0].length];
-        // Initialize cache for Player 2 incremental rendering optimization
-        cachedBoardMatrix2 = new int[boardMatrix.length][boardMatrix[0].length];
-        for (int i = 0; i < boardMatrix.length; i++) {
-            for (int j = 0; j < boardMatrix[i].length; j++) {
-                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                rectangle.setFill(Color.TRANSPARENT);
-                rectangle.getStyleClass().add("game-cell");
-                displayMatrix2[i][j] = rectangle;
-                gamePanel2.add(rectangle, j, i);
-                cachedBoardMatrix2[i][j] = boardMatrix[i][j]; // Initialize cache
-            }
-        }
-        
-        // Initialize rectangles for Player 2's current falling brick
-        rectangles2 = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
-        for (int i = 0; i < brick.getBrickData().length; i++) {
-            for (int j = 0; j < brick.getBrickData()[i].length; j++) {
-                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                rectangle.setFill(getFillColor(brick.getBrickData()[i][j]));
-                rectangle.setLayoutX(j * (BRICK_SIZE + 1));
-                rectangle.setLayoutY(i * (BRICK_SIZE + 1));
-                rectangles2[i][j] = rectangle;
-                brickPanel2.getChildren().add(rectangle);
-            }
-        }
-        
-        // Initialize rectangles for Player 2's ghost brick
-        if (ghostPanel2 != null) {
-            ghostPanel2.getChildren().clear();
-            ghostRectangles2 = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
-            for (int i = 0; i < brick.getBrickData().length; i++) {
-                for (int j = 0; j < brick.getBrickData()[i].length; j++) {
-                    Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                    rectangle.setFill(Color.TRANSPARENT);
-                    // Enhanced ghost brick appearance: rounded corners
-                    rectangle.setArcHeight(9); // Rounded corners to match regular bricks
-                    rectangle.setArcWidth(9);
-                    rectangle.setOpacity(1.0); // Full opacity for better visibility
-                    rectangle.setLayoutX(j * (BRICK_SIZE + 1));
-                    rectangle.setLayoutY(i * (BRICK_SIZE + 1));
-                    ghostRectangles2[i][j] = rectangle;
-                    ghostPanel2.getChildren().add(rectangle);
-                }
-            }
-        }
-        
-        if (gamePanel2 != null && brickPanel2 != null) {
-            brickPanel2.setLayoutX(calculateGridX(gamePanel2, displayMatrix2, brick.getxPosition()));
-            brickPanel2.setLayoutY(calculateGridY(gamePanel2, displayMatrix2, brick.getyPosition()));
-        }
-        
-        // Initialize next and hold displays
-        if (brick.getNextBrickData() != null) {
-            updatePlayer2NextDisplay(brick.getNextBrickData());
-        }
-        if (brick.getHoldBrickData() != null) {
-            updatePlayer2HoldDisplay(brick.getHoldBrickData());
-        }
-        
-        // Update ghost brick position
-        updatePlayer2GhostBrick(brick);
-        
-        // Hide game over panel initially
-        if (gameOverPanel2 != null) {
-            gameOverPanel2.setVisible(false);
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.initPlayer2View(boardMatrix, brick);
         }
     }
     
@@ -3747,30 +3437,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param brick the updated view data for Player 1's brick
      */
     public void refreshPlayer1Brick(ViewData brick) {
-        if (brickPanel1 == null || gamePanel1 == null || rectangles1 == null) {
-            return;
-        }
-        
-        if (!isPause.getValue()) {
-            brickPanel1.setLayoutX(calculateGridX(gamePanel1, displayMatrix1, brick.getxPosition()));
-            brickPanel1.setLayoutY(calculateGridY(gamePanel1, displayMatrix1, brick.getyPosition()));
-            
-            for (int i = 0; i < brick.getBrickData().length && i < rectangles1.length; i++) {
-                for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles1[i].length; j++) {
-                    setRectangleData(brick.getBrickData()[i][j], rectangles1[i][j]);
-                }
-            }
-            
-            // Update next and hold displays
-            if (brick.getNextBrickData() != null) {
-                updatePlayer1NextDisplay(brick.getNextBrickData());
-            }
-            if (brick.getHoldBrickData() != null) {
-                updatePlayer1HoldDisplay(brick.getHoldBrickData());
-            }
-            
-            // Update ghost brick position
-            updatePlayer1GhostBrick(brick);
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.refreshPlayer1Brick(brick);
         }
     }
     
@@ -3781,30 +3449,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param brick the updated view data for Player 2's brick
      */
     public void refreshPlayer2Brick(ViewData brick) {
-        if (brickPanel2 == null || gamePanel2 == null || rectangles2 == null) {
-            return;
-        }
-        
-        if (!isPause.getValue()) {
-            brickPanel2.setLayoutX(calculateGridX(gamePanel2, displayMatrix2, brick.getxPosition()));
-            brickPanel2.setLayoutY(calculateGridY(gamePanel2, displayMatrix2, brick.getyPosition()));
-            
-            for (int i = 0; i < brick.getBrickData().length && i < rectangles2.length; i++) {
-                for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles2[i].length; j++) {
-                    setRectangleData(brick.getBrickData()[i][j], rectangles2[i][j]);
-                }
-            }
-            
-            // Update next and hold displays
-            if (brick.getNextBrickData() != null) {
-                updatePlayer2NextDisplay(brick.getNextBrickData());
-            }
-            if (brick.getHoldBrickData() != null) {
-                updatePlayer2HoldDisplay(brick.getHoldBrickData());
-            }
-            
-            // Update ghost brick position
-            updatePlayer2GhostBrick(brick);
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.refreshPlayer2Brick(brick);
         }
     }
     
@@ -3814,51 +3460,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param brick The ViewData containing the current brick shape and ghost position.
      */
     private void updatePlayer1GhostBrick(ViewData brick) {
-        if (ghostPanel1 == null || ghostRectangles1 == null) {
-            return;
-        }
-        
-        // Two-player mode: always show ghost brick
-        boolean showGhost = shouldShowGhostBrick();
-        ghostPanel1.setVisible(showGhost);
-        
-        if (!showGhost) {
-            return;
-        }
-        
-        int ghostY = brick.getGhostYPosition();
-        if (ghostY < 0 || ghostY == brick.getyPosition()) {
-            ghostPanel1.setVisible(false);
-            return;
-        }
-        
-        ghostPanel1.setLayoutX(calculateGridX(gamePanel1, displayMatrix1, brick.getxPosition()));
-        ghostPanel1.setLayoutY(calculateGridY(gamePanel1, displayMatrix1, ghostY));
-        
-        // Update ghost brick rectangles to match current brick shape
-        int[][] brickData = brick.getBrickData();
-        for (int i = 0; i < brickData.length && i < ghostRectangles1.length; i++) {
-            for (int j = 0; j < brickData[i].length && j < ghostRectangles1[i].length; j++) {
-                Rectangle ghostRect = ghostRectangles1[i][j];
-                if (brickData[i][j] != 0) {
-                    ghostRect.setVisible(true);
-                    // Enhanced ghost brick appearance: semi-transparent fill with border
-                    Paint brickColor = getFillColor(brickData[i][j]);
-                    if (brickColor instanceof Color) {
-                        Color color = (Color) brickColor;
-                        // Use semi-transparent fill (0.2 opacity for subtle effect)
-                        ghostRect.setFill(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.2));
-                        // Add semi-transparent border with same color (0.6 opacity for visibility)
-                        ghostRect.setStroke(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.6));
-                        ghostRect.setStrokeWidth(2.0);
-                    } else {
-                        ghostRect.setFill(Color.TRANSPARENT);
-                        ghostRect.setStroke(null);
-                    }
-                } else {
-                    ghostRect.setVisible(false);
-                }
-            }
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.updatePlayer1GhostBrick(brick);
         }
     }
     
@@ -3868,51 +3471,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param brick The ViewData containing the current brick shape and ghost position.
      */
     private void updatePlayer2GhostBrick(ViewData brick) {
-        if (ghostPanel2 == null || ghostRectangles2 == null) {
-            return;
-        }
-        
-        // Two-player mode: always show ghost brick
-        boolean showGhost = shouldShowGhostBrick();
-        ghostPanel2.setVisible(showGhost);
-        
-        if (!showGhost) {
-            return;
-        }
-        
-        int ghostY = brick.getGhostYPosition();
-        if (ghostY < 0 || ghostY == brick.getyPosition()) {
-            ghostPanel2.setVisible(false);
-            return;
-        }
-        
-        ghostPanel2.setLayoutX(calculateGridX(gamePanel2, displayMatrix2, brick.getxPosition()));
-        ghostPanel2.setLayoutY(calculateGridY(gamePanel2, displayMatrix2, ghostY));
-        
-        // Update ghost brick rectangles to match current brick shape
-        int[][] brickData = brick.getBrickData();
-        for (int i = 0; i < brickData.length && i < ghostRectangles2.length; i++) {
-            for (int j = 0; j < brickData[i].length && j < ghostRectangles2[i].length; j++) {
-                Rectangle ghostRect = ghostRectangles2[i][j];
-                if (brickData[i][j] != 0) {
-                    ghostRect.setVisible(true);
-                    // Enhanced ghost brick appearance: semi-transparent fill with border
-                    Paint brickColor = getFillColor(brickData[i][j]);
-                    if (brickColor instanceof Color) {
-                        Color color = (Color) brickColor;
-                        // Use semi-transparent fill (0.2 opacity for subtle effect)
-                        ghostRect.setFill(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.2));
-                        // Add semi-transparent border with same color (0.6 opacity for visibility)
-                        ghostRect.setStroke(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.6));
-                        ghostRect.setStrokeWidth(2.0);
-                    } else {
-                        ghostRect.setFill(Color.TRANSPARENT);
-                        ghostRect.setStroke(null);
-                    }
-                } else {
-                    ghostRect.setVisible(false);
-                }
-            }
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.updatePlayer2GhostBrick(brick);
         }
     }
     
@@ -4011,33 +3571,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param board the updated board matrix
      */
     public void refreshGameBackground1(int[][] board) {
-        if (displayMatrix1 == null || board == null) {
-            return;
-        }
-        
-        // Initialize cache on first call
-        if (cachedBoardMatrix1 == null || 
-            cachedBoardMatrix1.length != board.length || 
-            cachedBoardMatrix1[0].length != board[0].length) {
-            cachedBoardMatrix1 = new int[board.length][board[0].length];
-            // Force full update on first call
-            for (int i = 0; i < board.length && i < displayMatrix1.length; i++) {
-                for (int j = 0; j < board[i].length && j < displayMatrix1[i].length; j++) {
-                    cachedBoardMatrix1[i][j] = board[i][j];
-                    setRectangleData(board[i][j], displayMatrix1[i][j]);
-                }
-            }
-            return;
-        }
-        
-        // Incremental update: only update changed cells
-        for (int i = 0; i < board.length && i < displayMatrix1.length; i++) {
-            for (int j = 0; j < board[i].length && j < displayMatrix1[i].length; j++) {
-                if (cachedBoardMatrix1[i][j] != board[i][j]) {
-                    cachedBoardMatrix1[i][j] = board[i][j];
-                    setRectangleData(board[i][j], displayMatrix1[i][j]);
-                }
-            }
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.refreshGameBackground1(board);
         }
     }
     
@@ -4048,33 +3583,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param board the updated board matrix
      */
     public void refreshGameBackground2(int[][] board) {
-        if (displayMatrix2 == null || board == null) {
-            return;
-        }
-        
-        // Initialize cache on first call
-        if (cachedBoardMatrix2 == null || 
-            cachedBoardMatrix2.length != board.length || 
-            cachedBoardMatrix2[0].length != board[0].length) {
-            cachedBoardMatrix2 = new int[board.length][board[0].length];
-            // Force full update on first call
-            for (int i = 0; i < board.length && i < displayMatrix2.length; i++) {
-                for (int j = 0; j < board[i].length && j < displayMatrix2[i].length; j++) {
-                    cachedBoardMatrix2[i][j] = board[i][j];
-                    setRectangleData(board[i][j], displayMatrix2[i][j]);
-                }
-            }
-            return;
-        }
-        
-        // Incremental update: only update changed cells
-        for (int i = 0; i < board.length && i < displayMatrix2.length; i++) {
-            for (int j = 0; j < board[i].length && j < displayMatrix2[i].length; j++) {
-                if (cachedBoardMatrix2[i][j] != board[i][j]) {
-                    cachedBoardMatrix2[i][j] = board[i][j];
-                    setRectangleData(board[i][j], displayMatrix2[i][j]);
-                }
-            }
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.refreshGameBackground2(board);
         }
     }
     
@@ -4084,40 +3594,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param nextBrickData the next brick shape data
      */
     public void updatePlayer1NextDisplay(int[][] nextBrickData) {
-        if (nextBrickPanel1 == null) {
-            return;
-        }
-        
-        if (nextDisplayMatrix1 == null) {
-            nextDisplayMatrix1 = new Rectangle[4][4];
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                    Rectangle rectangle = new Rectangle(20, 20);
-                    rectangle.setFill(Color.TRANSPARENT);
-                    rectangle.setArcHeight(9);
-                    rectangle.setArcWidth(9);
-                    nextDisplayMatrix1[i][j] = rectangle;
-                    nextBrickPanel1.add(rectangle, j, i);
-                }
-            }
-        }
-        
-        // Clear display
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                nextDisplayMatrix1[i][j].setFill(Color.TRANSPARENT);
-            }
-        }
-        
-        // Display brick
-        if (nextBrickData != null) {
-            for (int i = 0; i < nextBrickData.length && i < 4; i++) {
-                for (int j = 0; j < nextBrickData[i].length && j < 4; j++) {
-                    if (nextBrickData[i][j] != 0) {
-                        nextDisplayMatrix1[i][j].setFill(getFillColor(nextBrickData[i][j]));
-                    }
-                }
-            }
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.updatePlayer1NextDisplay(nextBrickData);
         }
     }
     
@@ -4127,40 +3605,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param nextBrickData the next brick shape data
      */
     public void updatePlayer2NextDisplay(int[][] nextBrickData) {
-        if (nextBrickPanel2 == null) {
-            return;
-        }
-        
-        if (nextDisplayMatrix2 == null) {
-            nextDisplayMatrix2 = new Rectangle[4][4];
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                    Rectangle rectangle = new Rectangle(20, 20);
-                    rectangle.setFill(Color.TRANSPARENT);
-                    rectangle.setArcHeight(9);
-                    rectangle.setArcWidth(9);
-                    nextDisplayMatrix2[i][j] = rectangle;
-                    nextBrickPanel2.add(rectangle, j, i);
-                }
-            }
-        }
-        
-        // Clear display
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                nextDisplayMatrix2[i][j].setFill(Color.TRANSPARENT);
-            }
-        }
-        
-        // Display brick
-        if (nextBrickData != null) {
-            for (int i = 0; i < nextBrickData.length && i < 4; i++) {
-                for (int j = 0; j < nextBrickData[i].length && j < 4; j++) {
-                    if (nextBrickData[i][j] != 0) {
-                        nextDisplayMatrix2[i][j].setFill(getFillColor(nextBrickData[i][j]));
-                    }
-                }
-            }
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.updatePlayer2NextDisplay(nextBrickData);
         }
     }
     
@@ -4170,40 +3616,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param holdBrickData the held brick shape data
      */
     public void updatePlayer1HoldDisplay(int[][] holdBrickData) {
-        if (holdPanel1 == null) {
-            return;
-        }
-        
-        if (holdDisplayMatrix1 == null) {
-            holdDisplayMatrix1 = new Rectangle[4][4];
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                    Rectangle rectangle = new Rectangle(20, 20);
-                    rectangle.setFill(Color.TRANSPARENT);
-                    rectangle.setArcHeight(9);
-                    rectangle.setArcWidth(9);
-                    holdDisplayMatrix1[i][j] = rectangle;
-                    holdPanel1.add(rectangle, j, i);
-                }
-            }
-        }
-        
-        // Clear display
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                holdDisplayMatrix1[i][j].setFill(Color.TRANSPARENT);
-            }
-        }
-        
-        // Display brick
-        if (holdBrickData != null) {
-            for (int i = 0; i < holdBrickData.length && i < 4; i++) {
-                for (int j = 0; j < holdBrickData[i].length && j < 4; j++) {
-                    if (holdBrickData[i][j] != 0) {
-                        holdDisplayMatrix1[i][j].setFill(getFillColor(holdBrickData[i][j]));
-                    }
-                }
-            }
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.updatePlayer1HoldDisplay(holdBrickData);
         }
     }
     
@@ -4213,40 +3627,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param holdBrickData the held brick shape data
      */
     public void updatePlayer2HoldDisplay(int[][] holdBrickData) {
-        if (holdPanel2 == null) {
-            return;
-        }
-        
-        if (holdDisplayMatrix2 == null) {
-            holdDisplayMatrix2 = new Rectangle[4][4];
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                    Rectangle rectangle = new Rectangle(20, 20);
-                    rectangle.setFill(Color.TRANSPARENT);
-                    rectangle.setArcHeight(9);
-                    rectangle.setArcWidth(9);
-                    holdDisplayMatrix2[i][j] = rectangle;
-                    holdPanel2.add(rectangle, j, i);
-                }
-            }
-        }
-        
-        // Clear display
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                holdDisplayMatrix2[i][j].setFill(Color.TRANSPARENT);
-            }
-        }
-        
-        // Display brick
-        if (holdBrickData != null) {
-            for (int i = 0; i < holdBrickData.length && i < 4; i++) {
-                for (int j = 0; j < holdBrickData[i].length && j < 4; j++) {
-                    if (holdBrickData[i][j] != 0) {
-                        holdDisplayMatrix2[i][j].setFill(getFillColor(holdBrickData[i][j]));
-                    }
-                }
-            }
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.updatePlayer2HoldDisplay(holdBrickData);
         }
     }
     
@@ -4256,8 +3638,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param score the new score value
      */
     public void updatePlayer1Score(int score) {
-        if (player1ScoreLabel != null) {
-            player1ScoreLabel.setText("Score: " + score);
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.updatePlayer1Score(score);
         }
     }
     
@@ -4267,8 +3649,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param score the new score value
      */
     public void updatePlayer2Score(int score) {
-        if (player2ScoreLabel != null) {
-            player2ScoreLabel.setText("Score: " + score);
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.updatePlayer2Score(score);
         }
     }
     
@@ -4278,12 +3660,13 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param controller the TwoPlayerGameController instance
      */
     private void updatePlayerScores(TwoPlayerGameController controller) {
-        if (controller != null) {
+        if (controller == null) {
+            return;
+        }
             int player1Score = controller.getPlayer1Service().getScore().getScore();
             int player2Score = controller.getPlayer2Service().getScore().getScore();
             updatePlayer1Score(player1Score);
             updatePlayer2Score(player2Score);
-        }
     }
     
     /**
@@ -4293,48 +3676,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param stats the PlayerStats instance containing the statistics
      */
     public void updatePlayerStats(int player, com.comp2042.model.mode.PlayerStats stats) {
-        if (stats == null) {
-            return;
-        }
-        
-        if (player == 1) {
-            if (player1LinesLabel != null) {
-                player1LinesLabel.setText(String.valueOf(stats.getLinesCleared()));
-            }
-            if (player1ComboLabel != null) {
-                player1ComboLabel.setText(String.valueOf(stats.getCurrentCombo()));
-            }
-            if (player1AttackLabel != null) {
-                player1AttackLabel.setText(String.valueOf(stats.getAttacksSent()));
-            }
-            if (player1DefenseLabel != null) {
-                player1DefenseLabel.setText(String.valueOf(stats.getAttacksReceived()));
-            }
-            if (player1TetrisLabel != null) {
-                player1TetrisLabel.setText(String.valueOf(stats.getTetrisCount()));
-            }
-            if (player1TimeLabel != null) {
-                player1TimeLabel.setText(stats.getFormattedTime());
-            }
-        } else if (player == 2) {
-            if (player2LinesLabel != null) {
-                player2LinesLabel.setText(String.valueOf(stats.getLinesCleared()));
-            }
-            if (player2ComboLabel != null) {
-                player2ComboLabel.setText(String.valueOf(stats.getCurrentCombo()));
-            }
-            if (player2AttackLabel != null) {
-                player2AttackLabel.setText(String.valueOf(stats.getAttacksSent()));
-            }
-            if (player2DefenseLabel != null) {
-                player2DefenseLabel.setText(String.valueOf(stats.getAttacksReceived()));
-            }
-            if (player2TetrisLabel != null) {
-                player2TetrisLabel.setText(String.valueOf(stats.getTetrisCount()));
-            }
-            if (player2TimeLabel != null) {
-                player2TimeLabel.setText(stats.getFormattedTime());
-            }
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.updatePlayerStats(player, stats);
         }
     }
     
@@ -4343,35 +3686,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * Used when starting a new game in two-player mode.
      */
     private void clearPlayer1Panels() {
-        // Clear game board display
-        if (displayMatrix1 != null && gamePanel1 != null) {
-            for (int i = 0; i < displayMatrix1.length; i++) {
-                if (displayMatrix1[i] != null) {
-                    for (int j = 0; j < displayMatrix1[i].length; j++) {
-                        if (displayMatrix1[i][j] != null) {
-                            displayMatrix1[i][j].setFill(Color.TRANSPARENT);
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Clear hold display
-        updatePlayer1HoldDisplay(null);
-        
-        // Clear next display
-        updatePlayer1NextDisplay(null);
-
-        // Clear ghost brick
-        if (ghostPanel1 != null) {
-            ghostPanel1.setVisible(false);
-            ghostPanel1.getChildren().clear();
-        }
-        ghostRectangles1 = null;
-        
-        // Clear falling brick
-        if (brickPanel1 != null) {
-            brickPanel1.getChildren().clear();
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.clearPlayer1Panels();
         }
     }
     
@@ -4380,35 +3696,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * Used when starting a new game in two-player mode.
      */
     private void clearPlayer2Panels() {
-        // Clear game board display
-        if (displayMatrix2 != null && gamePanel2 != null) {
-            for (int i = 0; i < displayMatrix2.length; i++) {
-                if (displayMatrix2[i] != null) {
-                    for (int j = 0; j < displayMatrix2[i].length; j++) {
-                        if (displayMatrix2[i][j] != null) {
-                            displayMatrix2[i][j].setFill(Color.TRANSPARENT);
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Clear hold display
-        updatePlayer2HoldDisplay(null);
-        
-        // Clear next display
-        updatePlayer2NextDisplay(null);
-
-        // Clear ghost brick
-        if (ghostPanel2 != null) {
-            ghostPanel2.setVisible(false);
-            ghostPanel2.getChildren().clear();
-        }
-        ghostRectangles2 = null;
-        
-        // Clear falling brick
-        if (brickPanel2 != null) {
-            brickPanel2.getChildren().clear();
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.clearPlayer2Panels();
         }
     }
     
@@ -4421,10 +3710,6 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param player2Score Player 2's final score
      */
     public void showTwoPlayerGameOver(int winner, int player1Score, int player2Score) {
-        // Play two-player game over sound effect
-        SoundManager.getInstance().playTwoPlayerGameOverSound();
-        
-        // Get statistics from game mode
         com.comp2042.model.mode.PlayerStats player1Stats = null;
         com.comp2042.model.mode.PlayerStats player2Stats = null;
         
@@ -4438,68 +3723,18 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             }
         }
         
-        // Use default stats if not available
-        if (player1Stats == null) {
-            player1Stats = new com.comp2042.model.mode.PlayerStats();
-        }
-        if (player2Stats == null) {
-            player2Stats = new com.comp2042.model.mode.PlayerStats();
-        }
-        
-        // Show enhanced game over panel
-        if (twoPlayerGameOverPanel != null) {
-            twoPlayerGameOverPanel.setVisible(true);
-            twoPlayerGameOverPanel.setManaged(true);
-            twoPlayerGameOverPanel.setGameOverInfo(winner, player1Stats, player2Stats, 
-                                                    player1Score, player2Score);
-            
-            // Set button actions
-            twoPlayerGameOverPanel.setButtons(
-                e -> {
-                    // Hide game over panel
-                    if (twoPlayerGameOverPanel != null) {
-                        twoPlayerGameOverPanel.setVisible(false);
-                        twoPlayerGameOverPanel.setManaged(false);
-                    }
-                    newGame(e);
-                },  // New Game button
-                e -> {
-                    // Hide game over panel
-                    if (twoPlayerGameOverPanel != null) {
-                        twoPlayerGameOverPanel.setVisible(false);
-                        twoPlayerGameOverPanel.setManaged(false);
-                    }
-                    returnToMenu();
-                }  // Back to Menu button
+        if (twoPlayerPanelManager != null) {
+            final com.comp2042.model.mode.PlayerStats finalPlayer1Stats = player1Stats;
+            final com.comp2042.model.mode.PlayerStats finalPlayer2Stats = player2Stats;
+            twoPlayerPanelManager.showTwoPlayerGameOver(
+                winner,
+                player1Score,
+                player2Score,
+                finalPlayer1Stats,
+                finalPlayer2Stats,
+                () -> newGame(null),
+                this::returnToMenu
             );
-            
-            // Add fade-in animation
-            javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
-                javafx.util.Duration.millis(500), twoPlayerGameOverPanel);
-            fadeIn.setFromValue(0.0);
-            fadeIn.setToValue(1.0);
-            fadeIn.play();
-        } else {
-            // Fallback to old panels if new panel is not available
-            String winnerText;
-            if (winner == 0) {
-                winnerText = "TIE GAME";
-            } else if (winner == 1) {
-                winnerText = "PLAYER 1 WINS!";
-            } else {
-                winnerText = "PLAYER 2 WINS!";
-            }
-            
-            if (gameOverPanel1 != null) {
-                gameOverPanel1.setVisible(true);
-                gameOverPanel1.setTitle(winnerText);
-                gameOverPanel1.setSubtitle("Player 1: " + player1Score + " | Player 2: " + player2Score);
-            }
-            if (gameOverPanel2 != null) {
-                gameOverPanel2.setVisible(true);
-                gameOverPanel2.setTitle(winnerText);
-                gameOverPanel2.setSubtitle("Player 1: " + player1Score + " | Player 2: " + player2Score);
-            }
         }
         
         isGameOver.setValue(true);
@@ -4521,50 +3756,15 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param onComplete callback to execute when countdown completes
      */
     public void showCountdown(Runnable onComplete) {
-        if (rootPane == null || gamePanel1 == null || gamePanel2 == null) {
+        if (!isTwoPlayerMode || countdownManager == null) {
             if (onComplete != null) {
-                javafx.application.Platform.runLater(() -> {
-                    javafx.animation.PauseTransition retryDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(200));
-                    retryDelay.setOnFinished(e -> {
-                        if (rootPane != null && gamePanel1 != null && gamePanel2 != null) {
-                            showCountdown(onComplete);
-                        } else if (onComplete != null) {
                             onComplete.run();
-                        }
-                    });
-                    retryDelay.play();
-                });
             }
             return;
         }
         
-        if (gamePanel1.getParent() == null || gamePanel2.getParent() == null) {
-            if (onComplete != null) {
-                javafx.application.Platform.runLater(() -> {
-                    javafx.animation.PauseTransition retryDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(200));
-                    retryDelay.setOnFinished(e -> {
-                        if (rootPane != null && gamePanel1 != null && gamePanel2 != null &&
-                            gamePanel1.getParent() != null && gamePanel2.getParent() != null) {
-                            showCountdown(onComplete);
-                        } else if (onComplete != null) {
-                            onComplete.run();
-                        }
-                    });
-                    retryDelay.play();
-                });
-            }
-            return;
-        }
-        
-        // Stop any existing countdown
-        if (countdownTimeline != null) {
-            countdownTimeline.stop();
-            countdownTimeline = null;
-            // Stop countdown sound when countdown is stopped
-            SoundManager.getInstance().stopCountdownSound();
-        }
-        
-        // Stop game timelines during countdown (to prevent blocks from falling)
+        countdownManager.cancelCountdown();
+
         if (eventListener instanceof TwoPlayerGameController) {
             TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
             try {
@@ -4593,157 +3793,14 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             }
         }
         
-        // Remove any existing overlays
-        if (countdownOverlay1 != null && countdownParent1 != null) {
-            countdownParent1.getChildren().remove(countdownOverlay1);
-        }
-        if (countdownOverlay2 != null && countdownParent2 != null) {
-            countdownParent2.getChildren().remove(countdownOverlay2);
-        }
-        
-        // Save callback for later use
-        countdownCallback = onComplete;
-        
-        // Create countdown labels for each player
-        Label countdownLabel1 = new Label();
-        countdownLabel1.setFont(Font.font("Arial", FontWeight.BOLD, 80));
-        countdownLabel1.setStyle(
-            "-fx-text-fill: #4ECDC4; " +
-            "-fx-effect: dropshadow(gaussian, rgba(78, 205, 196, 1.0), 30, 0, 0, 0); " +
-            "-fx-alignment: center;"
+        countdownManager.showTwoPlayerCountdown(
+            rootPane,
+            gamePanel1,
+            gamePanel2,
+            boardBackground1,
+            boardBackground2,
+            onComplete
         );
-        countdownLabel1.setAlignment(Pos.CENTER);
-        countdownLabel1.setMouseTransparent(true);
-        
-        Label countdownLabel2 = new Label();
-        countdownLabel2.setFont(Font.font("Arial", FontWeight.BOLD, 80));
-        countdownLabel2.setStyle(
-            "-fx-text-fill: #FF6B6B; " +
-            "-fx-effect: dropshadow(gaussian, rgba(255, 107, 107, 1.0), 30, 0, 0, 0); " +
-            "-fx-alignment: center;"
-        );
-        countdownLabel2.setAlignment(Pos.CENTER);
-        countdownLabel2.setMouseTransparent(true);
-        
-        // Create overlays for each game panel
-        StackPane overlay1 = new StackPane();
-        overlay1.setAlignment(Pos.CENTER);
-        overlay1.setStyle("-fx-background-color: rgba(0, 0, 0, 0.55); -fx-background-radius: 8;");
-        overlay1.getChildren().add(countdownLabel1);
-        overlay1.setMouseTransparent(true);
-        
-        StackPane overlay2 = new StackPane();
-        overlay2.setAlignment(Pos.CENTER);
-        overlay2.setStyle("-fx-background-color: rgba(0, 0, 0, 0.55); -fx-background-radius: 8;");
-        overlay2.getChildren().add(countdownLabel2);
-        overlay2.setMouseTransparent(true);
-        
-        // Find parent containers for game panels (should be StackPane or Pane)
-        Node parent1 = gamePanel1.getParent();
-        Node parent2 = gamePanel2.getParent();
-        
-        if (parent1 instanceof Pane && parent2 instanceof Pane) {
-            Pane pane1 = (Pane) parent1;
-            Pane pane2 = (Pane) parent2;
-            
-            // Save parent references
-            countdownParent1 = pane1;
-            countdownParent2 = pane2;
-            countdownOverlay1 = overlay1;
-            countdownOverlay2 = overlay2;
-            
-            // Add overlays to parent containers
-            pane1.getChildren().add(overlay1);
-            pane2.getChildren().add(overlay2);
-            
-            // Bind overlay size to cover entire board background
-            if (boardBackground1 != null) {
-                overlay1.prefWidthProperty().bind(boardBackground1.widthProperty().subtract(20));
-                overlay1.prefHeightProperty().bind(boardBackground1.heightProperty().subtract(20));
-                overlay1.layoutXProperty().bind(boardBackground1.layoutXProperty().add(10));
-                overlay1.layoutYProperty().bind(boardBackground1.layoutYProperty().add(10));
-            } else {
-                overlay1.prefWidthProperty().bind(gamePanel1.widthProperty());
-                overlay1.prefHeightProperty().bind(gamePanel1.heightProperty());
-                overlay1.layoutXProperty().bind(gamePanel1.layoutXProperty());
-                overlay1.layoutYProperty().bind(gamePanel1.layoutYProperty());
-            }
-            
-            if (boardBackground2 != null) {
-                overlay2.prefWidthProperty().bind(boardBackground2.widthProperty().subtract(20));
-                overlay2.prefHeightProperty().bind(boardBackground2.heightProperty().subtract(20));
-                overlay2.layoutXProperty().bind(boardBackground2.layoutXProperty().add(10));
-                overlay2.layoutYProperty().bind(boardBackground2.layoutYProperty().add(10));
-            } else {
-                overlay2.prefWidthProperty().bind(gamePanel2.widthProperty());
-                overlay2.prefHeightProperty().bind(gamePanel2.heightProperty());
-                overlay2.layoutXProperty().bind(gamePanel2.layoutXProperty());
-                overlay2.layoutYProperty().bind(gamePanel2.layoutYProperty());
-            }
-        }
-        
-        // Countdown animation
-        countdownTimeline = new Timeline();
-        
-        // Play countdown sound once at the start (4-second audio)
-        KeyFrame soundFrame = new KeyFrame(
-            Duration.millis(0),
-            e -> {
-                SoundManager.getInstance().playCountdownSound();
-            }
-        );
-        countdownTimeline.getKeyFrames().add(soundFrame);
-        
-        for (int i = 3; i >= 1; i--) {
-            final int count = i;
-            KeyFrame keyFrame = new KeyFrame(
-                Duration.millis((3 - i) * 1000),
-                e -> {
-                    countdownLabel1.setText(String.valueOf(count));
-                    countdownLabel2.setText(String.valueOf(count));
-                }
-            );
-            countdownTimeline.getKeyFrames().add(keyFrame);
-        }
-        
-        // Show "Start!" at 3000ms
-        KeyFrame startFrame = new KeyFrame(
-            Duration.millis(3000),
-            e -> {
-                countdownLabel1.setText("Start!");
-                countdownLabel2.setText("Start!");
-            }
-        );
-        countdownTimeline.getKeyFrames().add(startFrame);
-        
-        // Final keyframe to hide overlays and start game (at 4000ms to allow audio to finish)
-        final Pane finalParent1 = countdownParent1;
-        final Pane finalParent2 = countdownParent2;
-        
-        KeyFrame finalFrame = new KeyFrame(
-            Duration.millis(4000),
-            e -> {
-                if (finalParent1 != null && finalParent1.getChildren().contains(overlay1)) {
-                    finalParent1.getChildren().remove(overlay1);
-                }
-                if (finalParent2 != null && finalParent2.getChildren().contains(overlay2)) {
-                    finalParent2.getChildren().remove(overlay2);
-                }
-                // Clear countdown tracking
-                countdownTimeline = null;
-                countdownCallback = null;
-                countdownOverlay1 = null;
-                countdownOverlay2 = null;
-                countdownParent1 = null;
-                countdownParent2 = null;
-                if (onComplete != null) {
-                    onComplete.run();
-                }
-            }
-        );
-        countdownTimeline.getKeyFrames().add(finalFrame);
-        
-        countdownTimeline.play();
     }
     
     /**
@@ -4754,173 +3811,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param attackPower the number of lines being attacked
      */
     public void showAttackAnimation(int player, int attackPower) {
-        if (rootPane == null) {
-            return;
-        }
-        
-        // Find the player's game board container
-        Pane boardBackground = (player == 1) ? boardBackground1 : boardBackground2;
-        Pane playerBoard = (player == 1) ? gamePanel1 : gamePanel2;
-        if (boardBackground == null || playerBoard == null) {
-            return;
-        }
-        
-        // Calculate animation intensity based on attack power
-        double intensity = Math.min(attackPower / 4.0, 1.0); // Max intensity at 4+ lines
-        long duration = (long)(300 + intensity * 200); // 300-500ms based on power
-        
-        // Get board container (parent of boardBackground)
-        Pane boardContainer = (Pane) boardBackground.getParent();
-        if (boardContainer == null) {
-            return;
-        }
-        
-        // 1. Screen shake effect
-        double shakeAmount = 3 + intensity * 5; // 3-8 pixels based on intensity
-        double originalX = boardContainer.getLayoutX();
-        double originalY = boardContainer.getLayoutY();
-        
-        javafx.animation.Timeline shakeTimeline = new javafx.animation.Timeline();
-        int shakeCount = 8;
-        for (int i = 0; i < shakeCount; i++) {
-            double offsetX = (Math.random() - 0.5) * shakeAmount * 2;
-            double offsetY = (Math.random() - 0.5) * shakeAmount * 2;
-            javafx.animation.KeyFrame keyFrame = new javafx.animation.KeyFrame(
-                Duration.millis(i * duration / shakeCount),
-                e -> {
-                    boardContainer.setLayoutX(originalX + offsetX);
-                    boardContainer.setLayoutY(originalY + offsetY);
-                }
-            );
-            shakeTimeline.getKeyFrames().add(keyFrame);
-        }
-        // Return to original position
-        javafx.animation.KeyFrame returnFrame = new javafx.animation.KeyFrame(
-            Duration.millis(duration),
-            e -> {
-                boardContainer.setLayoutX(originalX);
-                boardContainer.setLayoutY(originalY);
-            }
-        );
-        shakeTimeline.getKeyFrames().add(returnFrame);
-        shakeTimeline.play();
-        
-        // 2. Flash overlay effect
-        Rectangle flashOverlay = new Rectangle();
-        flashOverlay.setWidth(boardBackground.getWidth());
-        flashOverlay.setHeight(boardBackground.getHeight());
-        flashOverlay.setFill(player == 1 ? 
-            javafx.scene.paint.Color.rgb(255, 107, 107, 0.4 + intensity * 0.3) : 
-            javafx.scene.paint.Color.rgb(78, 205, 196, 0.4 + intensity * 0.3));
-        flashOverlay.setMouseTransparent(true);
-        flashOverlay.setLayoutX(boardBackground.getLayoutX());
-        flashOverlay.setLayoutY(boardBackground.getLayoutY());
-        
-        boardContainer.getChildren().add(flashOverlay);
-        
-        // Flash animation with multiple pulses
-        javafx.animation.SequentialTransition flashSequence = new javafx.animation.SequentialTransition();
-        
-        // First strong flash
-        javafx.animation.FadeTransition flash1 = new javafx.animation.FadeTransition(
-            Duration.millis(duration / 3), flashOverlay);
-        flash1.setFromValue(0.7 + intensity * 0.3);
-        flash1.setToValue(0.2);
-        
-        // Second pulse
-        javafx.animation.FadeTransition flash2 = new javafx.animation.FadeTransition(
-            Duration.millis(duration / 3), flashOverlay);
-        flash2.setFromValue(0.3);
-        flash2.setToValue(0.1);
-        
-        // Fade out
-        javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(
-            Duration.millis(duration / 3), flashOverlay);
-        fadeOut.setFromValue(0.1);
-        fadeOut.setToValue(0.0);
-        fadeOut.setOnFinished(e -> {
-            boardContainer.getChildren().remove(flashOverlay);
-        });
-        
-        flashSequence.getChildren().addAll(flash1, flash2, fadeOut);
-        flashSequence.play();
-        
-        // 3. Shockwave effect (circular ripple from center)
-        Circle shockwave = new Circle();
-        double centerX = boardBackground.getWidth() / 2 + boardBackground.getLayoutX();
-        double centerY = boardBackground.getHeight() / 2 + boardBackground.getLayoutY();
-        shockwave.setCenterX(centerX);
-        shockwave.setCenterY(centerY);
-        shockwave.setRadius(10);
-        shockwave.setFill(javafx.scene.paint.Color.TRANSPARENT);
-        shockwave.setStroke(player == 1 ? 
-            javafx.scene.paint.Color.rgb(255, 107, 107, 0.8) : 
-            javafx.scene.paint.Color.rgb(78, 205, 196, 0.8));
-        shockwave.setStrokeWidth(3 + intensity * 2);
-        shockwave.setMouseTransparent(true);
-        
-        boardContainer.getChildren().add(shockwave);
-        
-        // Shockwave expansion animation
-        double maxRadius = Math.max(boardBackground.getWidth(), boardBackground.getHeight()) * 0.7;
-        javafx.animation.ScaleTransition shockwaveExpand = new javafx.animation.ScaleTransition(
-            Duration.millis(duration), shockwave);
-        shockwaveExpand.setFromX(1.0);
-        shockwaveExpand.setFromY(1.0);
-        shockwaveExpand.setToX(maxRadius / 10.0);
-        shockwaveExpand.setToY(maxRadius / 10.0);
-        
-        javafx.animation.FadeTransition shockwaveFade = new javafx.animation.FadeTransition(
-            Duration.millis(duration), shockwave);
-        shockwaveFade.setFromValue(0.8);
-        shockwaveFade.setToValue(0.0);
-        
-        javafx.animation.ParallelTransition shockwaveAnimation = new javafx.animation.ParallelTransition(
-            shockwaveExpand, shockwaveFade);
-        shockwaveAnimation.setOnFinished(e -> {
-            boardContainer.getChildren().remove(shockwave);
-        });
-        shockwaveAnimation.play();
-        
-        // 4. Particle effect (small circles radiating outward)
-        if (attackPower >= 2) {
-            int particleCount = (int)(5 + intensity * 10); // 5-15 particles
-            for (int i = 0; i < particleCount; i++) {
-                Circle particle = new Circle(2 + Math.random() * 3);
-                particle.setCenterX(centerX);
-                particle.setCenterY(centerY);
-                particle.setFill(player == 1 ? 
-                    javafx.scene.paint.Color.rgb(255, 107, 107, 0.9) : 
-                    javafx.scene.paint.Color.rgb(78, 205, 196, 0.9));
-                particle.setMouseTransparent(true);
-                
-                boardContainer.getChildren().add(particle);
-                
-                // Random direction and distance
-                double angle = Math.random() * 2 * Math.PI;
-                double distance = 30 + Math.random() * 50;
-                double endX = centerX + Math.cos(angle) * distance;
-                double endY = centerY + Math.sin(angle) * distance;
-                
-                javafx.animation.TranslateTransition particleMove = new javafx.animation.TranslateTransition(
-                    Duration.millis(duration), particle);
-                particleMove.setFromX(0);
-                particleMove.setFromY(0);
-                particleMove.setToX(endX - centerX);
-                particleMove.setToY(endY - centerY);
-                
-                javafx.animation.FadeTransition particleFade = new javafx.animation.FadeTransition(
-                    Duration.millis(duration), particle);
-                particleFade.setFromValue(0.9);
-                particleFade.setToValue(0.0);
-                
-                javafx.animation.ParallelTransition particleAnimation = new javafx.animation.ParallelTransition(
-                    particleMove, particleFade);
-                particleAnimation.setOnFinished(e -> {
-                    boardContainer.getChildren().remove(particle);
-                });
-                particleAnimation.play();
-            }
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.showAttackAnimation(player, attackPower);
         }
     }
     
@@ -4932,64 +3824,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param linesEliminated the number of lines eliminated
      */
     public void showComboBonus(int player, int combo, int linesEliminated) {
-        if (rootPane == null) {
-            return;
+        if (twoPlayerPanelManager != null) {
+            twoPlayerPanelManager.showComboBonus(player, combo, linesEliminated);
         }
-        
-        // Find the player's game board area
-        Pane playerBoard = (player == 1) ? gamePanel1 : gamePanel2;
-        if (playerBoard == null) {
-            return;
-        }
-        
-        // Create combo bonus label
-        Label comboLabel = new Label("COMBO x" + combo + "!\n" + linesEliminated + " lines eliminated!");
-        comboLabel.setFont(Font.font("Arial", FontWeight.BOLD, 32));
-        comboLabel.setStyle(
-            "-fx-text-fill: #FFD700; " +
-            "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 1.0), 20, 0, 0, 0); " +
-            "-fx-alignment: center; " +
-            "-fx-text-alignment: center;"
-        );
-        comboLabel.setAlignment(Pos.CENTER);
-        comboLabel.setMouseTransparent(true);
-        
-        // Position label over player board
-        StackPane comboOverlay = new StackPane();
-        comboOverlay.setAlignment(Pos.CENTER);
-        comboOverlay.getChildren().add(comboLabel);
-        comboOverlay.setMouseTransparent(true);
-        
-        // Add to root pane
-        rootPane.getChildren().add(comboOverlay);
-        
-        // Animate: scale up, then fade out
-        comboLabel.setScaleX(0.5);
-        comboLabel.setScaleY(0.5);
-        comboLabel.setOpacity(0.0);
-        
-        javafx.animation.ScaleTransition scaleUp = new javafx.animation.ScaleTransition(
-            Duration.millis(300), comboLabel);
-        scaleUp.setToX(1.2);
-        scaleUp.setToY(1.2);
-        
-        javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
-            Duration.millis(300), comboLabel);
-        fadeIn.setFromValue(0.0);
-        fadeIn.setToValue(1.0);
-        
-        javafx.animation.ParallelTransition appear = new javafx.animation.ParallelTransition(
-            scaleUp, fadeIn);
-        
-        javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(
-            Duration.millis(500), comboLabel);
-        fadeOut.setFromValue(1.0);
-        fadeOut.setToValue(0.0);
-        fadeOut.setDelay(Duration.millis(1000));
-        
-        javafx.animation.SequentialTransition sequence = new javafx.animation.SequentialTransition(
-            appear, fadeOut);
-        sequence.setOnFinished(e -> rootPane.getChildren().remove(comboOverlay));
-        sequence.play();
     }
 }

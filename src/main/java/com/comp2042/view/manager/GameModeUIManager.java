@@ -224,8 +224,21 @@ public class GameModeUIManager {
         isEndlessMode = false;
         isTwoPlayerMode = false;
         levelStartTime = 0;
-        
-        showEndlessModeUI();
+
+        if (statisticsBox != null) {
+            statisticsBox.setManaged(true);
+            statisticsBox.setVisible(true);
+        }
+
+        if (leftObjectiveBox != null) {
+            leftObjectiveBox.setManaged(false);
+            leftObjectiveBox.setVisible(false);
+        }
+
+        if (bestStatsBox != null) {
+            bestStatsBox.setVisible(false);
+            bestStatsBox.setManaged(false);
+        }
     }
     
     // ==================== Theme Management ====================
