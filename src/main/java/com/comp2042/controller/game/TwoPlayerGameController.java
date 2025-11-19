@@ -1,7 +1,7 @@
 package com.comp2042.controller.game;
 
 import com.comp2042.service.gameloop.GameService;
-import com.comp2042.model.mode.TwoPlayerVSGameMode;
+import com.comp2042.model.mode.TwoPlayerMode;
 import com.comp2042.dto.ViewData;
 import com.comp2042.dto.DownData;
 import com.comp2042.event.MoveEvent;
@@ -9,14 +9,13 @@ import com.comp2042.event.EventType;
 import com.comp2042.event.EventSource;
 import com.comp2042.event.listener.InputEventListener;
 import com.comp2042.service.audio.SoundManager;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
+import com.comp2042.controller.game.twoplayer.TwoPlayerCountdownManager;
+import com.comp2042.controller.game.twoplayer.TwoPlayerTimelineScheduler;
 
 /**
  * Controller for managing two-player VS mode gameplay.
  * 
- * <p>This class coordinates between the GUI controller and the TwoPlayerVSGameMode,
+ * <p>This class coordinates between the GUI controller and the TwoPlayerMode,
  * managing dual game boards, separate timelines for each player, and handling
  * input events for both players simultaneously.</p>
  * 
@@ -30,17 +29,13 @@ import javafx.util.Duration;
  */
 public class TwoPlayerGameController implements InputEventListener {
     
-    private final TwoPlayerVSGameMode gameMode;
+    private final TwoPlayerMode gameMode;
     private final GameViewController guiController;
     private final GameService player1Service;
     private final GameService player2Service;
     
-    // Separate timelines for each player's automatic brick descent
-    private Timeline player1Timeline;
-    private Timeline player2Timeline;
-    
-    // Statistics update timeline
-    private Timeline statsUpdateTimeline;
+    private final TwoPlayerTimelineScheduler timelineScheduler;
+    private final TwoPlayerCountdownManager countdownManager;
     
     private boolean paused = false;
     private boolean countdownActive = true; // Track countdown state to prevent input during countdown
@@ -50,14 +45,23 @@ public class TwoPlayerGameController implements InputEventListener {
      * Initializes both players' game services, sets up the game mode,
      * and prepares the GUI for two-player rendering.
      * 
-     * @param gameMode the TwoPlayerVSGameMode instance managing game logic
+     * @param gameMode the TwoPlayerMode instance managing game logic
      * @param guiController the GUI controller for rendering
      */
-    public TwoPlayerGameController(TwoPlayerVSGameMode gameMode, GameViewController guiController) {
+    public TwoPlayerGameController(TwoPlayerMode gameMode, GameViewController guiController) {
         this.gameMode = gameMode;
         this.guiController = guiController;
         this.player1Service = gameMode.getPlayer1Service();
         this.player2Service = gameMode.getPlayer2Service();
+        
+        this.countdownManager = new TwoPlayerCountdownManager(guiController);
+        this.timelineScheduler = new TwoPlayerTimelineScheduler(
+            player1Service,
+            player2Service,
+            gameMode,
+            this::handleAutoDrop,
+            this::handleStatsTick
+        );
         
         // Initialize game state before countdown (ensures clean start)
         // This prevents blocks from being placed during countdown
@@ -83,19 +87,8 @@ public class TwoPlayerGameController implements InputEventListener {
      * Shows a countdown (3-2-1) before starting the game.
      */
     private void showCountdownAndStart() {
-        if (guiController == null) {
-            // If no GUI controller, start immediately
-            countdownActive = false;
-            startGame();
-            return;
-        }
-        
-        // Set countdown active flag
         countdownActive = true;
-        
-        // Show countdown
-        guiController.showCountdown(() -> {
-            // After countdown completes, start the game
+        countdownManager.startCountdown(() -> {
             countdownActive = false;
             startGame();
         });
@@ -123,11 +116,8 @@ public class TwoPlayerGameController implements InputEventListener {
         // Set up the GUI for two-player mode (refresh view with current state)
         initializeTwoPlayerView();
         
-        // Start automatic descent timelines for both players
-        startPlayerTimelines();
-        
-        // Start statistics update timeline
-        startStatsUpdateTimeline();
+        // Start automatic descent timelines and stats updates
+        timelineScheduler.start();
         
         // Set this controller as the event listener (only after countdown completes)
         guiController.setEventListener(this);
@@ -161,71 +151,6 @@ public class TwoPlayerGameController implements InputEventListener {
     }
     
     /**
-     * Starts separate timelines for automatic brick descent for both players.
-     * Each player has their own timeline that runs independently, allowing
-     * for different drop speeds if needed in the future.
-     */
-    private void startPlayerTimelines() {
-        // Player 1 timeline - automatic descent
-        player1Timeline = new Timeline(new KeyFrame(
-                Duration.millis(400), // Default drop speed
-                ae -> {
-                    if (!paused && !gameMode.isGameOver()) {
-                        // Use THREAD event source for automatic descent to distinguish from user input
-                        // Directly process Player 1's automatic descent to avoid routing issues
-                        DownData downData = player1Service.processDownEvent(
-                            new MoveEvent(EventType.DOWN, EventSource.THREAD));
-                        if (downData != null) {
-                            guiController.handlePlayer1DownEvent(downData);
-                        }
-                        checkGameOver();
-                    }
-                }
-        ));
-        player1Timeline.setCycleCount(Timeline.INDEFINITE);
-        player1Timeline.play();
-        
-        // Player 2 timeline - automatic descent
-        player2Timeline = new Timeline(new KeyFrame(
-                Duration.millis(400), // Default drop speed
-                ae -> {
-                    if (!paused && !gameMode.isGameOver()) {
-                        // Use THREAD event source for automatic descent to distinguish from user input
-                        // Directly process Player 2's automatic descent to avoid routing issues
-                        DownData downData = player2Service.processDownEvent(
-                            new MoveEvent(EventType.DOWN, EventSource.THREAD));
-                        if (downData != null) {
-                            guiController.handlePlayer2DownEvent(downData);
-                        }
-                        // Always check for game over after each automatic drop
-                        checkGameOver();
-                    }
-                }
-        ));
-        player2Timeline.setCycleCount(Timeline.INDEFINITE);
-        player2Timeline.play();
-    }
-    
-    /**
-     * Starts the statistics update timeline.
-     * Updates player statistics display every second.
-     */
-    private void startStatsUpdateTimeline() {
-        statsUpdateTimeline = new Timeline(new KeyFrame(
-                Duration.seconds(1.0), // Update every second
-                ae -> {
-                    if (!paused && !gameMode.isGameOver()) {
-                        // Update statistics display for both players
-                        guiController.updatePlayerStats(1, gameMode.getPlayer1Stats());
-                        guiController.updatePlayerStats(2, gameMode.getPlayer2Stats());
-                    }
-                }
-        ));
-        statsUpdateTimeline.setCycleCount(Timeline.INDEFINITE);
-        statsUpdateTimeline.play();
-    }
-    
-    /**
      * Updates the score displays for both players.
      * This method extracts current scores from both game services and
      * updates the GUI labels accordingly.
@@ -248,19 +173,11 @@ public class TwoPlayerGameController implements InputEventListener {
         
         paused = !paused;
         if (paused) {
-            player1Timeline.pause();
-            player2Timeline.pause();
-            if (statsUpdateTimeline != null) {
-                statsUpdateTimeline.pause();
-            }
             gameMode.pause();
+            timelineScheduler.pause();
         } else {
-            player1Timeline.play();
-            player2Timeline.play();
-            if (statsUpdateTimeline != null) {
-                statsUpdateTimeline.play();
-            }
             gameMode.resume();
+            timelineScheduler.resume();
         }
     }
     
@@ -272,16 +189,7 @@ public class TwoPlayerGameController implements InputEventListener {
         gameMode.update(); // Update game mode logic
         
         if (gameMode.isGameOver()) {
-            // Stop both timelines
-            if (player1Timeline != null) {
-                player1Timeline.stop();
-            }
-            if (player2Timeline != null) {
-                player2Timeline.stop();
-            }
-            if (statsUpdateTimeline != null) {
-                statsUpdateTimeline.stop();
-            }
+            timelineScheduler.stop();
             
             // Get winner information
             int winner = gameMode.getWinner();
@@ -416,15 +324,7 @@ public class TwoPlayerGameController implements InputEventListener {
         countdownActive = true; // Start countdown for new game
         
         // Stop timelines
-        if (player1Timeline != null) {
-            player1Timeline.stop();
-        }
-        if (player2Timeline != null) {
-            player2Timeline.stop();
-        }
-        if (statsUpdateTimeline != null) {
-            statsUpdateTimeline.stop();
-        }
+        timelineScheduler.stop();
         
         // IMPORTANT: Reset game state BEFORE countdown to ensure clean start
         // This clears any blocks that might have been placed during previous countdown
@@ -450,20 +350,7 @@ public class TwoPlayerGameController implements InputEventListener {
     
     @Override
     public void onQuitEvent(MoveEvent event) {
-        // Stop and clear all timelines to prevent memory leaks
-        // They will be garbage collected when this controller is no longer referenced
-        if (player1Timeline != null) {
-            player1Timeline.stop();
-            player1Timeline = null;
-        }
-        if (player2Timeline != null) {
-            player2Timeline.stop();
-            player2Timeline = null;
-        }
-        if (statsUpdateTimeline != null) {
-            statsUpdateTimeline.stop();
-            statsUpdateTimeline = null;
-        }
+        timelineScheduler.stop();
     }
     
     
@@ -482,6 +369,25 @@ public class TwoPlayerGameController implements InputEventListener {
             guiController.refreshPlayer2Brick(viewData);
             updatePlayerScores();
         }
+    }
+
+    private void handleAutoDrop(int playerIndex, DownData downData) {
+        if (guiController != null && downData != null) {
+            if (playerIndex == 1) {
+                guiController.handlePlayer1DownEvent(downData);
+            } else {
+                guiController.handlePlayer2DownEvent(downData);
+            }
+        }
+        checkGameOver();
+    }
+
+    private void handleStatsTick() {
+        if (paused || gameMode.isGameOver() || guiController == null) {
+            return;
+        }
+        guiController.updatePlayerStats(1, gameMode.getPlayer1Stats());
+        guiController.updatePlayerStats(2, gameMode.getPlayer2Stats());
     }
     
     /**
@@ -505,9 +411,9 @@ public class TwoPlayerGameController implements InputEventListener {
     /**
      * Gets the game mode instance.
      * 
-     * @return the TwoPlayerVSGameMode instance
+     * @return the TwoPlayerMode instance
      */
-    public com.comp2042.model.mode.TwoPlayerVSGameMode getGameMode() {
+    public com.comp2042.model.mode.TwoPlayerMode getGameMode() {
         return gameMode;
     }
 }
