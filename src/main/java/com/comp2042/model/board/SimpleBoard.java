@@ -6,7 +6,6 @@ import com.comp2042.model.brick.Brick;
 import com.comp2042.model.brick.BrickGenerator;
 import com.comp2042.model.brick.RandomBrickGenerator;
 import com.comp2042.model.brick.SevenBagBrickGenerator;
-import com.comp2042.model.brick.BrickFactory;
 import com.comp2042.config.GameSettings;
 import com.comp2042.model.savestate.GameStateMemento;
 import com.comp2042.model.score.Score;
@@ -29,14 +28,13 @@ public class SimpleBoard implements Board {
     private final int height; // Height of the board grid
     private final BrickGenerator brickGenerator; // Generator for new bricks
     private final BrickRotator brickRotator;     // Manager for the current brick's rotation state
+    private final HoldManager holdManager;
+    private final GarbageManager garbageManager;
+    private final BoardMementoAdapter mementoAdapter;
     private int[][] currentGameMatrix;           // The current state of the board grid
     private Point currentOffset;                 // The current position (x, y) of the falling brick
     private final Score score;                   // The score tracker
     private int totalLinesCleared = 0;           // Total lines cleared in the game
-    
-    // Hold functionality fields
-    private Brick heldBrick = null;
-    private boolean canHold = true; // Prevents multiple holds per brick
 
     /**
      * Constructs a SimpleBoard with the specified dimensions.
@@ -66,6 +64,9 @@ public class SimpleBoard implements Board {
         }
         brickRotator = new BrickRotator();
         score = new Score();
+        holdManager = new HoldManager();
+        garbageManager = new GarbageManager(width, height);
+        mementoAdapter = new BoardMementoAdapter(brickRotator, brickGenerator, score, holdManager);
     }
 
     @Override
@@ -265,8 +266,9 @@ public class SimpleBoard implements Board {
         }
         
         // Get hold brick shape if available
-        if (heldBrick != null && heldBrick.getShapeMatrix() != null && !heldBrick.getShapeMatrix().isEmpty()) {
-            holdBrickShape = heldBrick.getShapeMatrix().get(0);
+        Brick held = holdManager.getHeldBrick();
+        if (held != null && held.getShapeMatrix() != null && !held.getShapeMatrix().isEmpty()) {
+            holdBrickShape = held.getShapeMatrix().get(0);
         }
         
         // Calculate ghost brick Y position
@@ -335,26 +337,11 @@ public class SimpleBoard implements Board {
      * @return true if hold operation was successful
      */
     public boolean holdBrick() {
-        if (!canHold) {
-            return false; // Can only hold once per brick
-        }
-        
-        Brick currentBrick = brickRotator.getBrick();
-        
-        if (heldBrick == null) {
-            // First time holding - store current and generate new
-            heldBrick = currentBrick;
-            createNewBrick();
-        } else {
-            // Swap with held brick
-            Brick temp = heldBrick;
-            heldBrick = currentBrick;
-            brickRotator.setBrick(temp);
-            currentOffset = new Point(4, 0); // Reset position to spawn point (top row)
-        }
-        
-        canHold = false; // Disable hold until next brick
-        return true;
+        return holdManager.holdBrick(
+            brickRotator,
+            () -> createNewBrick(),
+            () -> currentOffset = new Point(4, 0)
+        );
     }
     
     /**
@@ -363,7 +350,7 @@ public class SimpleBoard implements Board {
      * @return the held brick, or null if no brick is held
      */
     public Brick getHeldBrick() {
-        return heldBrick;
+        return holdManager.getHeldBrick();
     }
     
     /**
@@ -388,7 +375,7 @@ public class SimpleBoard implements Board {
      * Called internally when brick is merged to background.
      */
     private void enableHold() {
-        canHold = true;
+        holdManager.enableHold();
     }
     
     @Override
@@ -400,36 +387,7 @@ public class SimpleBoard implements Board {
      * @return true if adding the garbage line causes game over
      */
     public boolean addGarbageLine() {
-        int width = currentGameMatrix[0].length;
-        int height = currentGameMatrix.length;
-        
-        // Shift all rows up by one
-        for (int i = 0; i < height - 1; i++) {
-            currentGameMatrix[i] = currentGameMatrix[i + 1].clone();
-        }
-        
-        // Create a garbage line with one random hole
-        int[] garbageLine = new int[width];
-        int holePosition = (int) (Math.random() * width);
-        for (int j = 0; j < width; j++) {
-            if (j == holePosition) {
-                garbageLine[j] = 0; // Hole
-            } else {
-                garbageLine[j] = 8; // Garbage block (use color 8 for garbage)
-            }
-        }
-        
-        // Place garbage line at the bottom
-        currentGameMatrix[height - 1] = garbageLine;
-        
-        // Check if this causes game over (collision with current brick)
-        if (currentOffset != null && brickRotator.getCurrentShape() != null) {
-            return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), 
-                                             (int) currentOffset.getX(), (int) currentOffset.getY());
-        }
-        
-        // If no current brick, check if new brick spawn would cause game over
-        return false;
+        return garbageManager.addGarbageLine(currentGameMatrix, brickRotator, currentOffset);
     }
 
     @Override
@@ -441,45 +399,7 @@ public class SimpleBoard implements Board {
      * @return the actual number of lines removed
      */
     public int removeGarbageLines(int linesToRemove) {
-        if (linesToRemove <= 0) {
-            return 0;
-        }
-
-        int eliminated = 0;
-        
-        // Find and remove garbage lines
-        // We iterate from top to bottom, but logic handles shifting
-        for (int row = 0; row < currentGameMatrix.length && eliminated < linesToRemove; row++) {
-            boolean isGarbageLine = true;
-            int garbageBlockCount = 0;
-            
-            // Check if this row is a garbage line (has garbage blocks)
-            for (int col = 0; col < currentGameMatrix[row].length; col++) {
-                if (currentGameMatrix[row][col] == 8) { // Garbage block
-                    garbageBlockCount++;
-                } else if (currentGameMatrix[row][col] != 0) {
-                    // Has non-garbage blocks, not a pure garbage line
-                    isGarbageLine = false;
-                    break;
-                }
-            }
-            
-            // If it's a garbage line (has at least some garbage blocks and no other blocks), remove it
-            if (isGarbageLine && garbageBlockCount > 0) {
-                // Shift all rows above down
-                for (int r = row; r > 0; r--) {
-                    currentGameMatrix[r] = currentGameMatrix[r - 1].clone();
-                }
-                // Clear top row
-                for (int col = 0; col < currentGameMatrix[0].length; col++) {
-                    currentGameMatrix[0][col] = 0;
-                }
-                eliminated++;
-                row--; // Check same row again (it's now the row above)
-            }
-        }
-        
-        return eliminated;
+        return garbageManager.removeGarbageLines(currentGameMatrix, linesToRemove);
     }
 
     @Override
@@ -491,8 +411,7 @@ public class SimpleBoard implements Board {
         currentGameMatrix = new int[height][width]; // Clear the board
         score.reset(); // Reset the score
         totalLinesCleared = 0; // Reset lines cleared counter
-        heldBrick = null; // Clear held brick
-        canHold = true;   // Re-enable hold
+        holdManager.reset();
         createNewBrick(); // Start the game by creating the first brick
     }
     
@@ -548,56 +467,14 @@ public class SimpleBoard implements Board {
      */
     public GameStateMemento createMemento() {
         // Get current brick information
-        Brick currentBrick = brickRotator.getBrick();
-        int[][] currentBrickShape = currentBrick != null ? brickRotator.getCurrentShape() : null;
-        String currentBrickType = currentBrick != null ? getBrickType(currentBrick) : null;
-        int currentShapeIndex = getCurrentShapeIndex();
-        
-        // Get current position
-        int currentX = currentOffset != null ? (int) currentOffset.getX() : 0;
-        int currentY = currentOffset != null ? (int) currentOffset.getY() : 0;
-        
-        // Get held brick information
-        int[][] heldBrickShape = null;
-        String heldBrickType = null;
-        if (heldBrick != null && heldBrick.getShapeMatrix() != null && !heldBrick.getShapeMatrix().isEmpty()) {
-            heldBrickShape = heldBrick.getShapeMatrix().get(0);
-            heldBrickType = getBrickType(heldBrick);
-        }
-        
-        // Get next brick information
-        int[][] nextBrickShape = null;
-        String nextBrickType = null;
-        try {
-            Brick nextBrick = brickGenerator.getNextBrick();
-            if (nextBrick != null && nextBrick.getShapeMatrix() != null && !nextBrick.getShapeMatrix().isEmpty()) {
-                nextBrickShape = nextBrick.getShapeMatrix().get(0);
-                nextBrickType = getBrickType(nextBrick);
-            }
-        } catch (Exception e) {
-            // Handle gracefully
-        }
-        
-        // Get brick generator type
         String generatorType = brickGenerator instanceof SevenBagBrickGenerator ? "seven_bag" : "pure_random";
-        
-        return new GameStateMemento(
-                currentGameMatrix,
-                width,
-                height,
-                currentBrickShape,
-                currentX,
-                currentY,
-                currentShapeIndex,
-                currentBrickType,
-                score.getScore(),
-                totalLinesCleared,
-                heldBrickShape,
-                heldBrickType,
-                nextBrickShape,
-                nextBrickType,
-                canHold,
-                generatorType
+        return mementoAdapter.createSnapshot(
+            currentGameMatrix,
+            width,
+            height,
+            currentOffset,
+            totalLinesCleared,
+            generatorType
         );
     }
     
@@ -609,49 +486,10 @@ public class SimpleBoard implements Board {
      * @throws IllegalArgumentException if memento is null or dimensions don't match
      */
     public void restoreFromMemento(GameStateMemento memento) {
-        if (memento == null) {
-            throw new IllegalArgumentException("Memento cannot be null");
-        }
-        
-        // Verify dimensions match
-        if (memento.getBoardWidth() != width || memento.getBoardHeight() != height) {
-            throw new IllegalArgumentException(
-                String.format("Memento dimensions (%dx%d) don't match board dimensions (%dx%d)",
-                    memento.getBoardWidth(), memento.getBoardHeight(), width, height));
-        }
-        
-        // Restore board matrix
-        currentGameMatrix = memento.getBoardMatrix();
-        
-        // Restore score
-        score.reset();
-        score.add(memento.getScore());
-        
-        // Restore lines cleared
-        totalLinesCleared = memento.getTotalLinesCleared();
-        
-        // Restore hold state
-        canHold = memento.canHold();
-        
-        // Restore held brick
-        if (memento.getHeldBrickType() != null) {
-            heldBrick = BrickFactory.createBrick(memento.getHeldBrickType());
-        } else {
-            heldBrick = null;
-        }
-        
-        // Restore current brick
-        if (memento.getCurrentBrickType() != null) {
-            Brick currentBrick = BrickFactory.createBrick(memento.getCurrentBrickType());
-            brickRotator.setBrick(currentBrick);
-            brickRotator.setCurrentShape(memento.getCurrentShapeIndex());
-            currentOffset = new Point(memento.getCurrentBrickX(), memento.getCurrentBrickY());
-        } else {
-            currentOffset = null;
-        }
-        
-        // Note: BrickGenerator state cannot be fully restored, but we can ensure
-        // the next brick matches if possible. This is a limitation of the current design.
+        BoardMementoAdapter.RestorationResult result = mementoAdapter.restoreFromSnapshot(memento, width, height);
+        currentGameMatrix = result.getBoardMatrix();
+        currentOffset = result.getCurrentOffset();
+        totalLinesCleared = result.getTotalLinesCleared();
     }
     
     /**
@@ -660,68 +498,5 @@ public class SimpleBoard implements Board {
      * @param brick the Brick instance
      * @return the brick type (I, J, L, O, S, T, Z) or null if unknown
      */
-    private String getBrickType(Brick brick) {
-        if (brick == null) {
-            return null;
-        }
-        
-        String className = brick.getClass().getSimpleName();
-        // Extract type from class name (e.g., "IBrick" -> "I", "JBrick" -> "J")
-        if (className.endsWith("Brick") && className.length() > 5) {
-            return className.substring(0, className.length() - 5);
-        }
-        return null;
-    }
-    
-    /**
-     * Gets the current shape index from the brick rotator.
-     * 
-     * @return the current shape index
-     */
-    private int getCurrentShapeIndex() {
-        // BrickRotator doesn't expose currentShape directly, so we need to calculate it
-        // by comparing current shape with all possible shapes
-        Brick currentBrick = brickRotator.getBrick();
-        if (currentBrick == null) {
-            return 0;
-        }
-        
-        int[][] currentShape = brickRotator.getCurrentShape();
-        var allShapes = currentBrick.getShapeMatrix();
-        
-        for (int i = 0; i < allShapes.size(); i++) {
-            if (shapesEqual(currentShape, allShapes.get(i))) {
-                return i;
-            }
-        }
-        
-        return 0; // Default to first shape if not found
-    }
-    
-    /**
-     * Helper method to compare two shape matrices for equality.
-     * 
-     * @param shape1 first shape matrix
-     * @param shape2 second shape matrix
-     * @return true if shapes are equal
-     */
-    private boolean shapesEqual(int[][] shape1, int[][] shape2) {
-        if (shape1 == null || shape2 == null) {
-            return shape1 == shape2;
-        }
-        if (shape1.length != shape2.length) {
-            return false;
-        }
-        for (int i = 0; i < shape1.length; i++) {
-            if (shape1[i].length != shape2[i].length) {
-                return false;
-            }
-            for (int j = 0; j < shape1[i].length; j++) {
-                if (shape1[i][j] != shape2[i][j]) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    // Helper methods removed thanks to BoardMementoAdapter encapsulation.
 }
