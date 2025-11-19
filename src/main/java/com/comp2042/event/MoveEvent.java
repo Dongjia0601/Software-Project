@@ -4,11 +4,8 @@ import com.comp2042.event.EventType;
 import com.comp2042.event.EventSource;
 
 /**
- * Immutable value object representing a game event with comprehensive metadata.
- * Contains event type, source, timestamp, and optional additional data.
- * 
- * <p>This class serves as the primary event communication mechanism between
- * different components of the Tetris game system.</p>
+ * Immutable event object representing game actions with metadata.
+ * Primary communication mechanism between game system components.
  * 
  * @author Dong, Jia.
  */
@@ -19,35 +16,35 @@ public final class MoveEvent {
     private final Object additionalData;
 
     /**
-     * Constructs a MoveEvent with the specified type and source.
-     * Timestamp is automatically set to current system time.
+     * Constructs a MoveEvent with type and source.
+     * Timestamp is automatically set to current time.
      *
-     * @param eventType   The type of the event.
-     * @param eventSource The source of the event.
+     * @param eventType   Event type
+     * @param eventSource Event source
      */
     public MoveEvent(EventType eventType, EventSource eventSource) {
         this(eventType, eventSource, System.currentTimeMillis(), null);
     }
 
     /**
-     * Constructs a MoveEvent with the specified type, source, and additional data.
-     * Timestamp is automatically set to current system time.
+     * Constructs a MoveEvent with type, source, and additional data.
+     * Timestamp is automatically set to current time.
      *
-     * @param eventType      The type of the event.
-     * @param eventSource    The source of the event.
-     * @param additionalData Optional additional data associated with the event.
+     * @param eventType      Event type
+     * @param eventSource    Event source
+     * @param additionalData Optional additional data
      */
     public MoveEvent(EventType eventType, EventSource eventSource, Object additionalData) {
         this(eventType, eventSource, System.currentTimeMillis(), additionalData);
     }
 
     /**
-     * Constructs a MoveEvent with all parameters specified.
+     * Constructs a MoveEvent with all parameters.
      *
-     * @param eventType      The type of the event.
-     * @param eventSource    The source of the event.
-     * @param timestamp      The timestamp when the event occurred.
-     * @param additionalData Optional additional data associated with the event.
+     * @param eventType      Event type
+     * @param eventSource    Event source
+     * @param timestamp      Event timestamp in milliseconds
+     * @param additionalData Optional additional data
      */
     public MoveEvent(EventType eventType, EventSource eventSource, long timestamp, Object additionalData) {
         this.eventType = eventType;
@@ -57,18 +54,18 @@ public final class MoveEvent {
     }
 
     /**
-     * Gets the type of the event.
+     * Gets the event type.
      *
-     * @return The EventType.
+     * @return EventType
      */
     public EventType getEventType() {
         return eventType;
     }
 
     /**
-     * Gets the source of the event.
+     * Gets the event source.
      *
-     * @return The EventSource.
+     * @return EventSource
      */
     public EventSource getEventSource() {
         return eventSource;

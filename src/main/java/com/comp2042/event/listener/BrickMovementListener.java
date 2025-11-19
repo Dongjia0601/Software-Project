@@ -5,78 +5,74 @@ import com.comp2042.dto.ViewData;
 import com.comp2042.event.MoveEvent;
 
 /**
- * Interface for handling brick movement and manipulation events.
- * Implements Interface Segregation Principle by separating brick movement
- * concerns from game control concerns.
- * 
- * <p>This interface focuses solely on brick-related operations:
- * movement, rotation, dropping, and holding.</p>
+ * Listener interface for brick movement and manipulation events (Interface Segregation Principle).
+ * Handles movement, rotation, dropping, and holding operations.
  * 
  * @author Dong, Jia.
  */
 public interface BrickMovementListener {
     
     /**
-     * Handles the DOWN event (both user-initiated and automatic descent).
+     * Handles DOWN event (user or automatic).
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return DownData containing view and row-clearing information.
+     * @param event MoveEvent
+     * @return DownData with view and row-clearing info
      */
     DownData onDownEvent(MoveEvent event);
 
     /**
-     * Handles the LEFT event.
+     * Handles LEFT event.
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
+     * @param event MoveEvent
+     * @return ViewData with updated position
      */
     ViewData onLeftEvent(MoveEvent event);
 
     /**
-     * Handles the RIGHT event.
+     * Handles RIGHT event.
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
+     * @param event MoveEvent
+     * @return ViewData with updated position
      */
     ViewData onRightEvent(MoveEvent event);
 
     /**
-     * Handles the ROTATE event (clockwise rotation).
+     * Handles ROTATE event (clockwise).
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
+     * @param event MoveEvent
+     * @return ViewData with rotated brick
      */
     ViewData onRotateEvent(MoveEvent event);
 
     /**
-     * Handles the ROTATE_CCW event (counterclockwise rotation).
+     * Handles ROTATE_CCW event (counterclockwise).
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
+     * @param event MoveEvent
+     * @return ViewData with rotated brick
      */
     ViewData onRotateCCWEvent(MoveEvent event);
 
     /**
-     * Handles the HARD_DROP event (instant drop to bottom).
+     * Handles HARD_DROP event (instant drop).
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
+     * @param event MoveEvent
+     * @return ViewData with final position
      */
     ViewData onHardDropEvent(MoveEvent event);
 
     /**
-     * Handles the SOFT_DROP event (faster downward movement).
+     * Handles SOFT_DROP event (faster descent).
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
+     * @param event MoveEvent
+     * @return ViewData with updated position
      */
     ViewData onSoftDropEvent(MoveEvent event);
 
     /**
-     * Handles the HOLD event (store current brick for later use).
+     * Handles HOLD event (store brick for later).
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and hold state.
+     * @param event MoveEvent
+     * @return ViewData with hold state
      */
     ViewData onHoldEvent(MoveEvent event);
 }
