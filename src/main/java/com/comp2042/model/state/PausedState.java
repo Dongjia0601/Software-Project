@@ -26,6 +26,7 @@ import com.comp2042.dto.ViewData;
 public class PausedState implements GameState {
     private final Board board; // Reference to the main game board logic to get current state
     private final GameViewController guiController; // Reference to update UI (e.g., show pause screen)
+    private final GameStateContext stateContext;
 
     /**
      * Constructs a PausedState instance.
@@ -33,8 +34,13 @@ public class PausedState implements GameState {
      * @param guiController The GUI controller instance.
      */
     public PausedState(Board board, GameViewController guiController) {
+        this(board, guiController, null);
+    }
+
+    public PausedState(Board board, GameViewController guiController, GameStateContext stateContext) {
         this.board = board;
         this.guiController = guiController;
+        this.stateContext = stateContext;
     }
 
     @Override
@@ -99,7 +105,7 @@ public class PausedState implements GameState {
      */
     public GameState handlePauseRequest() {
         // Unpause: return a new PlayingState instance
-        return new PlayingState(board, guiController, null); // GameController ref not needed here, will be set later
+        return new PlayingState(board, guiController, stateContext); // Preserve context for transitions
     }
 
     @Override
@@ -111,6 +117,6 @@ public class PausedState implements GameState {
         // Start new game: delegate to PlayingState (which needs GameController ref for transitions)
         // This creates a temporary PlayingState just to call handleNewGameRequest, which returns a new PlayingState.
         // This new PlayingState will be the one set by GameController.
-        return new PlayingState(board, guiController, null).handleNewGameRequest();
+        return new PlayingState(board, guiController, stateContext).handleNewGameRequest();
     }
 }

@@ -26,6 +26,7 @@ import com.comp2042.dto.ViewData;
 public class GameOverState implements GameState {
     private final Board board; // Reference to the main game board logic (might be needed for final score display)
     private final GameViewController guiController; // Reference to update UI (e.g., show game over screen)
+    private final GameStateContext stateContext;
 
     /**
      * Constructs a GameOverState instance.
@@ -33,8 +34,13 @@ public class GameOverState implements GameState {
      * @param guiController The GUI controller instance.
      */
     public GameOverState(Board board, GameViewController guiController) {
+        this(board, guiController, null);
+    }
+
+    public GameOverState(Board board, GameViewController guiController, GameStateContext stateContext) {
         this.board = board;
         this.guiController = guiController;
+        this.stateContext = stateContext;
     }
 
     @Override
@@ -109,6 +115,6 @@ public class GameOverState implements GameState {
      */
     public GameState handleNewGameRequest() {
         // Start new game: delegate to PlayingState (which needs GameController ref for transitions)
-        return new PlayingState(board, guiController, null).handleNewGameRequest();
+        return new PlayingState(board, guiController, stateContext).handleNewGameRequest();
     }
 }

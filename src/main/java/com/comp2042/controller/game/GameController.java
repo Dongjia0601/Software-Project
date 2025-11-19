@@ -1,16 +1,12 @@
 package com.comp2042.controller.game;
 
-import com.comp2042.model.state.GameState;
-import com.comp2042.model.state.PlayingState; // Import new classes
-import com.comp2042.model.state.PausedState;
-import com.comp2042.model.state.GameOverState;
-import com.comp2042.model.board.Board;
-import com.comp2042.model.board.SimpleBoard;
 import com.comp2042.event.listener.InputEventListener;
 import com.comp2042.event.MoveEvent;
 import com.comp2042.dto.DownData;
 import com.comp2042.dto.ViewData;
-import com.comp2042.service.audio.SoundManager;
+import com.comp2042.model.board.SimpleBoard;
+import com.comp2042.service.session.GameSession;
+import com.comp2042.service.session.SinglePlayerGameSession;
 
 /**
  * Controller managing the overall game flow, state transitions, and input event delegation.
@@ -32,9 +28,8 @@ import com.comp2042.service.audio.SoundManager;
  */
 public class GameController implements InputEventListener {
 
-    private Board board = new SimpleBoard(10, 20); // The main game board instance (width=10, height=20)
     private final GameViewController viewGuiController; // The GUI controller instance
-    private GameState currentState; // Hold current state
+    private final GameSession gameSession;
 
     /**
      * Constructs a GameController.
@@ -45,11 +40,9 @@ public class GameController implements InputEventListener {
      */
     public GameController(GameViewController c) {
         viewGuiController = c;
-        board.newGame(); // Initialize board state
-        // Create the initial state (PlayingState)
-        this.currentState = new PlayingState(board, viewGuiController, this);
-        viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
-        viewGuiController.bindScore(board.getScore().scoreProperty());
+        this.gameSession = new SinglePlayerGameSession(new SimpleBoard(10, 20), viewGuiController);
+        this.gameSession.initialize();
+        viewGuiController.bindScore(gameSession.scoreProperty());
         viewGuiController.setEventListener(this);
         
         // Ensure high score is displayed correctly for Endless Mode
@@ -66,26 +59,11 @@ public class GameController implements InputEventListener {
     }
 
     /**
-     * Method to allow states to change the controller's state.
-     * Called by states like PlayingState when a transition is needed (e.g., to GameOverState).
-     *
-     * @param newState The new GameState to transition to.
-     */
-    public void transitionToState(GameState newState) {
-        this.currentState = newState;
-    }
-
-    /**
      * Method to handle pause requests (e.g., from GUI via P key).
      * Delegates the pause request to the current state.
      */
     public void requestPause() {
-        GameState newState = currentState.handlePauseRequest();
-        if (newState != currentState) {
-            // Play pause/resume sound effect
-            SoundManager.getInstance().playPauseResumeSound();
-            this.currentState = newState;
-        }
+        gameSession.requestPause();
     }
 
     @Override
@@ -97,8 +75,7 @@ public class GameController implements InputEventListener {
      * @return DownData containing view and row-clearing information from the state.
      */
     public DownData onDownEvent(MoveEvent event) {
-        // Delegate to current state
-        return currentState.onDownEvent(event);
+        return gameSession.handleDown(event);
     }
 
     @Override
@@ -110,8 +87,7 @@ public class GameController implements InputEventListener {
      * @return ViewData containing the updated brick position and shape from the state.
      */
     public ViewData onLeftEvent(MoveEvent event) {
-        // Delegate to current state
-        return currentState.onLeftEvent(event);
+        return gameSession.handleLeft(event);
     }
 
     @Override
@@ -123,8 +99,7 @@ public class GameController implements InputEventListener {
      * @return ViewData containing the updated brick position and shape from the state.
      */
     public ViewData onRightEvent(MoveEvent event) {
-        // Delegate to current state
-        return currentState.onRightEvent(event);
+        return gameSession.handleRight(event);
     }
 
     @Override
@@ -136,8 +111,7 @@ public class GameController implements InputEventListener {
      * @return ViewData containing the updated brick position and shape from the state.
      */
     public ViewData onRotateEvent(MoveEvent event) {
-        // Delegate to current state
-        return currentState.onRotateEvent(event);
+        return gameSession.handleRotateCW(event);
     }
 
     @Override
@@ -149,8 +123,7 @@ public class GameController implements InputEventListener {
      * @return ViewData containing the updated brick position and shape from the state.
      */
     public ViewData onRotateCCWEvent(MoveEvent event) {
-        // Delegate to current state
-        return currentState.onRotateCCWEvent(event);
+        return gameSession.handleRotateCCW(event);
     }
 
     @Override
@@ -163,8 +136,7 @@ public class GameController implements InputEventListener {
      */
     public ViewData onHardDropEvent(MoveEvent event) {
         // Delegate to current state - hard drop
-        DownData downData = currentState.onDownEvent(event);
-        return downData != null ? downData.getViewData() : null;
+        return gameSession.handleHardDrop(event);
     }
 
     @Override
@@ -177,8 +149,7 @@ public class GameController implements InputEventListener {
      */
     public ViewData onSoftDropEvent(MoveEvent event) {
         // Delegate to current state - soft drop is essentially a down event
-        DownData downData = currentState.onDownEvent(event);
-        return downData != null ? downData.getViewData() : null;
+        return gameSession.handleSoftDrop(event);
     }
 
     @Override
@@ -190,13 +161,7 @@ public class GameController implements InputEventListener {
      * @return ViewData containing the updated brick position and hold state from the state.
      */
     public ViewData onHoldEvent(MoveEvent event) {
-        // Delegate to board
-        boolean success = board.holdBrick();
-        if (success) {
-            // Play hold sound effect
-            SoundManager.getInstance().playHoldSound();
-        }
-        return success ? board.getViewData() : null;
+        return gameSession.handleHold(event);
     }
 
     @Override
@@ -207,7 +172,6 @@ public class GameController implements InputEventListener {
      * @param event The MoveEvent containing event type and source.
      */
     public void onPauseEvent(MoveEvent event) {
-        // Delegate to current state
         requestPause();
     }
 
@@ -219,7 +183,6 @@ public class GameController implements InputEventListener {
      * @param event The MoveEvent containing event type and source.
      */
     public void onResumeEvent(MoveEvent event) {
-        // Delegate to current state
         requestPause(); // Toggle pause state
     }
 
@@ -231,8 +194,7 @@ public class GameController implements InputEventListener {
      * @param event The MoveEvent containing event type and source.
      */
     public void onNewGameEvent(MoveEvent event) {
-        // Delegate to current state
-        this.currentState = currentState.handleNewGameRequest();
+        gameSession.startNewGame();
     }
 
     @Override

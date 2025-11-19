@@ -3,7 +3,7 @@ package com.comp2042.model.state;
 import com.comp2042.*;
 import com.comp2042.model.board.Board;
 import com.comp2042.controller.game.GameViewController;
-import com.comp2042.controller.game.GameController;
+import com.comp2042.model.state.GameStateContext;
 import com.comp2042.dto.DownData;
 import com.comp2042.dto.ViewData;
 import com.comp2042.dto.ClearRow;
@@ -33,7 +33,7 @@ import com.comp2042.service.audio.SoundManager;
 public class PlayingState implements GameState {
     private final Board board; // Reference to the main game board logic
     private final GameViewController guiController; // Reference to update UI (e.g., show game over)
-    private final GameController gameController; // For state transitions
+    private final GameStateContext stateContext; // For state transitions
 
     /**
      * Constructs a PlayingState instance.
@@ -41,10 +41,10 @@ public class PlayingState implements GameState {
      * @param guiController The GUI controller instance.
      * @param gameController The main game controller instance for state transitions.
      */
-    public PlayingState(Board board, GameViewController guiController, GameController gameController) {
+    public PlayingState(Board board, GameViewController guiController, GameStateContext stateContext) {
         this.board = board;
         this.guiController = guiController;
-        this.gameController = gameController;
+        this.stateContext = stateContext;
     }
 
     @Override
@@ -137,7 +137,9 @@ public class PlayingState implements GameState {
                     guiController.showLevelGameOverScene(board, new boolean[]{false, false});
                 } else {
                     guiController.gameOver(); // Notify GUI
-                    gameController.transitionToState(new GameOverState(board, guiController)); // Transition state
+                    if (stateContext != null) {
+                        stateContext.transitionToState(new GameOverState(board, guiController, stateContext));
+                    }
                 }
                 return new DownData(clearRow, board.getViewData()); // Return data before transition
             }
@@ -222,7 +224,7 @@ public class PlayingState implements GameState {
      * @return A new PausedState instance.
      */
     public GameState handlePauseRequest() {
-        return new PausedState(board, guiController);
+        return new PausedState(board, guiController, stateContext);
     }
 
     @Override
@@ -252,7 +254,7 @@ public class PlayingState implements GameState {
         // Update score with current high score for new game
         int currentHighScore = getCurrentHighScore();
         guiController.updateScore(0, currentHighScore);
-        return new PlayingState(board, guiController, gameController); // Return new PlayingState instance
+        return new PlayingState(board, guiController, stateContext); // Return new PlayingState instance
     }
     
     /**
