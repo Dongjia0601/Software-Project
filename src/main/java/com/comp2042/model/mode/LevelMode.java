@@ -1,11 +1,8 @@
 package com.comp2042.model.mode;
 
 /**
- * Represents the configuration data for a single level within the Level-based game mode.
- * 
- * <p>Encapsulates level-specific parameters like theme, difficulty settings (speed, lines, time),
- * scoring targets, and player progress. Used by the LevelGameMode implementation to define
- * the rules and objectives for a particular level instance.
+ * Level configuration data with theme, difficulty, scoring targets, and player progress (Value Object).
+ * Defines rules and objectives for a specific level instance with star-based rating (1-3 stars).
  */
 public class LevelMode {
 
@@ -31,13 +28,13 @@ public class LevelMode {
     private long bestTime;                // best completion time in milliseconds
 
     /**
-     * Constructs a new LevelMode configuration.
+     * Constructs a LevelMode configuration.
      *
-     * @param levelId unique level identifier (1-based)
-     * @param levelName display name of the level
-     * @param theme the theme for this level
-     * @param fallSpeed initial fall speed in milliseconds
-     * @param targetLines number of lines to clear
+     * @param levelId Level identifier (1-based)
+     * @param levelName Display name
+     * @param theme Level theme
+     * @param fallSpeed Fall speed in ms
+     * @param targetLines Lines to clear
      * @param timeLimitSeconds time limit in seconds
      * @param baseTargetScore minimum score for 1 star
      * @param twoStarScore score needed for 2 stars

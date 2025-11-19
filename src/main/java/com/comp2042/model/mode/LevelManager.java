@@ -7,12 +7,9 @@ import java.util.*;
 import java.util.prefs.Preferences;
 
 /**
- * Singleton manager for themed levels.
- * Handles level initialization, progression, and persistence.
- *
- * <p>This class manages a collection of LevelMode instances, tracks player progress,
- * unlocks subsequent levels based on completion, and saves/loads progress to/from disk.
- * It directly supports the Additions (25%) - New Playable Levels requirement.
+ * Singleton managing themed levels with progression and persistence (Singleton Pattern).
+ * Handles level initialization, tracks player progress, unlocks levels, and saves/loads state.
+ * Supports Additions (25%) - New Playable Levels requirement.
  */
 public class LevelManager {
 
@@ -26,8 +23,7 @@ public class LevelManager {
     private static final String PROGRESS_KEY_PREFIX = "level_progress_";
 
     /**
-     * Private constructor for singleton pattern.
-     * Initializes levels and loads progress.
+     * Private constructor (Singleton). Initializes levels and loads progress.
      */
     private LevelManager() {
         this.levels = new ArrayList<>();
@@ -36,8 +32,7 @@ public class LevelManager {
         loadProgress();
     }
 
-    /**
-     * Gets the singleton instance.
+    /** Gets the singleton instance.
      *
      * @return the LevelManager instance
      */

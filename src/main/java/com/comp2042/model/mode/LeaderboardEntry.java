@@ -4,12 +4,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Represents a single entry in the Endless Mode leaderboard.
- * 
- * <p>Each entry contains the player's score, lines cleared, play time and level.
- * Entries are comparable by score (descending order) for ranking purposes.</p>
- * 
- * <p>Design Pattern: Value Object - Immutable data container for leaderboard entries.</p>
+ * Immutable leaderboard entry with score, statistics, and timestamp (Value Object Pattern).
+ * Comparable by score in descending order for ranking.
  */
 public class LeaderboardEntry implements Comparable<LeaderboardEntry> {
     
@@ -20,12 +16,12 @@ public class LeaderboardEntry implements Comparable<LeaderboardEntry> {
     private final int level;
     
     /**
-     * Creates a new leaderboard entry.
+     * Creates a leaderboard entry with current timestamp.
      * 
-     * @param score the final score achieved
-     * @param linesCleared the number of lines cleared
-     * @param playTimeMs the play time in milliseconds
-     * @param level the final level reached
+     * @param score Final score
+     * @param linesCleared Lines cleared
+     * @param playTimeMs Play time in ms
+     * @param level Level reached
      */
     public LeaderboardEntry(int score, int linesCleared, long playTimeMs, int level) {
         this.score = score;
@@ -36,14 +32,13 @@ public class LeaderboardEntry implements Comparable<LeaderboardEntry> {
     }
     
     /**
-     * Creates a leaderboard entry from stored data.
-     * Used when loading from persistent storage.
+     * Creates entry from stored data (for loading from persistence).
      * 
-     * @param score the score
-     * @param linesCleared the lines cleared
-     * @param playTimeMs the play time
-     * @param level the level
-     * @param timestamp the timestamp string
+     * @param score Score
+     * @param linesCleared Lines cleared
+     * @param playTimeMs Play time
+     * @param level Level
+     * @param timestamp Timestamp string
      */
     public LeaderboardEntry(int score, int linesCleared, long playTimeMs, int level, String timestamp) {
         this.score = score;
@@ -73,11 +68,7 @@ public class LeaderboardEntry implements Comparable<LeaderboardEntry> {
         return level;
     }
     
-    /**
-     * Gets formatted play time as MM:SS.
-     * 
-     * @return formatted time string
-     */
+    /** Gets formatted play time as MM:SS. */
     public String getFormattedPlayTime() {
         long seconds = playTimeMs / 1000;
         long minutes = seconds / 60;
@@ -85,10 +76,7 @@ public class LeaderboardEntry implements Comparable<LeaderboardEntry> {
         return String.format("%02d:%02d", minutes, seconds);
     }
     
-    /**
-     * Compares entries by score (descending order).
-     * Higher scores come first.
-     */
+    /** Compares by score (descending) - higher scores rank first. */
     @Override
     public int compareTo(LeaderboardEntry other) {
         // Descending order: higher score comes first

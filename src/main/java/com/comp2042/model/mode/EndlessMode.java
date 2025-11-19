@@ -11,19 +11,9 @@ import com.comp2042.service.gameloop.GameService;
 import javafx.application.Platform;
 
 /**
- * Implementation of GameMode for endless gameplay.
- * 
- * <p>In endless mode, players can play indefinitely until they lose. The game
- * continues until the board is filled and no new brick can be placed. This mode
- * focuses on achieving the highest possible score without time or level constraints.</p>
- * 
- * <p>Key features:</p>
- * <ul>
- *   <li>Unlimited gameplay until game over</li>
- *   <li>Score tracking and high score recording</li>
- *   <li>Pause and resume functionality</li>
- *   <li>Game statistics and timing</li>
- * </ul>
+ * Endless gameplay mode with unlimited play until game over (Strategy Pattern).
+ * Tracks high scores, manages leaderboard (top 5), and provides statistics.
+ * Gameplay continues until board fills completely.
  */
 public class EndlessMode implements GameMode {
     

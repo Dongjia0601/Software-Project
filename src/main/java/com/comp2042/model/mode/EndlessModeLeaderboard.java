@@ -6,22 +6,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Manages the leaderboard for Endless Mode.
- * 
- * <p>This class handles persistent storage of the top 5 high scores,
- * including score, lines cleared, play time, and timestamp. Data is
- * stored in a CSV file in the user's home directory.</p>
- * 
- * <p>Design Pattern: Singleton - Ensures only one leaderboard instance
- * manages the persistent data throughout the application lifecycle.</p>
- * 
- * <p>Key Features:</p>
- * <ul>
- *   <li>Top 5 score tracking</li>
- *   <li>Persistent storage using CSV format</li>
- *   <li>High score detection</li>
- *   <li>Ranking calculation</li>
- * </ul>
+ * Endless Mode leaderboard managing top 5 scores with CSV persistence (Singleton Pattern).
+ * Tracks score, lines cleared, play time, and timestamp. Provides ranking and high score detection.
+ * Stored in user home directory (.tetris/).
  */
 public class EndlessModeLeaderboard {
     
@@ -32,10 +19,7 @@ public class EndlessModeLeaderboard {
     private final List<LeaderboardEntry> entries;
     private final Path leaderboardPath;
     
-    /**
-     * Private constructor for singleton pattern.
-     * Initializes the leaderboard and loads existing data.
-     */
+    /** Private constructor (Singleton). Initializes and loads leaderboard. */
     private EndlessModeLeaderboard() {
         this.entries = new ArrayList<>();
         

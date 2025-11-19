@@ -14,13 +14,9 @@ import com.comp2042.model.board.Board;
 import com.comp2042.service.audio.SoundManager;
 
 /**
- * Implementation of GameMode for competitive two-player gameplay.
- * In this mode, two players compete simultaneously on separate game boards.
- * The game continues until one player loses, and the winner is determined
- * by who survives longer or achieves a higher score.
- *
- * <p>This mode supports the Additions (25%) requirement by providing
- * a head-to-head multiplayer experience with separate game states for each player.</p>
+ * Competitive two-player mode with simultaneous play on separate boards (Strategy Pattern).
+ * Winner determined by survival or score. Includes attack/garbage mechanics and stat tracking.
+ * Supports Additions (25%) requirement with head-to-head multiplayer.
  */
 public class TwoPlayerMode implements GameMode {
     
@@ -44,10 +40,10 @@ public class TwoPlayerMode implements GameMode {
     private final TwoPlayerModeMechanics mechanics;
     
     /**
-     * Constructs a new TwoPlayerMode.
+     * Constructs a TwoPlayerMode.
      *
-     * @param player1Service the game service for player 1
-     * @param player2Service the game service for player 2
+     * @param player1Service Player 1 game service
+     * @param player2Service Player 2 game service
      * @param guiController the GUI controller for UI updates
      */
     public TwoPlayerMode(GameService player1Service, GameService player2Service, GameViewController guiController) {
@@ -510,5 +506,41 @@ public class TwoPlayerMode implements GameMode {
      */
     public PlayerStats getPlayer2Stats() {
         return player2Stats;
+    }
+    
+    /**
+     * Gets the game start time in milliseconds.
+     * 
+     * @return the game start time
+     */
+    public long getGameStartTime() {
+        return gameStartTime;
+    }
+    
+    /**
+     * Gets player 1's high score.
+     * 
+     * @return player 1's high score
+     */
+    public int getPlayer1HighScore() {
+        return player1HighScore;
+    }
+    
+    /**
+     * Gets player 2's high score.
+     * 
+     * @return player 2's high score
+     */
+    public int getPlayer2HighScore() {
+        return player2HighScore;
+    }
+    
+    /**
+     * Checks if the game is currently paused.
+     * 
+     * @return true if paused, false otherwise
+     */
+    public boolean isPaused() {
+        return paused;
     }
 }

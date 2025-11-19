@@ -3,9 +3,8 @@ package com.comp2042.model.mode;
 import com.comp2042.controller.factory.GameModeType;
 
 /**
- * Represents the result of a completed game session.
- * Contains information about the final score, completion status,
- * and any additional metrics specific to the game mode.
+ * Immutable game session result with score, statistics, and completion status.
+ * Supports all game modes with mode-specific metrics.
  */
 public class GameResult {
 
@@ -19,15 +18,15 @@ public class GameResult {
     private final boolean completed;
 
     /**
-     * Constructs a new game result with the specified parameters.
-     * @param finalScore the final score achieved
-     * @param highScore the high score for this mode
-     * @param isNewHighScore whether this is a new high score
-     * @param gameMode the game mode that was played
-     * @param playTime the total play time in milliseconds
-     * @param linesCleared the number of lines cleared
-     * @param levelReached the level reached (0 for endless mode)
-     * @param completed whether the game was completed successfully
+     * Constructs a game result.
+     * @param finalScore Final score achieved
+     * @param highScore High score for this mode
+     * @param isNewHighScore Whether new high score
+     * @param gameMode Game mode played
+     * @param playTime Play time in milliseconds
+     * @param linesCleared Lines cleared count
+     * @param levelReached Level reached (0 for endless)
+     * @param completed Whether completed successfully
      */
     public GameResult(int finalScore, int highScore, boolean isNewHighScore,
                       GameModeType gameMode, long playTime, int linesCleared,
@@ -42,74 +41,47 @@ public class GameResult {
         this.completed = completed;
     }
 
-    /**
-     * Gets the final score achieved in this game.
-     * @return the final score
-     */
+    /** Gets final score. */
     public int getFinalScore() {
         return finalScore;
     }
 
-    /**
-     * Gets the high score for this game mode.
-     * @return the high score
-     */
+    /** Gets high score for this mode. */
     public int getHighScore() {
         return highScore;
     }
 
-    /**
-     * Checks if this game achieved a new high score.
-     * @return true if this is a new high score
-     */
+    /** Checks if new high score. */
     public boolean isNewHighScore() {
         return isNewHighScore;
     }
 
-    /**
-     * Gets the game mode that was played.
-     * @return the game mode type
-     */
+    /** Gets game mode. */
     public GameModeType getGameMode() {
         return gameMode;
     }
 
-    /**
-     * Gets the total play time in milliseconds.
-     * @return the play time
-     */
+    /** Gets play time in milliseconds. */
     public long getPlayTime() {
         return playTime;
     }
 
-    /**
-     * Gets the number of lines cleared.
-     * @return the lines cleared count
-     */
+    /** Gets lines cleared count. */
     public int getLinesCleared() {
         return linesCleared;
     }
 
-    /**
-     * Gets the level reached (0 for endless mode).
-     * @return the level reached
-     */
+    /** Gets level reached (0 for endless). */
     public int getLevelReached() {
         return levelReached;
     }
 
-    /**
-     * Checks if the game was completed successfully.
-     * @return true if completed, false if game over
-     */
+    /** Checks if completed successfully. */
     public boolean isCompleted() {
         return completed;
     }
 
-    /**
-     * Gets a formatted play time string.
-     * @return the play time formatted as MM:SS
-     */
+    /** Gets formatted play time as MM:SS. */
     public String getFormattedPlayTime() {
         long seconds = playTime / 1000;
         long minutes = seconds / 60;

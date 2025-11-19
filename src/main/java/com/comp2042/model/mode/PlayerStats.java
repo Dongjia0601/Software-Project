@@ -1,8 +1,8 @@
 package com.comp2042.model.mode;
 
 /**
- * Statistics tracking for a player in two-player VS mode.
- * Tracks detailed gameplay statistics including lines cleared, attacks, combos, etc.
+ * Player statistics tracker for two-player VS mode.
+ * Tracks lines cleared, attacks sent/received, combos, and detailed gameplay metrics.
  */
 public class PlayerStats {
     
@@ -17,17 +17,14 @@ public class PlayerStats {
     private int hardDrops = 0;         // Number of hard drops performed
     private int softDrops = 0;         // Number of soft drops performed
     
-    /**
-     * Constructs a new PlayerStats instance.
-     */
+    /** Constructs PlayerStats with initial values. */
     public PlayerStats() {
         reset();
     }
     
     /**
      * Resets all statistics to initial values.
-     * Note: gameStartTime is NOT set here - it should be set when the game actually starts
-     * (after countdown) using startGameTime().
+     * Note: gameStartTime should be set after countdown using startGameTime().
      */
     public void reset() {
         linesCleared = 0;
@@ -35,17 +32,14 @@ public class PlayerStats {
         attacksReceived = 0;
         maxCombo = 0;
         currentCombo = 0;
-        gameStartTime = 0; // Don't start timer yet - wait for countdown to finish
+        gameStartTime = 0;
         tetrisCount = 0;
         allClears = 0;
         hardDrops = 0;
         softDrops = 0;
     }
     
-    /**
-     * Starts the game timer. This should be called when the game actually starts,
-     * after the countdown completes.
-     */
+    /** Starts the game timer after countdown completes. */
     public void startGameTime() {
         gameStartTime = System.currentTimeMillis();
     }
