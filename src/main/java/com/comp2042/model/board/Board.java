@@ -144,4 +144,21 @@ public interface Board {
      * @return the y-coordinate (row) where the ghost brick would land, or -1 if calculation fails
      */
     int getGhostBrickY();
+
+    /**
+     * Adds a garbage line to the bottom of the board.
+     * A garbage line is a full row with one random hole.
+     * 
+     * @return true if adding the garbage line causes game over
+     */
+    boolean addGarbageLine();
+
+    /**
+     * Removes garbage lines from the bottom of the board.
+     * Used for combo bonuses in versus mode.
+     * 
+     * @param linesToRemove the number of garbage lines to remove
+     * @return the actual number of lines removed
+     */
+    int removeGarbageLines(int linesToRemove);
 }

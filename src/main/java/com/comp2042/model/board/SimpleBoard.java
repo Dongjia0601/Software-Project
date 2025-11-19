@@ -391,6 +391,7 @@ public class SimpleBoard implements Board {
         canHold = true;
     }
     
+    @Override
     /**
      * Adds a garbage line to the bottom of the board.
      * A garbage line is a full row with one random hole.
@@ -429,6 +430,56 @@ public class SimpleBoard implements Board {
         
         // If no current brick, check if new brick spawn would cause game over
         return false;
+    }
+
+    @Override
+    /**
+     * Removes garbage lines from the bottom of the board.
+     * Scans for lines containing only garbage blocks (and empty space) and removes them.
+     * 
+     * @param linesToRemove the number of garbage lines to remove
+     * @return the actual number of lines removed
+     */
+    public int removeGarbageLines(int linesToRemove) {
+        if (linesToRemove <= 0) {
+            return 0;
+        }
+
+        int eliminated = 0;
+        
+        // Find and remove garbage lines
+        // We iterate from top to bottom, but logic handles shifting
+        for (int row = 0; row < currentGameMatrix.length && eliminated < linesToRemove; row++) {
+            boolean isGarbageLine = true;
+            int garbageBlockCount = 0;
+            
+            // Check if this row is a garbage line (has garbage blocks)
+            for (int col = 0; col < currentGameMatrix[row].length; col++) {
+                if (currentGameMatrix[row][col] == 8) { // Garbage block
+                    garbageBlockCount++;
+                } else if (currentGameMatrix[row][col] != 0) {
+                    // Has non-garbage blocks, not a pure garbage line
+                    isGarbageLine = false;
+                    break;
+                }
+            }
+            
+            // If it's a garbage line (has at least some garbage blocks and no other blocks), remove it
+            if (isGarbageLine && garbageBlockCount > 0) {
+                // Shift all rows above down
+                for (int r = row; r > 0; r--) {
+                    currentGameMatrix[r] = currentGameMatrix[r - 1].clone();
+                }
+                // Clear top row
+                for (int col = 0; col < currentGameMatrix[0].length; col++) {
+                    currentGameMatrix[0][col] = 0;
+                }
+                eliminated++;
+                row--; // Check same row again (it's now the row above)
+            }
+        }
+        
+        return eliminated;
     }
 
     @Override
