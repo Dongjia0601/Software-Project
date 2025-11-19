@@ -189,6 +189,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     private Timeline levelTimer;
     private boolean isLevelMode = false;
     private long levelStartTime = 0;
+    private Board levelModeBoard; // Reference to board for Level Mode (needed for game over screen)
     
     /**
      * Gets the level start time.
@@ -371,10 +372,13 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
 
         // Set focus and request focus for keyboard input
-        // For two-player mode, use rootPane; for single-player, use gamePanel
+        // For two-player mode, use Scene-level event filter to capture ALL keys including numpad
+        // Note: MainMenuController already adds Scene-level filter, but we ensure rootPane also has focus
+        // For single-player, use gamePanel
         if (isTwoPlayerMode && rootPane != null) {
             rootPane.setFocusTraversable(true);
             rootPane.requestFocus();
+            // Also set on rootPane as backup (MainMenuController sets Scene-level filter)
             rootPane.setOnKeyPressed(this::handleKeyPressEvent);
         } else if (gamePanel != null) {
             gamePanel.setFocusTraversable(true);
@@ -480,6 +484,36 @@ public class GameViewController implements Initializable, GameInputHandler.Input
 
         // 8. Initialize TwoPlayerPanelManager when two-player layout is present
         if (isTwoPlayerMode) {
+            createTwoPlayerPanelManagerIfNeeded();
+        } else {
+            twoPlayerPanelManager = null;
+        }
+
+        countdownManager = new CountdownManager(SoundManager.getInstance());
+    }
+
+    /**
+     * Ensures the TwoPlayerPanelManager is initialized when needed.
+     * This handles the case where two-player mode is enabled after FXML initialization.
+     */
+    private void createTwoPlayerPanelManagerIfNeeded() {
+        if (!isTwoPlayerMode) {
+            return;
+        }
+        if (twoPlayerPanelManager != null) {
+            return;
+        }
+        if (rootPane == null || gamePanel1 == null || gamePanel2 == null ||
+            brickPanel1 == null || brickPanel2 == null ||
+            holdPanel1 == null || holdPanel2 == null ||
+            nextBrickPanel1 == null || nextBrickPanel2 == null ||
+            groupNotification1 == null || groupNotification2 == null ||
+            boardBackground1 == null || boardBackground2 == null ||
+            player1ScoreLabel == null || player2ScoreLabel == null ||
+            player1LinesLabel == null || player2LinesLabel == null) {
+            System.err.println("[GameViewController] Two-player UI components not ready yet; cannot create TwoPlayerPanelManager");
+            return;
+        }
             twoPlayerPanelManager = new TwoPlayerPanelManager(
                 BRICK_SIZE,
                 DEFAULT_GRID_GAP,
@@ -518,11 +552,6 @@ public class GameViewController implements Initializable, GameInputHandler.Input
                 isPause,
                 this::shouldShowGhostBrick
             );
-        } else {
-            twoPlayerPanelManager = null;
-        }
-
-        countdownManager = new CountdownManager(SoundManager.getInstance());
     }
     
     /**
@@ -619,6 +648,12 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     
     @Override
     public void onMoveDown(MoveEvent moveEvent) {
+        // In two-player mode, onMoveDown should not be called
+        // GameInputHandler should use onHandlePlayer1Down() or onHandlePlayer2Down() instead
+        if (isTwoPlayerMode) {
+            System.err.println("[GameViewController] WARNING: onMoveDown() called in two-player mode. This should not happen.");
+            return;
+        }
         moveDown(moveEvent);
     }
     
@@ -633,11 +668,53 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     
     @Override
     public void onPauseRequested() {
-        // Handle pause for both GameController and TwoPlayerGameController
+        // Handle pause even when eventListener is null (e.g., during countdown)
+        // This ensures P key always works, even before game controller is initialized
         if (eventListener instanceof GameController) {
             ((GameController) eventListener).requestPause();
         } else if (eventListener instanceof TwoPlayerGameController) {
             ((TwoPlayerGameController) eventListener).requestPause();
+        } else {
+            // Fallback: Toggle pause state directly when eventListener is null
+            // This handles edge cases like countdown period or initialization phase
+            // The pause state will be properly synced when eventListener is set
+            boolean newPauseState = !isPause.getValue();
+            isPause.setValue(newPauseState);
+            
+            // Update timeline state to match pause state
+            if (newPauseState) {
+                // Pausing
+                if (lastPauseStartMillis == 0L) {
+                    lastPauseStartMillis = System.currentTimeMillis();
+                }
+                if (timeTimer != null) {
+                    timeTimer.pause();
+                }
+                if (levelTimer != null && isLevelMode) {
+                    levelTimer.pause();
+                }
+                if (timeLine != null) {
+                    timeLine.pause();
+                }
+            } else {
+                // Resuming
+                if (lastPauseStartMillis > 0L) {
+                    totalPausedMillis += System.currentTimeMillis() - lastPauseStartMillis;
+                    lastPauseStartMillis = 0L;
+                }
+                if (timeTimer != null) {
+                    timeTimer.play();
+                }
+                if (levelTimer != null && isLevelMode) {
+                    levelTimer.play();
+                }
+                if (timeLine != null) {
+                    timeLine.play();
+                }
+            }
+            
+            // Play pause/resume sound
+            SoundManager.getInstance().playPauseResumeSound();
         }
     }
     
@@ -679,6 +756,22 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param keyEvent The KeyEvent containing information about the key press.
      */
     public void handleKeyPressEvent(KeyEvent keyEvent) {
+        // Delegate to GameInputHandler for proper input processing
+        if (inputHandler != null) {
+            inputHandler.handleKeyPressEvent(keyEvent);
+        } else {
+            // Fallback to legacy handling if inputHandler is not initialized
+            handleKeyPressEventLegacy(keyEvent);
+        }
+    }
+    
+    /**
+     * Legacy keyboard event handling (kept for backward compatibility during initialization).
+     * This method is only used as a fallback when inputHandler is not yet initialized.
+     * 
+     * @param keyEvent The KeyEvent containing information about the key press.
+     */
+    private void handleKeyPressEventLegacy(KeyEvent keyEvent) {
         // Check for pause state before handling movement/rotation
         if (!isPause.getValue() && !isGameOver.getValue()) {
             
@@ -857,10 +950,25 @@ public class GameViewController implements Initializable, GameInputHandler.Input
 
     /**
      * Updates the visual representation of the currently falling brick based on its new position and shape.
+     * 
+     * <p><strong>CRITICAL:</strong> This method should NOT be called in two-player mode.
+     * Use refreshPlayer1Brick() or refreshPlayer2Brick() instead.</p>
      *
      * @param brick The ViewData containing the new shape and position of the brick.
      */
     private void refreshBrick(ViewData brick) {
+        // Prevent calling this method in two-player mode
+        // In two-player mode, use refreshPlayer1Brick() or refreshPlayer2Brick() instead
+        if (isTwoPlayerMode) {
+            System.err.println("[GameViewController] WARNING: refreshBrick() called in two-player mode. This should not happen.");
+            return;
+        }
+        
+        if (brickPanel == null) {
+            System.err.println("[GameViewController] ERROR: brickPanel is null in single-player mode!");
+            return;
+        }
+        
         if (!isPause.getValue()) {
             brickPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getxPosition()));
             brickPanel.setLayoutY(calculateGridY(gamePanel, displayMatrix, brick.getyPosition()));
@@ -1020,6 +1128,13 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param event The MoveEvent representing the automatic downward movement.
      */
     private void moveDown(MoveEvent event) {
+        // Prevent calling this method in two-player mode
+        // In two-player mode, use handlePlayer1DownEvent() or handlePlayer2DownEvent() instead
+        if (isTwoPlayerMode) {
+            System.err.println("[GameViewController] WARNING: moveDown() called in two-player mode. This should not happen.");
+            return;
+        }
+        
         // Check for pause state before processing down event
         if (!isPause.getValue()) {
             DownData downData = eventListener.onDownEvent(event);
@@ -1041,16 +1156,30 @@ public class GameViewController implements Initializable, GameInputHandler.Input
                 refreshBrick(downData.getViewData());
             }
         }
+        if (gamePanel != null) {
         gamePanel.requestFocus();
+        }
     }
 
     /**
      * Sets the event listener (likely GameController) for handling input events.
+     * Also updates the GameInputHandler to ensure consistent event routing.
      *
      * @param eventListener The InputEventListener instance.
      */
     public void setEventListener(InputEventListener eventListener) {
         this.eventListener = eventListener;
+        // Update inputHandler's eventListener to ensure P key works
+        // This fixes the issue where P key doesn't respond when eventListener is null
+        if (inputHandler != null) {
+            inputHandler.setEventListener(eventListener);
+            // CRITICAL FIX: Always update isTwoPlayerMode flag when eventListener is set
+            // This ensures GameInputHandler knows the correct mode
+            boolean isTwoPlayer = eventListener instanceof TwoPlayerGameController;
+            isTwoPlayerMode = isTwoPlayer; // Always update to match eventListener type
+            inputHandler.setTwoPlayerMode(isTwoPlayerMode);
+            createTwoPlayerPanelManagerIfNeeded();
+        }
     }
 
     /**
@@ -1698,8 +1827,9 @@ public class GameViewController implements Initializable, GameInputHandler.Input
                     
                     // Color is set in updateTimeDisplay()
                 } else {
-                    // Time's up
+                    // Time's up - trigger game over
                     uiManager.updateLevelTimer(0);
+                    handleLevelTimeUp();
                 }
             }
         }));
@@ -1724,6 +1854,54 @@ public class GameViewController implements Initializable, GameInputHandler.Input
 
     public int getTimeRemainingSeconds() {
         return levelTimeRemainingSeconds;
+    }
+    
+    /**
+     * Sets the board reference for Level Mode.
+     * This is needed to show the game over screen when time runs out.
+     * 
+     * @param board the board instance for Level Mode
+     */
+    public void setLevelModeBoard(Board board) {
+        this.levelModeBoard = board;
+    }
+    
+    /**
+     * Handles the event when level time reaches 0.
+     * Triggers game over for Level Mode.
+     * 
+     * This method is called when the level timer reaches 0. It ensures that
+     * the game over screen is shown when time runs out, in addition to the
+     * checkTimeLimit() method in LevelGameModeImpl which also handles this case.
+     */
+    private void handleLevelTimeUp() {
+        if (!isLevelMode || isGameOver.getValue()) {
+            return;
+        }
+        
+        // Stop the timer
+        stopLevelTimer();
+        
+        // Get board reference - should be set when Level Mode is initialized
+        Board board = levelModeBoard;
+        
+        if (board != null) {
+            com.comp2042.model.mode.LevelManager levelManager = com.comp2042.model.mode.LevelManager.getInstance();
+            com.comp2042.model.mode.LevelMode currentLevel = levelManager.getCurrentLevel();
+            
+            if (currentLevel != null) {
+                // Show game over scene with failure status (time limit exceeded)
+                // Note: LevelGameModeImpl.checkTimeLimit() will also call failLevel(),
+                // which will call showLevelGameOverScene(), but the isGameOver check
+                // in showLevelGameOverScene() will prevent duplicate calls
+                showLevelGameOverScene(board, new boolean[]{false, false});
+            }
+        } else {
+            // Fallback: set game over state
+            // LevelGameModeImpl.checkTimeLimit() should handle the actual game over screen
+            // through its update() method and failLevel() call
+            isGameOver.setValue(true);
+        }
     }
     
     // ==================== EndlessMode UI Update Methods ====================
@@ -2067,6 +2245,10 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      */
     public void setGameMode(boolean isTwoPlayer) {
         this.isTwoPlayerMode = isTwoPlayer;
+        if (inputHandler != null) {
+            inputHandler.setTwoPlayerMode(isTwoPlayer);
+        }
+        createTwoPlayerPanelManagerIfNeeded();
     }
     
     /**
@@ -2128,7 +2310,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     /**
      * Handles keyboard controls for two-player mode.
      * Player 1: A/D - Move, W - Rotate, S - Soft Drop, Space - Hard Drop, Shift/C - Hold, F - Rotate CCW
-     * Player 2: ←/→ - Move, ↑ - Rotate, ↓ - Soft Drop, 0 - Hard Drop, 3 - Hold, 2 - Rotate CCW
+     * Player 2: ←/→ - Move, ↑ - Rotate, ↓ - Soft Drop, 0 - Hard Drop, 2 - Rotate CCW, 3 - Hold
+     * Note: Key 1 has no function assigned for Player 2
      */
     private void handleTwoPlayerControls(KeyEvent keyEvent) {
         // Check if eventListener is null (e.g., during countdown)
@@ -2229,6 +2412,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             }
             keyEvent.consume();
         }
+        // === Player 2 Numpad Controls ===
+        // 0: Hard Drop
         if (keyEvent.getCode() == KeyCode.DIGIT0 || keyEvent.getCode() == KeyCode.NUMPAD0) {
             // Player 2: Hard drop (0 / NumPad0)
             DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_2));
@@ -2237,17 +2422,19 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             }
             keyEvent.consume();
         }
-        if (keyEvent.getCode() == KeyCode.DIGIT3 || keyEvent.getCode() == KeyCode.NUMPAD3) {
-            // Player 2: Hold brick (3 / NumPad3)
-            ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_2));
+        // 2: Rotate CCW (Counter-Clockwise)
+        if (keyEvent.getCode() == KeyCode.DIGIT2 || keyEvent.getCode() == KeyCode.NUMPAD2) {
+            // Player 2: Rotate counterclockwise (2 / NumPad2)
+            ViewData result = eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_2));
             if (result != null) {
                 refreshPlayer2Brick(result);
             }
             keyEvent.consume();
         }
-        if (keyEvent.getCode() == KeyCode.DIGIT2 || keyEvent.getCode() == KeyCode.NUMPAD2) {
-            // Player 2: Rotate counterclockwise (2 / NumPad2)
-            ViewData result = eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_2));
+        // 3: Hold
+        if (keyEvent.getCode() == KeyCode.DIGIT3 || keyEvent.getCode() == KeyCode.NUMPAD3) {
+            // Player 2: Hold brick (3 / NumPad3)
+            ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_2));
             if (result != null) {
                 refreshPlayer2Brick(result);
             }
@@ -2903,6 +3090,15 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     }
     
     /**
+     * Checks if the game is in two-player mode.
+     * 
+     * @return true if in two-player mode, false otherwise
+     */
+    public boolean isTwoPlayerMode() {
+        return isTwoPlayerMode;
+    }
+    
+    /**
      * Sets the current game mode.
      * 
      * @param endlessMode true for Endless Mode, false for other modes
@@ -3414,6 +3610,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     public void initPlayer1View(int[][] boardMatrix, ViewData brick) {
         if (twoPlayerPanelManager != null) {
             twoPlayerPanelManager.initPlayer1View(boardMatrix, brick);
+        } else {
+            System.err.println("[GameViewController] WARN: twoPlayerPanelManager is null in initPlayer1View");
         }
     }
     
@@ -3427,6 +3625,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     public void initPlayer2View(int[][] boardMatrix, ViewData brick) {
         if (twoPlayerPanelManager != null) {
             twoPlayerPanelManager.initPlayer2View(boardMatrix, brick);
+        } else {
+            System.err.println("[GameViewController] WARN: twoPlayerPanelManager is null in initPlayer2View");
         }
     }
     
@@ -3765,6 +3965,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         
         countdownManager.cancelCountdown();
 
+        // Stop timelines if eventListener is set (e.g., during new game)
+        // Note: eventListener may be null during initial countdown, which is fine
         if (eventListener instanceof TwoPlayerGameController) {
             TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
             try {
@@ -3793,14 +3995,51 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             }
         }
         
+        // Timeline KeyFrame already runs on JavaFX thread, but add error handling
+        // The callback from CountdownManager is already on JavaFX thread, so we just wrap it for safety
+        Runnable safeCallback = onComplete != null ? () -> {
+            try {
+                onComplete.run();
+            } catch (Exception e) {
+                System.err.println("[GameViewController] Error executing countdown callback: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } : null;
+        
         countdownManager.showTwoPlayerCountdown(
             rootPane,
             gamePanel1,
             gamePanel2,
             boardBackground1,
             boardBackground2,
-            onComplete
+            safeCallback
         );
+    }
+    
+    /**
+     * Checks if a key code is a numpad key.
+     * 
+     * @param code the key code to check
+     * @return true if the key is a numpad key, false otherwise
+     */
+    private boolean isNumpadKey(KeyCode code) {
+        return code == KeyCode.NUMPAD0 || code == KeyCode.NUMPAD1 || code == KeyCode.NUMPAD2 || 
+               code == KeyCode.NUMPAD3 || code == KeyCode.NUMPAD4 || code == KeyCode.NUMPAD5 || 
+               code == KeyCode.NUMPAD6 || code == KeyCode.NUMPAD7 || code == KeyCode.NUMPAD8 || 
+               code == KeyCode.NUMPAD9;
+    }
+    
+    /**
+     * Checks if a key code is a digit key.
+     * 
+     * @param code the key code to check
+     * @return true if the key is a digit key, false otherwise
+     */
+    private boolean isDigitKey(KeyCode code) {
+        return code == KeyCode.DIGIT0 || code == KeyCode.DIGIT1 || code == KeyCode.DIGIT2 || 
+               code == KeyCode.DIGIT3 || code == KeyCode.DIGIT4 || code == KeyCode.DIGIT5 || 
+               code == KeyCode.DIGIT6 || code == KeyCode.DIGIT7 || code == KeyCode.DIGIT8 || 
+               code == KeyCode.DIGIT9;
     }
     
     /**

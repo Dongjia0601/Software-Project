@@ -410,6 +410,10 @@ public class LevelSelectionController {
             com.comp2042.service.gameloop.GameService gameService = new com.comp2042.service.gameloop.GameServiceImpl(board);
             com.comp2042.controller.factory.GameMode gameMode = 
                 new com.comp2042.controller.factory.LevelGameModeImpl(gameService, guiController, levelManager, level);
+            
+            // Set board reference in GameViewController for game over screen
+            guiController.setLevelModeBoard(board);
+            
             gameMode.initialize();
             
             // Create scene

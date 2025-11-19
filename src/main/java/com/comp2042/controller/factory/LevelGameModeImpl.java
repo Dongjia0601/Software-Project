@@ -9,6 +9,7 @@ import com.comp2042.model.mode.LevelManager;
 import com.comp2042.dto.DownData;
 import com.comp2042.dto.ViewData;
 import com.comp2042.event.MoveEvent;
+import com.comp2042.model.board.Board;
 
 /**
  * Concrete implementation of the GameMode interface for playing themed levels.
@@ -305,7 +306,7 @@ public class LevelGameModeImpl implements GameMode {
         int finalScore = gameService.getScore().getScore();
 
         // Report failure (0 stars) to LevelManager for persistence
-        levelManager.completeLevel(
+        boolean[] newRecords = levelManager.completeLevel(
                 currentLevelMode.getLevelId(),
                 finalScore,
                 linesClearedInLevel,
@@ -313,8 +314,18 @@ public class LevelGameModeImpl implements GameMode {
                 false // success = false
         );
 
-
-        // Update UI to reflect failure (handled by GuiController/GameController based on isGameOver)
+        // Trigger game over screen with board reference
+        if (guiController != null) {
+            guiController.showLevelGameOverScene(gameService.getBoard(), newRecords);
+        }
+    }
+    
+    /**
+     * Gets the game board instance.
+     * @return the board instance
+     */
+    public Board getBoard() {
+        return gameService.getBoard();
     }
 
     /**
