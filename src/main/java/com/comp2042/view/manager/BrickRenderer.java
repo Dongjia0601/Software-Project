@@ -8,24 +8,10 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 
 /**
- * Responsible for rendering game bricks (current, ghost, hold, and next pieces).
- * 
- * <p>This class manages the visual representation of various brick types in the Tetris game,
- * including the actively falling brick, ghost preview, hold piece, and next piece displays.</p>
- * 
- * <p><strong>Responsibilities:</strong></p>
- * <ul>
- *   <li>Render the currently falling brick</li>
- *   <li>Render the ghost brick (landing preview)</li>
- *   <li>Update the Hold piece display panel</li>
- *   <li>Update the Next piece display panel</li>
- *   <li>Manage brick color mapping</li>
- * </ul>
- * 
- * <p><strong>Design Pattern:</strong> Extracted from GuiController to adhere to Single Responsibility Principle (SRP)</p>
+ * Renders all brick visuals: current piece, ghost preview, hold, and next piece panels (SRP).
+ * Manages color mapping and position calculations for JavaFX rendering.
  * 
  * @author Dong, Jia
- * @version Phase 3 - SRP Refactoring
  */
 public class BrickRenderer {
     

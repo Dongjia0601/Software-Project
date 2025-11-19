@@ -4,25 +4,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 /**
- * Manages game mode-specific UI components and visibility.
- * 
- * <p>This class is responsible for showing/hiding UI elements based on the current
- * game mode (Endless Mode, Level Mode, or Two-Player Mode), and applying theme
- * customizations to preview displays.</p>
- * 
- * <p><strong>Responsibilities:</strong></p>
- * <ul>
- *   <li>Show/hide Level Mode UI components (objectives, progress, timer)</li>
- *   <li>Show/hide Endless Mode UI components (statistics, best stats)</li>
- *   <li>Manage Two-Player Mode UI state</li>
- *   <li>Apply theme colors to preview displays (Hold/Next panels)</li>
- *   <li>Track game mode state</li>
- * </ul>
- * 
- * <p><strong>Design Pattern:</strong> Extracted from GuiController to adhere to Single Responsibility Principle (SRP)</p>
+ * Manages mode-specific UI components and visibility (Single Responsibility Principle).
+ * Controls display of mode-specific panels (Level objectives, Endless stats, Two-Player state),
+ * applies theme customizations to Hold/Next previews, and tracks game mode state.
  * 
  * @author Dong, Jia
- * @version Phase 3+ - SRP Refactoring (Continued Optimization)
  */
 public class GameModeUIManager {
     
@@ -41,11 +27,8 @@ public class GameModeUIManager {
     // Timing information
     private long levelStartTime = 0;
     
-    /**
-     * Constructs a GameModeUIManager.
-     */
+    /** Constructs a GameModeUIManager. Components set via setters. */
     public GameModeUIManager() {
-        // Constructor intentionally empty - components set via setters
     }
     
     // ==================== Component Setters ====================
