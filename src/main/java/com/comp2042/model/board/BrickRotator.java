@@ -3,9 +3,8 @@ package com.comp2042.model.board;
 import com.comp2042.model.brick.Brick;
 
 /**
- * Manages the rotation state of a given Tetris brick.
- * Keeps track of the current shape index and provides methods to get the current shape
- * and calculate the potential next shape if a rotation occurs.
+ * Manages brick rotation state and calculates potential rotations.
+ * Tracks current shape index and provides lookahead for collision checks.
  * 
  * @author Dong, Jia.
  */
@@ -15,10 +14,10 @@ public class BrickRotator {
     private int currentShape = 0; // The index of the current shape in the brick's shape list
 
     /**
-     * Calculates the potential next shape and its index if the current brick were to rotate.
-     * This method does not modify the internal 'currentShape' index of this BrickRotator instance.
+     * Calculates next shape for clockwise rotation without applying it.
+     * Used for collision checking before rotation.
      *
-     * @return A NextShapeInfo object containing the potential next shape matrix and its index.
+     * @return NextShapeInfo with potential shape and index
      */
     public NextShapeInfo calculateNextShapeInfo() { // Assuming renamed method
         int nextShape = currentShape;
@@ -27,10 +26,10 @@ public class BrickRotator {
     }
 
     /**
-     * Calculates the potential previous shape and its index if the current brick were to rotate counterclockwise.
-     * This method does not modify the internal 'currentShape' index of this BrickRotator instance.
+     * Calculates previous shape for counterclockwise rotation without applying it.
+     * Used for collision checking before rotation.
      *
-     * @return A NextShapeInfo object containing the potential previous shape matrix and its index.
+     * @return NextShapeInfo with potential shape and index
      */
     public NextShapeInfo calculatePreviousShapeInfo() {
         int prevShape = currentShape;
@@ -39,19 +38,18 @@ public class BrickRotator {
     }
 
     /**
-     * Gets the matrix representing the current rotation state of the managed brick.
+     * Gets the current rotation state shape matrix.
      *
-     * @return The current shape matrix.
+     * @return Current shape matrix
      */
     public int[][] getCurrentShape() {
         return brick.getShapeMatrix().get(currentShape);
     }
 
     /**
-     * Sets the internal index representing the current rotation state.
-     * This is used to apply a rotation after a collision check passes.
+     * Sets the rotation state index (applies a validated rotation).
      *
-     * @param currentShape The new index for the current shape.
+     * @param currentShape New shape index
      */
     public void setCurrentShape(int currentShape) {
         this.currentShape = currentShape;

@@ -15,10 +15,9 @@ import com.comp2042.util.MatrixOperations;
 import java.awt.*;
 
 /**
- * Implements the core game logic for the Tetris board.
- * Manages the board grid, the currently falling brick, its position,
- * brick generation, movement rules (collision, landing), merging bricks
- * to the background, clearing completed rows, and score tracking.
+ * Core Tetris board implementation managing game state and brick movement.
+ * Handles board grid, falling brick, collision detection, row clearing, and scoring.
+ * Supports configurable brick generators (7-bag or pure random) via GameSettings.
  * 
  * @author Dong, Jia.
  */
@@ -37,12 +36,12 @@ public class SimpleBoard implements Board {
     private int totalLinesCleared = 0;           // Total lines cleared in the game
 
     /**
-     * Constructs a SimpleBoard with the specified dimensions.
-     * Initializes the board matrix, brick generator, rotator, and score.
+     * Constructs a SimpleBoard with specified dimensions.
+     * Initializes board components based on GameSettings (generator type).
      *
-     * @param width  The width of the board (must be positive)
-     * @param height The height of the board (must be positive)
-     * @throws IllegalArgumentException if width or height is not positive
+     * @param width  Board width (must be positive)
+     * @param height Board height (must be positive)
+     * @throws IllegalArgumentException if dimensions invalid
      */
     public SimpleBoard(int width, int height) {
         if (width <= 0) {
@@ -69,13 +68,12 @@ public class SimpleBoard implements Board {
         mementoAdapter = new BoardMementoAdapter(brickRotator, brickGenerator, score, holdManager);
     }
 
-    @Override
     /**
-     * Attempts to move the currently falling brick one position down.
-     * Checks for collisions with the bottom of the board or other placed bricks.
+     * Moves the falling brick one position down.
      *
-     * @return true if the move was successful, false if a collision occurred (brick lands).
+     * @return true if successful, false if collision (brick lands)
      */
+    @Override
     public boolean moveBrickDown() {
         if (currentOffset == null) {
             return false; // No brick to move

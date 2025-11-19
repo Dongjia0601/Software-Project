@@ -5,7 +5,8 @@ import java.awt.Point;
 import com.comp2042.util.MatrixOperations;
 
 /**
- * Handles versus garbage insertion/removal logic for {@link SimpleBoard}.
+ * Manages garbage line mechanics for two-player versus mode.
+ * Handles insertion of penalty rows with random holes.
  */
 class GarbageManager {
 

@@ -9,8 +9,8 @@ import com.comp2042.model.savestate.GameStateMemento;
 import java.awt.Point;
 
 /**
- * Extracts the verbose memento serialization/deserialization logic
- * out of {@link SimpleBoard}. Keeps snapshot operations cohesive.
+ * Adapter for board state serialization/deserialization (Memento Pattern).
+ * Keeps snapshot operations cohesive and separates concern from SimpleBoard.
  */
 class BoardMementoAdapter {
 

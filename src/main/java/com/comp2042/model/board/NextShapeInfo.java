@@ -3,8 +3,8 @@ package com.comp2042.model.board;
 import com.comp2042.util.MatrixOperations;
 
 /**
- * Value object (DTO) containing information about the potential next shape
- * a brick could take after a rotation, along with its position index.
+ * Immutable DTO containing potential next rotation shape and its index.
+ * Used for lookahead collision checking before applying rotation.
  */
 public final class NextShapeInfo {
 
@@ -12,31 +12,22 @@ public final class NextShapeInfo {
     private final int position;  // The index of this shape within the brick's shape list
 
     /**
-     * Constructs a NextShapeInfo object with the specified shape and position.
+     * Constructs a NextShapeInfo.
      *
-     * @param shape    The potential next shape matrix.
-     * @param position The index of the shape in the list.
+     * @param shape    Potential next shape matrix
+     * @param position Shape index in rotation list
      */
     public NextShapeInfo(final int[][] shape, final int position) {
         this.shape = shape;
         this.position = position;
     }
 
-    /**
-     * Gets the potential next shape matrix.
-     * Returns a copy to prevent external modification.
-     *
-     * @return A copy of the shape matrix.
-     */
+    /** Gets the shape matrix (defensive copy). */
     public int[][] getShape() {
-        return MatrixOperations.copy(shape); // Return a copy
+        return MatrixOperations.copy(shape);
     }
 
-    /**
-     * Gets the index of the shape within the brick's list of shapes.
-     *
-     * @return The shape index.
-     */
+    /** Gets the rotation index. */
     public int getPosition() {
         return position;
     }

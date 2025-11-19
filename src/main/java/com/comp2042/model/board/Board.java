@@ -6,76 +6,66 @@ import com.comp2042.dto.ClearRow;
 import com.comp2042.model.score.Score;
 
 /**
- * Interface defining the core game logic operations for the Tetris board.
- * Implementations handle the state of the board grid, the active brick,
- * movement rules, row clearing, and game state management.
+ * Core game logic interface for the Tetris board.
+ * Handles board state, brick movement, rotation, collision detection, and row clearing.
  * 
  * @author Dong, Jia.
  */
 public interface Board {
 
     /**
-     * Attempts to move the currently falling brick one position down.
-     * Checks for collisions with the bottom of the board or other placed bricks.
+     * Moves the falling brick one position down.
      *
-     * @return true if the move was successful, false if a collision occurred (brick lands).
+     * @return true if successful, false if collision occurred (brick lands)
      */
     boolean moveBrickDown();
 
     /**
-     * Instantly drops the currently falling brick to the bottom of the board.
-     * This is the hard drop functionality that moves the brick as far down as possible.
+     * Hard drops the brick to the bottom instantly.
      *
-     * @return the number of positions the brick was moved down.
+     * @return Number of rows dropped
      */
     int hardDropBrick();
 
     /**
-     * Attempts to move the currently falling brick one position to the left.
-     * Checks for collisions with the left wall or other placed bricks.
+     * Moves the brick one position left.
      *
-     * @return true if the move was successful, false if a collision occurred.
+     * @return true if successful, false if collision occurred
      */
     boolean moveBrickLeft();
 
     /**
-     * Attempts to move the currently falling brick one position to the right.
-     * Checks for collisions with the right wall or other placed bricks.
+     * Moves the brick one position right.
      *
-     * @return true if the move was successful, false if a collision occurred.
+     * @return true if successful, false if collision occurred
      */
     boolean moveBrickRight();
 
     /**
-     * Attempts to rotate the currently falling brick.
-     * Checks for collisions in the new orientation.
+     * Rotates the brick clockwise.
      *
-     * @return true if the rotation was successful, false if a collision occurred.
+     * @return true if successful, false if collision occurred
      */
     boolean rotateLeftBrick();
 
     /**
-     * Attempts to rotate the currently falling brick counterclockwise.
-     * Checks for collisions in the new orientation.
+     * Rotates the brick counterclockwise.
      *
-     * @return true if the rotation was successful, false if a collision occurred.
+     * @return true if successful, false if collision occurred
      */
     boolean rotateRightBrick();
 
     /**
-     * Creates a new brick for the board.
-     * Gets a brick from the generator, sets it in the rotator, positions it at the top/middle,
-     * and checks if this initial position causes a collision (indicating game over).
+     * Spawns a new brick at the top of the board.
      *
-     * @return true if a collision occurs immediately (game over), false otherwise.
+     * @return true if spawn collision occurs (game over), false otherwise
      */
     boolean createNewBrick();
 
     /**
-     * Gets the current state of the board grid.
-     * The returned matrix represents the occupied/unoccupied cells of the board.
+     * Gets the current board grid state.
      *
-     * @return The current board matrix.
+     * @return Board matrix (0 = empty, non-zero = occupied)
      */
     int[][] getBoardMatrix();
 
