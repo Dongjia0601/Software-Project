@@ -3,22 +3,9 @@ package com.comp2042.model.savestate;
 import java.awt.Point;
 
 /**
- * Memento class for saving and restoring game state.
- * Implements the Memento Pattern to capture the complete state of a Tetris game.
- * 
- * <p>This class stores all necessary game state information including:
- * <ul>
- *   <li>Board matrix (occupied cells)</li>
- *   <li>Current brick state (shape, position, rotation)</li>
- *   <li>Score and statistics</li>
- *   <li>Hold brick state</li>
- *   <li>Next brick preview</li>
- * </ul>
- * </p>
- * 
- * <p>The Memento Pattern allows the game to save its state at any point
- * and restore it later, enabling features like pause/resume, save/load,
- * and undo functionality.</p>
+ * Memento storing complete game state snapshot (Memento Pattern).
+ * Captures board matrix, brick state, score, hold/next bricks, and generator state.
+ * Enables save/load, pause/resume, and undo functionality.
  * 
  * @author Dong, Jia.
  */

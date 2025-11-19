@@ -3,20 +3,9 @@ package com.comp2042.model.savestate;
 import java.util.Stack;
 
 /**
- * Caretaker class for managing game state mementos.
- * Implements the Memento Pattern's Caretaker role, responsible for
- * storing and managing mementos without accessing their internal state.
- * 
- * <p>This class provides functionality for:
- * <ul>
- *   <li>Saving game state snapshots</li>
- *   <li>Restoring previous game states</li>
- *   <li>Managing a history of game states (for undo functionality)</li>
- * </ul>
- * </p>
- * 
- * <p>Uses a Stack to maintain a history of game states, allowing
- * multiple undo operations if needed.</p>
+ * Caretaker managing game state memento history (Memento Pattern).
+ * Stores and restores snapshots without accessing their internal state.
+ * Maintains limited history stack (max 10) for undo operations.
  * 
  * @author Dong, Jia.
  */
@@ -25,18 +14,15 @@ public class GameStateCaretaker {
     private final Stack<GameStateMemento> mementoHistory;
     private static final int MAX_HISTORY_SIZE = 10; // Limit history to prevent memory issues
     
-    /**
-     * Constructs a GameStateCaretaker with an empty history.
-     */
+    /** Constructs a GameStateCaretaker with empty history. */
     public GameStateCaretaker() {
         this.mementoHistory = new Stack<>();
     }
     
     /**
-     * Saves a game state memento to the history.
-     * If history is full, removes the oldest memento.
+     * Saves a memento to history. Removes oldest if exceeding max size.
      * 
-     * @param memento the game state memento to save
+     * @param memento Memento to save
      */
     public void saveMemento(GameStateMemento memento) {
         if (memento == null) {

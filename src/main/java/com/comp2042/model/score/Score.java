@@ -4,7 +4,8 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 /**
- * Manages the game score using a JavaFX IntegerProperty for binding to the GUI.
+ * Game score manager with JavaFX property binding support.
+ * Enables automatic GUI updates when score changes.
  * 
  * @author Dong, Jia.
  */
@@ -13,19 +14,18 @@ public final class Score {
     private final IntegerProperty score = new SimpleIntegerProperty(0); // The current score property
 
     /**
-     * Gets the underlying IntegerProperty representing the score.
-     * This allows the GUI to bind to the score value for automatic updates.
+     * Gets the score property for GUI binding.
      *
-     * @return The IntegerProperty for the score.
+     * @return IntegerProperty for score
      */
     public IntegerProperty scoreProperty() {
         return score;
     }
 
     /**
-     * Adds a specified amount to the current score.
+     * Adds points to the current score.
      *
-     * @param i The amount to add to the score.
+     * @param i Amount to add
      */
     public void add(int i){
         score.setValue(score.getValue() + i);
@@ -41,7 +41,7 @@ public final class Score {
     /**
      * Gets the current score value.
      *
-     * @return The current score value.
+     * @return Current score
      */
     public int getScore() {
         return score.getValue();
