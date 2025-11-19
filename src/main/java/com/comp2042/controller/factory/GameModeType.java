@@ -1,64 +1,46 @@
 package com.comp2042.controller.factory;
 
 /**
- * Enumeration defining the different types of game modes available in the Tetris game.
- * This enum is used by the GameModeFactory to create appropriate game mode instances.
+ * Enum defining available game mode types for GameModeFactory.
+ * Each type includes UI display name and description.
  * 
  * @author Dong, Jia.
  */
 public enum GameModeType {
 
-    /**
-     * Endless mode - continuous gameplay with progressive difficulty.
-     * Focuses on achieving the highest possible score.
-     */
+    /** Endless mode - continuous gameplay with progressive difficulty. */
     ENDLESS("Endless Mode", "Continuous gameplay with increasing difficulty"),
 
-    /**
-     * Level mode - structured progression through predefined themed levels.
-     * Each level has specific objectives and challenges.
-     */
+    /** Level mode - structured progression through themed levels. */
     LEVEL("Level Mode", "Progressive levels with unique challenges"),
 
-    /**
-     * Two player versus mode - human vs human competitive gameplay.
-     * Features split-screen and battle mechanics.
-     */
+    /** Two player versus mode - competitive split-screen gameplay. */
     TWO_PLAYER_VS("Two Player VS", "Human vs Human competitive mode");
 
     private final String displayName;
     private final String description;
 
     /**
-     * Constructs a game mode type with display name and description.
-     * @param displayName the name to display in the UI
-     * @param description a brief description of the mode
+     * Constructs a game mode type.
+     * @param displayName UI display name
+     * @param description Mode description
      */
     GameModeType(String displayName, String description) {
         this.displayName = displayName;
         this.description = description;
     }
 
-    /**
-     * Gets the display name for this game mode type.
-     * @return the display name
-     */
+    /** Gets the display name. */
     public String getDisplayName() {
         return displayName;
     }
 
-    /**
-     * Gets the description for this game mode type.
-     * @return the description
-     */
+    /** Gets the description. */
     public String getDescription() {
         return description;
     }
 
-    /**
-     * Gets the number of available game mode types.
-     * @return the number of game mode types
-     */
+    /** Gets the count of available game modes. */
     public static int getModeCount() {
         return values().length;
     }

@@ -13,19 +13,9 @@ import com.comp2042.controller.game.twoplayer.TwoPlayerCountdownManager;
 import com.comp2042.controller.game.twoplayer.TwoPlayerTimelineScheduler;
 
 /**
- * Controller for managing two-player VS mode gameplay.
- * 
- * <p>This class coordinates between the GUI controller and the TwoPlayerMode,
- * managing dual game boards, separate timelines for each player, and handling
- * input events for both players simultaneously.</p>
- * 
- * <p>Key responsibilities:</p>
- * <ul>
- *   <li>Manage two separate game services (one for each player)</li>
- *   <li>Handle input event routing to the correct player</li>
- *   <li>Coordinate rendering updates for both game boards</li>
- *   <li>Manage game state transitions (pause, game over, winner determination)</li>
- * </ul>
+ * Two-player VS mode controller coordinating dual boards and input routing (MVC Pattern).
+ * Manages separate game services, timelines, rendering updates, and state transitions.
+ * Handles simultaneous input from both players.
  */
 public class TwoPlayerGameController implements InputEventListener {
     

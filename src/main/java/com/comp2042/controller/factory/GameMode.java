@@ -7,35 +7,18 @@ import com.comp2042.model.board.Board;
 import com.comp2042.event.MoveEvent;
 
 /**
- * Interface defining the contract for all game modes in the Tetris game.
- * 
- * <p>This interface follows the Strategy pattern, allowing different game modes
- * (Endless, Level, Two Player VS) to be implemented with their
- * own specific behaviors while maintaining a consistent interface for the game
- * controller to interact with.</p>
- * 
- * <p>Key responsibilities:</p>
- * <ul>
- *   <li>Define common game mode lifecycle (initialize, update, render)</li>
- *   <li>Handle input events consistently across all modes</li>
- *   <li>Provide game state information and results</li>
- *   <li>Support different gameplay variations</li>
- * </ul>
+ * Strategy interface for game modes (Strategy Pattern).
+ * Enables different gameplay variations (Endless, Level, Two Player VS) with consistent interface.
+ * Handles mode-specific lifecycle, input events, and state management.
  * 
  * @author Dong, Jia.
  */
 public interface GameMode {
 
-    /**
-     * Initializes the game mode with any required setup.
-     * This method should be called before any other operations.
-     */
+    /** Initializes the game mode with required setup. */
     void initialize();
 
-    /**
-     * Updates the game state for the current frame.
-     * This method handles the main game loop logic.
-     */
+    /** Updates the game state for the current frame. */
     void update();
 
     /**

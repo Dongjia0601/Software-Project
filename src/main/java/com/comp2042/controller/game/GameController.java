@@ -9,20 +9,9 @@ import com.comp2042.service.session.GameSession;
 import com.comp2042.service.session.SinglePlayerGameSession;
 
 /**
- * Controller managing the overall game flow, state transitions, and input event delegation.
- * 
- * <p>This class serves as the central coordinator for the Tetris game, managing the game board
- * logic and coordinating between the GUI controller and game states. It implements the State
- * Pattern to handle different game phases (playing, paused, game over) and delegates input
- * events to the appropriate state handler.</p>
- * 
- * <p>Key responsibilities:</p>
- * <ul>
- *   <li>Manage game board instance and state transitions</li>
- *   <li>Coordinate between GUI controller and game logic</li>
- *   <li>Handle input event delegation to current game state</li>
- *   <li>Manage game state lifecycle (playing, paused, game over)</li>
- * </ul>
+ * Central game flow controller coordinating board logic and state transitions (MVC Pattern).
+ * Delegates input events to current game state, manages game lifecycle, and coordinates
+ * between GUI controller and game session.
  * 
  * @author Dong, Jia.
  */
@@ -32,11 +21,9 @@ public class GameController implements InputEventListener {
     private final GameSession gameSession;
 
     /**
-     * Constructs a GameController.
-     * Initializes the board, creates the initial PlayingState, initializes the GUI view,
-     * binds the score, and sets itself as the event listener for the GUI.
+     * Constructs a GameController and initializes the game session.
      *
-     * @param c The GameViewController instance.
+     * @param c GameViewController instance
      */
     public GameController(GameViewController c) {
         viewGuiController = c;
