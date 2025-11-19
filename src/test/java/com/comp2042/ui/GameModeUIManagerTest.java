@@ -8,6 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -43,36 +46,60 @@ class GameModeUIManagerTest {
     }
     
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            modeManager = new GameModeUIManager();
-            
-            // Create mock UI components
-            leftObjectiveBox = new VBox();
-            statisticsBox = new VBox();
-            bestStatsBox = new VBox();
-            holdPanel = new GridPane();
-            nextBrickPanel = new GridPane();
-            
-            // Set components
-            modeManager.setLeftObjectiveBox(leftObjectiveBox);
-            modeManager.setStatisticsBox(statisticsBox);
-            modeManager.setBestStatsBox(bestStatsBox);
-            modeManager.setHoldPanel(holdPanel);
-            modeManager.setNextBrickPanel(nextBrickPanel);
+            try {
+                modeManager = new GameModeUIManager();
+                
+                // Create mock UI components
+                leftObjectiveBox = new VBox();
+                statisticsBox = new VBox();
+                bestStatsBox = new VBox();
+                holdPanel = new GridPane();
+                nextBrickPanel = new GridPane();
+                
+                // Set components
+                modeManager.setLeftObjectiveBox(leftObjectiveBox);
+                modeManager.setStatisticsBox(statisticsBox);
+                modeManager.setBestStatsBox(bestStatsBox);
+                modeManager.setHoldPanel(holdPanel);
+                modeManager.setNextBrickPanel(nextBrickPanel);
+            } finally {
+                latch.countDown();
+            }
         });
         
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (!latch.await(5, TimeUnit.SECONDS)) {
+            throw new RuntimeException("JavaFX setup timeout");
+        }
+    }
+    
+    /**
+     * Helper method to run test actions on JavaFX thread and wait for completion.
+     * 
+     * @param action the action to run
+     * @throws Exception if action execution fails or times out
+     */
+    private void runOnJavaFXThread(Runnable action) throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            try {
+                action.run();
+            } finally {
+                latch.countDown();
+            }
+        });
+        
+        if (!latch.await(5, TimeUnit.SECONDS)) {
+            throw new RuntimeException("JavaFX test action timeout");
         }
     }
     
     @Test
     @DisplayName("Should show Level Mode UI correctly")
-    void testShowLevelModeUI() {
-        Platform.runLater(() -> {
+    void testShowLevelModeUI() throws Exception {
+        runOnJavaFXThread(() -> {
             // Act
             modeManager.showLevelModeUI();
             
@@ -89,8 +116,8 @@ class GameModeUIManagerTest {
     
     @Test
     @DisplayName("Should hide Level Mode UI correctly")
-    void testHideLevelModeUI() {
-        Platform.runLater(() -> {
+    void testHideLevelModeUI() throws Exception {
+        runOnJavaFXThread(() -> {
             // Arrange
             modeManager.showLevelModeUI();
             
@@ -107,8 +134,8 @@ class GameModeUIManagerTest {
     
     @Test
     @DisplayName("Should show Endless Mode UI correctly")
-    void testShowEndlessModeUI() {
-        Platform.runLater(() -> {
+    void testShowEndlessModeUI() throws Exception {
+        runOnJavaFXThread(() -> {
             // Act
             modeManager.showEndlessModeUI();
             
@@ -123,8 +150,8 @@ class GameModeUIManagerTest {
     
     @Test
     @DisplayName("Should set Two-Player Mode correctly")
-    void testSetTwoPlayerMode() {
-        Platform.runLater(() -> {
+    void testSetTwoPlayerMode() throws Exception {
+        runOnJavaFXThread(() -> {
             // Act
             modeManager.setTwoPlayerMode(true);
             
@@ -138,8 +165,8 @@ class GameModeUIManagerTest {
     
     @Test
     @DisplayName("Should reset to default mode")
-    void testResetToDefaultMode() {
-        Platform.runLater(() -> {
+    void testResetToDefaultMode() throws Exception {
+        runOnJavaFXThread(() -> {
             // Arrange
             modeManager.showLevelModeUI();
             modeManager.setTwoPlayerMode(true);
@@ -157,8 +184,8 @@ class GameModeUIManagerTest {
     
     @Test
     @DisplayName("Should apply theme to preview displays")
-    void testApplyThemeToPreviewDisplays() {
-        Platform.runLater(() -> {
+    void testApplyThemeToPreviewDisplays() throws Exception {
+        runOnJavaFXThread(() -> {
             // Arrange
             String accentColor = "#FFD700"; // Gold
             
@@ -177,8 +204,8 @@ class GameModeUIManagerTest {
     
     @Test
     @DisplayName("Should reset preview display theme")
-    void testResetPreviewDisplayTheme() {
-        Platform.runLater(() -> {
+    void testResetPreviewDisplayTheme() throws Exception {
+        runOnJavaFXThread(() -> {
             // Act
             modeManager.resetPreviewDisplayTheme();
             
@@ -191,8 +218,8 @@ class GameModeUIManagerTest {
     
     @Test
     @DisplayName("Should track level start time correctly")
-    void testLevelStartTimeTracking() {
-        Platform.runLater(() -> {
+    void testLevelStartTimeTracking() throws Exception {
+        runOnJavaFXThread(() -> {
             // Act
             long beforeTime = System.currentTimeMillis();
             modeManager.showLevelModeUI();
@@ -207,8 +234,8 @@ class GameModeUIManagerTest {
     
     @Test
     @DisplayName("Should handle mode transitions correctly")
-    void testModeTransitions() {
-        Platform.runLater(() -> {
+    void testModeTransitions() throws Exception {
+        runOnJavaFXThread(() -> {
             // Start in endless mode
             modeManager.showEndlessModeUI();
             assertTrue(modeManager.isEndlessMode());

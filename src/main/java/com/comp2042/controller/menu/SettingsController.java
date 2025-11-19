@@ -15,16 +15,9 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 /**
- * Controller for the Settings page.
- * Manages all game settings including audio, controls, and display options.
- * 
- * <p>This controller provides a comprehensive settings interface with:
- * <ul>
- *   <li>Audio controls (master volume, music, sound effects)</li>
- *   <li>Control key bindings display</li>
- *   <li>Display options (FPS, grid)</li>
- *   <li>Save/Load functionality</li>
- * </ul>
+ * Settings page controller managing audio, controls, and display options (MVC Pattern).
+ * Provides comprehensive interface for volume control, key bindings, and visual settings.
+ * Includes save/load functionality persisting to user directory.
  * 
  * @author Dong, Jia.
  */
