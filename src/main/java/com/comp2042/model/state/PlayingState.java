@@ -13,20 +13,8 @@ import com.comp2042.event.EventSource;
 import com.comp2042.service.audio.SoundManager;
 
 /**
- * Represents the active playing state of the Tetris game.
- * 
- * <p>This class implements the core gameplay logic when the game is actively running.
- * It handles all player input events (movement, rotation, dropping) and manages the
- * game progression including brick landing, row clearing, scoring, and game over detection.</p>
- * 
- * <p>Key responsibilities:</p>
- * <ul>
- *   <li>Process player input events (move, rotate, drop)</li>
- *   <li>Manage brick movement and collision detection</li>
- *   <li>Handle brick landing and merging to background</li>
- *   <li>Process row clearing and score updates</li>
- *   <li>Detect game over conditions and trigger state transitions</li>
- * </ul>
+ * Active playing state implementing core gameplay logic (State Pattern).
+ * Processes player input, manages brick movement, handles row clearing, and detects game over.
  * 
  * @author Dong, Jia.
  */

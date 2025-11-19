@@ -5,56 +5,56 @@ import com.comp2042.event.MoveEvent;
 import com.comp2042.dto.ViewData;
 
 /**
- * Interface defining methods for different game states (e.g., Playing, Paused, GameOver).
- * Each state handles input events and game logic updates according to its specific rules.
+ * State interface for different game states (State Pattern).
+ * Each state (Playing, Paused, GameOver) handles events according to its specific rules.
  * 
  * @author Dong, Jia.
  */
 public interface GameState {
     /**
-     * Handles the DOWN event (both user-initiated and automatic descent).
-     * @param event The MoveEvent containing event type and source.
-     * @return DownData containing view and row-clearing information (may be null in some states like Paused).
+     * Handles DOWN event.
+     * @param event MoveEvent
+     * @return DownData, or null if not allowed in current state
      */
     DownData onDownEvent(MoveEvent event);
 
     /**
-     * Handles the LEFT event.
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape (may be null in some states like Paused/GameOver).
+     * Handles LEFT event.
+     * @param event MoveEvent
+     * @return ViewData, or null if not allowed in current state
      */
     ViewData onLeftEvent(MoveEvent event);
 
     /**
-     * Handles the RIGHT event.
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape (may be null in some states like Paused/GameOver).
+     * Handles RIGHT event.
+     * @param event MoveEvent
+     * @return ViewData, or null if not allowed in current state
      */
     ViewData onRightEvent(MoveEvent event);
 
     /**
-     * Handles the ROTATE event.
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape (may be null in some states like Paused/GameOver).
+     * Handles ROTATE event.
+     * @param event MoveEvent
+     * @return ViewData, or null if not allowed in current state
      */
     ViewData onRotateEvent(MoveEvent event);
 
     /**
-     * Handles the ROTATE_CCW event (counterclockwise rotation).
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape (may be null in some states like Paused/GameOver).
+     * Handles ROTATE_CCW event.
+     * @param event MoveEvent
+     * @return ViewData, or null if not allowed in current state
      */
     ViewData onRotateCCWEvent(MoveEvent event);
 
     /**
-     * Handles a request to pause or unpause the game.
-     * @return The next state after handling the pause request (e.g., Playing -> Paused, Paused -> Playing).
+     * Handles pause/unpause request.
+     * @return Next GameState (e.g., Playing -> Paused)
      */
     GameState handlePauseRequest();
 
     /**
-     * Handles a request to start a new game.
-     * @return The state representing the start of a new game (e.g., PlayingState).
+     * Handles new game request.
+     * @return New PlayingState
      */
     GameState handleNewGameRequest();
 }

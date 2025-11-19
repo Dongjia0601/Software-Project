@@ -7,19 +7,8 @@ import com.comp2042.event.MoveEvent;
 import com.comp2042.dto.ViewData;
 
 /**
- * Represents the game over state of the Tetris game.
- * 
- * <p>This class handles the game when it has ended due to a game over condition.
- * During this state, most input events are ignored except for new game requests.
- * The final score and game statistics are preserved and can be displayed to the player.</p>
- * 
- * <p>Key responsibilities:</p>
- * <ul>
- *   <li>Ignore all gameplay input events (movement, rotation, dropping)</li>
- *   <li>Handle new game requests to restart the game</li>
- *   <li>Maintain final game state and score information</li>
- *   <li>Display game over screen and final statistics</li>
- * </ul>
+ * Game over state ignoring gameplay input and preserving final score (State Pattern).
+ * Handles new game requests and displays final statistics.
  * 
  * @author Dong, Jia.
  */
@@ -29,9 +18,9 @@ public class GameOverState implements GameState {
     private final GameStateContext stateContext;
 
     /**
-     * Constructs a GameOverState instance.
-     * @param board The game board instance.
-     * @param guiController The GUI controller instance.
+     * Constructs a GameOverState.
+     * @param board Game board
+     * @param guiController GUI controller
      */
     public GameOverState(Board board, GameViewController guiController) {
         this(board, guiController, null);

@@ -1,17 +1,15 @@
 package com.comp2042.model.state;
 
 /**
- * Provides a minimal contract for classes that manage {@link GameState}
- * transitions. Decouples concrete controller implementations from the
- * state objects, allowing alternative session/context implementations
- * (e.g., single player, challenge modes) without rewriting the states.
+ * Context interface for managing GameState transitions (State Pattern).
+ * Decouples state objects from controller implementations, enabling flexible session types.
  */
 public interface GameStateContext {
 
     /**
-     * Requests a transition to the supplied state.
+     * Transitions to a new game state.
      *
-     * @param newState the new game state to activate
+     * @param newState State to activate
      */
     void transitionToState(GameState newState);
 }
