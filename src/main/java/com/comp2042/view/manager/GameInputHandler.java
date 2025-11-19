@@ -33,7 +33,7 @@ import javafx.scene.input.KeyEvent;
  *   <li><strong>Two-Player Mode:</strong>
  *     <ul>
  *       <li>Player 1: Same as single-player (WASD + Space + Shift + F)</li>
- *       <li>Player 2: Arrow keys + Numpad (←/→/↑/↓ + 0 for hard drop + 3 for hold + 2 for CCW rotate)</li>
+ *       <li>Player 2: Arrow keys + Numpad (←/→/↑/↓ + 0 for hard drop + 2 for rotate CCW + 3 for hold)</li>
  *     </ul>
  *   </li>
  *   <li><strong>Global Controls:</strong>
@@ -298,16 +298,17 @@ public class GameInputHandler {
     /**
      * Handles keyboard controls for two-player mode.
      * Player 1: A/D - Move, W - Rotate, S - Soft Drop, Space - Hard Drop, Shift/C - Hold, F - Rotate CCW
-     * Player 2: ←/→ - Move, ↑ - Rotate, ↓ - Soft Drop, 0 - Hard Drop, 3 - Hold, 2 - Rotate CCW
+     * Player 2: ←/→ - Move, ↑ - Rotate, ↓ - Soft Drop, 0 - Hard Drop, 2 - Rotate CCW, 3 - Hold
+     * Note: Key 1 has no function assigned for Player 2
      */
     private void handleTwoPlayerControls(KeyEvent keyEvent) {
+        KeyCode code = keyEvent.getCode();
+        
         // Check if eventListener is null (e.g., during countdown)
         if (eventListener == null || callbacks == null) {
             keyEvent.consume();
             return;
         }
-        
-        KeyCode code = keyEvent.getCode();
         
         // === Player 1 Controls (WASD Keys) ===
         if (code == KeyCode.A) {
@@ -346,7 +347,42 @@ public class GameInputHandler {
             keyEvent.consume();
         }
         
-        // === Player 2 Controls (Arrow Keys + Special Keys) ===
+        // === Player 2 Numpad Controls (CHECK FIRST before arrow keys) ===
+        // Check by name as well to catch all variations
+        String codeName = code.name();
+        boolean isNumpad0 = code == KeyCode.DIGIT0 || code == KeyCode.NUMPAD0 || codeName.equals("NUMPAD0") || codeName.equals("DIGIT0");
+        boolean isNumpad2 = code == KeyCode.DIGIT2 || code == KeyCode.NUMPAD2 || codeName.equals("NUMPAD2") || codeName.equals("DIGIT2");
+        boolean isNumpad3 = code == KeyCode.DIGIT3 || code == KeyCode.NUMPAD3 || codeName.equals("NUMPAD3") || codeName.equals("DIGIT3");
+        
+        // 0: Hard Drop
+        if (isNumpad0) {
+            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_2));
+            if (downData != null) {
+                callbacks.onHandlePlayer2Down(downData);
+            }
+            keyEvent.consume();
+        }
+        // 2: Rotate CCW (Counter-Clockwise)
+        else if (isNumpad2) {
+            ViewData result = eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_2));
+            if (result != null) {
+                callbacks.onRefreshPlayer2Brick(result);
+            }
+            keyEvent.consume();
+        }
+        // 3: Hold
+        else if (isNumpad3) {
+            ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_2));
+            if (result != null) {
+                callbacks.onRefreshPlayer2Brick(result);
+            }
+            keyEvent.consume();
+        }
+        // 1: No function assigned (consumed to prevent other handlers)
+        else if (code == KeyCode.DIGIT1 || code == KeyCode.NUMPAD1) {
+            keyEvent.consume();
+        }
+        // === Player 2 Controls (Arrow Keys) ===
         else if (code == KeyCode.LEFT) {
             ViewData result = eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_2));
             if (result != null) callbacks.onRefreshPlayer2Brick(result);
@@ -362,26 +398,31 @@ public class GameInputHandler {
             if (result != null) callbacks.onRefreshPlayer2Brick(result);
             keyEvent.consume();
         }
-        else if (code == KeyCode.DIGIT2 || code == KeyCode.NUMPAD2) {
-            ViewData result = eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_2));
-            if (result != null) callbacks.onRefreshPlayer2Brick(result);
-            keyEvent.consume();
-        }
         else if (code == KeyCode.DOWN) {
             DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_2));
             if (downData != null) callbacks.onHandlePlayer2Down(downData);
             keyEvent.consume();
         }
-        else if (code == KeyCode.DIGIT0 || code == KeyCode.NUMPAD0) {
-            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_2));
-            if (downData != null) callbacks.onHandlePlayer2Down(downData);
+        else if (isNumpadOrDigitKey(code)) {
             keyEvent.consume();
         }
-        else if (code == KeyCode.DIGIT3 || code == KeyCode.NUMPAD3) {
-            ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_2));
-            if (result != null) callbacks.onRefreshPlayer2Brick(result);
-            keyEvent.consume();
-        }
+    }
+    
+    /**
+     * Checks if a key code is a numpad or digit key.
+     * 
+     * @param code the key code to check
+     * @return true if the key is a numpad or digit key, false otherwise
+     */
+    private boolean isNumpadOrDigitKey(KeyCode code) {
+        return code == KeyCode.NUMPAD0 || code == KeyCode.NUMPAD1 || code == KeyCode.NUMPAD2 || 
+               code == KeyCode.NUMPAD3 || code == KeyCode.NUMPAD4 || code == KeyCode.NUMPAD5 || 
+               code == KeyCode.NUMPAD6 || code == KeyCode.NUMPAD7 || code == KeyCode.NUMPAD8 || 
+               code == KeyCode.NUMPAD9 ||
+               code == KeyCode.DIGIT0 || code == KeyCode.DIGIT1 || code == KeyCode.DIGIT2 || 
+               code == KeyCode.DIGIT3 || code == KeyCode.DIGIT4 || code == KeyCode.DIGIT5 || 
+               code == KeyCode.DIGIT6 || code == KeyCode.DIGIT7 || code == KeyCode.DIGIT8 || 
+               code == KeyCode.DIGIT9;
     }
 }
 

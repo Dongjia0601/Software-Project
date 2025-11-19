@@ -80,7 +80,12 @@ public class TwoPlayerGameController implements InputEventListener {
         countdownActive = true;
         countdownManager.startCountdown(() -> {
             countdownActive = false;
-            startGame();
+            try {
+                startGame();
+            } catch (Exception e) {
+                System.err.println("[TwoPlayerGameController] Error starting game: " + e.getMessage());
+                e.printStackTrace();
+            }
         });
     }
     
@@ -94,23 +99,33 @@ public class TwoPlayerGameController implements InputEventListener {
         // Stop countdown sound before starting game (in case it's still playing)
         SoundManager.getInstance().stopCountdownSound();
         
-        // The game state has already been reset in onNewGameEvent() before countdown,
-        // so we just need to initialize the view and start the timelines.
-        // This ensures that no blocks can be placed during countdown.
-        
-        // IMPORTANT: Start game timer NOW (after countdown completes)
+        // Start game timer NOW (after countdown completes)
         // This ensures the countdown time is not included in the game time
-        gameMode.getPlayer1Stats().startGameTime();
-        gameMode.getPlayer2Stats().startGameTime();
+        if (gameMode != null) {
+            gameMode.getPlayer1Stats().startGameTime();
+            gameMode.getPlayer2Stats().startGameTime();
+        } else {
+            System.err.println("[TwoPlayerGameController] ERROR: gameMode is null!");
+        }
         
         // Set up the GUI for two-player mode (refresh view with current state)
-        initializeTwoPlayerView();
+        if (guiController != null) {
+            initializeTwoPlayerView();
+        } else {
+            System.err.println("[TwoPlayerGameController] ERROR: guiController is null!");
+        }
         
         // Start automatic descent timelines and stats updates
-        timelineScheduler.start();
+        if (timelineScheduler != null) {
+            timelineScheduler.start();
+        } else {
+            System.err.println("[TwoPlayerGameController] ERROR: timelineScheduler is null!");
+        }
         
         // Set this controller as the event listener (only after countdown completes)
-        guiController.setEventListener(this);
+        if (guiController != null) {
+            guiController.setEventListener(this);
+        }
         
         // Play game start sound
         SoundManager.getInstance().playGameStartSound();
@@ -125,11 +140,23 @@ public class TwoPlayerGameController implements InputEventListener {
         // Initialize Player 1's board
         int[][] player1Board = player1Service.getBoard().getBoardMatrix();
         ViewData player1ViewData = player1Service.getBoard().getViewData();
+        if (player1Board == null) {
+            System.err.println("[TwoPlayerGameController] WARN: player1Board is null");
+        }
+        if (player1ViewData == null) {
+            System.err.println("[TwoPlayerGameController] WARN: player1ViewData is null");
+        }
         guiController.initPlayer1View(player1Board, player1ViewData);
         
         // Initialize Player 2's board
         int[][] player2Board = player2Service.getBoard().getBoardMatrix();
         ViewData player2ViewData = player2Service.getBoard().getViewData();
+        if (player2Board == null) {
+            System.err.println("[TwoPlayerGameController] WARN: player2Board is null");
+        }
+        if (player2ViewData == null) {
+            System.err.println("[TwoPlayerGameController] WARN: player2ViewData is null");
+        }
         guiController.initPlayer2View(player2Board, player2ViewData);
         
         // Update scores for both players
@@ -245,9 +272,14 @@ public class TwoPlayerGameController implements InputEventListener {
         if (countdownActive || paused || gameMode.isGameOver()) {
             return null;
         }
-        ViewData result = gameMode.onRotateEvent(event);
+        // Process CCW rotation through the appropriate service
+        EventSource source = event.getEventSource();
+        GameService targetService = (source == EventSource.KEYBOARD_PLAYER_2) ? player2Service : player1Service;
+        ViewData result = targetService.processRotateCCWEvent(event);
         if (result != null) {
-            updatePlayerView(event.getEventSource(), result);
+            // Play rotate sound effect
+            SoundManager.getInstance().playRotateSound();
+            updatePlayerView(source, result);
         }
         return result;
     }

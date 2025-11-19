@@ -367,6 +367,8 @@ public class TwoPlayerPanelManager {
 
     public void initPlayer1View(int[][] boardMatrix, ViewData brick) {
         if (gamePanel1 == null || boardMatrix == null || brick == null) {
+            System.err.println("[TwoPlayerPanelManager] initPlayer1View aborted: gamePanel1=" + (gamePanel1 != null) +
+                ", boardMatrix=" + (boardMatrix != null) + ", brick=" + (brick != null));
             return;
         }
 
@@ -452,6 +454,8 @@ public class TwoPlayerPanelManager {
 
     public void initPlayer2View(int[][] boardMatrix, ViewData brick) {
         if (gamePanel2 == null || boardMatrix == null || brick == null) {
+            System.err.println("[TwoPlayerPanelManager] initPlayer2View aborted: gamePanel2=" + (gamePanel2 != null) +
+                ", boardMatrix=" + (boardMatrix != null) + ", brick=" + (brick != null));
             return;
         }
 

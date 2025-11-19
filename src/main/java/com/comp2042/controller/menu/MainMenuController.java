@@ -372,14 +372,29 @@ public class MainMenuController {
             final GameViewController gc = guiController;
             final Parent sceneRoot = root;
             // Critical: capture key presses at Scene level so SPACE/BACKSPACE/ALT work even when buttons are focused
+            // Capture key presses at Scene level to ensure numpad keys are captured
             gameScene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
-                // Forward to game handler first
-                gc.handleKeyPressEvent(event);
+                javafx.scene.input.KeyCode code = event.getCode();
+                String codeName = code.name();
+                boolean isNumpad = codeName.startsWith("NUMPAD");
+                boolean isDigit = codeName.startsWith("DIGIT");
+                
+                // Forward to game handler
+                if (gc != null) {
+                    gc.handleKeyPressEvent(event);
+                }
+                
+                // For numpad/digit keys in two-player mode, consume the event to prevent other handlers
+                if (gc != null && gc.isTwoPlayerMode() && (isNumpad || isDigit)) {
+                    event.consume();
+                }
+                
                 // Ensure ALT doesn't trigger mnemonics
-                if (event.getCode() == javafx.scene.input.KeyCode.ALT || event.getCode() == javafx.scene.input.KeyCode.ALT_GRAPH) {
+                if (code == javafx.scene.input.KeyCode.ALT || code == javafx.scene.input.KeyCode.ALT_GRAPH) {
                     event.consume();
                 }
             });
+            
             javafx.application.Platform.runLater(() -> {
                 // Ensure rootPane is initialized and has focus
                 if (gc.getRootPane() != null) {
@@ -387,9 +402,13 @@ public class MainMenuController {
                     gc.getRootPane().requestFocus();
                     gc.getRootPane().setOnKeyPressed(gc::handleKeyPressEvent);
                 } else if (sceneRoot != null) {
-                    // Fallback: use root if rootPane not available
                     sceneRoot.requestFocus();
                     sceneRoot.setOnKeyPressed(gc::handleKeyPressEvent);
+                }
+                
+                // Request focus on the scene itself
+                if (gameScene.getRoot() != null) {
+                    gameScene.getRoot().requestFocus();
                 }
             });
             
