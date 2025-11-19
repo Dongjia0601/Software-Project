@@ -7,9 +7,9 @@ import com.comp2042.model.state.GameStateContext;
 import javafx.beans.property.IntegerProperty;
 
 /**
- * Abstraction over a playable session of the Tetris game.
- * Encapsulates board/state management so controllers focus solely
- * on wiring UI interactions.
+ * Service interface abstracting a playable game session (Service Layer Pattern).
+ * Encapsulates board/state management, allowing controllers to focus on UI interactions.
+ * Extends GameStateContext for state transition management.
  */
 public interface GameSession extends GameStateContext {
 

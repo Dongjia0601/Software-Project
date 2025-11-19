@@ -9,20 +9,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Manages sound effects and background music for the game.
- * Provides methods to play various sound effects like attacks, line clears, etc.
- * Uses JavaFX Media API to load and play audio files from resources.
- * Optimized to prevent performance issues by throttling frequent sounds and properly disposing MediaPlayers.
- * 
- * <p>Supports different background music for different game modes:
- * <ul>
- *   <li>Main Menu: MainMenuBGM.mp3</li>
- *   <li>Endless Mode: EndlessBGM.mp3</li>
- *   <li>Two-Player Mode: TwoPlayerBGM.mp3</li>
- *   <li>Level 1, 3 & 5: Level135BGM.mp3</li>
- *   <li>Level 2 & 4: Level24BGM.mp3</li>
- * </ul>
- * </p>
+ * Centralized audio manager for sound effects and background music (Singleton Pattern).
+ * Uses JavaFX Media API with performance optimizations (throttling, caching, proper disposal).
+ * Supports mode-specific BGM: Main Menu, Endless, Two-Player, and Level-specific tracks.
  * 
  * @author Dong, Jia.
  */
@@ -44,10 +33,9 @@ public class SoundManager {
     }
     
     /**
-     * Gets the singleton instance of SoundManager.
-     * Uses synchronized method to ensure thread-safe lazy initialization.
+     * Gets the singleton instance (thread-safe lazy initialization).
      * 
-     * @return the SoundManager instance
+     * @return SoundManager instance
      */
     public static synchronized SoundManager getInstance() {
         if (instance == null) {
@@ -57,10 +45,10 @@ public class SoundManager {
     }
     
     /**
-     * Loads a media file from resources.
+     * Loads and caches a media file from resources.
      * 
-     * @param resourcePath the path to the audio file in resources
-     * @return the loaded Media object, or null if loading fails
+     * @param resourcePath Path to audio file
+     * @return Media object, or null if loading fails
      */
     private Media loadMedia(String resourcePath) {
         if (mediaCache.containsKey(resourcePath)) {

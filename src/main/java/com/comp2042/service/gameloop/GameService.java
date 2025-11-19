@@ -7,55 +7,27 @@ import com.comp2042.dto.DownData;
 import com.comp2042.event.MoveEvent;
 
 /**
- * Interface defining the contract for game service operations.
- * 
- * <p>This interface provides a clean abstraction for game logic operations,
- * movement event handling, and game state management. It serves as the main
- * contract between the game controller and the underlying game implementation.</p>
- * 
- * <p>Key responsibilities:</p>
- * <ul>
- *   <li>Provide access to game board and score objects</li>
- *   <li>Handle movement and rotation events</li>
- *   <li>Manage game state transitions</li>
- *   <li>Control game timing and speed</li>
- * </ul>
+ * Service layer interface for game logic operations (Service Layer Pattern).
+ * Provides clean abstraction between controllers and game implementation.
+ * Handles event processing, state management, and timing control.
  * 
  * @author Dong, Jia.
  */
 public interface GameService {
 
-    /**
-     * Gets the game board.
-     * @return the game board instance
-     */
+    /** Gets the game board. */
     Board getBoard();
 
-    /**
-     * Gets the score object.
-     * @return the score instance
-     */
+    /** Gets the score tracker. */
     Score getScore();
 
-    /**
-     * Processes a down movement event.
-     * @param event the move event
-     * @return the down data result
-     */
+    /** Processes DOWN event. */
     DownData processDownEvent(MoveEvent event);
 
-    /**
-     * Processes a left movement event.
-     * @param event the move event
-     * @return the view data result
-     */
+    /** Processes LEFT event. */
     ViewData processLeftEvent(MoveEvent event);
 
-    /**
-     * Processes a right movement event.
-     * @param event the move event
-     * @return the view data result
-     */
+    /** Processes RIGHT event. */
     ViewData processRightEvent(MoveEvent event);
 
     /**

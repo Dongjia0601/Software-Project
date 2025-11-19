@@ -11,9 +11,8 @@ import com.comp2042.service.audio.SoundManager;
 import javafx.beans.property.IntegerProperty;
 
 /**
- * Default single-player session implementation that encapsulates board lifecycle,
- * state transitions, and pause/new-game coordination. This keeps {@link com.comp2042.controller.game.GameController}
- * focused on delegating UI/input responsibilities.
+ * Single-player session encapsulating board lifecycle and state transitions (Service Layer).
+ * Keeps GameController focused on UI/input delegation.
  */
 public class SinglePlayerGameSession implements GameSession {
 
