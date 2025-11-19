@@ -4,11 +4,8 @@ import com.comp2042.dto.ClearRow;
 import com.comp2042.dto.ViewData;
 
 /**
- * Immutable data transfer object containing the results of a DOWN event.
- * Encapsulates both the visual state (ViewData) and line clearing information (ClearRow).
- * 
- * <p>This class represents the complete result of a brick movement downward,
- * including any lines that were cleared and the updated game state.</p>
+ * Immutable DTO containing complete results of a downward brick movement.
+ * Encapsulates visual state, line clearing information, landing status, and score bonus.
  */
 public final class DownData {
     private final ClearRow clearRow;
@@ -17,22 +14,22 @@ public final class DownData {
     private final int scoreBonus;
 
     /**
-     * Constructs a DownData object with the specified components.
+     * Constructs a DownData with basic components.
      *
-     * @param clearRow The line clearing information.
-     * @param viewData The updated visual state.
+     * @param clearRow Line clearing information
+     * @param viewData Updated visual state
      */
     public DownData(ClearRow clearRow, ViewData viewData) {
         this(clearRow, viewData, false, 0);
     }
 
     /**
-     * Constructs a DownData object with all parameters.
+     * Constructs a DownData with all parameters.
      *
-     * @param clearRow The line clearing information.
-     * @param viewData The updated visual state.
-     * @param brickLanded Whether the brick has landed and can't move further.
-     * @param scoreBonus Additional score points earned from this move.
+     * @param clearRow    Line clearing information
+     * @param viewData    Updated visual state
+     * @param brickLanded Whether the brick has landed
+     * @param scoreBonus  Additional score points earned
      */
     public DownData(ClearRow clearRow, ViewData viewData, boolean brickLanded, int scoreBonus) {
         this.clearRow = clearRow;
@@ -44,7 +41,7 @@ public final class DownData {
     /**
      * Gets the line clearing information.
      *
-     * @return The ClearRow object containing line clearing details.
+     * @return ClearRow with clearing details
      */
     public ClearRow getClearRow() {
         return clearRow;
@@ -53,43 +50,43 @@ public final class DownData {
     /**
      * Gets the updated visual state.
      *
-     * @return The ViewData object containing the current game state.
+     * @return ViewData with current game state
      */
     public ViewData getViewData() {
         return viewData;
     }
 
     /**
-     * Checks if the brick has landed and can't move further.
+     * Checks if the brick has landed.
      *
-     * @return true if the brick has landed, false otherwise.
+     * @return true if landed, false otherwise
      */
     public boolean isBrickLanded() {
         return brickLanded;
     }
 
     /**
-     * Gets the additional score points earned from this move.
+     * Gets the score bonus from this move.
      *
-     * @return The score bonus points.
+     * @return Score bonus points
      */
     public int getScoreBonus() {
         return scoreBonus;
     }
 
     /**
-     * Checks if any lines were cleared in this move.
+     * Checks if any lines were cleared.
      *
-     * @return true if lines were cleared, false otherwise.
+     * @return true if lines cleared, false otherwise
      */
     public boolean hasLinesCleared() {
         return clearRow != null && clearRow.getLinesRemoved() > 0;
     }
 
     /**
-     * Gets the total score earned from this move (including line clearing bonus).
+     * Gets the total score including line clearing bonus.
      *
-     * @return The total score points.
+     * @return Total score points
      */
     public int getTotalScore() {
         int total = scoreBonus;
@@ -100,9 +97,9 @@ public final class DownData {
     }
 
     /**
-     * Returns a string representation of this DownData object.
+     * Returns a string representation of this DownData.
      *
-     * @return A string representation of the down data.
+     * @return String representation
      */
     @Override
     public String toString() {
@@ -112,10 +109,10 @@ public final class DownData {
     }
 
     /**
-     * Checks if this DownData is equal to another object.
+     * Checks equality with another object.
      *
-     * @param obj The object to compare with.
-     * @return true if the objects are equal, false otherwise.
+     * @param obj Object to compare
+     * @return true if equal, false otherwise
      */
     @Override
     public boolean equals(Object obj) {
@@ -130,9 +127,9 @@ public final class DownData {
     }
 
     /**
-     * Returns a hash code for this DownData object.
+     * Returns hash code for this DownData.
      *
-     * @return A hash code for the down data.
+     * @return Hash code value
      */
     @Override
     public int hashCode() {

@@ -3,9 +3,8 @@ package com.comp2042.dto;
 import com.comp2042.util.MatrixOperations;
 
 /**
- * Value object (DTO) containing the results of a row-clearing operation.
- * Holds the number of lines removed, the new board matrix after clearing,
- * and the score bonus earned.
+ * Immutable DTO containing row-clearing operation results.
+ * Encapsulates lines removed, updated board matrix, and score bonus.
  */
 public final class ClearRow {
 
@@ -14,11 +13,11 @@ public final class ClearRow {
     private final int scoreBonus; // The score bonus earned from clearing the lines
 
     /**
-     * Constructs a ClearRow object with the specified results.
+     * Constructs a ClearRow with operation results.
      *
-     * @param linesRemoved The number of lines cleared.
-     * @param newMatrix    The updated board matrix.
-     * @param scoreBonus   The score bonus earned.
+     * @param linesRemoved Number of lines cleared
+     * @param newMatrix    Updated board matrix
+     * @param scoreBonus   Score bonus earned
      */
     public ClearRow(int linesRemoved, int[][] newMatrix, int scoreBonus) {
         this.linesRemoved = linesRemoved;
@@ -27,28 +26,28 @@ public final class ClearRow {
     }
 
     /**
-     * Gets the number of lines that were removed.
+     * Gets the number of lines removed.
      *
-     * @return The number of lines removed.
+     * @return Lines removed count
      */
     public int getLinesRemoved() {
         return linesRemoved;
     }
 
     /**
-     * Gets the new board matrix after the lines were cleared.
-     * Returns a copy to prevent external modification.
+     * Gets the board matrix after clearing.
+     * Returns a defensive copy to prevent external modification.
      *
-     * @return A copy of the new board matrix.
+     * @return Copy of the updated board matrix
      */
     public int[][] getNewMatrix() {
-        return MatrixOperations.copy(newMatrix); // Return a copy
+        return MatrixOperations.copy(newMatrix);
     }
 
     /**
-     * Gets the score bonus earned from clearing the lines.
+     * Gets the score bonus earned.
      *
-     * @return The score bonus.
+     * @return Score bonus points
      */
     public int getScoreBonus() {
         return scoreBonus;
