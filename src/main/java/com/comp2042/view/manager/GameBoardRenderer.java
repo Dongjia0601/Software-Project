@@ -131,22 +131,15 @@ public class GameBoardRenderer {
     }
     
     /**
-     * Maps brick type values to colors.
+     * Gets the color for a brick type using polymorphism (Strategy Pattern).
+     * Refactored: Replaced switch statement with polymorphic delegation to Brick objects.
      * 
      * @param brickType the brick type value
      * @return the corresponding color
      */
     private Color getBrickColor(int brickType) {
-        switch (brickType) {
-            case 1: return Color.CYAN;       // I brick
-            case 2: return Color.BLUE;       // J brick
-            case 3: return Color.ORANGE;     // L brick
-            case 4: return Color.YELLOW;     // O brick
-            case 5: return Color.GREEN;      // S brick
-            case 6: return Color.PURPLE;     // T brick
-            case 7: return Color.RED;        // Z brick
-            default: return Color.GRAY;
-        }
+        javafx.scene.paint.Paint paint = com.comp2042.model.brick.BrickColorMapper.getColor(brickType);
+        return (Color) paint; // Safe cast as all brick colors are Color instances
     }
     
     /**

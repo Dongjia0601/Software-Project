@@ -907,45 +907,15 @@ public class GameViewController implements Initializable, GameInputHandler.Input
 
     /**
      * Maps integer values from the brick/board matrix to JavaFX Paint objects (colors).
+     * Uses polymorphism via BrickColorMapper instead of switch statements (Strategy Pattern).
+     * 
+     * <p><strong>Refactored:</strong> Replaced type code switch with polymorphic delegation.</p>
      *
      * @param i The integer value representing the brick type or state.
      * @return The corresponding Paint object (color).
      */
     private Paint getFillColor(int i) {
-        Paint returnPaint;
-        switch (i) {
-            case 0:
-                returnPaint = Color.TRANSPARENT;
-                break;
-            case 1:
-                returnPaint = Color.AQUA;
-                break;
-            case 2:
-                returnPaint = Color.BLUEVIOLET;
-                break;
-            case 3:
-                returnPaint = Color.DARKGREEN;
-                break;
-            case 4:
-                returnPaint = Color.YELLOW;
-                break;
-            case 5:
-                returnPaint = Color.RED;
-                break;
-            case 6:
-                returnPaint = Color.BEIGE;
-                break;
-            case 7:
-                returnPaint = Color.BURLYWOOD;
-                break;
-            case 8:
-                returnPaint = Color.GRAY;
-                break;
-            default:
-                returnPaint = Color.WHITE;
-                break;
-        }
-        return returnPaint;
+        return com.comp2042.model.brick.BrickColorMapper.getColor(i);
     }
 
     /**

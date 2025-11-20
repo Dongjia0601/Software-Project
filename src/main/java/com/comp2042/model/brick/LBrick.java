@@ -1,6 +1,8 @@
 package com.comp2042.model.brick;
 
 import com.comp2042.util.MatrixOperations;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +10,9 @@ import java.util.List;
 /**
  * L-shaped tetromino.
  * Has 4 unique rotational states.
+ * Color: Green - distinctive color for L-piece.
  */
-final class LBrick implements Brick {
+public final class LBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();
 
@@ -43,5 +46,10 @@ final class LBrick implements Brick {
     @Override
     public List<int[][]> getShapeMatrix() {
         return MatrixOperations.deepCopyList(brickMatrix);
+    }
+
+    @Override
+    public Paint getColor() {
+        return Color.LIGHTGREEN;  // Green color for L-piece
     }
 }

@@ -208,29 +208,15 @@ public class TwoPlayerPanelManager {
         return new GridMetrics(originX, originY, cellWidth, cellHeight);
     }
 
+    /**
+     * Maps brick type codes to colors using polymorphism (Strategy Pattern).
+     * Refactored: Replaced switch statement with polymorphic delegation to Brick objects.
+     * 
+     * @param i the brick type value
+     * @return the corresponding Paint color
+     */
     private Paint getFillColor(int i) {
-        switch (i) {
-            case 0:
-                return Color.TRANSPARENT;
-            case 1:
-                return Color.AQUA;
-            case 2:
-                return Color.BLUEVIOLET;
-            case 3:
-                return Color.DARKGREEN;
-            case 4:
-                return Color.YELLOW;
-            case 5:
-                return Color.RED;
-            case 6:
-                return Color.BEIGE;
-            case 7:
-                return Color.BURLYWOOD;
-            case 8:
-                return Color.DARKORANGE;
-            default:
-                return Color.GAINSBORO;
-        }
+        return com.comp2042.model.brick.BrickColorMapper.getColor(i);
     }
 
     private void setRectangleData(int color, Rectangle rectangle) {

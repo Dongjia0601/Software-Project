@@ -1,6 +1,8 @@
 package com.comp2042.model.brick;
 
 import com.comp2042.util.MatrixOperations;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +10,9 @@ import java.util.List;
 /**
  * I-shaped tetromino (straight line piece).
  * Has 2 unique rotational states.
+ * Color: Cyan (light blue) - standard Tetris color for I-piece.
  */
-final class IBrick implements Brick {
+public final class IBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();
 
@@ -31,6 +34,11 @@ final class IBrick implements Brick {
     @Override
     public List<int[][]> getShapeMatrix() {
         return MatrixOperations.deepCopyList(brickMatrix);
+    }
+
+    @Override
+    public Paint getColor() {
+        return Color.LIGHTBLUE;  // Cyan color for I-piece
     }
 
 }

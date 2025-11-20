@@ -300,46 +300,14 @@ public class BrickRenderer {
     }
     
     /**
-     * Maps brick type values to colors.
+     * Maps brick type codes to colors using polymorphism (Strategy Pattern).
+     * Refactored: Replaced switch statement with polymorphic delegation to Brick objects.
      * 
      * @param color the brick type value
      * @return the corresponding Paint color
      */
     private Paint getFillColor(int color) {
-        Paint returnPaint;
-        switch (color) {
-            case 0:
-                returnPaint = Color.TRANSPARENT;
-                break;
-            case 1:
-                returnPaint = Color.LIGHTBLUE;
-                break;
-            case 2:
-                returnPaint = Color.LIGHTSALMON;
-                break;
-            case 3:
-                returnPaint = Color.LIGHTGREEN;
-                break;
-            case 4:
-                returnPaint = Color.LIGHTYELLOW;
-                break;
-            case 5:
-                returnPaint = Color.LIGHTPINK;
-                break;
-            case 6:
-                returnPaint = Color.BEIGE;
-                break;
-            case 7:
-                returnPaint = Color.BURLYWOOD;
-                break;
-            case 8:
-                returnPaint = Color.GRAY;
-                break;
-            default:
-                returnPaint = Color.WHITE;
-                break;
-        }
-        return returnPaint;
+        return com.comp2042.model.brick.BrickColorMapper.getColor(color);
     }
     
     /**
