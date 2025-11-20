@@ -434,8 +434,8 @@ public class TwoPlayerPanelManager {
         }
 
         if (brickPanel1 != null) {
-            brickPanel1.setLayoutX(calculateGridX(gamePanel1, displayMatrix1, brick.getxPosition()));
-            brickPanel1.setLayoutY(calculateGridY(gamePanel1, displayMatrix1, brick.getyPosition()));
+            brickPanel1.setLayoutX(calculateGridX(gamePanel1, displayMatrix1, brick.getXPosition()));
+            brickPanel1.setLayoutY(calculateGridY(gamePanel1, displayMatrix1, brick.getYPosition()));
         }
 
         if (brick.getNextBrickData() != null) {
@@ -521,8 +521,8 @@ public class TwoPlayerPanelManager {
         }
 
         if (brickPanel2 != null) {
-            brickPanel2.setLayoutX(calculateGridX(gamePanel2, displayMatrix2, brick.getxPosition()));
-            brickPanel2.setLayoutY(calculateGridY(gamePanel2, displayMatrix2, brick.getyPosition()));
+            brickPanel2.setLayoutX(calculateGridX(gamePanel2, displayMatrix2, brick.getXPosition()));
+            brickPanel2.setLayoutY(calculateGridY(gamePanel2, displayMatrix2, brick.getYPosition()));
         }
 
         if (brick.getNextBrickData() != null) {
@@ -545,8 +545,8 @@ public class TwoPlayerPanelManager {
         }
 
         if (!isPause.getValue()) {
-            brickPanel1.setLayoutX(calculateGridX(gamePanel1, displayMatrix1, brick.getxPosition()));
-            brickPanel1.setLayoutY(calculateGridY(gamePanel1, displayMatrix1, brick.getyPosition()));
+            brickPanel1.setLayoutX(calculateGridX(gamePanel1, displayMatrix1, brick.getXPosition()));
+            brickPanel1.setLayoutY(calculateGridY(gamePanel1, displayMatrix1, brick.getYPosition()));
 
             for (int i = 0; i < brick.getBrickData().length && i < rectangles1.length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles1[i].length; j++) {
@@ -571,8 +571,8 @@ public class TwoPlayerPanelManager {
         }
 
         if (!isPause.getValue()) {
-            brickPanel2.setLayoutX(calculateGridX(gamePanel2, displayMatrix2, brick.getxPosition()));
-            brickPanel2.setLayoutY(calculateGridY(gamePanel2, displayMatrix2, brick.getyPosition()));
+            brickPanel2.setLayoutX(calculateGridX(gamePanel2, displayMatrix2, brick.getXPosition()));
+            brickPanel2.setLayoutY(calculateGridY(gamePanel2, displayMatrix2, brick.getYPosition()));
 
             for (int i = 0; i < brick.getBrickData().length && i < rectangles2.length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles2[i].length; j++) {
@@ -604,12 +604,12 @@ public class TwoPlayerPanelManager {
         }
 
         int ghostY = brick.getGhostYPosition();
-        if (ghostY < 0 || ghostY == brick.getyPosition()) {
+        if (ghostY < 0 || ghostY == brick.getYPosition()) {
             ghostPanel1.setVisible(false);
             return;
         }
 
-        ghostPanel1.setLayoutX(calculateGridX(gamePanel1, displayMatrix1, brick.getxPosition()));
+        ghostPanel1.setLayoutX(calculateGridX(gamePanel1, displayMatrix1, brick.getXPosition()));
         ghostPanel1.setLayoutY(calculateGridY(gamePanel1, displayMatrix1, ghostY));
 
         int[][] brickData = brick.getBrickData();
@@ -648,12 +648,12 @@ public class TwoPlayerPanelManager {
         }
 
         int ghostY = brick.getGhostYPosition();
-        if (ghostY < 0 || ghostY == brick.getyPosition()) {
+        if (ghostY < 0 || ghostY == brick.getYPosition()) {
             ghostPanel2.setVisible(false);
             return;
         }
 
-        ghostPanel2.setLayoutX(calculateGridX(gamePanel2, displayMatrix2, brick.getxPosition()));
+        ghostPanel2.setLayoutX(calculateGridX(gamePanel2, displayMatrix2, brick.getXPosition()));
         ghostPanel2.setLayoutY(calculateGridY(gamePanel2, displayMatrix2, ghostY));
 
         int[][] brickData = brick.getBrickData();

@@ -23,13 +23,13 @@ class SimpleBoardExtendedTest {
     void testMoveBrickDownSuccess() {
         board.createNewBrick();
         ViewData initialData = board.getViewData();
-        int initialY = initialData.getyPosition();
+        int initialY = initialData.getYPosition();
         
         boolean moved = board.moveBrickDown();
         
         assertTrue(moved);
         ViewData newData = board.getViewData();
-        assertEquals(initialY + 1, newData.getyPosition());
+        assertEquals(initialY + 1, newData.getYPosition());
     }
 
     @Test

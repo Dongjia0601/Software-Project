@@ -134,7 +134,7 @@ public class MatrixOperations {
      */
     public static ClearRow clearCompletedRows(final int[][] matrix) {
         // Temporary matrix to hold the new state after rows are cleared
-        int[][] tmp = new int[matrix.length][matrix[0].length];
+        int[][] clearedMatrix = new int[matrix.length][matrix[0].length];
         // Deque to efficiently add rows that are not cleared
         Deque<int[]> newRows = new ArrayDeque<>();
         // List to store the indices of rows that were cleared
@@ -142,7 +142,7 @@ public class MatrixOperations {
 
         // Scan the matrix from top to bottom
         for (int i = 0; i < matrix.length; i++) {
-            int[] tmpRow = new int[matrix[i].length];
+            int[] currentRow = new int[matrix[i].length];
             boolean rowToClear = true; // Assume the row is full initially
 
             // Check each cell in the current row
@@ -150,13 +150,13 @@ public class MatrixOperations {
                 if (matrix[i][j] == 0) {
                     rowToClear = false; // Found an empty cell, row is not full
                 }
-                tmpRow[j] = matrix[i][j]; // Copy the cell value
+                currentRow[j] = matrix[i][j]; // Copy the cell value
             }
 
             if (rowToClear) {
                 clearedRows.add(i); // Mark this row for removal
             } else {
-                newRows.add(tmpRow); // Keep this row
+                newRows.add(currentRow); // Keep this row
             }
         }
 
@@ -164,7 +164,7 @@ public class MatrixOperations {
         for (int i = matrix.length - 1; i >= 0; i--) {
             int[] row = newRows.pollLast(); // Get the next row to place (from the end of the deque)
             if (row != null) {
-                tmp[i] = row; // Place the row in the new matrix
+                clearedMatrix[i] = row; // Place the row in the new matrix
             } else {
                 // If no more rows to keep, fill the remaining top rows with zeros
                 break;
@@ -175,7 +175,7 @@ public class MatrixOperations {
         int scoreBonus = calculateLineClearScore(clearedRows.size());
 
         // Return the results encapsulated in a ClearRow object
-        return new ClearRow(clearedRows.size(), tmp, scoreBonus);
+        return new ClearRow(clearedRows.size(), clearedMatrix, scoreBonus);
     }
 
     /**

@@ -31,9 +31,9 @@ class HoldManager {
             heldBrick = currentBrick;
             spawnNewBrick.run();
         } else {
-            Brick temp = heldBrick;
+            Brick swappedBrick = heldBrick;
             heldBrick = currentBrick;
-            rotator.setBrick(temp);
+            rotator.setBrick(swappedBrick);
             resetPosition.run();
         }
 

@@ -875,8 +875,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             }
         }
 
-        brickPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getxPosition()));
-        brickPanel.setLayoutY(calculateGridY(gamePanel, displayMatrix, brick.getyPosition()));
+        brickPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getXPosition()));
+        brickPanel.setLayoutY(calculateGridY(gamePanel, displayMatrix, brick.getYPosition()));
         
         // Update ghost brick position
         updateGhostBrick(brick);
@@ -970,8 +970,8 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         }
         
         if (!isPause.getValue()) {
-            brickPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getxPosition()));
-            brickPanel.setLayoutY(calculateGridY(gamePanel, displayMatrix, brick.getyPosition()));
+            brickPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getXPosition()));
+            brickPanel.setLayoutY(calculateGridY(gamePanel, displayMatrix, brick.getYPosition()));
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
@@ -1008,13 +1008,13 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         }
         
         int ghostY = brick.getGhostYPosition();
-        if (ghostY < 0 || ghostY == brick.getyPosition()) {
+        if (ghostY < 0 || ghostY == brick.getYPosition()) {
             // Ghost position not calculated or same as current position, hide ghost
             ghostPanel.setVisible(false);
             return;
         }
         
-        ghostPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getxPosition()));
+        ghostPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getXPosition()));
         ghostPanel.setLayoutY(calculateGridY(gamePanel, displayMatrix, ghostY));
         
         // Update ghost brick rectangles to match current brick shape

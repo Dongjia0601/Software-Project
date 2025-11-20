@@ -23,10 +23,10 @@ public class GameController implements InputEventListener {
     /**
      * Constructs a GameController and initializes the game session.
      *
-     * @param c GameViewController instance
+     * @param viewController GameViewController instance
      */
-    public GameController(GameViewController c) {
-        viewGuiController = c;
+    public GameController(GameViewController viewController) {
+        viewGuiController = viewController;
         this.gameSession = new SinglePlayerGameSession(new SimpleBoard(10, 20), viewGuiController);
         this.gameSession.initialize();
         viewGuiController.bindScore(gameSession.scoreProperty());

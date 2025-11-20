@@ -130,8 +130,8 @@ public class BrickRenderer {
      */
     private void updateBrickPosition(ViewData brick) {
         if (brickPanel != null && boardRenderer != null) {
-            brickPanel.setLayoutX(boardRenderer.calculateGridX(brick.getxPosition()));
-            brickPanel.setLayoutY(boardRenderer.calculateGridY(brick.getyPosition()));
+            brickPanel.setLayoutX(boardRenderer.calculateGridX(brick.getXPosition()));
+            brickPanel.setLayoutY(boardRenderer.calculateGridY(brick.getYPosition()));
         }
     }
     
@@ -155,7 +155,7 @@ public class BrickRenderer {
         }
         
         int ghostY = brick.getGhostYPosition();
-        if (ghostY < 0 || ghostY == brick.getyPosition()) {
+        if (ghostY < 0 || ghostY == brick.getYPosition()) {
             // Ghost position not calculated or same as current position, hide ghost
             ghostPanel.setVisible(false);
             return;
@@ -163,7 +163,7 @@ public class BrickRenderer {
         
         // Position ghost panel
         if (boardRenderer != null) {
-            ghostPanel.setLayoutX(boardRenderer.calculateGridX(brick.getxPosition()));
+            ghostPanel.setLayoutX(boardRenderer.calculateGridX(brick.getXPosition()));
             ghostPanel.setLayoutY(boardRenderer.calculateGridY(ghostY));
         }
         

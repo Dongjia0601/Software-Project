@@ -63,7 +63,7 @@ public final class ViewData {
      *
      * @return X-coordinate (column)
      */
-    public int getxPosition() {
+    public int getXPosition() {
         return xPosition;
     }
 
@@ -72,7 +72,7 @@ public final class ViewData {
      *
      * @return Y-coordinate (row)
      */
-    public int getyPosition() {
+    public int getYPosition() {
         return yPosition;
     }
     

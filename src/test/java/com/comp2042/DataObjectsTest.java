@@ -87,8 +87,8 @@ class DataObjectsTest {
         ViewData viewData = new ViewData(brickData, 5, 10, 15, nextBrick, holdBrick);
         
         assertArrayEquals(brickData, viewData.getBrickData());
-        assertEquals(5, viewData.getxPosition());
-        assertEquals(10, viewData.getyPosition());
+        assertEquals(5, viewData.getXPosition());
+        assertEquals(10, viewData.getYPosition());
         assertEquals(15, viewData.getGhostYPosition());
         assertArrayEquals(nextBrick, viewData.getNextBrickData());
         assertArrayEquals(holdBrick, viewData.getHoldBrickData());
@@ -102,8 +102,8 @@ class DataObjectsTest {
         
         ViewData viewData = new ViewData(brickData, 3, 4, nextBrick);
         
-        assertEquals(3, viewData.getxPosition());
-        assertEquals(4, viewData.getyPosition());
+        assertEquals(3, viewData.getXPosition());
+        assertEquals(4, viewData.getYPosition());
         assertEquals(-1, viewData.getGhostYPosition()); // Default
         assertNull(viewData.getHoldBrickData()); // Default
     }

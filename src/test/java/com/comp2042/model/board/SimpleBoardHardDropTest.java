@@ -32,7 +32,7 @@ class SimpleBoardHardDropTest {
         assertTrue(ghostY > 0, "Ghost Y should be positive");
         
         int dropped = board.hardDropBrick();
-        int finalY = board.getViewData().getyPosition();
+        int finalY = board.getViewData().getYPosition();
         
         assertEquals(ghostY, finalY, "Ghost brick Y should match hard drop destination");
     }

@@ -80,19 +80,19 @@ public class SimpleBoard implements Board {
         }
         
         // PERFORMANCE OPTIMIZATION: intersect() is read-only, no need to copy matrix
-        Point p = new Point(currentOffset);
-        p.translate(0, 1); // Move down (increase y)
+        Point newPosition = new Point(currentOffset);
+        newPosition.translate(0, 1); // Move down (increase y)
         
         // Check if the new position is valid
-        if (p.getY() < 0 || p.getY() >= height) {
+        if (newPosition.getY() < 0 || newPosition.getY() >= height) {
             return false; // Cannot move down, brick lands
         }
         
-        boolean conflict = MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
+        boolean conflict = MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) newPosition.getX(), (int) newPosition.getY());
         if (conflict) {
             return false; // Cannot move down, brick lands
         } else {
-            currentOffset = p; // Update position
+            currentOffset = newPosition; // Update position
             return true;      // Move successful
         }
     }
@@ -147,13 +147,13 @@ public class SimpleBoard implements Board {
      */
     public boolean moveBrickLeft() {
         // PERFORMANCE OPTIMIZATION: intersect() is read-only, no need to copy matrix
-        Point p = new Point(currentOffset);
-        p.translate(-1, 0); // Move left (decrease x)
-        boolean conflict = MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
+        Point newPosition = new Point(currentOffset);
+        newPosition.translate(-1, 0); // Move left (decrease x)
+        boolean conflict = MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) newPosition.getX(), (int) newPosition.getY());
         if (conflict) {
             return false; // Cannot move left
         } else {
-            currentOffset = p; // Update position
+            currentOffset = newPosition; // Update position
             return true;      // Move successful
         }
     }
@@ -167,13 +167,13 @@ public class SimpleBoard implements Board {
      */
     public boolean moveBrickRight() {
         // PERFORMANCE OPTIMIZATION: intersect() is read-only, no need to copy matrix
-        Point p = new Point(currentOffset);
-        p.translate(1, 0); // Move right (increase x)
-        boolean conflict = MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) p.getX(), (int) p.getY());
+        Point newPosition = new Point(currentOffset);
+        newPosition.translate(1, 0); // Move right (increase x)
+        boolean conflict = MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) newPosition.getX(), (int) newPosition.getY());
         if (conflict) {
             return false; // Cannot move right
         } else {
-            currentOffset = p; // Update position
+            currentOffset = newPosition; // Update position
             return true;      // Move successful
         }
     }
