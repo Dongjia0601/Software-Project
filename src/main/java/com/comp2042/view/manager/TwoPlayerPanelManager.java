@@ -30,6 +30,13 @@ import java.util.function.BooleanSupplier;
  */
 public class TwoPlayerPanelManager {
 
+    // Animation duration constants (in milliseconds)
+    private static final int GAME_OVER_FADE_DURATION = 500;
+    private static final int COMBO_SCALE_DURATION = 300;
+    private static final int COMBO_FADE_DURATION = 300;
+    private static final int SHAKE_BASE_DURATION = 300;
+    private static final int SHAKE_INTENSITY_FACTOR = 200;
+    
     private final int brickSize;
     private final int defaultGridGap;
 
@@ -908,7 +915,7 @@ public class TwoPlayerPanelManager {
                 }
             );
 
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(500), twoPlayerGameOverPanel);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(GAME_OVER_FADE_DURATION), twoPlayerGameOverPanel);
             fadeIn.setFromValue(0.0);
             fadeIn.setToValue(1.0);
             fadeIn.play();
@@ -948,7 +955,7 @@ public class TwoPlayerPanelManager {
         }
 
         double intensity = Math.min(attackPower / 4.0, 1.0);
-        long duration = (long) (300 + intensity * 200);
+        long duration = (long) (SHAKE_BASE_DURATION + intensity * SHAKE_INTENSITY_FACTOR);
 
         double shakeAmount = 3 + intensity * 5;
         double originalX = boardContainer.getLayoutX();
@@ -1104,11 +1111,11 @@ public class TwoPlayerPanelManager {
         comboLabel.setScaleY(0.5);
         comboLabel.setOpacity(0.0);
 
-        ScaleTransition scaleUp = new ScaleTransition(Duration.millis(300), comboLabel);
+        ScaleTransition scaleUp = new ScaleTransition(Duration.millis(COMBO_SCALE_DURATION), comboLabel);
         scaleUp.setToX(1.2);
         scaleUp.setToY(1.2);
 
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), comboLabel);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(COMBO_FADE_DURATION), comboLabel);
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
 

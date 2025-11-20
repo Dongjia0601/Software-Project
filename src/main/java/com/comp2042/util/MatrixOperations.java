@@ -178,19 +178,27 @@ public class MatrixOperations {
         return new ClearRow(clearedRows.size(), clearedMatrix, scoreBonus);
     }
 
+    // Tetris scoring constants (standard scoring system)
+    private static final int SINGLE_LINE_SCORE = 100;
+    private static final int DOUBLE_LINE_SCORE = 300;
+    private static final int TRIPLE_LINE_SCORE = 500;
+    private static final int TETRIS_SCORE = 800;  // 4-line clear bonus
+    private static final int NO_LINES_SCORE = 0;
+    
     /**
      * Calculates score bonus based on standard Tetris scoring rules.
+     * Uses named constants for better maintainability and game balance tuning.
      * 
      * @param linesCleared Number of lines cleared (1-4)
      * @return Score bonus points
      */
     private static int calculateLineClearScore(int linesCleared) {
         switch (linesCleared) {
-            case 1: return 100;  // Single line clear
-            case 2: return 300; // Double line clear 
-            case 3: return 500; // Triple line clear
-            case 4: return 800; // Tetris (I block)
-            default: return 0;  // No lines cleared
+            case 1: return SINGLE_LINE_SCORE;
+            case 2: return DOUBLE_LINE_SCORE;
+            case 3: return TRIPLE_LINE_SCORE;
+            case 4: return TETRIS_SCORE;
+            default: return NO_LINES_SCORE;
         }
     }
 

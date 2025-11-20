@@ -10,19 +10,30 @@ import com.comp2042.service.gameloop.GameService;
  */
 public class TwoPlayerModeMechanics {
 
+    // Attack power constants for VS mode (garbage lines sent to opponent)
+    private static final int SINGLE_LINE_ATTACK = 0;     // No attack for single line
+    private static final int DOUBLE_LINE_ATTACK = 1;     // 1 garbage line
+    private static final int TRIPLE_LINE_ATTACK = 2;     // 2 garbage lines
+    private static final int TETRIS_ATTACK = 4;          // 4 garbage lines (powerful!)
+    private static final int NO_ATTACK = 0;
+    
+    // Combo defense constant
+    private static final int COMBO_DEFENSE_MULTIPLIER = 2;  // Lines eliminated per combo level
+    
     /**
      * Calculates attack power (1 line=0, 2=1, 3=2, 4=4 attacks).
+     * Uses named constants for better game balance tuning.
      * 
      * @param linesCleared Lines cleared
-     * @return Attack power (garbage lines)
+     * @return Attack power (garbage lines sent to opponent)
      */
     public int calculateAttackPower(int linesCleared) {
         switch (linesCleared) {
-            case 1: return 0;
-            case 2: return 1;
-            case 3: return 2;
-            case 4: return 4;
-            default: return 0;
+            case 1: return SINGLE_LINE_ATTACK;
+            case 2: return DOUBLE_LINE_ATTACK;
+            case 3: return TRIPLE_LINE_ATTACK;
+            case 4: return TETRIS_ATTACK;
+            default: return NO_ATTACK;
         }
     }
 
@@ -53,6 +64,7 @@ public class TwoPlayerModeMechanics {
 
     /**
      * Eliminates garbage lines from a player's board based on combo count.
+     * Uses COMBO_DEFENSE_MULTIPLIER for game balance.
      * 
      * @param targetService the game service of the player
      * @param comboCount the current combo count
@@ -63,7 +75,7 @@ public class TwoPlayerModeMechanics {
             return 0;
         }
         
-        int comboBonus = (comboCount - 1) * 2; // Each combo above 1 eliminates 2 lines
+        int comboBonus = (comboCount - 1) * COMBO_DEFENSE_MULTIPLIER;
         Board targetBoard = targetService.getBoard();
         
         return targetBoard.removeGarbageLines(comboBonus);
