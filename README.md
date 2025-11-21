@@ -95,12 +95,17 @@ Competitive split-screen multiplayer featuring:
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 GameController.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 GameViewController.java
  ┃ ┃ ┃ ┃ ┃ ┗ 📜 TwoPlayerGameController.java
- ┃ ┃ ┃ ┃ ┗ 📂 menu
- ┃ ┃ ┃ ┃   ┣ 📜 EndlessGameOverController.java
- ┃ ┃ ┃ ┃   ┣ 📜 LevelGameOverController.java
- ┃ ┃ ┃ ┃   ┣ 📜 LevelSelectionController.java
- ┃ ┃ ┃ ┃   ┣ 📜 MainMenuController.java
- ┃ ┃ ┃ ┃   ┗ 📜 SettingsController.java
+ ┃ ┃ ┃ ┃ ┣ 📂 menu
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 EndlessGameOverController.java
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 LevelGameOverController.java
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 LevelSelectionController.java
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 MainMenuController.java
+ ┃ ┃ ┃ ┃ ┃ ┗ 📜 SettingsController.java
+ ┃ ┃ ┃ ┃ ┗ 📂 strategy
+ ┃ ┃ ┃ ┃   ┣ 📜 EndlessModeUIStrategy.java
+ ┃ ┃ ┃ ┃   ┣ 📜 GameModeUIStrategy.java
+ ┃ ┃ ┃ ┃   ┣ 📜 LevelModeUIStrategy.java
+ ┃ ┃ ┃ ┃   ┗ 📜 TwoPlayerModeUIStrategy.java
  ┃ ┃ ┃ ┣ 📂 dto
  ┃ ┃ ┃ ┃ ┣ 📜 ClearRow.java
  ┃ ┃ ┃ ┃ ┣ 📜 DownData.java
@@ -164,22 +169,29 @@ Competitive split-screen multiplayer featuring:
  ┃ ┃ ┃ ┃ ┣ 📂 gameloop
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 GameService.java
  ┃ ┃ ┃ ┃ ┃ ┗ 📜 GameServiceImpl.java
- ┃ ┃ ┃ ┃ ┗ 📂 session
- ┃ ┃ ┃ ┃   ┣ 📜 GameSession.java
- ┃ ┃ ┃ ┃   ┗ 📜 SinglePlayerGameSession.java
+ ┃ ┃ ┃ ┃ ┣ 📂 session
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 GameSession.java
+ ┃ ┃ ┃ ┃ ┃ ┗ 📜 SinglePlayerGameSession.java
+ ┃ ┃ ┃ ┃ ┗ 📂 timeline
+ ┃ ┃ ┃ ┃   ┗ 📜 GameTimelineManager.java
  ┃ ┃ ┃ ┣ 📂 util
  ┃ ┃ ┃ ┃ ┗ 📜 MatrixOperations.java
  ┃ ┃ ┃ ┣ 📂 view
+ ┃ ┃ ┃ ┃ ┣ 📂 dialog
+ ┃ ┃ ┃ ┃ ┃ ┗ 📜 HelpDialogBuilder.java
  ┃ ┃ ┃ ┃ ┣ 📂 manager
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 AnimationController.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 AudioVolumeManager.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 BrickRenderer.java
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 CommonUIManager.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 CountdownManager.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 DialogManager.java
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 EndlessModeUIManager.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 GameBoardRenderer.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 GameInputHandler.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 GameModeUIManager.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 HudManager.java
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 LevelModeUIManager.java
  ┃ ┃ ┃ ┃ ┃ ┗ 📜 TwoPlayerPanelManager.java
  ┃ ┃ ┃ ┃ ┗ 📂 panel
  ┃ ┃ ┃ ┃   ┣ 📜 GameOverPanel.java
@@ -203,7 +215,7 @@ Competitive split-screen multiplayer featuring:
  ┃ ┃   ┣ 📜 settings.css
  ┃ ┃   ┣ 📜 twoPlayerGameLayout.fxml
  ┃ ┃   ┗ 📜 twoPlayerGameStyle.css
- ┃ ┗ 📂 test/java/com/comp2042 (21 test files)
+ ┃ ┗ 📂 test/java/com/comp2042 (31+ test files)
  ┣ 📜 pom.xml
  ┗ 📜 README.md
 ```
@@ -341,6 +353,9 @@ This section details the features that have been successfully implemented in bot
         <li>Time limits and score requirements per level.</li>
         <li>Star rating system (1-3 stars).</li>
         <li>Progressive level unlocking.</li>
+        <li>Dynamic difficulty progression with balanced fall speeds (700ms to 280ms).</li>
+        <li>Enhanced progress tracking with accurate level completion display.</li>
+        <li>Level-specific timeline speed synchronization for smooth gameplay.</li>
       </ul>
       <strong>Two-Player Mode:</strong>
       <ul>
@@ -535,6 +550,7 @@ This section details the features that have been successfully implemented in bot
       <strong>Endless Mode Game Over:</strong>
       <ul>
         <li>Displays final score, lines cleared, level reached, time played.</li>
+        <li>Enhanced with level display showing progression achievement.</li>
         <li>Shows leaderboard position if score qualifies.</li>
         <li>"New Record!" celebration for high scores.</li>
         <li>Options: Play Again, Main Menu, Reset the Leaderboard.</li>
@@ -823,6 +839,60 @@ This section details the features that have been successfully implemented in bot
         <li>Easy to implement new randomization strategies.</li>
         <li>Testable with deterministic generators.</li>
         <li>User choice improves player experience.</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+#### **4a. Strategy Pattern for UI Management**
+
+<table style="width:100%">
+  <tr>
+    <th>Original Version</th>
+    <th>Reason for Improvement</th>
+    <th>New Implementation</th>
+  </tr>
+  <tr>
+    <td>
+      <ul>
+        <li>UI logic mixed with game controllers.</li>
+        <li>Mode-specific UI behavior scattered throughout code.</li>
+        <li>Difficult to add new game modes with custom UI.</li>
+      </ul>
+    </td>
+    <td>
+      <ul>
+        <li>Violated Open/Closed Principle - adding new modes required modifying existing code.</li>
+        <li>UI logic tightly coupled to game mode implementation.</li>
+        <li>No clear separation between common and mode-specific UI behavior.</li>
+      </ul>
+    </td>
+    <td>
+      <strong>GameModeUIStrategy Interface</strong> with three implementations:
+      <br><br>
+      <strong>EndlessModeUIStrategy:</strong>
+      <ul>
+        <li>Handles score tracking, level/speed progression, and elapsed time.</li>
+        <li>Manages endless mode-specific statistics display.</li>
+        <li>Updates best statistics panel with leaderboard data.</li>
+      </ul>
+      <strong>LevelModeUIStrategy:</strong>
+      <ul>
+        <li>Handles progress tracking, star rating, and level-specific displays.</li>
+        <li>Manages level objectives panel and countdown timers.</li>
+        <li>Updates progress indicators and speed display.</li>
+      </ul>
+      <strong>TwoPlayerModeUIStrategy:</strong>
+      <ul>
+        <li>Delegates to TwoPlayerPanelManager for split-screen UI.</li>
+        <li>Manages dual-player statistics and attack indicators.</li>
+      </ul>
+      <strong>Benefits:</strong>
+      <ul>
+        <li>Clean separation of UI logic by game mode.</li>
+        <li>Easy to add new game modes with custom UI behavior.</li>
+        <li>Isolates mode-specific UI concerns from common UI management.</li>
+        <li>Improves code maintainability and testability.</li>
       </ul>
     </td>
   </tr>
@@ -1300,13 +1370,14 @@ While the project has achieved comprehensive functionality, the following featur
 
 ## New Java Classes
 
-This section lists all newly created Java classes in the refactored implementation. The project evolved from 20 original classes to **146 new classes**, representing a comprehensive architectural overhaul.
+This section lists all newly created Java classes in the refactored implementation. The project evolved from 20 original classes to **159 new classes**, representing a comprehensive architectural overhaul.
 
 ### Stats Summary
-- **New Classes Added:** 146
-- **Lines of Code Added:** 26,671
-- **Packages Created:** 23
+- **New Classes Added:** 159
+- **Lines of Code Added:** 30,000+
+- **Packages Created:** 24
 - **Design Patterns Implemented:** 6 (State, Factory, Strategy, Memento, Singleton, MVC)
+- **Test Classes:** 31 comprehensive unit tests
 
 ### Configuration Package (`com.comp2042.config`)
 
@@ -1390,6 +1461,36 @@ This section lists all newly created Java classes in the refactored implementati
   </tr>
 </table>
 
+#### Strategy Sub-package (`controller.strategy`)
+
+<table style="width:100%">
+  <tr>
+    <th>Class Name</th>
+    <th>Description</th>
+    <th>File Path</th>
+  </tr>
+  <tr>
+    <td><strong>GameModeUIStrategy</strong></td>
+    <td>Strategy interface for game mode-specific UI behavior. Enables different UI logic for Endless, Level, and Two-Player modes. Implements Strategy Pattern for UI management.</td>
+    <td><code>src/main/java/com/comp2042/controller/strategy/GameModeUIStrategy.java</code></td>
+  </tr>
+  <tr>
+    <td><strong>EndlessModeUIStrategy</strong></td>
+    <td>Endless Mode UI strategy implementation handling score tracking, level/speed progression, and elapsed time display. Manages endless mode-specific UI updates.</td>
+    <td><code>src/main/java/com/comp2042/controller/strategy/EndlessModeUIStrategy.java</code></td>
+  </tr>
+  <tr>
+    <td><strong>LevelModeUIStrategy</strong></td>
+    <td>Level Mode UI strategy implementation handling progress tracking, star rating, and level-specific displays. Manages level objectives and countdown timers.</td>
+    <td><code>src/main/java/com/comp2042/controller/strategy/LevelModeUIStrategy.java</code></td>
+  </tr>
+  <tr>
+    <td><strong>TwoPlayerModeUIStrategy</strong></td>
+    <td>Two-Player Mode UI strategy implementation. Most logic delegated to TwoPlayerPanelManager for split-screen competitive mode UI management.</td>
+    <td><code>src/main/java/com/comp2042/controller/strategy/TwoPlayerModeUIStrategy.java</code></td>
+  </tr>
+</table>
+
 #### Menu Sub-package (`controller.menu`)
 
 <table style="width:100%">
@@ -1415,7 +1516,7 @@ This section lists all newly created Java classes in the refactored implementati
   </tr>
   <tr>
     <td><strong>EndlessGameOverController</strong></td>
-    <td>Manages Endless Mode game over screen showing final statistics, leaderboard position, and replay options.</td>
+    <td>Manages Endless Mode game over screen showing final statistics (score, lines cleared, level reached, time played), leaderboard position, and replay options.</td>
     <td><code>src/main/java/com/comp2042/controller/menu/EndlessGameOverController.java</code></td>
   </tr>
   <tr>
@@ -1749,6 +1850,8 @@ This section lists all newly created Java classes in the refactored implementati
 
 ### Service Package (`com.comp2042.service`)
 
+#### GameLoop Sub-package (`service.gameloop`)
+
 <table style="width:100%">
   <tr>
     <th>Class Name</th>
@@ -1765,10 +1868,45 @@ This section lists all newly created Java classes in the refactored implementati
     <td>Concrete implementation of GameService coordinating between model and controller layers. Implements business logic.</td>
     <td><code>src/main/java/com/comp2042/service/gameloop/GameServiceImpl.java</code></td>
   </tr>
+</table>
+
+#### Audio Sub-package (`service.audio`)
+
+<table style="width:100%">
+  <tr>
+    <th>Class Name</th>
+    <th>Description</th>
+    <th>File Path</th>
+  </tr>
   <tr>
     <td><strong>SoundManager</strong></td>
     <td>Singleton service managing all audio playback: BGM, SFX, volume control (three-tier), mute functionality, and resource lifecycle.</td>
     <td><code>src/main/java/com/comp2042/service/audio/SoundManager.java</code></td>
+  </tr>
+</table>
+
+#### Timeline Sub-package (`service.timeline`)
+
+<table style="width:100%">
+  <tr>
+    <th>Class Name</th>
+    <th>Description</th>
+    <th>File Path</th>
+  </tr>
+  <tr>
+    <td><strong>GameTimelineManager</strong></td>
+    <td>Centralized manager for all game-related timelines (game loop, elapsed time, level countdown). Provides unified pause/resume/stop operations. Supports dynamic timeline speed adjustments for level progression. Includes proper timeline cleanup and state management to prevent memory leaks. Enables centralized control over all timing aspects of the game.</td>
+    <td><code>src/main/java/com/comp2042/service/timeline/GameTimelineManager.java</code></td>
+  </tr>
+</table>
+
+#### Session Sub-package (`service.session`)
+
+<table style="width:100%">
+  <tr>
+    <th>Class Name</th>
+    <th>Description</th>
+    <th>File Path</th>
   </tr>
   <tr>
     <td><strong>GameSession</strong></td>
@@ -1808,6 +1946,21 @@ This section lists all newly created Java classes in the refactored implementati
     <th>File Path</th>
   </tr>
   <tr>
+    <td><strong>CommonUIManager</strong></td>
+    <td>Manages UI components shared across all game modes. Provides access to common UI elements: root pane, game panel, brick panel, ghost panel, hold panel, next brick panel, and control buttons. Enables consistent UI access across different game modes.</td>
+    <td><code>src/main/java/com/comp2042/view/manager/CommonUIManager.java</code></td>
+  </tr>
+  <tr>
+    <td><strong>EndlessModeUIManager</strong></td>
+    <td>Manages UI components specific to Endless Mode including statistics display, best stats panel, and game title. Provides access to endless mode-specific labels and containers for score, lines, level, speed, and time tracking.</td>
+    <td><code>src/main/java/com/comp2042/view/manager/EndlessModeUIManager.java</code></td>
+  </tr>
+  <tr>
+    <td><strong>LevelModeUIManager</strong></td>
+    <td>Manages UI components specific to Level Mode including objectives panel, timer display, progress indicators, speed display, and star rating. Handles level-specific UI visibility and updates.</td>
+    <td><code>src/main/java/com/comp2042/view/manager/LevelModeUIManager.java</code></td>
+  </tr>
+  <tr>
     <td><strong>BrickRenderer</strong></td>
     <td>Handles all brick visual rendering including color mapping, shape drawing, rotation animations, and ghost brick display.</td>
     <td><code>src/main/java/com/comp2042/view/manager/BrickRenderer.java</code></td>
@@ -1819,7 +1972,7 @@ This section lists all newly created Java classes in the refactored implementati
   </tr>
   <tr>
     <td><strong>HudManager</strong></td>
-    <td>Manages heads-up display elements: score, level, lines cleared, time played, next pieces, hold piece. Updates in real-time.</td>
+    <td>Manages heads-up display elements: score, level, lines cleared, time played, next pieces, hold piece. Updates in real-time. Centralizes all HUD update logic for better maintainability.</td>
     <td><code>src/main/java/com/comp2042/view/manager/HudManager.java</code></td>
   </tr>
   <tr>
@@ -1839,7 +1992,7 @@ This section lists all newly created Java classes in the refactored implementati
   </tr>
   <tr>
     <td><strong>GameModeUIManager</strong></td>
-    <td>Adapts UI layout for different game modes showing/hiding mode-specific elements (timer, progress bars, player stats).</td>
+    <td>Adapts UI layout for different game modes showing/hiding mode-specific elements (timer, progress bars, player stats). Controls display of mode-specific panels and applies theme customizations.</td>
     <td><code>src/main/java/com/comp2042/view/manager/GameModeUIManager.java</code></td>
   </tr>
   <tr>
@@ -1856,6 +2009,21 @@ This section lists all newly created Java classes in the refactored implementati
     <td><strong>CountdownManager</strong></td>
     <td>Manages countdown sequences with visual and audio cues for game start/level transitions.</td>
     <td><code>src/main/java/com/comp2042/view/manager/CountdownManager.java</code></td>
+  </tr>
+</table>
+
+#### Dialog Sub-package (`view.dialog`)
+
+<table style="width:100%">
+  <tr>
+    <th>Class Name</th>
+    <th>Description</th>
+    <th>File Path</th>
+  </tr>
+  <tr>
+    <td><strong>HelpDialogBuilder</strong></td>
+    <td>Builder class for creating comprehensive help dialog UI. Includes sections for game modes, basic controls, randomizer explanation, scoring system, ghost brick, endless mode rules, and two-player rules. Features scrollable content with proper layout and styling. Provides callback interface for dialog lifecycle management.</td>
+    <td><code>src/main/java/com/comp2042/view/dialog/HelpDialogBuilder.java</code></td>
   </tr>
 </table>
 
@@ -2613,10 +2781,10 @@ This Tetris project represents a **complete professional-grade refactoring** of 
 -**Architecture:** Clean MVC with 23 packages and 166 well-organized classes<br>
 -**Design Patterns:** 6 patterns (State, Factory, Strategy, Memento, Singleton, MVC)<br>
 -**Features:** 3 complete game modes with unique mechanics and themed UI<br>
--**Quality:** 73 unit tests, 100% JavaDoc coverage, comprehensive error handling<br>
+-**Quality:** 80+ unit tests, 100% JavaDoc coverage, comprehensive error handling<br>
 -**User Experience:** Professional UI/UX with 23 audio files and smooth animations<br>
 -**Documentation:** Detailed README, in-code comments, and clear commit history<br>
 
-**Total Impact:** 180 files changed, 26,671 lines added, 908 lines deleted
+**Total Impact:** 193 files changed, 30,000+ lines added
 
 The project demonstrates mastery of software maintenance, design patterns, testing, documentation, and modern development practices while delivering a polished, enjoyable gaming experience.
