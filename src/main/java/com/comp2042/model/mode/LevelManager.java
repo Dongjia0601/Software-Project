@@ -54,7 +54,7 @@ public class LevelManager {
                 1,
                 "Ancient Temple",
                 new AncientTempleTheme(),
-                600,    // fallSpeed (ms) - Slow
+                700,    // fallSpeed (ms) - Very Slow
                 5,      // targetLines
                 180,    // timeLimitSeconds (3 minutes)
                 200,    // baseTargetScore (1 star)
@@ -68,7 +68,7 @@ public class LevelManager {
                 2,
                 "Magic Castle",
                 new MagicCastleTheme(),
-                500,    // fallSpeed (ms) - Slow-Medium
+                550,    // fallSpeed (ms) - Slow
                 7,      // targetLines
                 150,    // timeLimitSeconds (2.5 minutes)
                 400,    // baseTargetScore (1 star)
@@ -82,7 +82,7 @@ public class LevelManager {
                 3,
                 "Sunset Village",
                 new SunsetCityTheme(),
-                400,    // fallSpeed (ms) - Medium
+                450,    // fallSpeed (ms) - Medium
                 10,     // targetLines
                 120,    // timeLimitSeconds (2 minutes)
                 600,    // baseTargetScore
@@ -96,7 +96,7 @@ public class LevelManager {
                 4,
                 "Future Warfare",
                 new FutureWarfareTheme(),
-                250,    // fallSpeed (ms) - Fast
+                350,    // fallSpeed (ms) - Fast
                 12,     // targetLines
                 90,     // timeLimitSeconds (1.5 minutes)
                 800,    // baseTargetScore
@@ -110,7 +110,7 @@ public class LevelManager {
                 5,
                 "Interstellar",
                 new InterstellarTheme(),
-                150,    // fallSpeed (ms) - Very Fast
+                280,    // fallSpeed (ms) - Very Fast but playable
                 15,     // targetLines
                 60,     // timeLimitSeconds (1 minute)
                 1000,   // baseTargetScore
