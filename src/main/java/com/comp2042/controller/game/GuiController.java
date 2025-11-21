@@ -109,7 +109,7 @@ import java.util.ResourceBundle;
  * @author Original code + Dong, Jia (Phase 3 Refactoring)
  * @version Phase 3 - SRP Refactoring
  */
-public class GameViewController implements Initializable, GameInputHandler.InputHandlerCallbacks {
+public class GuiController implements Initializable, GameInputHandler.InputHandlerCallbacks {
 
     // Extracted constants for better readability and maintainability
     private static final int BRICK_SIZE = 25; // Size of a single brick cell in pixels (enlarged for better visibility)
@@ -386,7 +386,6 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
 
         // Set focus and request focus for keyboard input
-        // For two-player mode, use Scene-level event filter to capture ALL keys including numpad
         // Note: MainMenuController already adds Scene-level filter, but we ensure rootPane also has focus
         // For single-player, use gamePanel
         if (isTwoPlayerMode && rootPane != null) {
@@ -447,7 +446,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         
         // 4. Initialize GameInputHandler
         inputHandler = new GameInputHandler(isPause, isGameOver);
-        inputHandler.setCallbacks(this); // GameViewController implements InputHandlerCallbacks
+        inputHandler.setCallbacks(this); // GuiController implements InputHandlerCallbacks
         inputHandler.setEventListener(eventListener);
         inputHandler.setTwoPlayerMode(isTwoPlayerMode);
         
@@ -525,7 +524,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             boardBackground1 == null || boardBackground2 == null ||
             player1ScoreLabel == null || player2ScoreLabel == null ||
             player1LinesLabel == null || player2LinesLabel == null) {
-            System.err.println("[GameViewController] Two-player UI components not ready yet; cannot create TwoPlayerPanelManager");
+            System.err.println("[GuiController] Two-player UI components not ready yet; cannot create TwoPlayerPanelManager");
             return;
         }
             twoPlayerPanelManager = new TwoPlayerPanelManager(
@@ -665,7 +664,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         // In two-player mode, onMoveDown should not be called
         // GameInputHandler should use onHandlePlayer1Down() or onHandlePlayer2Down() instead
         if (isTwoPlayerMode) {
-            System.err.println("[GameViewController] WARNING: onMoveDown() called in two-player mode. This should not happen.");
+            System.err.println("[GuiController] WARNING: onMoveDown() called in two-player mode. This should not happen.");
             return;
         }
         moveDown(moveEvent);
@@ -823,6 +822,187 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     }
 
     /**
+     * Handles keyboard controls for single-player mode (Endless/Level Mode).
+     * Controls: A/D - Move, W - Rotate, S - Soft Drop, Space - Hard Drop, Left Shift - Hold, F - Rotate CCW
+     */
+    private void handleSinglePlayerControls(KeyEvent keyEvent) {
+        if (keyEvent.getCode() == KeyCode.A) {
+            // Move left
+            refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_1)));
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.D) {
+            // Move right
+            refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.KEYBOARD_PLAYER_1)));
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.W) {
+            // Rotate clockwise
+            refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.KEYBOARD_PLAYER_1)));
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.S) {
+            // Soft drop
+            moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.SPACE) {
+            // Hard drop
+            moveDown(new MoveEvent(EventType.HARD_DROP, EventSource.USER));
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.SHIFT) {
+            // Hold brick (Left Shift only)
+            ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_1));
+            if (result != null) {
+                refreshBrick(result);
+                updateHoldDisplay(result.getHoldBrickData());
+            }
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.F) {
+            // Rotate counterclockwise
+            refreshBrick(eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_1)));
+            keyEvent.consume();
+        }
+    }
+
+    /**
+     * Handles keyboard controls for two-player mode.
+     * Player 1: A/D - Move, W - Rotate, S - Soft Drop, Space - Hard Drop, Shift/C - Hold, F - Rotate CCW
+     * Player 2: ←/→ - Move, ↑ - Rotate, ↓ - Soft Drop, 0 - Hard Drop, 2 - Rotate CCW, 3 - Hold
+     * Note: Key 1 has no function assigned for Player 2
+     */
+    private void handleTwoPlayerControls(KeyEvent keyEvent) {
+        // Check if eventListener is null (e.g., during countdown)
+        // This prevents NullPointerException when keys are pressed before game starts
+        if (eventListener == null) {
+            keyEvent.consume();
+            return;
+        }
+        
+        // === Player 1 Controls (WASD Keys) ===
+        if (keyEvent.getCode() == KeyCode.A) {
+            // Player 1: Move left
+            ViewData result = eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_1));
+            if (result != null) {
+                refreshPlayer1Brick(result);
+            }
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.D) {
+            // Player 1: Move right
+            ViewData result = eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.KEYBOARD_PLAYER_1));
+            if (result != null) {
+                refreshPlayer1Brick(result);
+            }
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.W) {
+            // Player 1: Rotate clockwise
+            ViewData result = eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.KEYBOARD_PLAYER_1));
+            if (result != null) {
+                refreshPlayer1Brick(result);
+            }
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.S) {
+            // Player 1: Soft drop
+            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_1));
+            if (downData != null) {
+                handlePlayer1DownEvent(downData);
+            }
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.SPACE) {
+            // Player 1: Hard drop (Scene-level filter ensures delivery even if a Button is focused)
+            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_1));
+            if (downData != null) {
+                handlePlayer1DownEvent(downData);
+            }
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.SHIFT) {
+            // Player 1: Hold brick
+            ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_1));
+            if (result != null) {
+                refreshPlayer1Brick(result);
+            }
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.F) {
+            // Player 1: Rotate counterclockwise
+            ViewData result = eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_1));
+            if (result != null) {
+                refreshPlayer1Brick(result);
+            }
+            keyEvent.consume();
+        }
+        
+        // === Player 2 Controls (Arrow Keys + Special Keys) ===
+        if (keyEvent.getCode() == KeyCode.LEFT) {
+            // Player 2: Move left
+            ViewData result = eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_2));
+            if (result != null) {
+                refreshPlayer2Brick(result);
+            }
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.RIGHT) {
+            // Player 2: Move right
+            ViewData result = eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.KEYBOARD_PLAYER_2));
+            if (result != null) {
+                refreshPlayer2Brick(result);
+            }
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.UP) {
+            // Player 2: Rotate clockwise
+            ViewData result = eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.KEYBOARD_PLAYER_2));
+            if (result != null) {
+                refreshPlayer2Brick(result);
+            }
+            keyEvent.consume();
+        }
+        if (keyEvent.getCode() == KeyCode.DOWN) {
+            // Player 2: Soft drop
+            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_2));
+            if (downData != null) {
+                handlePlayer2DownEvent(downData);
+            }
+            keyEvent.consume();
+        }
+        // === Player 2 Numpad Controls ===
+        // 0: Hard Drop
+        if (keyEvent.getCode() == KeyCode.DIGIT0 || keyEvent.getCode() == KeyCode.NUMPAD0) {
+            // Player 2: Hard drop (0 / NumPad0)
+            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_2));
+            if (downData != null) {
+                handlePlayer2DownEvent(downData);
+            }
+            keyEvent.consume();
+        }
+        // 2: Rotate CCW (Counter-Clockwise)
+        if (keyEvent.getCode() == KeyCode.DIGIT2 || keyEvent.getCode() == KeyCode.NUMPAD2) {
+            // Player 2: Rotate counterclockwise (2 / NumPad2)
+            ViewData result = eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_2));
+            if (result != null) {
+                refreshPlayer2Brick(result);
+            }
+            keyEvent.consume();
+        }
+        // 3: Hold
+        if (keyEvent.getCode() == KeyCode.DIGIT3 || keyEvent.getCode() == KeyCode.NUMPAD3) {
+            // Player 2: Hold brick (3 / NumPad3)
+            ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_2));
+            if (result != null) {
+                refreshPlayer2Brick(result);
+            }
+            keyEvent.consume();
+        }
+    }
+
+    /**
      * Initializes the game view by setting up the visual representation of the board
      * and the initial falling brick based on the provided board matrix and view data.
      *
@@ -954,12 +1134,12 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         // Prevent calling this method in two-player mode
         // In two-player mode, use refreshPlayer1Brick() or refreshPlayer2Brick() instead
         if (isTwoPlayerMode) {
-            System.err.println("[GameViewController] WARNING: refreshBrick() called in two-player mode. This should not happen.");
+            System.err.println("[GuiController] WARNING: refreshBrick() called in two-player mode. This should not happen.");
             return;
         }
         
         if (brickPanel == null) {
-            System.err.println("[GameViewController] ERROR: brickPanel is null in single-player mode!");
+            System.err.println("[GuiController] ERROR: brickPanel is null in single-player mode!");
             return;
         }
         
@@ -1125,7 +1305,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         // Prevent calling this method in two-player mode
         // In two-player mode, use handlePlayer1DownEvent() or handlePlayer2DownEvent() instead
         if (isTwoPlayerMode) {
-            System.err.println("[GameViewController] WARNING: moveDown() called in two-player mode. This should not happen.");
+            System.err.println("[GuiController] WARNING: moveDown() called in two-player mode. This should not happen.");
             return;
         }
         
@@ -2282,187 +2462,6 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     }
     
     /**
-     * Handles keyboard controls for single-player mode (Endless/Level Mode).
-     * Controls: A/D - Move, W - Rotate, S - Soft Drop, Space - Hard Drop, Left Shift - Hold, F - Rotate CCW
-     */
-    private void handleSinglePlayerControls(KeyEvent keyEvent) {
-        if (keyEvent.getCode() == KeyCode.A) {
-            // Move left
-            refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_1)));
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.D) {
-            // Move right
-            refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.KEYBOARD_PLAYER_1)));
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.W) {
-            // Rotate clockwise
-            refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.KEYBOARD_PLAYER_1)));
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.S) {
-            // Soft drop
-            moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.SPACE) {
-            // Hard drop
-            moveDown(new MoveEvent(EventType.HARD_DROP, EventSource.USER));
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.SHIFT) {
-            // Hold brick (Left Shift only)
-            ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_1));
-            if (result != null) {
-                refreshBrick(result);
-                updateHoldDisplay(result.getHoldBrickData());
-            }
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.F) {
-            // Rotate counterclockwise
-            refreshBrick(eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_1)));
-            keyEvent.consume();
-        }
-    }
-    
-    /**
-     * Handles keyboard controls for two-player mode.
-     * Player 1: A/D - Move, W - Rotate, S - Soft Drop, Space - Hard Drop, Shift/C - Hold, F - Rotate CCW
-     * Player 2: ←/→ - Move, ↑ - Rotate, ↓ - Soft Drop, 0 - Hard Drop, 2 - Rotate CCW, 3 - Hold
-     * Note: Key 1 has no function assigned for Player 2
-     */
-    private void handleTwoPlayerControls(KeyEvent keyEvent) {
-        // Check if eventListener is null (e.g., during countdown)
-        // This prevents NullPointerException when keys are pressed before game starts
-        if (eventListener == null) {
-            keyEvent.consume();
-            return;
-        }
-        
-        // === Player 1 Controls (WASD Keys) ===
-        if (keyEvent.getCode() == KeyCode.A) {
-            // Player 1: Move left
-            ViewData result = eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_1));
-            if (result != null) {
-                refreshPlayer1Brick(result);
-            }
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.D) {
-            // Player 1: Move right
-            ViewData result = eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.KEYBOARD_PLAYER_1));
-            if (result != null) {
-                refreshPlayer1Brick(result);
-            }
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.W) {
-            // Player 1: Rotate clockwise
-            ViewData result = eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.KEYBOARD_PLAYER_1));
-            if (result != null) {
-                refreshPlayer1Brick(result);
-            }
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.S) {
-            // Player 1: Soft drop
-            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_1));
-            if (downData != null) {
-                handlePlayer1DownEvent(downData);
-            }
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.SPACE) {
-            // Player 1: Hard drop (Scene-level filter ensures delivery even if a Button is focused)
-            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_1));
-            if (downData != null) {
-                handlePlayer1DownEvent(downData);
-            }
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.SHIFT) {
-            // Player 1: Hold brick
-            ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_1));
-            if (result != null) {
-                refreshPlayer1Brick(result);
-            }
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.F) {
-            // Player 1: Rotate counterclockwise
-            ViewData result = eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_1));
-            if (result != null) {
-                refreshPlayer1Brick(result);
-            }
-            keyEvent.consume();
-        }
-        
-        // === Player 2 Controls (Arrow Keys + Special Keys) ===
-        if (keyEvent.getCode() == KeyCode.LEFT) {
-            // Player 2: Move left
-            ViewData result = eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_2));
-            if (result != null) {
-                refreshPlayer2Brick(result);
-            }
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.RIGHT) {
-            // Player 2: Move right
-            ViewData result = eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.KEYBOARD_PLAYER_2));
-            if (result != null) {
-                refreshPlayer2Brick(result);
-            }
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.UP) {
-            // Player 2: Rotate clockwise
-            ViewData result = eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.KEYBOARD_PLAYER_2));
-            if (result != null) {
-                refreshPlayer2Brick(result);
-            }
-            keyEvent.consume();
-        }
-        if (keyEvent.getCode() == KeyCode.DOWN) {
-            // Player 2: Soft drop
-            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_2));
-            if (downData != null) {
-                handlePlayer2DownEvent(downData);
-            }
-            keyEvent.consume();
-        }
-        // === Player 2 Numpad Controls ===
-        // 0: Hard Drop
-        if (keyEvent.getCode() == KeyCode.DIGIT0 || keyEvent.getCode() == KeyCode.NUMPAD0) {
-            // Player 2: Hard drop (0 / NumPad0)
-            DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_2));
-            if (downData != null) {
-                handlePlayer2DownEvent(downData);
-            }
-            keyEvent.consume();
-        }
-        // 2: Rotate CCW (Counter-Clockwise)
-        if (keyEvent.getCode() == KeyCode.DIGIT2 || keyEvent.getCode() == KeyCode.NUMPAD2) {
-            // Player 2: Rotate counterclockwise (2 / NumPad2)
-            ViewData result = eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_2));
-            if (result != null) {
-                refreshPlayer2Brick(result);
-            }
-            keyEvent.consume();
-        }
-        // 3: Hold
-        if (keyEvent.getCode() == KeyCode.DIGIT3 || keyEvent.getCode() == KeyCode.NUMPAD3) {
-            // Player 2: Hold brick (3 / NumPad3)
-            ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_2));
-            if (result != null) {
-                refreshPlayer2Brick(result);
-            }
-            keyEvent.consume();
-        }
-    }
-    
-    /**
      * Shows settings dialog.
      * Opens the settings page with ability to return to current game.
      */
@@ -2546,12 +2545,10 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     
     /**
      * Shows help dialog with game mode descriptions.
+     * Uses MainMenuController.showHelpDialog() to ensure consistent UI with main menu.
      */
     @FXML
     public void showHelp() {
-        // Play button click sound
-        SoundManager.getInstance().playButtonClickSound();
-        
         try {
             boolean wasPaused = isPause.getValue();
             final boolean wasCountdownRunning = countdownManager != null && countdownManager.isRunning();
@@ -2600,354 +2597,41 @@ public class GameViewController implements Initializable, GameInputHandler.Input
                     System.err.println("Failed to stop timelines during countdown: " + e.getMessage());
                 }
             }
-            // Create help dialog
-            Stage helpStage = new Stage();
-            helpStage.setTitle("Gameplay Guide");
-            helpStage.initModality(Modality.APPLICATION_MODAL);
-            helpStage.setResizable(false);
             
-            // Create scrollable content
-            ScrollPane scrollPane = new ScrollPane();
-            scrollPane.setFitToWidth(true);
-            scrollPane.setPrefViewportHeight(520);
-            scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-            scrollPane.getStyleClass().add("help-scroll");
-
-            VBox mainContainer = new VBox(20);
-            mainContainer.setPadding(new Insets(30));
-            mainContainer.setStyle("-fx-background-color: linear-gradient(to bottom, #1A0033, #2D1B69);");
+            // Use the same help dialog implementation as main menu for consistency
+            javafx.stage.Stage helpStage = com.comp2042.controller.menu.MainMenuController.showHelpDialog();
             
-            // Title
-            Label titleLabel = new Label("Gameplay Guide");
-            titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #4DFFFF; -fx-alignment: center;");
-            titleLabel.setMaxWidth(Double.MAX_VALUE);
-            HBox.setHgrow(titleLabel, Priority.ALWAYS);
-            
-            // Game modes section (compact, no section header)
-            VBox modesContainer = new VBox(12);
-            modesContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.08); -fx-background-radius: 10; -fx-padding: 18;");
-            
-            // Mode descriptions
-            String[][] modeData = {
-                {"Endless Mode", "Play endlessly and aim for the highest score."},
-                {"Level Mode", "Clear levels with increasing difficulty and unlock new themes."},
-                {"Two-Player Mode", "Challenge a friend in local two-player battle."}
-            };
-            
-            for (String[] mode : modeData) {
-                HBox modeRow = new HBox(20);
-                modeRow.setAlignment(Pos.CENTER_LEFT);
+            if (helpStage != null) {
+                // Use a flag to prevent duplicate resume calls
+                final boolean[] hasResumed = {false};
                 
-                // Mode name
-                Label modeLabel = new Label(mode[0]);
-                modeLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-min-width: 150;");
+                // Create a reusable resume function that only runs once
+                Runnable resumeGame = () -> {
+                    if (hasResumed[0]) {
+                        return; // Already resumed, skip
+                    }
+                    hasResumed[0] = true;
+                    
+                    if (wasCountdownRunning && savedCountdownCallback != null) {
+                        // Ensure game is not paused before restarting countdown
+                        isPause.setValue(false);
+                        // Restart countdown from beginning
+                        showCountdown(savedCountdownCallback);
+                    } else if (!wasPaused) {
+                        resumeFromOverlay();
+                    }
+                };
                 
-                // Mode description
-                Label descLabel = new Label(mode[1]);
-                descLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-                descLabel.setMaxWidth(500);
-                descLabel.setWrapText(true);
-                descLabel.setPrefWidth(500);
-                
-                modeRow.getChildren().addAll(modeLabel, descLabel);
-                modesContainer.getChildren().add(modeRow);
+                // Listen for when the dialog is actually closed (not just requested)
+                // This ensures resume logic runs whether closed via X button or Close button
+                // Using showingProperty is more reliable than onCloseRequest
+                helpStage.showingProperty().addListener((obs, wasShowing, isNowShowing) -> {
+                    if (wasShowing && !isNowShowing) {
+                        // Dialog was closed - resume game
+                        resumeGame.run();
+                    }
+                });
             }
-
-            // Basics & Controls split into two purple boxes
-            HBox basicsDual = new HBox(20);
-            basicsDual.setAlignment(Pos.TOP_LEFT);
-
-            // Left: Gameplay Basics & Rules
-            VBox basicsLeftBox = new VBox(12);
-            basicsLeftBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.08); -fx-background-radius: 10; -fx-padding: 18;");
-            Label basicsLeftTitle = new Label("Gameplay Basics");
-            basicsLeftTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
-            VBox basicsLeftCol = createBulletedColumn(new String[] {
-                "Place falling tetrominoes to complete rows.",
-                "Clear full horizontal lines to earn points.",
-                "Clear multiple lines at once for higher points.",
-                "Pieces fall faster as you clear more lines.",
-                "Topping out (stack reaches top) ends the game."
-            }, 330);
-            basicsLeftBox.getChildren().addAll(basicsLeftTitle, basicsLeftCol);
-
-            // Right: Sidebar Panels & Actions
-            VBox basicsRightBox = new VBox(12);
-            basicsRightBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.08); -fx-background-radius: 10; -fx-padding: 18;");
-            Label basicsRightTitle = new Label("Side Panels & Actions");
-            basicsRightTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
-            VBox basicsRightCol = createBulletedColumn(new String[] {
-                "Next: preview upcoming pieces.",
-                "Hold: store one piece to swap later (one swap per piece).",
-                "Ghost Brick: semi-transparent preview showing where the piece will land.",
-                "Statistics: shows Level, Lines cleared, Speed and Time.",
-                "Score: real-time points and the Highest Score.",
-                "Controls: Settings, Help, Back to Menu.",
-                "Actions: New Game (N), Pause & Resume (P), Mute."
-            }, 330);
-            basicsRightBox.getChildren().addAll(basicsRightTitle, basicsRightCol);
-
-            basicsDual.getChildren().addAll(basicsLeftBox, basicsRightBox);
-
-            // Piece Randomizer help section
-            VBox rngContainer = new VBox(10);
-            rngContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
-
-            Label rngTitle = new Label("Piece Randomizer Systems");
-            rngTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
-            rngTitle.setMaxWidth(Double.MAX_VALUE);
-            HBox.setHgrow(rngTitle, Priority.ALWAYS);
-
-            Label rngIntro = new Label(
-                "Modern Tetris variants use a \"bag\" to distribute tetrominoes, while early games used pure random selection. Choose your system in Settings > Gameplay > Piece Randomizer. Default is 7‑Bag System.");
-            rngIntro.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            rngIntro.setWrapText(true);
-
-            // 7-Bag description
-            Label bagHeader = new Label("7‑Bag System (Recommended)");
-            bagHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
-
-            Label bagDesc = new Label(
-                "• Each set of seven contains I, O, T, S, Z, J, L exactly once, then a new bag is shuffled.\n" +
-                "• Guarantees fairness and predictability: no long droughts, no long streaks.\n" +
-                "• Best for skill development and consistent difficulty.");
-            bagDesc.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            bagDesc.setWrapText(true);
-
-            // Pure Random description
-            Label prHeader = new Label("Pure Random System (Classic)");
-            prHeader.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700;");
-
-            Label prDesc = new Label(
-                "• Each piece is chosen uniformly at random with replacement.\n" +
-                "• Can produce streaks and droughts (harder and more volatile).\n" +
-                "• Choose this if you prefer old-school variance and challenge.");
-            prDesc.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            prDesc.setWrapText(true);
-
-            // How to apply
-            Label applyInfo = new Label(
-                "Note: Changing the piece randomizer requires a game restart.\n" +
-                "When you click Save in the settings page, the current game will reset with the selected system.");
-            applyInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #AAAAAA;");
-            applyInfo.setWrapText(true);
-
-            rngContainer.getChildren().addAll(rngTitle, rngIntro, bagHeader, bagDesc, prHeader, prDesc, applyInfo);
-
-            // Scoring help section
-            VBox scoreContainer = new VBox(10);
-            scoreContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
-
-            Label scoreTitle = new Label("Score System");
-            scoreTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
-            scoreTitle.setMaxWidth(Double.MAX_VALUE);
-            HBox.setHgrow(scoreTitle, Priority.ALWAYS);
-
-            Label lineScores = new Label(
-                "Line Clears:\n" +
-                "• Single (1 line): +100 pts\n" +
-                "• Double (2 lines): +300 pts\n" +
-                "• Triple (3 lines): +500 pts\n" +
-                "• Tetris (4 lines): +800 pts");
-            lineScores.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            lineScores.setWrapText(true);
-
-            Label dropScores = new Label(
-                "Drops:\n" +
-                "• Soft Drop: +1 pt per row (accelerated)\n" +
-                "• Hard Drop: +2 pts per row (instant)");
-            dropScores.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            dropScores.setWrapText(true);
-
-            HBox scoreRow = new HBox(40);
-            scoreRow.setAlignment(Pos.TOP_LEFT);
-            lineScores.setPrefWidth(300);
-            dropScores.setPrefWidth(300);
-            scoreRow.getChildren().addAll(lineScores, dropScores);
-
-            scoreContainer.getChildren().addAll(scoreTitle, scoreRow);
-
-            // Ghost Brick System section
-            VBox ghostContainer = new VBox(10);
-            ghostContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
-
-            Label ghostTitle = new Label("Ghost Brick System");
-            ghostTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
-            ghostTitle.setMaxWidth(Double.MAX_VALUE);
-            HBox.setHgrow(ghostTitle, Priority.ALWAYS);
-
-            Label ghostDesc = new Label(
-                "The Ghost Brick is a semi-transparent preview that shows where your current piece will land if dropped straight down. " +
-                "It helps you plan your placement strategy and make precise drops.\n\n" +
-                "Display Conditions:\n" +
-                "• Endless Mode: Shown when level is less than 5 (levels 1-4). Not shown from level 5 onwards (up to level 15).\n" +
-                "• Level Mode: Shown for Easy difficulty (Level 1 and 2)\n" +
-                "• Two-Player Mode: Always shown");
-            ghostDesc.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            ghostDesc.setWrapText(true);
-
-            ghostContainer.getChildren().addAll(ghostTitle, ghostDesc);
-
-            // Endless Mode Level Progression section
-            VBox endlessContainer = new VBox(10);
-            endlessContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
-
-            Label endlessTitle = new Label("Endless Mode Rules");
-            endlessTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
-            endlessTitle.setMaxWidth(Double.MAX_VALUE);
-            HBox.setHgrow(endlessTitle, Priority.ALWAYS);
-
-            // Level Progression subsection
-            Label levelProgTitle = new Label("Level Progression");
-            levelProgTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
-            Label levelProgText = new Label(
-                "• Level increases by 1 for every 10 lines cleared\n" +
-                "• Starting level: 1, Maximum level: 15\n" +
-                "• Examples: 0-9 lines = Level 1, 10-19 lines = Level 2, ..., 140+ lines = Level 15");
-            levelProgText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            levelProgText.setWrapText(true);
-
-            // Speed Progression subsection
-            Label speedTitle = new Label("Speed Progression");
-            speedTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
-            Label speedText = new Label(
-                "• Speed multiplier increases every 2 levels\n" +
-                "• Starting speed: 1x, Maximum speed: 8x\n" +
-                "• Examples: Level 1-2 = 1x, Level 3-4 = 2x, ..., Level 15 = 8x");
-            speedText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            speedText.setWrapText(true);
-
-            endlessContainer.getChildren().addAll(endlessTitle, levelProgTitle, levelProgText, speedTitle, speedText);
-
-            // Two-Player Mode Rules section
-            VBox twoPlayerContainer = new VBox(12);
-            twoPlayerContainer.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-background-radius: 10; -fx-padding: 20;");
-
-            Label twoPlayerTitle = new Label("Two-Player Mode Rules");
-            twoPlayerTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-alignment: center;");
-            twoPlayerTitle.setMaxWidth(Double.MAX_VALUE);
-            HBox.setHgrow(twoPlayerTitle, Priority.ALWAYS);
-
-            // Objective and Winning Condition
-            Label objectiveTitle = new Label("Objective & Winning Condition");
-            objectiveTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
-            Label objectiveText = new Label(
-                "Clear lines to send garbage lines to your opponent. The last player standing wins!\n" +
-                "The game ends when one player's board fills up. The player with the higher score wins!");
-            objectiveText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            objectiveText.setWrapText(true);
-
-            // Attack System
-            Label attackTitle = new Label("Attack System");
-            attackTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
-            Label attackText = new Label(
-                "• 1 line cleared: No attack (0 garbage lines)\n" +
-                "• 2 lines cleared: Send 1 garbage line\n" +
-                "• 3 lines cleared: Send 2 garbage lines\n" +
-                "• 4 lines cleared (Tetris): Send 4 garbage lines");
-            attackText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            attackText.setWrapText(true);
-
-            // Combo Bonus
-            Label comboTitle = new Label("Combo Bonus");
-            comboTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
-            Label comboText = new Label(
-                "Build combos by clearing lines consecutively. Each combo above 1 eliminates 2 garbage lines from your board!\n" +
-                "Example: Combo x3 = Eliminates 4 garbage lines (2 per combo above 1)");
-            comboText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            comboText.setWrapText(true);
-
-            // Garbage Lines
-            Label garbageTitle = new Label("Garbage Lines");
-            garbageTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
-            Label garbageText = new Label("Garbage lines appear as gray blocks with one random hole. Clear them quickly or they'll stack up!");
-            garbageText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            garbageText.setWrapText(true);
-
-            // Special Features
-            Label featuresTitle = new Label("Special Features");
-            featuresTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
-            Label featuresText = new Label(
-                "• Countdown timer before game starts (3-2-1)\n" +
-                "• Visual attack animations when receiving attacks\n" +
-                "• Real-time statistics tracking (combo, attacks, defense)\n" +
-                "• Sound effects for attacks and line clears");
-            featuresText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            featuresText.setWrapText(true);
-
-            // Strategy Tips
-            Label strategyTitle = new Label("Strategy Tips");
-            strategyTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
-            Label strategyText = new Label(
-                "• Build for Tetris (4-line clears) for maximum damage\n" +
-                "• Maintain combos to clear incoming garbage lines\n" +
-                "• Watch your opponent's board and adapt your strategy\n" +
-                "• Use hold to save pieces for better setups");
-            strategyText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-            strategyText.setWrapText(true);
-
-            twoPlayerContainer.getChildren().addAll(
-                twoPlayerTitle,
-                objectiveTitle, objectiveText,
-                attackTitle, attackText,
-                comboTitle, comboText,
-                garbageTitle, garbageText,
-                featuresTitle, featuresText,
-                strategyTitle, strategyText
-            );
-            
-            // Close button
-            Button closeButton = new Button("Close");
-            closeButton.setStyle("-fx-background-color: #4DFFFF; -fx-text-fill: #1A0033; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5;");
-            closeButton.setOnAction(e -> {
-                // Play button click sound
-                SoundManager.getInstance().playButtonClickSound();
-                helpStage.close();
-                // Restart countdown from beginning if it was running
-                if (wasCountdownRunning && savedCountdownCallback != null) {
-                    // Ensure game is not paused before restarting countdown
-                    isPause.setValue(false);
-                    // Restart countdown from beginning
-                    showCountdown(savedCountdownCallback);
-                } else if (!wasPaused) {
-                    resumeFromOverlay();
-                }
-            });
-            // Prevent initial focus from jumping to the bottom button
-            closeButton.setFocusTraversable(false);
-
-            // Also handle the window's X (close) button to resume if needed
-            helpStage.setOnCloseRequest(e -> {
-                // Play button click sound
-                SoundManager.getInstance().playButtonClickSound();
-                // Restart countdown from beginning if it was running
-                if (wasCountdownRunning && savedCountdownCallback != null) {
-                    // Ensure game is not paused before restarting countdown
-                    isPause.setValue(false);
-                    // Restart countdown from beginning
-                    showCountdown(savedCountdownCallback);
-                } else if (!wasPaused) {
-                    resumeFromOverlay();
-                }
-            });
-            
-            // Create HBox for right-aligned close button
-            HBox buttonContainer = new HBox();
-            buttonContainer.setAlignment(Pos.CENTER_RIGHT);
-            buttonContainer.getChildren().add(closeButton);
-            
-            // Add all components
-            mainContainer.getChildren().addAll(titleLabel, modesContainer, basicsDual, rngContainer, scoreContainer, ghostContainer, endlessContainer, twoPlayerContainer, buttonContainer);
-            scrollPane.setContent(mainContainer);
-            
-            // Create scene and show
-            Scene helpScene = new Scene(scrollPane, 720, 560);
-            // Reuse settings.css for visual consistency (scrollbar styling etc.)
-            helpScene.getStylesheets().add(
-                getClass().getResource("/settings.css").toExternalForm()
-            );
-            helpStage.setScene(helpScene);
-            helpStage.show();
             
         } catch (Exception e) {
             System.err.println("Error showing help dialog: " + e.getMessage());
@@ -3194,7 +2878,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
                     // Use dependency injection: create Board explicitly and inject it
                     com.comp2042.model.board.Board newBoard = new com.comp2042.model.board.SimpleBoard(10, 20);
                     com.comp2042.service.gameloop.GameService gameService = new com.comp2042.service.gameloop.GameServiceImpl(newBoard);
-                    GameViewController newGuiController = new GameViewController();
+                    GuiController newGuiController = new GuiController();
                     var gameMode = com.comp2042.controller.factory.GameModeFactory.createGameMode(com.comp2042.controller.factory.GameModeType.ENDLESS, gameService, newGuiController);
                     gameMode.initialize();
                     newGuiController.setEndlessMode(true);
@@ -3202,7 +2886,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
                     // Load the new game scene
                     FXMLLoader gameLoader = new FXMLLoader(getClass().getClassLoader().getResource("enhancedGameLayout.fxml"));
                     Parent gameRoot = gameLoader.load();
-                    GameViewController gameController = gameLoader.getController();
+                    GuiController gameController = gameLoader.getController();
                     if (gameController == null) {
                         gameController = newGuiController;
                     } else {
@@ -3647,7 +3331,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         if (twoPlayerPanelManager != null) {
             twoPlayerPanelManager.initPlayer1View(boardMatrix, brick);
         } else {
-            System.err.println("[GameViewController] WARN: twoPlayerPanelManager is null in initPlayer1View");
+            System.err.println("[GuiController] WARN: twoPlayerPanelManager is null in initPlayer1View");
         }
     }
     
@@ -3662,7 +3346,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         if (twoPlayerPanelManager != null) {
             twoPlayerPanelManager.initPlayer2View(boardMatrix, brick);
         } else {
-            System.err.println("[GameViewController] WARN: twoPlayerPanelManager is null in initPlayer2View");
+            System.err.println("[GuiController] WARN: twoPlayerPanelManager is null in initPlayer2View");
         }
     }
     
@@ -4037,7 +3721,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             try {
                 onComplete.run();
             } catch (Exception e) {
-                System.err.println("[GameViewController] Error executing countdown callback: " + e.getMessage());
+                System.err.println("[GuiController] Error executing countdown callback: " + e.getMessage());
                 e.printStackTrace();
             }
         } : null;

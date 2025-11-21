@@ -2,7 +2,7 @@ package com.comp2042.model.mode;
 
 import com.comp2042.controller.factory.GameMode;
 import com.comp2042.controller.factory.GameModeType;
-import com.comp2042.controller.game.GameViewController;
+import com.comp2042.controller.game.GuiController;
 import com.comp2042.*;
 import com.comp2042.service.gameloop.GameService;
 import com.comp2042.dto.DownData;
@@ -22,7 +22,7 @@ public class TwoPlayerMode implements GameMode {
     
     private final GameService player1Service;
     private final GameService player2Service;
-    private final GameViewController guiController;
+    private final GuiController guiController;
     
     private long gameStartTime;
     private int player1HighScore;
@@ -46,7 +46,7 @@ public class TwoPlayerMode implements GameMode {
      * @param player2Service Player 2 game service
      * @param guiController the GUI controller for UI updates
      */
-    public TwoPlayerMode(GameService player1Service, GameService player2Service, GameViewController guiController) {
+    public TwoPlayerMode(GameService player1Service, GameService player2Service, GuiController guiController) {
         this.player1Service = player1Service;
         this.player2Service = player2Service;
         this.guiController = guiController;
@@ -113,7 +113,7 @@ public class TwoPlayerMode implements GameMode {
 
     @Override
     public void render() {
-        // Rendering is handled by GameViewController
+        // Rendering is handled by GuiController
         // This method can be used for VS mode specific visual effects
     }
 

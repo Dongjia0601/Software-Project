@@ -22,14 +22,12 @@ public interface GameModeUIStrategy {
 
     }
 
-    /** Updates brick display when piece changes. Default: handled by GameViewController. */
+    /** Updates brick display when piece changes. Default: handled by GuiController. */
     default void updateBrickDisplay(ViewData brick) {
-        // Brick display is handled by GameViewController's refreshBrick method
     }
 
     /** Updates score display. Default: no-op. */
     default void updateScore(int score) {
-        // Score updates handled by HudManager
     }
 
     /** Updates lines cleared display. */
@@ -37,15 +35,13 @@ public interface GameModeUIStrategy {
 
     /** Called when game is paused. Default: no-op (handled by GameTimelineManager). */
     default void onPause() {
-        // Pause logic handled by GameTimelineManager
     }
 
     /** Called when game is resumed. Default: no-op (handled by GameTimelineManager). */
     default void onResume() {
-        // Resume logic handled by GameTimelineManager
     }
 
-    /** Called when game ends. Default: no-op (handled by GameViewController). */
+    /** Called when game ends. Default: no-op (handled by GuiController). */
     default void onGameOver() {
     }
 }

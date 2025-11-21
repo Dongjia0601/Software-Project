@@ -381,6 +381,13 @@ public class HelpDialogBuilder {
         objectiveText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
         objectiveText.setWrapText(true);
 
+        Label importantTitle = new Label("Important:");
+        importantTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+        Label importantText = new Label(
+            "For Player 2, ensure Num Lock is ON when using numpad keys (0, 2, 3)");
+        importantText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+        importantText.setWrapText(true);
+
         Label attackTitle = new Label("Attack System");
         attackTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
         Label attackText = new Label(
@@ -428,6 +435,7 @@ public class HelpDialogBuilder {
         twoPlayerContainer.getChildren().addAll(
             twoPlayerTitle,
             objectiveTitle, objectiveText,
+            importantTitle, importantText,
             attackTitle, attackText,
             comboTitle, comboText,
             garbageTitle, garbageText,

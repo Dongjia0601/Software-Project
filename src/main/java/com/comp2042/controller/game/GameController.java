@@ -17,15 +17,15 @@ import com.comp2042.service.session.SinglePlayerGameSession;
  */
 public class GameController implements InputEventListener {
 
-    private final GameViewController viewGuiController; // The GUI controller instance
+    private final GuiController viewGuiController; // The GUI controller instance
     private final GameSession gameSession;
 
     /**
      * Constructs a GameController and initializes the game session.
      *
-     * @param viewController GameViewController instance
+     * @param viewController GuiController instance
      */
-    public GameController(GameViewController viewController) {
+    public GameController(GuiController viewController) {
         viewGuiController = viewController;
         this.gameSession = new SinglePlayerGameSession(new SimpleBoard(10, 20), viewGuiController);
         this.gameSession.initialize();

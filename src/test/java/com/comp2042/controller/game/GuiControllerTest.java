@@ -14,14 +14,14 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for GameViewController.
+ * Unit tests for GuiController.
  * 
  * <p>Tests focus on public API methods and state management.
  * UI rendering and complex interactions are tested through integration tests.
  */
-class GameViewControllerTest {
+class GuiControllerTest {
 
-    private GameViewController controller;
+    private GuiController controller;
     private CommonUIManager commonUI;
     private EndlessModeUIManager endlessUI;
     private LevelModeUIManager levelUI;
@@ -86,7 +86,7 @@ class GameViewControllerTest {
 
     @Test
     void testIsEndlessMode_InitialState() {
-        // This test would require creating GameViewController
+        // This test would require creating GuiController
         // For now, we verify the setup is correct
         assertNotNull(commonUI);
         assertNotNull(endlessUI);

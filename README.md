@@ -94,7 +94,7 @@ Competitive split-screen multiplayer featuring:
  ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📜 TwoPlayerCountdownManager.java
  ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📜 TwoPlayerTimelineScheduler.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 GameController.java
- ┃ ┃ ┃ ┃ ┃ ┣ 📜 GameViewController.java
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 GuiController.java
  ┃ ┃ ┃ ┃ ┃ ┗ 📜 TwoPlayerGameController.java
  ┃ ┃ ┃ ┃ ┣ 📂 menu
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 EndlessGameOverController.java
@@ -463,6 +463,7 @@ This section details the features that have been successfully implemented in bot
       <ul>
         <li>Player 1: WASD + F for rotation(CCW) + Shift for hold + Space for hard drop</li>
         <li>Player 2: Arrow Keys + 2 for rotation(CCW) + 3 for hold + 0 for hard drop</li>
+        <li><strong>Important:</strong> For Player 2, ensure Num Lock is enabled when using numpad keys (0, 2, 3).</li>
       </ul>
       <strong>Features:</strong>
       <ul>
@@ -676,7 +677,7 @@ This section details the features that have been successfully implemented in bot
       </ul>
       <strong>Controller Layer (com.comp2042.controller):</strong>
       <ul>
-        <li>Game controllers (<code>GameController</code>, <code>GameViewController</code>)</li>
+        <li>Game controllers (<code>GameController</code>, <code>GuiController</code>)</li>
         <li>Menu controllers (<code>MainMenuController</code>, <code>SettingsController</code>)</li>
         <li>Factory controllers (<code>GameModeFactory</code>)</li>
         <li>Two-player specific controllers</li>
@@ -1186,7 +1187,7 @@ This section details the features that have been successfully implemented in bot
       <ul>
         <li>Monolithic classes with multiple responsibilities.</li>
         <li>No reusable components.</li>
-        <li>GameViewController was 4000+ lines.</li>
+        <li>GuiController was 4000+ lines.</li>
       </ul>
     </td>
     <td>
@@ -1199,7 +1200,7 @@ This section details the features that have been successfully implemented in bot
       </ul>
     </td>
     <td>
-      GameViewController refactored into specialized managers:
+      GuiController refactored into specialized managers:
       <br><br>
       <strong>BrickRenderer:</strong>
       <ul>
@@ -1442,9 +1443,9 @@ This section lists all newly created Java classes in the refactored implementati
     <td><code>src/main/java/com/comp2042/controller/game/GameController.java</code></td>
   </tr>
   <tr>
-    <td><strong>GameViewController</strong></td>
+    <td><strong>GuiController</strong></td>
     <td>Main view controller coordinating all UI managers and renderers. Delegates to specialized managers: BrickRenderer, GameBoardRenderer, HudManager, AnimationController, etc. Implements MVC pattern's Controller layer.</td>
-    <td><code>src/main/java/com/comp2042/controller/game/GameViewController.java</code></td>
+    <td><code>src/main/java/com/comp2042/controller/game/GuiController.java</code></td>
   </tr>
   <tr>
     <td><strong>TwoPlayerGameController</strong></td>
@@ -2241,7 +2242,7 @@ com.comp2042/
 **GuiController → GameViewController:**
 - **Original:** ~300 line monolithic class handling everything
 - **Modified:**
-  - Renamed to `GameViewController` for clarity
+  - Renamed to `GuiController` for clarity
   - Expanded to ~4000 lines with comprehensive features
   - **Then refactored** into 10+ specialized managers:
     - `BrickRenderer`
@@ -2419,8 +2420,8 @@ The refactoring process involved relocating classes into proper package structur
   <tr>
     <td><strong>GuiController.java</strong></td>
     <td><code>src/main/java/com/comp2042/GuiController.java</code></td>
-    <td><code>src/main/java/com/comp2042/controller/game/GameViewController.java</code></td>
-    <td>Renamed to GameViewController and relocated. Complete architectural overhaul - refactored into 10+ specialized manager classes following Single Responsibility Principle.</td>
+    <td><code>src/main/java/com/comp2042/controller/game/GuiController.java</code></td>
+    <td>Renamed to GuiController and relocated. Complete architectural overhaul - refactored into 10+ specialized manager classes following Single Responsibility Principle.</td>
   </tr>
   <tr>
     <td><strong>InputEventListener.java</strong></td>
@@ -2526,7 +2527,7 @@ The refactoring process involved relocating classes into proper package structur
       <strong>Comprehensive Refactoring:</strong>
       <ul>
         <li>Implemented MVC architecture with clear layer separation.</li>
-        <li>Refactored GuiController (300 lines) → GameViewController (4000 lines) → 10+ specialized managers.</li>
+        <li>Refactored GuiController (300 lines) → GuiController (4000 lines) → 10+ specialized managers.</li>
         <li>Each manager follows Single Responsibility Principle:
           <ul>
             <li>BrickRenderer: visual rendering only</li>

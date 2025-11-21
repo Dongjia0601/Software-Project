@@ -1,7 +1,7 @@
 package com.comp2042.controller.factory;
 
 import com.comp2042.*;
-import com.comp2042.controller.game.GameViewController;
+import com.comp2042.controller.game.GuiController;
 import com.comp2042.service.gameloop.GameService;
 import com.comp2042.model.mode.GameResult;
 import com.comp2042.model.mode.LevelMode;
@@ -14,12 +14,12 @@ import com.comp2042.model.board.Board;
 /**
  * Concrete implementation of the GameMode interface for playing themed levels.
  * This mode uses a LevelMode object to define level-specific rules and objectives.
- * It delegates core game logic to GameService and UI updates to GameViewController.
+ * It delegates core game logic to GameService and UI updates to GuiController.
  */
 public class LevelGameModeImpl implements GameMode {
 
     private final GameService gameService;
-    private final GameViewController guiController;
+    private final GuiController guiController;
     private final LevelManager levelManager;
 
     private LevelMode currentLevelMode;
@@ -36,7 +36,7 @@ public class LevelGameModeImpl implements GameMode {
      * @param levelManager The level manager for accessing level data and persistence.
      * @param levelMode The specific LevelMode data object defining this level's rules.
      */
-    public LevelGameModeImpl(GameService gameService, GameViewController guiController, LevelManager levelManager, LevelMode levelMode) {
+    public LevelGameModeImpl(GameService gameService, GuiController guiController, LevelManager levelManager, LevelMode levelMode) {
         this.gameService = gameService;
         this.guiController = guiController;
         this.levelManager = levelManager;

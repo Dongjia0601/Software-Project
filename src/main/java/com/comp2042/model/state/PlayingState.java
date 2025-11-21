@@ -2,7 +2,7 @@ package com.comp2042.model.state;
 
 import com.comp2042.*;
 import com.comp2042.model.board.Board;
-import com.comp2042.controller.game.GameViewController;
+import com.comp2042.controller.game.GuiController;
 import com.comp2042.model.state.GameStateContext;
 import com.comp2042.dto.DownData;
 import com.comp2042.dto.ViewData;
@@ -20,7 +20,7 @@ import com.comp2042.service.audio.SoundManager;
  */
 public class PlayingState implements GameState {
     private final Board board; // Reference to the main game board logic
-    private final GameViewController guiController; // Reference to update UI (e.g., show game over)
+    private final GuiController guiController; // Reference to update UI (e.g., show game over)
     private final GameStateContext stateContext; // For state transitions
 
     /**
@@ -29,7 +29,7 @@ public class PlayingState implements GameState {
      * @param guiController The GUI controller instance.
      * @param gameController The main game controller instance for state transitions.
      */
-    public PlayingState(Board board, GameViewController guiController, GameStateContext stateContext) {
+    public PlayingState(Board board, GuiController guiController, GameStateContext stateContext) {
         this.board = board;
         this.guiController = guiController;
         this.stateContext = stateContext;
@@ -73,7 +73,7 @@ public class PlayingState implements GameState {
                 SoundManager.getInstance().playLineClearSound(clearRow.getLinesRemoved());
               
                 // Update lines display in GUI
-                // Endless Mode updates lines in GameViewController.moveDown() using endlessLinesClearedUI
+                // Endless Mode updates lines in GuiController.moveDown() using endlessLinesClearedUI
                 if (!guiController.isEndlessMode()) {
                     guiController.updateLines(board.getTotalLinesCleared());
                 }

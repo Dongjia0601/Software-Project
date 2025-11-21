@@ -1,5 +1,6 @@
 package com.comp2042.view.manager;
 
+import com.comp2042.controller.menu.MainMenuController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -42,7 +43,7 @@ public class DialogManager {
     
     /**
      * Callback interface for dialog manager actions.
-     * Allows the GameViewController to respond to dialog events.
+     * Allows the GuiController to respond to dialog events.
      */
     public interface DialogCallbacks {
         /**
@@ -148,111 +149,11 @@ public class DialogManager {
     /**
      * Shows the Help/Gameplay Guide dialog.
      * Displays a modal dialog with game instructions and controls.
+     * Uses MainMenuController.showHelpDialog() to ensure consistent UI with main menu help.
      */
     public void showHelp() {
-        try {
-            // Create Help dialog UI programmatically
-            javafx.scene.layout.VBox helpRoot = createHelpDialog();
-            
-            // Create modal stage
-            Stage helpStage = new Stage();
-            helpStage.setTitle("Gameplay Guide");
-            helpStage.initModality(Modality.APPLICATION_MODAL);
-            helpStage.setResizable(false);
-            
-            // Create scene
-            Scene helpScene = new Scene(helpRoot, 800, 600);
-            helpScene.getStylesheets().add(getClass().getResource("/settingsStyle.css").toExternalForm());
-            
-            helpStage.setScene(helpScene);
-            helpStage.show();
-            
-            // Center on screen
-            centerWindowOnScreen(helpStage, 800, 600);
-            
-        } catch (Exception e) {
-            System.err.println("Error showing help dialog: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    
-    /**
-     * Creates the Help dialog UI programmatically.
-     * 
-     * @return the VBox containing the help content
-     */
-    private javafx.scene.layout.VBox createHelpDialog() {
-        javafx.scene.layout.VBox root = new javafx.scene.layout.VBox(20);
-        root.setPadding(new javafx.geometry.Insets(30));
-        root.setStyle("-fx-background-color: linear-gradient(to bottom, #0A0E27, #1A1E37);");
-        
-        // Title
-        javafx.scene.control.Label title = new javafx.scene.control.Label("TETRIS GAMEPLAY GUIDE");
-        title.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #4ECDC4;");
-        
-        // Controls section
-        javafx.scene.control.Label controlsTitle = new javafx.scene.control.Label("CONTROLS");
-        controlsTitle.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 10 0 5 0;");
-        
-        String controlsText = 
-            "Single Player:\n" +
-            "  A/D - Move Left/Right\n" +
-            "  W - Rotate Clockwise\n" +
-            "  F - Rotate Counter-Clockwise\n" +
-            "  S - Soft Drop\n" +
-            "  SPACE - Hard Drop\n" +
-            "  SHIFT - Hold Piece\n\n" +
-            "Two Player:\n" +
-            "  Player 1: Same as single player\n" +
-            "  Player 2: Arrow Keys + Numpad 0/2/3\n\n" +
-            "Global:\n" +
-            "  P - Pause/Resume\n" +
-            "  N - New Game\n" +
-            "  M - Mute/Unmute";
-        
-        javafx.scene.control.Label controlsLabel = new javafx.scene.control.Label(controlsText);
-        controlsLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF; -fx-font-family: 'Consolas';");
-        
-        // Game modes section
-        javafx.scene.control.Label modesTitle = new javafx.scene.control.Label("GAME MODES");
-        modesTitle.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 10 0 5 0;");
-        
-        String modesText = 
-            "Endless Mode: Play without limits, level up automatically\n" +
-            "Level Mode: Complete objectives with time limits\n" +
-            "Two Player VS: Compete head-to-head";
-        
-        javafx.scene.control.Label modesLabel = new javafx.scene.control.Label(modesText);
-        modesLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
-        
-        // Close button
-        javafx.scene.control.Button closeButton = new javafx.scene.control.Button("Close");
-        closeButton.setStyle(
-            "-fx-background-color: #4ECDC4; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-size: 16px; " +
-            "-fx-font-weight: bold; " +
-            "-fx-padding: 10 30; " +
-            "-fx-background-radius: 5;"
-        );
-        closeButton.setOnAction(e -> {
-            Stage stage = (Stage) closeButton.getScene().getWindow();
-            stage.close();
-        });
-        
-        // Add all components
-        root.getChildren().addAll(
-            title,
-            controlsTitle,
-            controlsLabel,
-            modesTitle,
-            modesLabel,
-            closeButton
-        );
-        
-        root.setAlignment(javafx.geometry.Pos.TOP_CENTER);
-        
-        return root;
+        // Use the same help dialog implementation as main menu for consistency
+        MainMenuController.showHelpDialog();
     }
     
     /**

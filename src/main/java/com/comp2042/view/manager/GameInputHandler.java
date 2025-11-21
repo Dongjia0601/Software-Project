@@ -65,7 +65,7 @@ public class GameInputHandler {
     
     /**
      * Callback interface for input handler actions.
-     * This interface defines methods that the GameViewController must implement
+     * This interface defines methods that the GuiController must implement
      * to respond to input events.
      */
     public interface InputHandlerCallbacks {

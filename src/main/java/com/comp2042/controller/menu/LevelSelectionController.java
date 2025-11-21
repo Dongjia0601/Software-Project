@@ -400,9 +400,9 @@ public class LevelSelectionController {
             Parent root = loader.load();
             
             // Get the GUI controller
-            com.comp2042.controller.game.GameViewController guiController = loader.getController();
+            com.comp2042.controller.game.GuiController guiController = loader.getController();
             if (guiController == null) {
-                guiController = new com.comp2042.controller.game.GameViewController();
+                guiController = new com.comp2042.controller.game.GuiController();
             }
             
             // Create game service and game mode
@@ -412,7 +412,7 @@ public class LevelSelectionController {
             com.comp2042.controller.factory.GameMode gameMode = 
                 new com.comp2042.controller.factory.LevelGameModeImpl(gameService, guiController, levelManager, level);
             
-            // Set board reference in GameViewController for game over screen
+            // Set board reference in GuiController for game over screen
             guiController.setLevelModeBoard(board);
             
             gameMode.initialize();

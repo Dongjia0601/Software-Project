@@ -11,7 +11,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml" 
             fx:id="rootPane"
-            fx:controller="com.comp2042.controller.game.GameViewController"
+            fx:controller="com.comp2042.controller.game.GuiController"
             prefWidth="900" 
             prefHeight="800"
             styleClass="root-pane">

@@ -7,7 +7,7 @@ import com.comp2042.service.gameloop.GameService;
 import com.comp2042.service.gameloop.GameServiceImpl;
 import com.comp2042.model.board.Board;
 import com.comp2042.model.board.SimpleBoard;
-import com.comp2042.controller.game.GameViewController;
+import com.comp2042.controller.game.GuiController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,13 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class GameModeFactoryTest {
 
     private GameService gameService;
-    private GameViewController guiController;
+    private GuiController guiController;
 
     @BeforeEach
     void setUp() {
         Board board = new SimpleBoard(10, 20);
         gameService = new GameServiceImpl(board);
-        // GameViewController requires JavaFX, so we might pass null if factory checks allow it,
+        // GuiController requires JavaFX, so we might pass null if factory checks allow it,
         // or verify if it throws. Assuming factory passes it through.
         guiController = null; 
     }

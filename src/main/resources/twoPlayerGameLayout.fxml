@@ -11,7 +11,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml" 
             fx:id="rootPane"
-            fx:controller="com.comp2042.controller.game.GameViewController"
+            fx:controller="com.comp2042.controller.game.GuiController"
             prefWidth="1400" 
             prefHeight="900"
             styleClass="root-pane">
@@ -255,7 +255,7 @@
                 <Region prefHeight="100" minHeight="100" VBox.vgrow="NEVER"/>
                 
                 <!-- Player 2 Controls Hint -->
-                <Label text="[←/→] Move  [↑] Rotate CW  [↓] Soft Drop  [0] Hard Drop  [3] Hold [2] Rotate CCW "
+                <Label text="[←/→] Move  [↑] Rotate CW  [↓] Soft Drop  [0/Num0] Hard Drop  [3/Num3] Hold [2/Num2] Rotate CCW "
                        styleClass="control-hint-two-player"/>
             </VBox>
         </HBox>

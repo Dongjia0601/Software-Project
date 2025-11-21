@@ -20,7 +20,7 @@ import com.comp2042.controller.game.twoplayer.TwoPlayerTimelineScheduler;
 public class TwoPlayerGameController implements InputEventListener {
     
     private final TwoPlayerMode gameMode;
-    private final GameViewController guiController;
+    private final GuiController guiController;
     private final GameService player1Service;
     private final GameService player2Service;
     
@@ -38,7 +38,7 @@ public class TwoPlayerGameController implements InputEventListener {
      * @param gameMode the TwoPlayerMode instance managing game logic
      * @param guiController the GUI controller for rendering
      */
-    public TwoPlayerGameController(TwoPlayerMode gameMode, GameViewController guiController) {
+    public TwoPlayerGameController(TwoPlayerMode gameMode, GuiController guiController) {
         this.gameMode = gameMode;
         this.guiController = guiController;
         this.player1Service = gameMode.getPlayer1Service();

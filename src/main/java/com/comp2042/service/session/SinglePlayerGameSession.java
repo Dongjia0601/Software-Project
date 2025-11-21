@@ -1,6 +1,6 @@
 package com.comp2042.service.session;
 
-import com.comp2042.controller.game.GameViewController;
+import com.comp2042.controller.game.GuiController;
 import com.comp2042.dto.DownData;
 import com.comp2042.dto.ViewData;
 import com.comp2042.event.MoveEvent;
@@ -17,10 +17,10 @@ import javafx.beans.property.IntegerProperty;
 public class SinglePlayerGameSession implements GameSession {
 
     private final Board board;
-    private final GameViewController guiController;
+    private final GuiController guiController;
     private GameState currentState;
 
-    public SinglePlayerGameSession(Board board, GameViewController guiController) {
+    public SinglePlayerGameSession(Board board, GuiController guiController) {
         this.board = board;
         this.guiController = guiController;
     }

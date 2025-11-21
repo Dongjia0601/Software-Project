@@ -2,7 +2,7 @@ package com.comp2042.model.mode;
 
 import com.comp2042.controller.factory.GameMode;
 import com.comp2042.controller.factory.GameModeType;
-import com.comp2042.controller.game.GameViewController;
+import com.comp2042.controller.game.GuiController;
 import com.comp2042.*;
 import com.comp2042.dto.DownData;
 import com.comp2042.dto.ViewData;
@@ -18,7 +18,7 @@ import javafx.application.Platform;
 public class EndlessMode implements GameMode {
     
     private final GameService gameService;
-    private final GameViewController guiController;
+    private final GuiController guiController;
     private final EndlessModeLeaderboard leaderboard;
     
     private long gameStartTime;
@@ -36,7 +36,7 @@ public class EndlessMode implements GameMode {
      * @param gameService the core game service for game logic
      * @param guiController the GUI controller for UI updates
      */
-    public EndlessMode(GameService gameService, GameViewController guiController) {
+    public EndlessMode(GameService gameService, GuiController guiController) {
         this.gameService = gameService;
         this.guiController = guiController;
         this.leaderboard = EndlessModeLeaderboard.getInstance();
@@ -133,7 +133,7 @@ public class EndlessMode implements GameMode {
 
     @Override
     public void render() {
-        // Rendering is handled by GameViewController
+        // Rendering is handled by GuiController
         // This method can be used for endless mode specific visual effects
     }
 

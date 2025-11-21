@@ -61,7 +61,7 @@ public class SettingsController {
     private GameSettings settings;
     private Stage stage;
     private Scene savedGameScene; // Saved game scene for returning to game
-    private com.comp2042.controller.game.GameViewController guiController; // Reference to GUI controller for resuming game
+    private com.comp2042.controller.game.GuiController guiController; // Reference to GUI controller for resuming game
     private boolean wasGamePausedBeforeSettings; // Track if game was already paused
     private boolean wasCountdownRunningBeforeSettings; // Track if countdown was running before opening settings
     private Runnable savedCountdownCallback; // Saved countdown callback to restart countdown 
@@ -296,7 +296,7 @@ public class SettingsController {
      * @param wasCountdownRunning whether the countdown was running before opening settings
      * @param countdownCallback the countdown callback to restart countdown if it was running
      */
-    public void setGameController(com.comp2042.controller.game.GameViewController guiController, boolean wasAlreadyPaused, 
+    public void setGameController(com.comp2042.controller.game.GuiController guiController, boolean wasAlreadyPaused, 
                                   boolean wasCountdownRunning, Runnable countdownCallback) {
         this.guiController = guiController;
         this.wasGamePausedBeforeSettings = wasAlreadyPaused;

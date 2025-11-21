@@ -2,7 +2,7 @@ package com.comp2042.model.state;
 
 import com.comp2042.model.board.Board;
 import com.comp2042.dto.DownData;
-import com.comp2042.controller.game.GameViewController;
+import com.comp2042.controller.game.GuiController;
 import com.comp2042.event.MoveEvent;
 import com.comp2042.dto.ViewData;
 
@@ -14,7 +14,7 @@ import com.comp2042.dto.ViewData;
  */
 public class GameOverState implements GameState {
     private final Board board; // Reference to the main game board logic (might be needed for final score display)
-    private final GameViewController guiController; // Reference to update UI (e.g., show game over screen)
+    private final GuiController guiController; // Reference to update UI (e.g., show game over screen)
     private final GameStateContext stateContext;
 
     /**
@@ -22,11 +22,11 @@ public class GameOverState implements GameState {
      * @param board Game board
      * @param guiController GUI controller
      */
-    public GameOverState(Board board, GameViewController guiController) {
+    public GameOverState(Board board, GuiController guiController) {
         this(board, guiController, null);
     }
 
-    public GameOverState(Board board, GameViewController guiController, GameStateContext stateContext) {
+    public GameOverState(Board board, GuiController guiController, GameStateContext stateContext) {
         this.board = board;
         this.guiController = guiController;
         this.stateContext = stateContext;

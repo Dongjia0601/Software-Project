@@ -1,6 +1,6 @@
 package com.comp2042.controller.game.twoplayer;
 
-import com.comp2042.controller.game.GameViewController;
+import com.comp2042.controller.game.GuiController;
 
 /**
  * Handles the countdown UX prior to starting a versus match so the
@@ -8,9 +8,9 @@ import com.comp2042.controller.game.GameViewController;
  */
 public class TwoPlayerCountdownManager {
 
-    private final GameViewController guiController;
+    private final GuiController guiController;
 
-    public TwoPlayerCountdownManager(GameViewController guiController) {
+    public TwoPlayerCountdownManager(GuiController guiController) {
         this.guiController = guiController;
     }
 

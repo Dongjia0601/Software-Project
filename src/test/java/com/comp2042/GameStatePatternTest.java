@@ -6,7 +6,7 @@ import com.comp2042.model.state.GameOverState;
 import com.comp2042.model.state.GameState;
 import com.comp2042.model.state.GameStateContext;
 import com.comp2042.controller.game.GameController;
-import com.comp2042.controller.game.GameViewController;
+import com.comp2042.controller.game.GuiController;
 import com.comp2042.model.board.Board;
 import com.comp2042.model.board.SimpleBoard;
 import com.comp2042.dto.DownData;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class GameStatePatternTest {
 
     private Board board;
-    private GameViewController guiController;
+    private GuiController guiController;
     private GameStateContext stateContext;
     private GameState lastTransitionState;
     private static boolean javaFxInitialized = false;
@@ -47,8 +47,8 @@ class GameStatePatternTest {
         board = new SimpleBoard(10, 20);
         board.createNewBrick(); // Ensure brick exists
         
-        // Create a stub GameViewController
-        guiController = new GameViewController() {
+        // Create a stub GuiController
+        guiController = new GuiController() {
             @Override
             public void updateScore(int score, int highScore) {
                 // No-op

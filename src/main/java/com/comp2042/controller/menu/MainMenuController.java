@@ -2,7 +2,7 @@ package com.comp2042.controller.menu;
 
 import com.comp2042.controller.factory.GameModeFactory;
 import com.comp2042.controller.factory.GameModeType;
-import com.comp2042.controller.game.GameViewController;
+import com.comp2042.controller.game.GuiController;
 import com.comp2042.service.gameloop.GameService;
 import com.comp2042.service.gameloop.GameServiceImpl;
 import com.comp2042.service.audio.SoundManager;
@@ -262,7 +262,7 @@ public class MainMenuController {
      * <p>The method performs the following operations:</p>
      * <ul>
      *   <li>Creates a new GameService instance for game logic</li>
-     *   <li>Initializes a GameViewController for UI management</li>
+     *   <li>Initializes a GuiController for UI management</li>
      *   <li>Creates an EndlessMode game mode using the factory pattern</li>
      *   <li>Transitions to the game scene</li>
      * </ul>
@@ -276,7 +276,7 @@ public class MainMenuController {
             // Use dependency injection: create Board explicitly and inject it
             Board board = new SimpleBoard(10, 20);
             GameService gameService = new GameServiceImpl(board);
-            GameViewController guiController = new GameViewController();
+            GuiController guiController = new GuiController();
             
             // Create endless mode using factory pattern
             var gameMode = GameModeFactory.createGameMode(GameModeType.ENDLESS, gameService, guiController);
@@ -342,9 +342,9 @@ public class MainMenuController {
             Parent root = loader.load();
             
             // Get the GUI controller from the loaded FXML
-            GameViewController guiController = loader.getController();
+            GuiController guiController = loader.getController();
             if (guiController == null) {
-                guiController = new GameViewController();
+                guiController = new GuiController();
             }
             
             // Set two-player mode flag BEFORE creating game mode
@@ -369,7 +369,7 @@ public class MainMenuController {
             centerWindowOnScreen(currentStage, 1400, 900);
             
             // Set up keyboard focus for input handling AFTER scene is set
-            final GameViewController gc = guiController;
+            final GuiController gc = guiController;
             final Parent sceneRoot = root;
             // Critical: capture key presses at Scene level so SPACE/BACKSPACE/ALT work even when buttons are focused
             // Capture key presses at Scene level to ensure numpad keys are captured
@@ -426,13 +426,13 @@ public class MainMenuController {
      * @param guiController the GUI controller for the game
      * @throws IOException if the FXML file cannot be loaded
      */
-    private void loadGameScene(GameViewController guiController) throws IOException {
+    private void loadGameScene(GuiController guiController) throws IOException {
         // Load the enhanced game layout FXML
         FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("enhancedGameLayout.fxml"));
         Parent root = loader.load();
         
         // Set the controller
-        GameViewController gameController = loader.getController();
+        GuiController gameController = loader.getController();
         if (gameController == null) {
             gameController = guiController;
         } else {
@@ -498,6 +498,16 @@ public class MainMenuController {
      */
     @FXML
     private void showHelp() {
+        showHelpDialog();
+    }
+    
+    /**
+     * Creates and shows the help dialog.
+     * This is a static method that can be called from anywhere to show the help dialog.
+     * Used by both MainMenuController and DialogManager to ensure consistent UI.
+     * @return The Stage of the help dialog, so callers can add close listeners if needed
+     */
+    public static javafx.stage.Stage showHelpDialog() {
         // Play button click sound
         SoundManager.getInstance().playButtonClickSound();
         
@@ -789,6 +799,12 @@ public class MainMenuController {
             objectiveText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
             objectiveText.setWrapText(true);
 
+            // Important
+            javafx.scene.control.Label importantText = new javafx.scene.control.Label(
+                "Important: For Player 2, ensure Num Lock is ON when using numpad keys (0, 2, 3)");
+            importantText.setStyle("-fx-font-size: 13px; -fx-text-fill: #C8C8C8;");
+            importantText.setWrapText(true);
+
             // Attack System
             javafx.scene.control.Label attackTitle = new javafx.scene.control.Label("Attack System");
             attackTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
@@ -845,7 +861,8 @@ public class MainMenuController {
                 comboTitle, comboText,
                 garbageTitle, garbageText,
                 featuresTitle, featuresText,
-                strategyTitle, strategyText
+                strategyTitle, strategyText,
+                importantText
             );
 
             // Close button
@@ -860,8 +877,10 @@ public class MainMenuController {
             closeButton.setFocusTraversable(false);
             
             // Also handle the window's X (close) button
-            helpStage.setOnCloseRequest(e -> {
-                // Play button click sound
+            // Note: Callers may set their own onCloseRequest listeners, so we use addEventFilter
+            // to ensure sound plays without overriding caller's listeners
+            helpStage.addEventFilter(javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST, e -> {
+                // Play button click sound (this won't override setOnCloseRequest)
                 SoundManager.getInstance().playButtonClickSound();
             });
             
@@ -878,14 +897,17 @@ public class MainMenuController {
             javafx.scene.Scene helpScene = new javafx.scene.Scene(scrollPane, 720, 560);
             // Load settings.css for shared styles including scrollbar
             helpScene.getStylesheets().add(
-                getClass().getResource("/settings.css").toExternalForm()
+                MainMenuController.class.getResource("/settings.css").toExternalForm()
             );
             helpStage.setScene(helpScene);
             helpStage.show();
             
+            return helpStage;
+            
         } catch (Exception e) {
             System.err.println("Error showing help dialog: " + e.getMessage());
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -904,7 +926,7 @@ public class MainMenuController {
     }
     
     // Helper: build a bullet column with consistent wrapping and spacing
-    private javafx.scene.layout.VBox createBulletedColumn(String[] items, double width) {
+    private static javafx.scene.layout.VBox createBulletedColumn(String[] items, double width) {
         javafx.scene.layout.VBox box = new javafx.scene.layout.VBox(6);
         for (String text : items) {
             javafx.scene.control.Label lbl = new javafx.scene.control.Label("• " + text);

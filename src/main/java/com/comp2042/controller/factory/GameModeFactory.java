@@ -1,7 +1,7 @@
 package com.comp2042.controller.factory;
 
 import com.comp2042.service.gameloop.GameService;
-import com.comp2042.controller.game.GameViewController;
+import com.comp2042.controller.game.GuiController;
 import com.comp2042.model.mode.EndlessMode;
 import com.comp2042.model.mode.LevelManager;
 import com.comp2042.model.mode.TwoPlayerMode;
@@ -23,7 +23,7 @@ public class GameModeFactory {
      * @return a new game mode instance
      * @throws IllegalArgumentException if the game mode type is not supported
      */
-    public static GameMode createGameMode(GameModeType type, GameService gameService, GameViewController guiController) {
+    public static GameMode createGameMode(GameModeType type, GameService gameService, GuiController guiController) {
         switch (type) {
             case ENDLESS:
                 return new EndlessMode(gameService, guiController);
