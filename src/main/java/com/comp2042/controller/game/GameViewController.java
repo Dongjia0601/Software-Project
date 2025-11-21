@@ -46,10 +46,23 @@ import javafx.util.Duration;
 import javafx.application.Platform;
 
 import com.comp2042.config.GameSettings;
-import com.comp2042.view.manager.*;
+import com.comp2042.view.manager.AnimationController;
+import com.comp2042.view.manager.AudioVolumeManager;
+import com.comp2042.view.manager.BrickRenderer;
+import com.comp2042.view.manager.CommonUIManager;
+import com.comp2042.view.manager.CountdownManager;
+import com.comp2042.view.manager.DialogManager;
+import com.comp2042.view.manager.EndlessModeUIManager;
+import com.comp2042.view.manager.GameBoardRenderer;
+import com.comp2042.view.manager.GameInputHandler;
+import com.comp2042.view.manager.GameModeUIManager;
+import com.comp2042.view.manager.HudManager;
+import com.comp2042.view.manager.LevelModeUIManager;
+import com.comp2042.view.manager.TwoPlayerPanelManager;
 import com.comp2042.view.panel.NotificationPanel;
 import com.comp2042.view.panel.GameOverPanel;
-import com.comp2042.controller.factory.*;
+import com.comp2042.controller.factory.GameModeFactory;
+import com.comp2042.controller.factory.GameModeType;
 import com.comp2042.controller.menu.EndlessGameOverController;
 import com.comp2042.controller.menu.LevelGameOverController;
 import com.comp2042.view.panel.TwoPlayerGameOverPanel;
@@ -190,6 +203,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     private boolean isLevelMode = false;
     private long levelStartTime = 0;
     private Board levelModeBoard; // Reference to board for Level Mode (needed for game over screen)
+    private int currentLevelLinesCleared = 0; // Track lines cleared in current level
     
     /**
      * Gets the level start time.
@@ -882,8 +896,18 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         updateGhostBrick(brick);
 
         // Initialize the timeline for automatic brick movement
+        // Use level-specific speed for Level Mode, default speed for Endless Mode
+        int timelineSpeed = TIMELINE_DURATION_MS; // Default 400ms
+        if (isLevelMode) {
+            com.comp2042.model.mode.LevelManager levelManager = com.comp2042.model.mode.LevelManager.getInstance();
+            com.comp2042.model.mode.LevelMode currentLevel = levelManager.getCurrentLevel();
+            if (currentLevel != null) {
+                timelineSpeed = currentLevel.getFallSpeed();
+            }
+        }
+
         timeLine = new Timeline(new KeyFrame(
-                Duration.millis(TIMELINE_DURATION_MS),
+                Duration.millis(timelineSpeed),
                 ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
         ));
         timeLine.setCycleCount(Timeline.INDEFINITE);
@@ -1311,8 +1335,12 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         if (timeTimer != null) {
             timeTimer.stop();
         }
+        if (levelTimer != null) {
+            levelTimer.stop();
+        }
         timeLine = null;
         timeTimer = null;
+        levelTimer = null;
         // Reset UI panels
         if (brickPanel != null) {
             brickPanel.getChildren().clear();
@@ -1343,6 +1371,9 @@ public class GameViewController implements Initializable, GameInputHandler.Input
         isGameOver.setValue(false);
         isPause.setValue(false);
         
+        // Reset level progress tracking
+        currentLevelLinesCleared = 0;
+
         // Reset score and lines display BEFORE creating new controller
         // This ensures cleared data is shown immediately
         if (isEndlessMode) {
@@ -1369,8 +1400,23 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             updateLines(0);
         }
         
-        // Recreate controller which will read settings and build a new Board
-        new GameController(this);
+        // Add small delay to ensure old Timeline instances are fully stopped
+        // before creating new GameController (which will create new Timelines)
+        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(50));
+        delay.setOnFinished(e -> {
+            // Recreate controller which will read settings and build a new Board
+            new GameController(this);
+
+            // Reset Level Mode timer if needed
+            if (isLevelMode) {
+                com.comp2042.model.mode.LevelManager levelManager = com.comp2042.model.mode.LevelManager.getInstance();
+                com.comp2042.model.mode.LevelMode currentLevel = levelManager.getCurrentLevel();
+                if (currentLevel != null) {
+                    updateTime(currentLevel.getTimeLimitSeconds()); // Reset timer to full time limit
+                }
+            }
+        });
+        delay.play();
         // Re-assert grid lines visibility and style just in case
         if (gamePanel != null) {
             gamePanel.setGridLinesVisible(true);
@@ -1505,12 +1551,13 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             updateSpeed(getSpeedDisplayForLevel(endlessLevel));
             updateGameSpeed(getDropMsForLevel(endlessLevel));
         }
-        // Reset timer for Level Mode
+        // Reset timer and speed for Level Mode
         if (isLevelMode) {
             com.comp2042.model.mode.LevelManager levelManager = com.comp2042.model.mode.LevelManager.getInstance();
             com.comp2042.model.mode.LevelMode currentLevel = levelManager.getCurrentLevel();
             if (currentLevel != null) {
                 updateTime(currentLevel.getTimeLimitSeconds()); // Reset timer to full time limit
+                updateGameSpeed(currentLevel.getFallSpeed()); // Reset speed to level's fall speed
             }
         }
         
@@ -1630,6 +1677,9 @@ public class GameViewController implements Initializable, GameInputHandler.Input
     }
 
     public void updateProgress(int linesClearedInLevel, int targetLines) {
+        // Update current level lines cleared for game over screen
+        this.currentLevelLinesCleared = linesClearedInLevel;
+
         if (uiManager != null) {
             uiManager.updateProgress(linesClearedInLevel, targetLines);
         }
@@ -3207,7 +3257,7 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             });
             
             // Show the game over data
-            controller.showGameOver(finalScore, linesCleared, playTimeMs, isNewHighScore, rank);
+            controller.showGameOver(finalScore, linesCleared, getCurrentLevel(), playTimeMs, isNewHighScore, rank);
             
             // Create new scene
             Scene gameOverScene = new Scene(root, 900, 800);
@@ -3257,6 +3307,14 @@ public class GameViewController implements Initializable, GameInputHandler.Input
      * @param newRecords array containing [isNewBestScore, isNewBestTime], or null if not available
      */
     public void showLevelGameOverScene(Board board, boolean[] newRecords) {
+        showLevelGameOverScene(board, newRecords, -1, false); // -1 means use board's total lines, false means not from level timeout
+    }
+
+    public void showLevelGameOverScene(Board board, boolean[] newRecords, int overrideLinesCleared) {
+        showLevelGameOverScene(board, newRecords, overrideLinesCleared, false);
+    }
+
+    public void showLevelGameOverScene(Board board, boolean[] newRecords, int overrideLinesCleared, boolean fromLevelTimeout) {
         if (!isLevelMode) {
             return;
         }
@@ -3283,7 +3341,15 @@ public class GameViewController implements Initializable, GameInputHandler.Input
             
             // Get final game data
             int finalScore = board.getScore().getScore();
-            int linesCleared = board.getTotalLinesCleared(); // Get from board
+            int linesCleared;
+            if (overrideLinesCleared >= 0) {
+                linesCleared = overrideLinesCleared;
+            } else if (isLevelMode && currentLevelLinesCleared > 0) {
+                // In level mode, use the tracked lines cleared (handles rebuildGameForRandomizerChange case)
+                linesCleared = currentLevelLinesCleared;
+            } else {
+                linesCleared = board.getTotalLinesCleared();
+            }
             int targetLines = currentLevel.getTargetLines();
             
             // Calculate actual play time from level start time
