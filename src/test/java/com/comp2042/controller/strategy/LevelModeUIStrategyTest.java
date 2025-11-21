@@ -54,10 +54,8 @@ class LevelModeUIStrategyTest {
             gameTitleLabel, new Label(), new Label(), new VBox(), new VBox()
         );
         
-        hudManager = new HudManager(endlessUI, levelUI);
-        commonUI = new CommonUIManager(
-            null, null, null, null, null, null, null, null, null
-        );
+        hudManager = new HudManager();
+        commonUI = new CommonUIManager();
         
         // Create a simple LevelMode for testing
         com.comp2042.view.theme.LevelTheme theme = new com.comp2042.view.theme.AncientTempleTheme();

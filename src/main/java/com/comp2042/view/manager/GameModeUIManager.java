@@ -4,10 +4,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 /**
- * Manages mode-specific UI components and visibility (Single Responsibility Principle).
- * Controls display of mode-specific panels (Level objectives, Endless stats, Two-Player state),
- * applies theme customizations to Hold/Next previews, and tracks game mode state.
- * 
+ * Manages mode-specific UI components and visibility.
+ * Controls display of panels for different game modes and applies theme customizations.
+ * Uses {@link UIHelper} for common UI operations.
+ *
  * @author Dong, Jia
  */
 public class GameModeUIManager {
@@ -90,22 +90,13 @@ public class GameModeUIManager {
         levelStartTime = System.currentTimeMillis();
         
         // Show level objectives
-        if (leftObjectiveBox != null) {
-            leftObjectiveBox.setManaged(true);
-            leftObjectiveBox.setVisible(true);
-        }
-        
+        UIHelper.showNode(leftObjectiveBox);
+
         // Hide endless mode statistics
-        if (statisticsBox != null) {
-            statisticsBox.setManaged(false);
-            statisticsBox.setVisible(false);
-        }
-        
+        UIHelper.hideNode(statisticsBox);
+
         // Show best stats for level mode
-        if (bestStatsBox != null) {
-            bestStatsBox.setVisible(true);
-            bestStatsBox.setManaged(true);
-        }
+        UIHelper.showNode(bestStatsBox);
     }
     
     /**
@@ -116,22 +107,13 @@ public class GameModeUIManager {
         isLevelMode = false;
         
         // Hide level objectives
-        if (leftObjectiveBox != null) {
-            leftObjectiveBox.setManaged(false);
-            leftObjectiveBox.setVisible(false);
-        }
-        
+        UIHelper.hideNode(leftObjectiveBox);
+
         // Show statistics for endless mode
-        if (statisticsBox != null) {
-            statisticsBox.setManaged(true);
-            statisticsBox.setVisible(true);
-        }
-        
+        UIHelper.showNode(statisticsBox);
+
         // Hide best stats when not in level mode
-        if (bestStatsBox != null) {
-            bestStatsBox.setVisible(false);
-            bestStatsBox.setManaged(false);
-        }
+        UIHelper.hideNode(bestStatsBox);
     }
     
     /**
@@ -143,22 +125,13 @@ public class GameModeUIManager {
         isLevelMode = false;
         
         // Show endless mode statistics
-        if (statisticsBox != null) {
-            statisticsBox.setManaged(true);
-            statisticsBox.setVisible(true);
-        }
-        
+        UIHelper.showNode(statisticsBox);
+
         // Hide level objectives
-        if (leftObjectiveBox != null) {
-            leftObjectiveBox.setManaged(false);
-            leftObjectiveBox.setVisible(false);
-        }
-        
+        UIHelper.hideNode(leftObjectiveBox);
+
         // Hide best stats in endless mode (shown in game over instead)
-        if (bestStatsBox != null) {
-            bestStatsBox.setVisible(false);
-            bestStatsBox.setManaged(false);
-        }
+        UIHelper.hideNode(bestStatsBox);
     }
     
     /**
@@ -184,18 +157,9 @@ public class GameModeUIManager {
         // Two-player mode specific UI adjustments
         if (twoPlayerMode) {
             // Hide single-player specific UI
-            if (statisticsBox != null) {
-                statisticsBox.setManaged(false);
-                statisticsBox.setVisible(false);
-            }
-            if (leftObjectiveBox != null) {
-                leftObjectiveBox.setManaged(false);
-                leftObjectiveBox.setVisible(false);
-            }
-            if (bestStatsBox != null) {
-                bestStatsBox.setVisible(false);
-                bestStatsBox.setManaged(false);
-            }
+            UIHelper.hideNode(statisticsBox);
+            UIHelper.hideNode(leftObjectiveBox);
+            UIHelper.hideNode(bestStatsBox);
         }
     }
     
@@ -208,20 +172,9 @@ public class GameModeUIManager {
         isTwoPlayerMode = false;
         levelStartTime = 0;
 
-        if (statisticsBox != null) {
-            statisticsBox.setManaged(true);
-            statisticsBox.setVisible(true);
-        }
-
-        if (leftObjectiveBox != null) {
-            leftObjectiveBox.setManaged(false);
-            leftObjectiveBox.setVisible(false);
-        }
-
-        if (bestStatsBox != null) {
-            bestStatsBox.setVisible(false);
-            bestStatsBox.setManaged(false);
-        }
+        UIHelper.showNode(statisticsBox);
+        UIHelper.hideNode(leftObjectiveBox);
+        UIHelper.hideNode(bestStatsBox);
     }
     
     // ==================== Theme Management ====================

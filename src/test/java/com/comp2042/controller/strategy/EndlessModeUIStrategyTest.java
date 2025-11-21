@@ -52,10 +52,8 @@ class EndlessModeUIStrategyTest {
             new VBox(), new Label(), new Label(), new Label(), new HBox()
         );
         
-        hudManager = new HudManager(endlessUI, levelUI);
-        commonUI = new CommonUIManager(
-            null, null, null, null, null, null, null, null, null
-        );
+        hudManager = new HudManager();
+        commonUI = new CommonUIManager();
         
         strategy = new EndlessModeUIStrategy(endlessUI, hudManager);
     }

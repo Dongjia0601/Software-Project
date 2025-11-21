@@ -5,29 +5,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
- * Responsible for updating all heads-up display (HUD) components.
- *
- * <p>This manager centralises the logic for the primary in-game statistics and
- * indicators, including score, level, timers, progress, and best-statistics
- * panels. It was formerly known as {@code GameUIManager}; the refactor aligns
- * naming with the Single Responsibility Principle driven architecture.</p>
- *
- * <p><strong>Responsibilities:</strong></p>
- * <ul>
- *   <li>Update score and high score displays</li>
- *   <li>Update lines cleared counter</li>
- *   <li>Update level and speed displays</li>
- *   <li>Update elapsed time and countdown timers</li>
- *   <li>Update level mode progress indicators</li>
- *   <li>Update star ratings</li>
- *   <li>Update best statistics displays</li>
- * </ul>
- *
- * <p><strong>Design Pattern:</strong> Extracted from {@code GameViewController}
- * to honour SRP and allow targeted unit testing.</p>
+ * Manages heads-up display (HUD) components including score, level, timers,
+ * and statistics. Uses {@link UIHelper} for common UI operations.
  *
  * @author Dong, Jia
- * @version Phase 4 - HUD Manager Extraction
  */
 public class HudManager {
 

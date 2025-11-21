@@ -40,6 +40,13 @@ public class CommonUIManager {
         this.backToSelectionButton = backToSelectionButton;
     }
 
+    /**
+     * Constructor for testing purposes with null components.
+     */
+    public CommonUIManager() {
+        this(null, null, null, null, null, null, null, null, null, null);
+    }
+
     public BorderPane getRootPane() {
         return rootPane;
     }

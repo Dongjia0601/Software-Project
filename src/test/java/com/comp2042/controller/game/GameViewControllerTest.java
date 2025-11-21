@@ -1,7 +1,10 @@
 package com.comp2042.controller.game;
 
 import com.comp2042.view.manager.*;
+import com.comp2042.view.panel.GameOverPanel;
 import javafx.application.Platform;
+import javafx.scene.Group;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import org.junit.jupiter.api.BeforeAll;
@@ -100,7 +103,7 @@ class GameViewControllerTest {
 
     @Test
     void testUpdateScore_DelegatesToHudManager() {
-        HudManager hudManager = new HudManager(endlessUI, levelUI);
+        HudManager hudManager = new HudManager();
         hudManager.updateScore(1000, 5000);
         
         assertEquals("1000", endlessUI.getScoreLabel().getText());
@@ -109,7 +112,7 @@ class GameViewControllerTest {
 
     @Test
     void testUpdateLevel_DelegatesToHudManager() {
-        HudManager hudManager = new HudManager(endlessUI, levelUI);
+        HudManager hudManager = new HudManager();
         hudManager.updateLevel(5);
         
         assertEquals("5", endlessUI.getLevelLabel().getText());
@@ -117,7 +120,7 @@ class GameViewControllerTest {
 
     @Test
     void testUpdateLines_DelegatesToHudManager() {
-        HudManager hudManager = new HudManager(endlessUI, levelUI);
+        HudManager hudManager = new HudManager();
         hudManager.updateLines(25);
         
         assertEquals("25", endlessUI.getLinesLabel().getText());
@@ -125,7 +128,7 @@ class GameViewControllerTest {
 
     @Test
     void testUpdateSpeed_DelegatesToHudManager() {
-        HudManager hudManager = new HudManager(endlessUI, levelUI);
+        HudManager hudManager = new HudManager();
         hudManager.updateSpeed(3);
         
         assertEquals("3x", endlessUI.getSpeedLabel().getText());
@@ -133,7 +136,7 @@ class GameViewControllerTest {
 
     @Test
     void testUpdateProgress_DelegatesToHudManager() {
-        HudManager hudManager = new HudManager(endlessUI, levelUI);
+        HudManager hudManager = new HudManager();
         hudManager.updateProgress(15, 20);
         
         assertEquals("15/20", levelUI.getLeftProgressLabel().getText());
@@ -141,7 +144,7 @@ class GameViewControllerTest {
 
     @Test
     void testUpdateStarDisplay_DelegatesToHudManager() {
-        HudManager hudManager = new HudManager(endlessUI, levelUI);
+        HudManager hudManager = new HudManager();
         hudManager.updateStarDisplay(3);
         
         assertEquals(3, levelUI.getLeftStarDisplay().getChildren().size());
