@@ -121,8 +121,8 @@ public class PlayingState implements GameState {
                 if (guiController.isEndlessMode()) {
                     guiController.showEndlessGameOverScene(board);
                 } else if (guiController.isLevelMode()) {
-                    // Level failed, no new records
-                    guiController.showLevelGameOverScene(board, new boolean[]{false, false});
+                    // Level failed, no new records - pass current total lines cleared from board
+                    guiController.showLevelGameOverScene(board, new boolean[]{false, false}, board.getTotalLinesCleared());
                 } else {
                     guiController.gameOver(); // Notify GUI
                     if (stateContext != null) {
