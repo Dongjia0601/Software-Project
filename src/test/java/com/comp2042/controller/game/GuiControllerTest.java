@@ -104,6 +104,8 @@ class GuiControllerTest {
     @Test
     void testUpdateScore_DelegatesToHudManager() {
         HudManager hudManager = new HudManager();
+        hudManager.setScoreLabel(endlessUI.getScoreLabel());
+        hudManager.setHighScoreLabel(endlessUI.getHighScoreLabel());
         hudManager.updateScore(1000, 5000);
         
         assertEquals("1000", endlessUI.getScoreLabel().getText());
@@ -113,6 +115,7 @@ class GuiControllerTest {
     @Test
     void testUpdateLevel_DelegatesToHudManager() {
         HudManager hudManager = new HudManager();
+        hudManager.setLevelLabel(endlessUI.getLevelLabel());
         hudManager.updateLevel(5);
         
         assertEquals("5", endlessUI.getLevelLabel().getText());
@@ -121,6 +124,7 @@ class GuiControllerTest {
     @Test
     void testUpdateLines_DelegatesToHudManager() {
         HudManager hudManager = new HudManager();
+        hudManager.setLinesLabel(endlessUI.getLinesLabel());
         hudManager.updateLines(25);
         
         assertEquals("25", endlessUI.getLinesLabel().getText());
@@ -129,6 +133,7 @@ class GuiControllerTest {
     @Test
     void testUpdateSpeed_DelegatesToHudManager() {
         HudManager hudManager = new HudManager();
+        hudManager.setSpeedLabel(endlessUI.getSpeedLabel());
         hudManager.updateSpeed(3);
         
         assertEquals("3x", endlessUI.getSpeedLabel().getText());
@@ -137,6 +142,7 @@ class GuiControllerTest {
     @Test
     void testUpdateProgress_DelegatesToHudManager() {
         HudManager hudManager = new HudManager();
+        hudManager.setLeftProgressLabel(levelUI.getLeftProgressLabel());
         hudManager.updateProgress(15, 20);
         
         assertEquals("15/20", levelUI.getLeftProgressLabel().getText());
@@ -145,6 +151,7 @@ class GuiControllerTest {
     @Test
     void testUpdateStarDisplay_DelegatesToHudManager() {
         HudManager hudManager = new HudManager();
+        hudManager.setLeftStarDisplay(levelUI.getLeftStarDisplay());
         hudManager.updateStarDisplay(3);
         
         assertEquals(3, levelUI.getLeftStarDisplay().getChildren().size());

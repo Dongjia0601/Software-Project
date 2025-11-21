@@ -44,9 +44,11 @@ class LevelModeUIStrategyTest {
         progressLabel = new Label();
         starDisplay = new HBox();
         gameTitleLabel = new Label();
+        Label timerLabel = new Label();
+        Label speedLabel = new Label();
         
         levelUI = new LevelModeUIManager(
-            leftObjectiveBox, new Label(), progressLabel, new Label(), starDisplay
+            leftObjectiveBox, timerLabel, progressLabel, speedLabel, starDisplay
         );
         
         EndlessModeUIManager endlessUI = new EndlessModeUIManager(
@@ -55,6 +57,13 @@ class LevelModeUIStrategyTest {
         );
         
         hudManager = new HudManager();
+        // Bind HudManager to UI components
+        hudManager.setLeftProgressLabel(progressLabel);
+        hudManager.setLeftStarDisplay(starDisplay);
+        hudManager.setGameTitleLabel(gameTitleLabel);
+        hudManager.setLeftTimerLabel(timerLabel);
+        hudManager.setLeftSpeedLabel(speedLabel);
+        
         commonUI = new CommonUIManager();
         
         // Create a simple LevelMode for testing
@@ -71,7 +80,8 @@ class LevelModeUIStrategyTest {
         assertTrue(leftObjectiveBox.isManaged());
         assertEquals("Level 1", gameTitleLabel.getText());
         assertEquals("0/20", progressLabel.getText());
-        assertEquals(0, starDisplay.getChildren().size());
+        // Star display is initialized with 3 empty stars (for display)
+        assertEquals(3, starDisplay.getChildren().size(), "Star display should have 3 stars initialized");
     }
 
     @Test
