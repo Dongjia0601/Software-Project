@@ -216,7 +216,7 @@ Competitive split-screen multiplayer featuring:
  ┃ ┃   ┣ 📜 settings.css
  ┃ ┃   ┣ 📜 twoPlayerGameLayout.fxml
  ┃ ┃   ┗ 📜 twoPlayerGameStyle.css
- ┃ ┗ 📂 test/java/com/comp2042 (31+ test files)
+ ┃ ┗ 📂 test/java/com/comp2042 (43 test files, 441 tests)
  ┣ 📜 pom.xml
  ┗ 📜 README.md
 ```
@@ -1256,7 +1256,7 @@ This section details the features that have been successfully implemented in bot
 
 ## Implemented but Not Working Properly
 
-*All implemented features are working properly.* There are no known bugs or incomplete features in the current implementation. The game has been thoroughly tested with 80+ unit tests covering core logic, design patterns, refactoring improvements, and UI components.
+*All implemented features are working properly.* There are no known bugs or incomplete features in the current implementation. The game has been thoroughly tested with 441 comprehensive unit tests covering core logic, design patterns, refactoring improvements, game modes, service layer, and UI components.
 
 ## Features Not Implemented
 
@@ -1380,7 +1380,7 @@ This section lists all newly created Java classes in the refactored implementati
 - **Lines of Code Added:** 30,000+
 - **Packages Created:** 24
 - **Design Patterns Implemented:** 6 (State, Factory, Strategy, Memento, Singleton, MVC)
-- **Test Classes:** 31 comprehensive unit tests
+- **Test Classes:** 43 test files with 441 comprehensive unit tests (100% pass rate)
 
 ### Configuration Package (`com.comp2042.config`)
 
@@ -2184,7 +2184,7 @@ While only 4 files show as "modified" in git statistics, the reality is that **t
 2. **Refactored** with design patterns (State, Factory, Strategy, Memento, Singleton)
 3. **Enhanced** with extensive new functionality
 4. **Documented** with comprehensive JavaDocs
-5. **Tested** with 80+ unit tests
+5. **Tested** with 441 comprehensive unit tests (100% pass rate)
 
 #### Package Restructuring
 
@@ -2329,7 +2329,7 @@ com.comp2042/
   <tr>
     <td><strong>Testing</strong></td>
     <td>No tests</td>
-    <td>80+ comprehensive unit tests</td>
+    <td>441 comprehensive unit tests (100% pass rate)</td>
   </tr>
   <tr>
     <td><strong>Game Modes</strong></td>
@@ -2569,7 +2569,7 @@ The refactoring process involved relocating classes into proper package structur
         <li>Thoroughly analyzed and fixed coordinate mapping in <code>MatrixOperations</code>.</li>
         <li>Corrected row/column index calculations ensuring consistency.</li>
         <li>Fixed brick spawn position to row 0 with proper bounds checking.</li>
-        <li>Added comprehensive unit tests (80+ tests total) covering:
+        <li>Added comprehensive unit tests (441 tests total) covering:
           <ul>
             <li>Matrix operations with edge cases</li>
             <li>Brick placement at boundaries</li>
@@ -2702,14 +2702,43 @@ The refactoring process involved relocating classes into proper package structur
       </ul>
       <strong>Test Coverage:</strong>
       <ul>
-        <li>80+ comprehensive unit tests covering:
+        <li><strong>441 comprehensive unit tests</strong> covering:
           <ul>
-            <li>Core game logic (MatrixOperations, SimpleBoard): 25 tests</li>
-            <li>Design patterns (State, Factory, Strategy, Memento, Singleton): 15 tests</li>
-            <li>Brick implementations and factory: 10 tests</li>
-            <li>DTO and value objects: 8 tests</li>
-            <li>Game modes and scoring: 10 tests</li>
-            <li>UI components (testable parts): 5 tests</li>
+            <li>Core game logic (MatrixOperations, SimpleBoard, Board components): 30+ tests</li>
+            <li>Design patterns (State, Factory, Strategy, Memento, Singleton): 20+ tests</li>
+            <li>Brick implementations and factory: 23 tests</li>
+            <li>DTO and value objects: 35 tests</li>
+            <li>Game modes (Endless, Level, Two-Player): 100+ tests
+              <ul>
+                <li>EndlessModeTest: 18 tests</li>
+                <li>LevelGameModeImplTest: 29 tests</li>
+                <li>TwoPlayerModeTest: 24 tests</li>
+                <li>TwoPlayerModeMechanicsTest: 14 tests</li>
+                <li>LevelManagerTest: 22 tests</li>
+                <li>EndlessModeLeaderboardTest: 15 tests</li>
+                <li>PlayerStatsTest: 19 tests</li>
+              </ul>
+            </li>
+            <li>Service layer (GameService, GameSession, Timeline): 50+ tests
+              <ul>
+                <li>SinglePlayerGameSessionTest: 22 tests</li>
+                <li>GameTimelineManagerTest: 20 tests</li>
+                <li>TwoPlayerCountdownManagerTest: 7 tests</li>
+                <li>TwoPlayerTimelineSchedulerTest: 16 tests</li>
+              </ul>
+            </li>
+            <li>Configuration and settings: 18 tests (GameSettingsTest)</li>
+            <li>UI components and managers: 60+ tests</li>
+            <li>Controller and strategy patterns: 30+ tests</li>
+          </ul>
+        </li>
+        <li><strong>All tests passing:</strong> 441/441 (100% pass rate)</li>
+        <li><strong>Test quality improvements:</strong>
+          <ul>
+            <li>Removed unprofessional comments and workaround explanations</li>
+            <li>Improved async Timeline testing with Platform.runLater() and CountDownLatch</li>
+            <li>Enhanced game over detection in all game modes</li>
+            <li>Comprehensive coverage of state transitions and edge cases</li>
           </ul>
         </li>
       </ul>
@@ -2785,7 +2814,7 @@ This Tetris project represents a **complete professional-grade refactoring** of 
 -**Architecture:** Clean MVC with 24 packages and 166 well-organized classes<br>
 -**Design Patterns:** 6 patterns (State, Factory, Strategy, Memento, Singleton, MVC)<br>
 -**Features:** 3 complete game modes with unique mechanics and themed UI<br>
--**Quality:** 80+ unit tests, 100% JavaDoc coverage, comprehensive error handling<br>
+-**Quality:** 441 comprehensive unit tests (100% pass rate), 100% JavaDoc coverage, comprehensive error handling<br>
 -**User Experience:** Professional UI/UX with 23 audio files and smooth animations<br>
 -**Documentation:** Detailed README, in-code comments, and clear commit history<br>
 
