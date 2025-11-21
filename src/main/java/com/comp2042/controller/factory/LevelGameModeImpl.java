@@ -57,6 +57,9 @@ public class LevelGameModeImpl implements GameMode {
         gameService.setDropSpeed(currentLevelMode.getFallSpeed());
 
         if (guiController != null) {
+            // Update GUI controller's game speed to match level's fall speed
+            guiController.updateGameSpeed(currentLevelMode.getFallSpeed());
+
             guiController.setGameMode(false);
             guiController.showLevelModeUI();
             guiController.setGameTitleForLevel(currentLevelMode.getLevelId());
@@ -172,6 +175,7 @@ public class LevelGameModeImpl implements GameMode {
         gameService.setDropSpeed(currentLevelMode.getFallSpeed());
 
         if (guiController != null) {
+            guiController.updateGameSpeed(currentLevelMode.getFallSpeed());
             guiController.hideLevelModeUI();
             guiController.showLevelModeUI();
             guiController.setGameTitleForLevel(currentLevelMode.getLevelId());
@@ -316,7 +320,7 @@ public class LevelGameModeImpl implements GameMode {
 
         // Trigger game over screen with board reference
         if (guiController != null) {
-            guiController.showLevelGameOverScene(gameService.getBoard(), newRecords);
+            guiController.showLevelGameOverScene(gameService.getBoard(), newRecords, linesClearedInLevel);
         }
     }
     
