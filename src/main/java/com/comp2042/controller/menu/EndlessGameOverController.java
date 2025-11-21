@@ -61,6 +61,7 @@ public class EndlessGameOverController implements Initializable {
     @FXML private VBox yourScoreCard;
     @FXML private Label finalScoreLabel;
     @FXML private Label linesLabel;
+    @FXML private Label levelLabel;
     @FXML private Label timeLabel;
     @FXML private VBox leaderboardSection;
     @FXML private VBox leaderboardContainer;
@@ -71,6 +72,7 @@ public class EndlessGameOverController implements Initializable {
     // Game data
     private int finalScore;
     private int linesCleared;
+    private int level;
     private long playTimeMs;
     private boolean isNewHighScore;
     private int rank;
@@ -84,15 +86,6 @@ public class EndlessGameOverController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         // Load background image
         setGameOverBackground();
-        
-        // Set up keyboard navigation
-        setupKeyboardNavigation();
-        
-        // Set up button hover effects
-        setupButtonEffects();
-        
-        // Apply button styles directly via Java code
-        applyButtonStyles();
 
         // Ensure SPACE does not trigger Try Again; we use 'N' to retry
         if (tryAgainButton != null) {
@@ -180,17 +173,19 @@ public class EndlessGameOverController implements Initializable {
     
     /**
      * Displays the game over screen with the provided game data.
-     * 
+     *
      * @param finalScore the final score achieved
      * @param linesCleared the number of lines cleared
+     * @param level the level reached
      * @param playTimeMs the play time in milliseconds
      * @param isNewHighScore whether this is a new high score
      * @param rank the player's rank (1-5), or 0 if not in top 5
      */
-    public void showGameOver(int finalScore, int linesCleared, long playTimeMs,
+    public void showGameOver(int finalScore, int linesCleared, int level, long playTimeMs,
                            boolean isNewHighScore, int rank) {
         this.finalScore = finalScore;
         this.linesCleared = linesCleared;
+        this.level = level;
         this.playTimeMs = playTimeMs;
         this.isNewHighScore = isNewHighScore;
         this.rank = rank;
@@ -233,6 +228,7 @@ public class EndlessGameOverController implements Initializable {
         // Update score display
         finalScoreLabel.setText(String.format("%,d", finalScore));
         linesLabel.setText(String.valueOf(linesCleared));
+        levelLabel.setText(String.valueOf(level));
         
         // Format time
         long seconds = playTimeMs / 1000;
@@ -343,30 +339,6 @@ public class EndlessGameOverController implements Initializable {
         return box;
     }
     
-    /**
-     * Sets up keyboard navigation.
-     */
-    private void setupKeyboardNavigation() {
-        // This will be handled by the scene's key event handler
-    }
-    
-    /**
-     * Applies button styles directly via Java code.
-     * Note: Now all buttons use CSS styles for consistency.
-     */
-    private void applyButtonStyles() {
-        // All buttons now use CSS styles - no inline styles needed
-        // This ensures all three buttons (Try Again, Reset, Back to Menu) have identical styling
-    }
-    
-    /**
-     * Sets up button hover effects and animations.
-     * Note: All button effects are now handled by CSS for consistency.
-     */
-    private void setupButtonEffects() {
-        // All button hover/press effects are now handled by CSS
-        // This ensures all three buttons have identical behavior
-    }
     
     /**
      * Plays celebration animation for new high scores.

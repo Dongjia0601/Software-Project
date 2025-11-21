@@ -72,6 +72,10 @@
                         <Label fx:id="linesLabel" text="0" styleClass="stat-value"/>
                     </VBox>
                     <VBox alignment="CENTER" spacing="5">
+                        <Label text="LEVEL" styleClass="stat-label"/>
+                        <Label fx:id="levelLabel" text="1" styleClass="stat-value"/>
+                    </VBox>
+                    <VBox alignment="CENTER" spacing="5">
                         <Label text="TIME" styleClass="stat-label"/>
                         <Label fx:id="timeLabel" text="00:00" styleClass="stat-value"/>
                     </VBox>
