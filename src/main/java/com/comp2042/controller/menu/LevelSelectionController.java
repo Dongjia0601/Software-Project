@@ -3,6 +3,7 @@ package com.comp2042.controller.menu;
 import com.comp2042.service.audio.SoundManager;
 import com.comp2042.model.mode.LevelManager;
 import com.comp2042.model.mode.LevelMode;
+import com.comp2042.view.theme.LevelTheme;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -447,7 +448,7 @@ public class LevelSelectionController {
      * @param level the level with theme info
      */
     private void applyThemeBackground(Parent root, com.comp2042.model.mode.LevelMode level) {
-        com.comp2042.model.mode.LevelTheme theme = level.getTheme();
+        LevelTheme theme = level.getTheme();
         
         if (theme == null) {
             System.err.println("Theme is null for level: " + level.getLevelName());
@@ -504,7 +505,7 @@ public class LevelSelectionController {
     /**
      * Applies gradient fallback when background image fails to load.
      */
-    private void applyGradientFallback(Parent root, com.comp2042.model.mode.LevelTheme theme) {
+    private void applyGradientFallback(Parent root, LevelTheme theme) {
         String gradientStyle = String.format(
             "-fx-background-color: linear-gradient(to bottom, %s, %s);",
             theme.getPrimaryColor(),
@@ -520,7 +521,7 @@ public class LevelSelectionController {
      * @param root the root parent node
      * @param theme the level theme
      */
-    private void applyThemeColors(Parent root, com.comp2042.model.mode.LevelTheme theme) {
+    private void applyThemeColors(Parent root, LevelTheme theme) {
         // Use Platform.runLater to ensure styles are applied after CSS loading
         javafx.application.Platform.runLater(() -> {
             // Apply theme to different UI element types
@@ -547,7 +548,7 @@ public class LevelSelectionController {
     /**
      * Creates side panel style.
      */
-    private String createSidePanelStyle(com.comp2042.model.mode.LevelTheme theme) {
+    private String createSidePanelStyle(LevelTheme theme) {
         return String.format(
             "-fx-background-color: rgba(255, 255, 255, 0.05); " +
             "-fx-border-color: %s; " +
@@ -560,7 +561,7 @@ public class LevelSelectionController {
     /**
      * Creates game board style.
      */
-    private String createGameBoardStyle(com.comp2042.model.mode.LevelTheme theme) {
+    private String createGameBoardStyle(LevelTheme theme) {
         return String.format(
             "-fx-background-color: linear-gradient(to bottom, %s, %s), rgba(10, 14, 39, 0.96); " +
             "-fx-background-insets: 0, 12; " +
@@ -575,7 +576,7 @@ public class LevelSelectionController {
     /**
      * Creates info box style.
      */
-    private String createInfoBoxStyle(com.comp2042.model.mode.LevelTheme theme) {
+    private String createInfoBoxStyle(LevelTheme theme) {
         return String.format(
             "-fx-background-color: rgba(0, 0, 0, 0.7); " +
             "-fx-background-radius: 10px; " +
@@ -592,7 +593,7 @@ public class LevelSelectionController {
     /**
      * Creates section title style.
      */
-    private String createSectionTitleStyle(com.comp2042.model.mode.LevelTheme theme) {
+    private String createSectionTitleStyle(LevelTheme theme) {
         return String.format(
             "-fx-text-fill: %s; " +
             "-fx-font-weight: bold; " +
@@ -605,7 +606,7 @@ public class LevelSelectionController {
     /**
      * Creates button style.
      */
-    private String createButtonStyle(com.comp2042.model.mode.LevelTheme theme) {
+    private String createButtonStyle(LevelTheme theme) {
         return String.format(
             "-fx-background-color: linear-gradient(to bottom, %s, %s); " +
             "-fx-text-fill: white; " +
@@ -625,7 +626,7 @@ public class LevelSelectionController {
     /**
      * Creates settings button style.
      */
-    private String createSettingsButtonStyle(com.comp2042.model.mode.LevelTheme theme) {
+    private String createSettingsButtonStyle(LevelTheme theme) {
         return String.format(
             "-fx-background-color: linear-gradient(to bottom, %s, %s); " +
             "-fx-text-fill: white; " +

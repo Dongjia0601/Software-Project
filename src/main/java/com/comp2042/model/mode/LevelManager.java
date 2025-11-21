@@ -1,7 +1,7 @@
 // File: src/main/java/com/comp2042/game/LevelManager.java
 package com.comp2042.model.mode;
 
-import com.comp2042.model.mode.themes.*;
+import com.comp2042.view.theme.*;
 
 import java.util.*;
 import java.util.prefs.Preferences;

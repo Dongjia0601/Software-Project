@@ -60,7 +60,8 @@ A structured gameplay experience with five themed levels:
 - **Level 5: Interstellar Odyssey** (Hard) - Deep space exploration
 
 Each level features:
-- Unique background music and sound effects
+- Unique themed visuals with custom background images and color schemes
+- Background music selected by level ID (Level135BGM.mp3 for levels 1,3,5; Level24BGM.mp3 for levels 2,4)
 - Time limits and score requirements
 - Star rating system (1-3 stars based on performance)
 - Progressive unlocking mechanism
@@ -136,19 +137,12 @@ Competitive split-screen multiplayer featuring:
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 RandomBrickGenerator.java
  ┃ ┃ ┃ ┃ ┃ ┗ 📜 SevenBagBrickGenerator.java
  ┃ ┃ ┃ ┃ ┣ 📂 mode
- ┃ ┃ ┃ ┃ ┃ ┣ 📂 themes
- ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📜 AncientTempleTheme.java
- ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📜 FutureWarfareTheme.java
- ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📜 InterstellarTheme.java
- ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📜 MagicCastleTheme.java
- ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📜 SunsetCityTheme.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 EndlessMode.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 EndlessModeLeaderboard.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 GameResult.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 LeaderboardEntry.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 LevelManager.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 LevelMode.java
- ┃ ┃ ┃ ┃ ┃ ┣ 📜 LevelTheme.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 PlayerStats.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 TwoPlayerMode.java
  ┃ ┃ ┃ ┃ ┃ ┗ 📜 TwoPlayerModeMechanics.java
@@ -179,6 +173,13 @@ Competitive split-screen multiplayer featuring:
  ┃ ┃ ┃ ┣ 📂 view
  ┃ ┃ ┃ ┃ ┣ 📂 dialog
  ┃ ┃ ┃ ┃ ┃ ┗ 📜 HelpDialogBuilder.java
+ ┃ ┃ ┃ ┃ ┣ 📂 theme
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 LevelTheme.java
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 AncientTempleTheme.java
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 FutureWarfareTheme.java
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 InterstellarTheme.java
+ ┃ ┃ ┃ ┃ ┃ ┣ 📜 MagicCastleTheme.java
+ ┃ ┃ ┃ ┃ ┃ ┗ 📜 SunsetCityTheme.java
  ┃ ┃ ┃ ┃ ┣ 📂 manager
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 AnimationController.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 AudioVolumeManager.java
@@ -349,7 +350,8 @@ This section details the features that have been successfully implemented in bot
       </ul>
       <strong>Level Mode:</strong>
       <ul>
-        <li>5 themed levels with unique visuals and audio.</li>
+        <li>5 themed levels with unique visual themes (background images and color schemes).</li>
+        <li>Background music selected by level ID for immersive audio experience.</li>
         <li>Time limits and score requirements per level.</li>
         <li>Star rating system (1-3 stars).</li>
         <li>Progressive level unlocking.</li>
@@ -1253,7 +1255,7 @@ This section details the features that have been successfully implemented in bot
 
 ## Implemented but Not Working Properly
 
-*All implemented features are working properly.* There are no known bugs or incomplete features in the current implementation. The game has been thoroughly tested with 73 unit tests covering core logic, design patterns, and UI components.
+*All implemented features are working properly.* There are no known bugs or incomplete features in the current implementation. The game has been thoroughly tested with 80+ unit tests covering core logic, design patterns, refactoring improvements, and UI components.
 
 ## Features Not Implemented
 
@@ -1708,13 +1710,8 @@ This section lists all newly created Java classes in the refactored implementati
   </tr>
   <tr>
     <td><strong>LevelManager</strong></td>
-    <td>Singleton managing level progression, theme loading, unlock status, best scores, and star ratings across all levels.</td>
+    <td>Singleton managing level progression, unlock status, best scores, and star ratings across all levels. Uses LevelTheme from View layer for visual assets.</td>
     <td><code>src/main/java/com/comp2042/model/mode/LevelManager.java</code></td>
-  </tr>
-  <tr>
-    <td><strong>LevelTheme</strong></td>
-    <td>Interface defining level theme contract: background image, music, color palette, sound effects, particle effects.</td>
-    <td><code>src/main/java/com/comp2042/model/mode/LevelTheme.java</code></td>
   </tr>
   <tr>
     <td><strong>TwoPlayerMode</strong></td>
@@ -1743,40 +1740,6 @@ This section lists all newly created Java classes in the refactored implementati
   </tr>
 </table>
 
-#### Theme Sub-package (`model.mode.themes`)
-
-<table style="width:100%">
-  <tr>
-    <th>Class Name</th>
-    <th>Description</th>
-    <th>File Path</th>
-  </tr>
-  <tr>
-    <td><strong>AncientTempleTheme</strong></td>
-    <td>Level 1 theme: Mystical ruins with ancient ambiance. Features earth tones and archaeological atmosphere.</td>
-    <td><code>src/main/java/com/comp2042/model/mode/themes/AncientTempleTheme.java</code></td>
-  </tr>
-  <tr>
-    <td><strong>MagicCastleTheme</strong></td>
-    <td>Level 2 theme: Fantasy medieval castle with magical elements. Purple and gold color scheme.</td>
-    <td><code>src/main/java/com/comp2042/model/mode/themes/MagicCastleTheme.java</code></td>
-  </tr>
-  <tr>
-    <td><strong>SunsetCityTheme</strong></td>
-    <td>Level 3 theme: Urban twilight with warm sunset colors. Orange and pink gradient palette.</td>
-    <td><code>src/main/java/com/comp2042/model/mode/themes/SunsetCityTheme.java</code></td>
-  </tr>
-  <tr>
-    <td><strong>FutureWarfareTheme</strong></td>
-    <td>Level 4 theme: Sci-fi battlefield with high-tech military aesthetics. Cyan and red color scheme.</td>
-    <td><code>src/main/java/com/comp2042/model/mode/themes/FutureWarfareTheme.java</code></td>
-  </tr>
-  <tr>
-    <td><strong>InterstellarTheme</strong></td>
-    <td>Level 5 theme: Deep space exploration with cosmic atmosphere. Dark blues and purples with star field.</td>
-    <td><code>src/main/java/com/comp2042/model/mode/themes/InterstellarTheme.java</code></td>
-  </tr>
-</table>
 
 #### SaveState Sub-package (`model.savestate`)
 
@@ -2027,6 +1990,46 @@ This section lists all newly created Java classes in the refactored implementati
   </tr>
 </table>
 
+#### Theme Sub-package (`view.theme`)
+
+<table style="width:100%">
+  <tr>
+    <th>Class Name</th>
+    <th>Description</th>
+    <th>File Path</th>
+  </tr>
+  <tr>
+    <td><strong>LevelTheme</strong></td>
+    <td>Interface defining level theme contract for visual assets. Belongs to View layer as it only contains presentation-related data (background images, color schemes). Does not affect game logic or physics. Provides methods for theme name, background image, and color palette (primary, secondary, accent colors).</td>
+    <td><code>src/main/java/com/comp2042/view/theme/LevelTheme.java</code></td>
+  </tr>
+  <tr>
+    <td><strong>AncientTempleTheme</strong></td>
+    <td>Level 1 theme: Mystical ruins with ancient ambiance. Features earth tones (gold, brown) and archaeological atmosphere. Provides background image and color scheme for Ancient Temple level.</td>
+    <td><code>src/main/java/com/comp2042/view/theme/AncientTempleTheme.java</code></td>
+  </tr>
+  <tr>
+    <td><strong>MagicCastleTheme</strong></td>
+    <td>Level 2 theme: Fantasy medieval castle with magical elements. Features blue and purple color scheme with mystical atmosphere. Provides background image and color palette for Magic Castle level.</td>
+    <td><code>src/main/java/com/comp2042/view/theme/MagicCastleTheme.java</code></td>
+  </tr>
+  <tr>
+    <td><strong>SunsetCityTheme</strong></td>
+    <td>Level 3 theme: Urban twilight with warm sunset colors. Features orange and red gradient palette inspired by cityscape at golden hour. Provides background image and color scheme for Sunset Village level.</td>
+    <td><code>src/main/java/com/comp2042/view/theme/SunsetCityTheme.java</code></td>
+  </tr>
+  <tr>
+    <td><strong>FutureWarfareTheme</strong></td>
+    <td>Level 4 theme: Sci-fi battlefield with high-tech military aesthetics. Features cyan and teal color scheme with futuristic atmosphere. Provides background image and color palette for Future Warfare level.</td>
+    <td><code>src/main/java/com/comp2042/view/theme/FutureWarfareTheme.java</code></td>
+  </tr>
+  <tr>
+    <td><strong>InterstellarTheme</strong></td>
+    <td>Level 5 theme: Deep space exploration with cosmic atmosphere. Features deep blue color scheme with space exploration theme. Provides background image and color palette for Interstellar Odyssey level.</td>
+    <td><code>src/main/java/com/comp2042/view/theme/InterstellarTheme.java</code></td>
+  </tr>
+</table>
+
 #### Panel Sub-package (`view.panel`)
 
 <table style="width:100%">
@@ -2180,7 +2183,7 @@ While only 4 files show as "modified" in git statistics, the reality is that **t
 2. **Refactored** with design patterns (State, Factory, Strategy, Memento, Singleton)
 3. **Enhanced** with extensive new functionality
 4. **Documented** with comprehensive JavaDocs
-5. **Tested** with 73 unit tests
+5. **Tested** with 80+ unit tests
 
 #### Package Restructuring
 
@@ -2201,7 +2204,7 @@ com.comp2042/
   ├── model/           (86 classes in 6 sub-packages)
   ├── service/         (5 classes in 3 sub-packages)
   ├── util/            (1 class)
-  ├── view/            (13 classes in 2 sub-packages)
+  ├── view/            (19 classes in 3 sub-packages)
   └── Main.java
 ```
 
@@ -2310,7 +2313,7 @@ com.comp2042/
   <tr>
     <td><strong>Package Organization</strong></td>
     <td>Flat structure (1-2 packages)</td>
-    <td>23 packages with logical grouping</td>
+    <td>24 packages with logical grouping</td>
   </tr>
   <tr>
     <td><strong>Class Count</strong></td>
@@ -2325,7 +2328,7 @@ com.comp2042/
   <tr>
     <td><strong>Testing</strong></td>
     <td>No tests</td>
-    <td>73 comprehensive unit tests</td>
+    <td>80+ comprehensive unit tests</td>
   </tr>
   <tr>
     <td><strong>Game Modes</strong></td>
@@ -2565,7 +2568,7 @@ The refactoring process involved relocating classes into proper package structur
         <li>Thoroughly analyzed and fixed coordinate mapping in <code>MatrixOperations</code>.</li>
         <li>Corrected row/column index calculations ensuring consistency.</li>
         <li>Fixed brick spawn position to row 0 with proper bounds checking.</li>
-        <li>Added comprehensive unit tests (73 tests total) covering:
+        <li>Added comprehensive unit tests (80+ tests total) covering:
           <ul>
             <li>Matrix operations with edge cases</li>
             <li>Brick placement at boundaries</li>
@@ -2698,7 +2701,7 @@ The refactoring process involved relocating classes into proper package structur
       </ul>
       <strong>Test Coverage:</strong>
       <ul>
-        <li>73 comprehensive unit tests covering:
+        <li>80+ comprehensive unit tests covering:
           <ul>
             <li>Core game logic (MatrixOperations, SimpleBoard): 25 tests</li>
             <li>Design patterns (State, Factory, Strategy, Memento, Singleton): 15 tests</li>
@@ -2778,7 +2781,7 @@ The refactoring process involved relocating classes into proper package structur
 
 This Tetris project represents a **complete professional-grade refactoring** of a basic game implementation, achieving:
 
--**Architecture:** Clean MVC with 23 packages and 166 well-organized classes<br>
+-**Architecture:** Clean MVC with 24 packages and 166 well-organized classes<br>
 -**Design Patterns:** 6 patterns (State, Factory, Strategy, Memento, Singleton, MVC)<br>
 -**Features:** 3 complete game modes with unique mechanics and themed UI<br>
 -**Quality:** 80+ unit tests, 100% JavaDoc coverage, comprehensive error handling<br>
@@ -2786,5 +2789,12 @@ This Tetris project represents a **complete professional-grade refactoring** of 
 -**Documentation:** Detailed README, in-code comments, and clear commit history<br>
 
 **Total Impact:** 193 files changed, 30,000+ lines added
+
+**Recent Architecture Improvements:**
+- Refactored Theme classes from Model layer (`model/mode/themes`) to View layer (`view/theme`) following MVC principles
+- Theme classes now only contain visual presentation data (images, colors), properly belonging to View layer
+- Removed unused methods from Theme interface (getBackgroundMusic, getSoundEffects, getGradientColors, getTextColor, getThemeId)
+- Cleaned up code by removing 6 unused methods, keeping only actively used visual asset methods
+- Improved separation of concerns: Model layer no longer contains presentation-related code
 
 The project demonstrates mastery of software maintenance, design patterns, testing, documentation, and modern development practices while delivering a polished, enjoyable gaming experience.

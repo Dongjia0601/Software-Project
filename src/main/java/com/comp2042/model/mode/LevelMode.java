@@ -1,5 +1,7 @@
 package com.comp2042.model.mode;
 
+import com.comp2042.view.theme.LevelTheme;
+
 /**
  * Level configuration data with theme, difficulty, scoring targets, and player progress (Value Object).
  * Defines rules and objectives for a specific level instance with star-based rating (1-3 stars).

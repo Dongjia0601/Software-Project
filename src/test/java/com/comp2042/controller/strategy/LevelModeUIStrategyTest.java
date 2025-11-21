@@ -60,7 +60,7 @@ class LevelModeUIStrategyTest {
         );
         
         // Create a simple LevelMode for testing
-        com.comp2042.model.mode.LevelTheme theme = new com.comp2042.model.mode.AncientTempleTheme();
+        com.comp2042.view.theme.LevelTheme theme = new com.comp2042.view.theme.AncientTempleTheme();
         level = new LevelMode(1, "Test Level", theme, 600, 20, 60, 200, 400, 600, 150);
         strategy = new LevelModeUIStrategy(levelUI, hudManager, level);
     }
@@ -148,7 +148,7 @@ class LevelModeUIStrategyTest {
 
     @Test
     void testSetCurrentLevel() {
-        com.comp2042.model.mode.LevelTheme theme = new com.comp2042.model.mode.AncientTempleTheme();
+        com.comp2042.view.theme.LevelTheme theme = new com.comp2042.view.theme.AncientTempleTheme();
         LevelMode newLevel = new LevelMode(2, "Test Level 2", theme, 500, 30, 90, 300, 600, 900, 200);
         strategy.setCurrentLevel(newLevel);
         strategy.updateLines(15);
