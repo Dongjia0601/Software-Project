@@ -825,6 +825,21 @@ public class MainMenuController {
             comboText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
             comboText.setWrapText(true);
 
+            // Game Over Statistics
+            javafx.scene.control.Label statsTitle = new javafx.scene.control.Label("Game Over Statistics");
+            statsTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
+            javafx.scene.control.Label statsText = new javafx.scene.control.Label(
+                "When the game ends, the Game Over interface displays:\n" +
+                "• Score: Final score for each player\n" +
+                "• Lines Cleared: Total lines eliminated by each player\n" +
+                "• Attack Lines: Total garbage lines sent to opponent\n" +
+                "• Defense: Total garbage lines received from opponent\n" +
+                "• Max Combo: Longest consecutive line-clearing streak (regardless of lines per clear)\n" +
+                "• Tetris: Total number of 4-line clears performed\n" +
+                "• Time: Total game duration");
+            statsText.setStyle("-fx-font-size: 14px; -fx-text-fill: #FFFFFF;");
+            statsText.setWrapText(true);
+
             // Garbage Lines
             javafx.scene.control.Label garbageTitle = new javafx.scene.control.Label("Garbage Lines");
             garbageTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-padding: 8 0 4 0;");
@@ -859,6 +874,7 @@ public class MainMenuController {
                 objectiveTitle, objectiveText,
                 attackTitle, attackText,
                 comboTitle, comboText,
+                statsTitle, statsText,
                 garbageTitle, garbageText,
                 featuresTitle, featuresText,
                 strategyTitle, strategyText,

@@ -568,10 +568,19 @@ This section details the features that have been successfully implemented in bot
       </ul>
       <strong>Two-Player Game Over:</strong>
       <ul>
-        <li>Winner announcement with celebration effects.</li>
-        <li>Statistics comparison for both players.</li>
-        <li>Performance metrics (lines cleared, attacks sent).</li>
-        <li>Options: Rematch, Main Menu.</li>
+        <li>Winner announcement with celebration effects (Player 1 wins, Player 2 wins, or Tie Game).</li>
+        <li>Comprehensive statistics comparison displayed in a grid format:</li>
+        <ul>
+          <li><strong>Score:</strong> Final score for each player</li>
+          <li><strong>Lines Cleared:</strong> Total lines eliminated by each player</li>
+          <li><strong>Attack Lines:</strong> Total garbage lines sent to opponent</li>
+          <li><strong>Defense:</strong> Total garbage lines received from opponent</li>
+          <li><strong>Max Combo:</strong> Longest consecutive line-clearing streak (regardless of lines per clear)</li>
+          <li><strong>Tetris:</strong> Total number of 4-line clears performed</li>
+          <li><strong>Time:</strong> Total game duration (formatted as MM:SS)</li>
+        </ul>
+        <li>Color-coded display: Player 1 (cyan), Player 2 (red), Statistics headers (gold).</li>
+        <li>Options: New Game (rematch), Back to Menu.</li>
       </ul>
     </td>
   </tr>

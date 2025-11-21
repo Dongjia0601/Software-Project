@@ -124,10 +124,10 @@ public class TwoPlayerGameOverPanel extends StackPane {
         addStatRow(statsGrid, "Score", 
                    String.valueOf(player1Score), 
                    String.valueOf(player2Score), row++);
-        addStatRow(statsGrid, "Lines", 
+        addStatRow(statsGrid, "Lines Cleared", 
                    String.valueOf(player1Stats.getLinesCleared()), 
                    String.valueOf(player2Stats.getLinesCleared()), row++);
-        addStatRow(statsGrid, "Attack", 
+        addStatRow(statsGrid, "Attack Lines", 
                    String.valueOf(player1Stats.getAttacksSent()), 
                    String.valueOf(player2Stats.getAttacksSent()), row++);
         addStatRow(statsGrid, "Defense", 

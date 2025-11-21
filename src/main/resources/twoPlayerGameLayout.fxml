@@ -255,7 +255,7 @@
                 <Region prefHeight="100" minHeight="100" VBox.vgrow="NEVER"/>
                 
                 <!-- Player 2 Controls Hint -->
-                <Label text="[←/→] Move  [↑] Rotate CW  [↓] Soft Drop  [0/Num0] Hard Drop  [3/Num3] Hold [2/Num2] Rotate CCW "
+                <Label text="[←/→] Move  [↑] Rotate CW  [2] Rotate CCW [↓] Soft Drop  [0] Hard Drop  [3] Hold"
                        styleClass="control-hint-two-player"/>
             </VBox>
         </HBox>
