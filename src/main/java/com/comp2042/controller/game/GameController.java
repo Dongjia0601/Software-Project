@@ -9,36 +9,34 @@ import com.comp2042.service.session.GameSession;
 import com.comp2042.service.session.SinglePlayerGameSession;
 
 /**
- * Central game flow controller coordinating board logic and state transitions (MVC Pattern).
- * Delegates input events to current game state, manages game lifecycle, and coordinates
+ * Central game flow controller coordinating board logic and state transitions.
+ * Delegates input events to game session, manages lifecycle, and coordinates
  * between GUI controller and game session.
  * 
- * @author Dong, Jia.
+ * @author Dong, Jia
  */
 public class GameController implements InputEventListener {
 
-    private final GuiController viewGuiController; // The GUI controller instance
     private final GameSession gameSession;
 
     /**
      * Constructs a GameController and initializes the game session.
      *
-     * @param viewController GuiController instance
+     * @param viewController the GUI controller for rendering and user interaction
      */
     public GameController(GuiController viewController) {
-        viewGuiController = viewController;
-        this.gameSession = new SinglePlayerGameSession(new SimpleBoard(10, 20), viewGuiController);
+        this.gameSession = new SinglePlayerGameSession(new SimpleBoard(10, 20), viewController);
         this.gameSession.initialize();
-        viewGuiController.bindScore(gameSession.scoreProperty());
-        viewGuiController.setEventListener(this);
+        viewController.bindScore(gameSession.scoreProperty());
+        viewController.setEventListener(this);
         
         // Ensure high score is displayed correctly for Endless Mode
-        if (viewGuiController.isEndlessMode()) {
+        if (viewController.isEndlessMode()) {
             try {
                 com.comp2042.model.mode.EndlessModeLeaderboard leaderboard = 
                     com.comp2042.model.mode.EndlessModeLeaderboard.getInstance();
                 int highScore = leaderboard.getHighScore();
-                viewGuiController.updateScore(0, highScore);
+                viewController.updateScore(0, highScore);
             } catch (Exception e) {
                 System.err.println("Error updating initial high score: " + e.getMessage());
             }
@@ -46,153 +44,137 @@ public class GameController implements InputEventListener {
     }
 
     /**
-     * Method to handle pause requests (e.g., from GUI via P key).
-     * Delegates the pause request to the current state.
+     * Handles pause requests from the GUI.
      */
     public void requestPause() {
         gameSession.requestPause();
     }
 
-    @Override
     /**
-     * Handles the DOWN event received from the GUI.
-     * Delegates the event to the current GameState instance.
+     * Handles the DOWN event from the GUI.
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return DownData containing view and row-clearing information from the state.
+     * @param event the move event containing type and source
+     * @return down data containing view and row-clearing information
      */
+    @Override
     public DownData onDownEvent(MoveEvent event) {
         return gameSession.handleDown(event);
     }
 
-    @Override
     /**
-     * Handles the LEFT event received from the GUI.
-     * Delegates the event to the current GameState instance.
+     * Handles the LEFT event from the GUI.
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape from the state.
+     * @param event the move event containing type and source
+     * @return view data containing updated brick position and shape
      */
+    @Override
     public ViewData onLeftEvent(MoveEvent event) {
         return gameSession.handleLeft(event);
     }
 
-    @Override
     /**
-     * Handles the RIGHT event received from the GUI.
-     * Delegates the event to the current GameState instance.
+     * Handles the RIGHT event from the GUI.
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape from the state.
+     * @param event the move event containing type and source
+     * @return view data containing updated brick position and shape
      */
+    @Override
     public ViewData onRightEvent(MoveEvent event) {
         return gameSession.handleRight(event);
     }
 
-    @Override
     /**
-     * Handles the ROTATE event received from the GUI.
-     * Delegates the event to the current GameState instance.
+     * Handles the ROTATE (clockwise) event from the GUI.
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape from the state.
+     * @param event the move event containing type and source
+     * @return view data containing updated brick position and shape
      */
+    @Override
     public ViewData onRotateEvent(MoveEvent event) {
         return gameSession.handleRotateCW(event);
     }
 
-    @Override
     /**
-     * Handles the ROTATE_CCW event received from the GUI.
-     * Delegates the event to the current GameState instance.
+     * Handles the ROTATE_CCW (counter-clockwise) event from the GUI.
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape from the state.
+     * @param event the move event containing type and source
+     * @return view data containing updated brick position and shape
      */
+    @Override
     public ViewData onRotateCCWEvent(MoveEvent event) {
         return gameSession.handleRotateCCW(event);
     }
 
-    @Override
     /**
-     * Handles the HARD_DROP event received from the GUI.
-     * Delegates the event to the current GameState instance.
+     * Handles the HARD_DROP event from the GUI.
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape from the state.
+     * @param event the move event containing type and source
+     * @return view data containing updated brick position and shape
      */
+    @Override
     public ViewData onHardDropEvent(MoveEvent event) {
-        // Delegate to current state - hard drop
         return gameSession.handleHardDrop(event);
     }
 
-    @Override
     /**
-     * Handles the SOFT_DROP event received from the GUI.
-     * Delegates the event to the current GameState instance.
+     * Handles the SOFT_DROP event from the GUI.
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape from the state.
+     * @param event the move event containing type and source
+     * @return view data containing updated brick position and shape
      */
+    @Override
     public ViewData onSoftDropEvent(MoveEvent event) {
-        // Delegate to current state - soft drop is essentially a down event
         return gameSession.handleSoftDrop(event);
     }
 
-    @Override
     /**
-     * Handles the HOLD event received from the GUI.
-     * Delegates the event to the current GameState instance.
+     * Handles the HOLD event from the GUI.
      *
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and hold state from the state.
+     * @param event the move event containing type and source
+     * @return view data containing updated brick position and hold state
      */
+    @Override
     public ViewData onHoldEvent(MoveEvent event) {
         return gameSession.handleHold(event);
     }
 
-    @Override
     /**
-     * Handles the PAUSE event received from the GUI.
-     * Delegates the event to the current GameState instance.
+     * Handles the PAUSE event from the GUI.
      *
-     * @param event The MoveEvent containing event type and source.
+     * @param event the move event containing type and source
      */
+    @Override
     public void onPauseEvent(MoveEvent event) {
         requestPause();
     }
 
-    @Override
     /**
-     * Handles the RESUME event received from the GUI.
-     * Delegates the event to the current GameState instance.
+     * Handles the RESUME event from the GUI.
      *
-     * @param event The MoveEvent containing event type and source.
+     * @param event the move event containing type and source
      */
+    @Override
     public void onResumeEvent(MoveEvent event) {
-        requestPause(); // Toggle pause state
+        requestPause();
     }
 
-    @Override
     /**
-     * Handles the NEW_GAME event received from the GUI.
-     * Delegates the event to the current GameState instance.
+     * Handles the NEW_GAME event from the GUI.
      *
-     * @param event The MoveEvent containing event type and source.
+     * @param event the move event containing type and source
      */
+    @Override
     public void onNewGameEvent(MoveEvent event) {
         gameSession.startNewGame();
     }
 
-    @Override
     /**
-     * Handles the QUIT event received from the GUI.
-     * Delegates the event to the current GameState instance.
+     * Handles the QUIT event from the GUI.
      *
-     * @param event The MoveEvent containing event type and source.
+     * @param event the move event containing type and source
      */
+    @Override
     public void onQuitEvent(MoveEvent event) {
-        // Handle quit event - could close application or return to main menu
         System.exit(0);
     }
 

@@ -11,9 +11,7 @@ import javafx.animation.Timeline;
 import javafx.util.Duration;
 
 /**
- * Encapsulates the dual automatic drop timelines plus the shared stats update
- * loop so {@link com.comp2042.controller.game.TwoPlayerGameController} no longer
- * needs to micromanage Timeline instances directly.
+ * Manages dual automatic drop timelines and shared stats update loop for two-player mode.
  */
 public class TwoPlayerTimelineScheduler {
 
@@ -38,6 +36,15 @@ public class TwoPlayerTimelineScheduler {
     private Timeline statsTimeline;
     private boolean paused;
 
+    /**
+     * Constructs a TwoPlayerTimelineScheduler.
+     * 
+     * @param player1Service the game service for player 1
+     * @param player2Service the game service for player 2
+     * @param gameMode the two-player game mode
+     * @param dropListener the listener for automatic drop events
+     * @param statsListener the listener for stats update events
+     */
     public TwoPlayerTimelineScheduler(
             GameService player1Service,
             GameService player2Service,
@@ -51,6 +58,9 @@ public class TwoPlayerTimelineScheduler {
         this.statsListener = statsListener;
     }
 
+    /**
+     * Starts all timelines for both players and stats updates.
+     */
     public void start() {
         stop();
         player1Timeline = createTimeline(player1Service, 1);
@@ -62,6 +72,9 @@ public class TwoPlayerTimelineScheduler {
         paused = false;
     }
 
+    /**
+     * Pauses all timelines.
+     */
     public void pause() {
         paused = true;
         if (player1Timeline != null) {
@@ -75,6 +88,9 @@ public class TwoPlayerTimelineScheduler {
         }
     }
 
+    /**
+     * Resumes all paused timelines.
+     */
     public void resume() {
         paused = false;
         if (player1Timeline != null) {
@@ -88,6 +104,9 @@ public class TwoPlayerTimelineScheduler {
         }
     }
 
+    /**
+     * Stops and clears all timelines.
+     */
     public void stop() {
         if (player1Timeline != null) {
             player1Timeline.stop();

@@ -3,21 +3,17 @@ package com.comp2042.controller.game.twoplayer;
 import com.comp2042.controller.game.GuiController;
 
 /**
- * Handles the countdown UX prior to starting a versus match so the
- * main controller can focus on gameplay coordination.
+ * Manages the countdown sequence before starting a two-player match.
+ * 
+ * @param guiController the GUI controller for displaying countdown, may be null
  */
-public class TwoPlayerCountdownManager {
-
-    private final GuiController guiController;
-
-    public TwoPlayerCountdownManager(GuiController guiController) {
-        this.guiController = guiController;
-    }
+public record TwoPlayerCountdownManager(GuiController guiController) {
 
     /**
-    * Starts the countdown. If a GUI controller is not available, the completion
-    * callback is invoked immediately.
-    */
+     * Starts the countdown sequence before game start.
+     * 
+     * @param onComplete the callback to execute when countdown finishes, must not be null
+     */
     public void startCountdown(Runnable onComplete) {
         if (guiController == null) {
             onComplete.run();

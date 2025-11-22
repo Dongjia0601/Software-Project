@@ -1,13 +1,11 @@
 package com.comp2042.controller.game;
 
-import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -19,103 +17,67 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.geometry.Rectangle2D;
 import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
-import javafx.stage.Modality;
-import javafx.geometry.Pos;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.Parent;
 import javafx.util.Duration;
-import javafx.application.Platform;
+
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import com.comp2042.config.GameSettings;
 import com.comp2042.view.manager.AnimationController;
 import com.comp2042.view.manager.AudioVolumeManager;
 import com.comp2042.view.manager.BrickRenderer;
-import com.comp2042.view.manager.CommonUIManager;
 import com.comp2042.view.manager.CountdownManager;
 import com.comp2042.view.manager.DialogManager;
-import com.comp2042.view.manager.EndlessModeUIManager;
 import com.comp2042.view.manager.GameBoardRenderer;
 import com.comp2042.view.manager.GameInputHandler;
 import com.comp2042.view.manager.GameModeUIManager;
 import com.comp2042.view.manager.HudManager;
-import com.comp2042.view.manager.LevelModeUIManager;
 import com.comp2042.view.manager.TwoPlayerPanelManager;
 import com.comp2042.view.panel.NotificationPanel;
 import com.comp2042.view.panel.GameOverPanel;
-import com.comp2042.controller.factory.GameModeFactory;
-import com.comp2042.controller.factory.GameModeType;
 import com.comp2042.controller.menu.EndlessGameOverController;
 import com.comp2042.controller.menu.LevelGameOverController;
 import com.comp2042.view.panel.TwoPlayerGameOverPanel;
+import com.comp2042.controller.game.twoplayer.TwoPlayerGameController;
 import com.comp2042.model.board.*;
 import com.comp2042.model.mode.*;
 import com.comp2042.service.audio.*;
 import com.comp2042.dto.*;
 import com.comp2042.event.*;
 import com.comp2042.event.listener.InputEventListener;
-import com.comp2042.util.MatrixOperations;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Controller for the JavaFX GUI components.
+ * Controller for JavaFX GUI components.
  * 
- * <p><strong>REFACTORED (Phase 3):</strong> This class has been refactored to adhere to the 
- * Single Responsibility Principle (SRP). It now acts as a coordinator/facade that delegates
- * responsibilities to specialized sub-controllers:</p>
- * <ul>
- *   <li>{@link GameBoardRenderer} - Handles game board background rendering</li>
- *   <li>{@link BrickRenderer} - Handles brick rendering (current, ghost, hold, next)</li>
- *   <li>{@link AnimationController} - Manages all animations and visual effects</li>
- *   <li>{@link GameInputHandler} - Processes keyboard input</li>
- *   <li>{@link HudManager} - Updates HUD elements (labels, stats)</li>
- *   <li>{@link TwoPlayerPanelManager} - Coordinates two-player specific panels</li>
- *   <li>{@link CountdownManager} - Handles pre-game countdown overlays</li>
- *   <li>{@link AudioVolumeManager} - Synchronises mute state and audio UI</li>
- * </ul>
+ * <p>Acts as a coordinator that delegates responsibilities to specialized sub-controllers:
+ * GameBoardRenderer, BrickRenderer, AnimationController, GameInputHandler, HudManager,
+ * TwoPlayerPanelManager, CountdownManager, and AudioVolumeManager.
  * 
- * <p>Key responsibilities (now delegated):</p>
- * <ul>
- *   <li>Coordinate sub-controllers and manage their lifecycle</li>
- *   <li>Provide facade methods for backward compatibility</li>
- *   <li>Initialize and wire JavaFX UI components</li>
- * </ul>
+ * <p>Uses Facade and Mediator patterns to coordinate communication between sub-controllers.
  * 
- * <p><strong>Design Patterns:</strong></p>
- * <ul>
- *   <li>Facade Pattern - Simplifies interaction with subsystems</li>
- *   <li>Mediator Pattern - Coordinates communication between sub-controllers</li>
- * </ul>
- * 
- * @author Original code + Dong, Jia (Phase 3 Refactoring)
- * @version Phase 3 - SRP Refactoring
+ * @author Original code + Dong, Jia
  */
 public class GuiController implements Initializable, GameInputHandler.InputHandlerCallbacks {
+
+    private static final Logger logger = Logger.getLogger(GuiController.class.getName());
 
     // Extracted constants for better readability and maintainability
     private static final int BRICK_SIZE = 25; // Size of a single brick cell in pixels (enlarged for better visibility)
     private static final int TIMELINE_DURATION_MS = 400; // Duration for automatic brick drop (milliseconds)
     private static final int DEFAULT_GRID_GAP = 1; // Fallback gap when GridPane spacing not yet initialised
-    private static final int VISIBLE_ROW_OFFSET = 0; // Number of hidden rows above the visible board
 
     @FXML
     private BorderPane rootPane; // Root BorderPane container
@@ -197,7 +159,6 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
     private HBox leftStarDisplay;
 
     // Level Mode state
-    private int levelTimeLimitSeconds = 0;
     private int levelTimeRemainingSeconds = 0;
     private Timeline levelTimer;
     private boolean isLevelMode = false;
@@ -227,24 +188,22 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
     private Timeline timeTimer; // Timer to update elapsed time in Endless Mode
     
     // EndlessMode specific fields
-    private int currentDropSpeed = 400; // Default speed in milliseconds
-    private double currentBrickOpacity = 1.0;
     private boolean ghostEnabled = true; // Whether ghost piece should be displayed
 
-    // ==================== Sub-Controllers (Phase 3 Refactoring) ====================
+    // Sub-controllers
     private GameBoardRenderer boardRenderer; // Manages game board background rendering
     private BrickRenderer brickRenderer; // Manages brick rendering (current, ghost, hold, next)
     private AnimationController animationController; // Manages animations and effects
     private GameInputHandler inputHandler; // Handles keyboard input
     private HudManager uiManager; // Manages UI component updates
-    private GameModeUIManager modeUIManager; // Manages game mode-specific UI (Phase 3+)
-    private DialogManager dialogManager; // Manages dialogs and navigation (Phase 3+)
+    private GameModeUIManager modeUIManager; // Manages game mode-specific UI
+    private DialogManager dialogManager; // Manages dialogs and navigation
     private TwoPlayerPanelManager twoPlayerPanelManager; // Manages two-player specific UI
     
     /**
      * Calculates the absolute X position for the specified column within a given grid.
      *
-     * @param grid   the GridPane representing the board (may be null before initialization)
+     * @param grid   the GridPane representing the board, may be null before initialization
      * @param matrix the matrix of rectangles corresponding to the grid
      * @param column the zero-based column index
      * @return the computed X coordinate in pixels
@@ -257,7 +216,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
     /**
      * Calculates the absolute Y position for the specified row within a given grid.
      *
-     * @param grid the GridPane representing the board (may be null before initialization)
+     * @param grid the GridPane representing the board, may be null before initialization
      * @param matrix the matrix of rectangles corresponding to the grid
      * @param row  the zero-based row index
      * @return the computed Y coordinate in pixels
@@ -319,18 +278,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
     /**
      * Holds grid measurement data for alignment calculations.
      */
-    private static final class GridMetrics {
-        final double originX;
-        final double originY;
-        final double cellWidth;
-        final double cellHeight;
-
-        GridMetrics(double originX, double originY, double cellWidth, double cellHeight) {
-            this.originX = originX;
-            this.originY = originY;
-            this.cellWidth = cellWidth;
-            this.cellHeight = cellHeight;
-        }
+    private record GridMetrics(double originX, double originY, double cellWidth, double cellHeight) {
     }
 
     private final BooleanProperty isPause = new SimpleBooleanProperty(); // Property indicating if the game is paused
@@ -358,20 +306,20 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
     private CountdownManager countdownManager;
 
     @Override
-    /**
-     * Initializes the GUI components, sets up keyboard input handling,
-     * and applies initial styling.
-     * This method is called after the FXML file has been loaded.
-     *
-     * <p>This method performs the following operations:</p>
-     * <ul>
-     *   <li>Loads the digital font for UI elements</li>
-     *   <li>Sets up keyboard event handling for game controls</li>
-     *   <li>Initializes the game over panel visibility</li>
-     *   <li>Applies visual effects like reflection</li>
-     * </ul>
-     *
-     * @param location The location used to resolve relative paths for the root object, or null if the location is not known.
+    /*
+      Initializes the GUI components, sets up keyboard input handling,
+      and applies initial styling.
+      This method is called after the FXML file has been loaded.
+
+      <p>This method performs the following operations:</p>
+      <ul>
+        <li>Loads the digital font for UI elements</li>
+        <li>Sets up keyboard event handling for game controls</li>
+        <li>Initializes the game over panel visibility</li>
+        <li>Applies visual effects like reflection</li>
+      </ul>
+
+      @param location The location used to resolve relative paths for the root object, or null if the location is not known.
      * @param resources The resources used to localize the root object, or null if the root object was not localized.
      */
     public void initialize(URL location, ResourceBundle resources) {
@@ -383,15 +331,17 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         audioVolumeManager.bindMuteButton(muteButton);
         
         // Load the digital font for UI elements
-        Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
+        URL fontResource = getClass().getClassLoader().getResource("digital.ttf");
+        if (fontResource != null) {
+            Font.loadFont(fontResource.toExternalForm(), 38);
+        } else {
+            logger.warning("Failed to load digital font resource: digital.ttf");
+        }
 
-        // Set focus and request focus for keyboard input
-        // Note: MainMenuController already adds Scene-level filter, but we ensure rootPane also has focus
-        // For single-player, use gamePanel
+        // Set focus for keyboard input
         if (isTwoPlayerMode && rootPane != null) {
             rootPane.setFocusTraversable(true);
             rootPane.requestFocus();
-            // Also set on rootPane as backup (MainMenuController sets Scene-level filter)
             rootPane.setOnKeyPressed(this::handleKeyPressEvent);
         } else if (gamePanel != null) {
             gamePanel.setFocusTraversable(true);
@@ -420,19 +370,13 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         // CRITICAL FIX: Disable Space key for all control buttons to prevent accidental activation
         // This prevents Space key from triggering buttons when they have focus
         // Use Platform.runLater to ensure scene is loaded before setting up filters
-        javafx.application.Platform.runLater(() -> {
-            disableSpaceKeyForControlButtons();
-        });
+        javafx.application.Platform.runLater(this::disableSpaceKeyForControlButtons);
         
-        // ==================== Initialize Sub-Controllers (Phase 3 Refactoring) ====================
         initializeSubControllers();
     }
     
     /**
      * Initializes all sub-controllers and wires them together.
-     * This method is part of the Phase 3 refactoring to implement SRP.
-     * 
-     * <p><strong>Phase 3+ Update:</strong> Now includes GameModeUIManager and DialogManager</p>
      */
     private void initializeSubControllers() {
         // 1. Initialize AnimationController
@@ -467,7 +411,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         uiManager.setBestTimeLabel(bestTimeLabel);
         uiManager.setBestStatsBox(bestStatsBox);
         
-        // 6. Initialize GameModeUIManager (Phase 3+)
+        // 6. Initialize GameModeUIManager
         modeUIManager = new GameModeUIManager();
         modeUIManager.setLeftObjectiveBox(leftObjectiveBox);
         modeUIManager.setStatisticsBox(statisticsBox);
@@ -475,13 +419,13 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         modeUIManager.setHoldPanel(holdPanel);
         modeUIManager.setNextBrickPanel(nextBrickPanel);
         
-        // 7. Initialize DialogManager (Phase 3+)
+        // 7. Initialize DialogManager
         dialogManager = new DialogManager(rootPane, gamePanel);
         dialogManager.setCallbacks(new DialogManager.DialogCallbacks() {
             @Override
             public void onSettingsChanged() {
-                // Reload settings after closing settings dialog
-                settings = com.comp2042.config.GameSettings.getInstance();
+                // Settings are automatically reloaded by AudioVolumeManager.syncFromSettings()
+                // GameSettings is singleton, so no need to reassign the field
             }
             
             @Override
@@ -503,6 +447,96 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         }
 
         countdownManager = new CountdownManager(SoundManager.getInstance());
+    }
+
+    /**
+     * Checks if the down event data indicates that lines were cleared.
+     * 
+     * @param downData the down event data to check, may be null
+     * @return true if lines were cleared, false otherwise
+     */
+    private boolean hasLinesCleared(DownData downData) {
+        return downData != null && 
+               downData.getClearRow() != null && 
+               downData.getClearRow().getLinesRemoved() > 0;
+    }
+    
+    /**
+     * Creates a delay transition for rebuilding the game controller.
+     * Ensures old Timeline instances are fully stopped before creating a new GameController.
+     * Also handles Level Mode timer reset if applicable.
+     * 
+     * @return a PauseTransition that handles the delayed controller rebuild
+     */
+    private javafx.animation.PauseTransition createGameControllerRebuildDelay() {
+        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(50));
+        delay.setOnFinished(e -> {
+            // Recreate controller which will read settings and build a new Board
+            new GameController(this);
+
+            // Reset Level Mode timer if needed
+            if (isLevelMode) {
+                com.comp2042.model.mode.LevelManager levelManager = com.comp2042.model.mode.LevelManager.getInstance();
+                com.comp2042.model.mode.LevelMode currentLevel = levelManager.getCurrentLevel();
+                if (currentLevel != null) {
+                    updateTime(currentLevel.getTimeLimitSeconds()); // Reset timer to full time limit
+                }
+            }
+        });
+        return delay;
+    }
+    
+    /**
+     * Creates a delay transition for starting a two-player game with retry logic.
+     * If the UI components are not ready, it will retry after a shorter delay.
+     * 
+     * @return a PauseTransition that handles the delayed game start with retry mechanism
+     */
+    private javafx.animation.PauseTransition createTwoPlayerGameStartDelay() {
+        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(250));
+        delay.setOnFinished(e -> {
+            if (rootPane != null && gamePanel1 != null && gamePanel2 != null &&
+                gamePanel1.getParent() != null && gamePanel2.getParent() != null) {
+                createAndStartTwoPlayerGame();
+            } else {
+                javafx.animation.PauseTransition retryDelay = createTwoPlayerGameRetryDelay();
+                retryDelay.play();
+            }
+        });
+        return delay;
+    }
+    
+    /**
+     * Creates a retry delay transition for starting a two-player game.
+     * Used when the initial delay check indicates UI components are not ready.
+     * 
+     * @return a PauseTransition that retries starting the game after a shorter delay
+     */
+    private javafx.animation.PauseTransition createTwoPlayerGameRetryDelay() {
+        javafx.animation.PauseTransition retryDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(200));
+        retryDelay.setOnFinished(retryEvent -> {
+            if (rootPane != null && gamePanel1 != null && gamePanel2 != null && 
+                gamePanel1.getParent() != null && gamePanel2.getParent() != null) {
+                createAndStartTwoPlayerGame();
+            }
+        });
+        return retryDelay;
+    }
+    
+    /**
+     * Creates and starts a new two-player game mode.
+     * Uses dependency injection to create Board instances explicitly and inject them.
+     */
+    private void createAndStartTwoPlayerGame() {
+        // Use dependency injection: create Board instances explicitly and inject them
+        com.comp2042.model.board.Board player1Board = new com.comp2042.model.board.SimpleBoard(10, 20);
+        com.comp2042.model.board.Board player2Board = new com.comp2042.model.board.SimpleBoard(10, 20);
+        com.comp2042.service.gameloop.GameService player1Service = new com.comp2042.service.gameloop.GameServiceImpl(player1Board);
+        com.comp2042.service.gameloop.GameService player2Service = new com.comp2042.service.gameloop.GameServiceImpl(player2Board);
+        com.comp2042.model.mode.TwoPlayerMode newGameMode = 
+            new com.comp2042.model.mode.TwoPlayerMode(player1Service, player2Service, this);
+        new TwoPlayerGameController(newGameMode, this);
+        rootPane.requestFocus();
     }
 
     /**
@@ -576,19 +610,13 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         try {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/MainMenu.fxml"));
             javafx.scene.Parent mainMenuRoot = loader.load();
-            com.comp2042.controller.menu.MainMenuController mainMenuController = loader.getController();
             
             javafx.scene.Scene mainMenuScene = new javafx.scene.Scene(mainMenuRoot, 800, 600);
             stage.setScene(mainMenuScene);
             
-            // Initialize the main menu controller with the stage
-            if (mainMenuController != null) {
-                // MainMenuController should handle its own stage setup via FXML
-                // No need to call initialize - it's called automatically by FXMLLoader
-            }
+            // MainMenuController is initialized automatically by FXMLLoader via FXML
         } catch (Exception e) {
-            System.err.println("Error loading main menu: " + e.getMessage());
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error loading main menu", e);
         }
     }
     
@@ -605,11 +633,15 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             controller.setStage(stage);
             
             javafx.scene.Scene levelSelectionScene = new javafx.scene.Scene(levelSelectionRoot);
-            levelSelectionScene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+            URL styleResource = getClass().getResource("/style.css");
+            if (styleResource != null) {
+                levelSelectionScene.getStylesheets().add(styleResource.toExternalForm());
+            } else {
+                logger.warning("Failed to load style resource: /style.css");
+            }
             stage.setScene(levelSelectionScene);
         } catch (Exception e) {
-            System.err.println("Error loading level selection: " + e.getMessage());
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error loading level selection", e);
         }
     }
     
@@ -627,8 +659,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
      * Recursively finds all control buttons and adds Space key event filters.
      */
     private void addSpaceKeyFilterToButtons(javafx.scene.Node node) {
-        if (node instanceof Button) {
-            Button button = (Button) node;
+        if (node instanceof Button button) {
             String buttonText = button.getText();
             // Only filter control buttons (Settings, Help, Back to Menu)
             if (buttonText != null && (
@@ -652,8 +683,6 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         }
     }
 
-    // ==================== InputHandlerCallbacks Implementation (Phase 3 Refactoring) ====================
-    
     @Override
     public void onRefreshBrick(ViewData viewData) {
         refreshBrick(viewData);
@@ -1054,15 +1083,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             ghostRectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
             for (int i = 0; i < brick.getBrickData().length; i++) {
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
-                    Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                    rectangle.setFill(Color.TRANSPARENT);
-                    // Enhanced ghost brick appearance: rounded corners and semi-transparent border
-                    rectangle.setArcHeight(9); // Rounded corners to match regular bricks
-                    rectangle.setArcWidth(9);
-                    rectangle.setOpacity(1.0); // Full opacity for better visibility
-                    // Set position for each rectangle within the ghost panel
-                    rectangle.setLayoutX(j * (BRICK_SIZE + 1)); // +1 for gap
-                    rectangle.setLayoutY(i * (BRICK_SIZE + 1)); // +1 for gap
+                    Rectangle rectangle = createGhostRectangle(i, j);
                     ghostRectangles[i][j] = rectangle;
                     ghostPanel.getChildren().add(rectangle);
                 }
@@ -1110,10 +1131,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
     }
 
     /**
-     * Maps integer values from the brick/board matrix to JavaFX Paint objects (colors).
-     * Uses polymorphism via BrickColorMapper instead of switch statements (Strategy Pattern).
-     * 
-     * <p><strong>Refactored:</strong> Replaced type code switch with polymorphic delegation.</p>
+     * Maps integer values from the brick/board matrix to JavaFX Paint objects.
+     * Uses polymorphism via BrickColorMapper instead of switch statements.
      *
      * @param i The integer value representing the brick type or state.
      * @return The corresponding Paint object (color).
@@ -1148,19 +1167,11 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         // Use brickRenderer if available, otherwise use direct methods
         if (brickRenderer != null) {
             // Use brickRenderer for consistent rendering
-            if (brick.getNextBrickData() != null) {
                 brickRenderer.updateNextDisplay(brick.getNextBrickData());
-            } else {
-                brickRenderer.updateNextDisplay(null);
-            }
             brickRenderer.updateHoldDisplay(brick.getHoldBrickData());
         } else {
             // Fallback to direct methods if brickRenderer is not available
-            if (brick.getNextBrickData() != null) {
                 updateNextDisplay(brick.getNextBrickData());
-            } else {
-                updateNextDisplay(null);
-            }
             updateHoldDisplay(brick.getHoldBrickData());
         }
         
@@ -1176,6 +1187,26 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             // Update ghost brick position
             updateGhostBrick(brick);
         }
+    }
+    
+    /**
+     * Creates a ghost brick rectangle with appropriate styling and positioning.
+     *
+     * @param i the row index in the brick matrix
+     * @param j the column index in the brick matrix
+     * @return a configured Rectangle for the ghost brick display
+     */
+    private Rectangle createGhostRectangle(int i, int j) {
+        Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+        rectangle.setFill(Color.TRANSPARENT);
+        // Enhanced ghost brick appearance: rounded corners and semi-transparent border
+        rectangle.setArcHeight(9); // Rounded corners to match regular bricks
+        rectangle.setArcWidth(9);
+        rectangle.setOpacity(1.0); // Full opacity for better visibility
+        // Set position for each rectangle within the ghost panel
+        rectangle.setLayoutX(j * (BRICK_SIZE + 1)); // +1 for gap
+        rectangle.setLayoutY(i * (BRICK_SIZE + 1)); // +1 for gap
+        return rectangle;
     }
     
     /**
@@ -1217,8 +1248,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                     ghostRect.setVisible(true);
                     // Enhanced ghost brick appearance: semi-transparent fill with border
                     Paint brickColor = getFillColor(brickData[i][j]);
-                    if (brickColor instanceof Color) {
-                        Color color = (Color) brickColor;
+                    if (brickColor instanceof Color color) {
                         // Use semi-transparent fill (0.2 opacity for subtle effect)
                         ghostRect.setFill(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.2));
                         // Add semi-transparent border with same color (0.6 opacity for visibility)
@@ -1334,7 +1364,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             DownData downData = eventListener.onDownEvent(event);
             // Check if downData is null (e.g., from PausedState) before processing
             if (downData != null) {
-                if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
+                if (hasLinesCleared(downData)) {
                     // Pause game loop for animation
                     if (timeLine != null) timeLine.pause();
 
@@ -1384,8 +1414,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             inputHandler.setEventListener(eventListener);
             // CRITICAL FIX: Always update isTwoPlayerMode flag when eventListener is set
             // This ensures GameInputHandler knows the correct mode
-            boolean isTwoPlayer = eventListener instanceof TwoPlayerGameController;
-            isTwoPlayerMode = isTwoPlayer; // Always update to match eventListener type
+            isTwoPlayerMode = eventListener instanceof TwoPlayerGameController;
             inputHandler.setTwoPlayerMode(isTwoPlayerMode);
             createTwoPlayerPanelManagerIfNeeded();
         }
@@ -1397,6 +1426,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
      *
      * @param integerProperty The IntegerProperty representing the score.
      */
+    @SuppressWarnings("unused")
     public void bindScore(IntegerProperty integerProperty) {
         // Score binding is handled through direct updates rather than property binding
     }
@@ -1440,34 +1470,10 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
      */
     public void rebuildGameForRandomizerChange() {
         // Handle two-player mode separately
-        if (isTwoPlayerMode && eventListener instanceof TwoPlayerGameController) {
-            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+        if (isTwoPlayerMode && eventListener instanceof TwoPlayerGameController controller) {
             
             // Stop timelines before rebuilding
-            try {
-                java.lang.reflect.Field player1TimelineField = TwoPlayerGameController.class.getDeclaredField("player1Timeline");
-                java.lang.reflect.Field player2TimelineField = TwoPlayerGameController.class.getDeclaredField("player2Timeline");
-                java.lang.reflect.Field statsUpdateTimelineField = TwoPlayerGameController.class.getDeclaredField("statsUpdateTimeline");
-                player1TimelineField.setAccessible(true);
-                player2TimelineField.setAccessible(true);
-                statsUpdateTimelineField.setAccessible(true);
-                
-                Timeline player1Timeline = (Timeline) player1TimelineField.get(controller);
-                Timeline player2Timeline = (Timeline) player2TimelineField.get(controller);
-                Timeline statsUpdateTimeline = (Timeline) statsUpdateTimelineField.get(controller);
-                
-                if (player1Timeline != null) {
-                    player1Timeline.stop();
-                }
-                if (player2Timeline != null) {
-                    player2Timeline.stop();
-                }
-                if (statsUpdateTimeline != null) {
-                    statsUpdateTimeline.stop();
-                }
-            } catch (Exception e) {
-                System.err.println("Failed to stop two-player timelines: " + e.getMessage());
-            }
+            controller.stopTimelines();
             
             // Clear all panels before rebuilding
             clearPlayer1Panels();
@@ -1505,38 +1511,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             isTwoPlayerMode = true;
             
             javafx.application.Platform.runLater(() -> {
-                javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(250));
-                delay.setOnFinished(e -> {
-                    if (rootPane != null && gamePanel1 != null && gamePanel2 != null &&
-                        gamePanel1.getParent() != null && gamePanel2.getParent() != null) {
-                        // Use dependency injection: create Board instances explicitly and inject them
-                        com.comp2042.model.board.Board player1Board = new com.comp2042.model.board.SimpleBoard(10, 20);
-                        com.comp2042.model.board.Board player2Board = new com.comp2042.model.board.SimpleBoard(10, 20);
-                        com.comp2042.service.gameloop.GameService player1Service = new com.comp2042.service.gameloop.GameServiceImpl(player1Board);
-                        com.comp2042.service.gameloop.GameService player2Service = new com.comp2042.service.gameloop.GameServiceImpl(player2Board);
-                        com.comp2042.model.mode.TwoPlayerMode newGameMode = 
-                            new com.comp2042.model.mode.TwoPlayerMode(player1Service, player2Service, this);
-                        new TwoPlayerGameController(newGameMode, this);
-                        rootPane.requestFocus();
-                    } else {
-                        javafx.animation.PauseTransition retryDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(200));
-                        retryDelay.setOnFinished(retryEvent -> {
-                            if (rootPane != null && gamePanel1 != null && gamePanel2 != null && 
-                                gamePanel1.getParent() != null && gamePanel2.getParent() != null) {
-                                // Use dependency injection: create Board instances explicitly and inject them
-                                com.comp2042.model.board.Board player1Board = new com.comp2042.model.board.SimpleBoard(10, 20);
-                                com.comp2042.model.board.Board player2Board = new com.comp2042.model.board.SimpleBoard(10, 20);
-                                com.comp2042.service.gameloop.GameService player1Service = new com.comp2042.service.gameloop.GameServiceImpl(player1Board);
-                                com.comp2042.service.gameloop.GameService player2Service = new com.comp2042.service.gameloop.GameServiceImpl(player2Board);
-                                com.comp2042.model.mode.TwoPlayerMode newGameMode = 
-                                    new com.comp2042.model.mode.TwoPlayerMode(player1Service, player2Service, this);
-                                new TwoPlayerGameController(newGameMode, this);
-                                rootPane.requestFocus();
-                            }
-                        });
-                        retryDelay.play();
-                    }
-                });
+                javafx.animation.PauseTransition delay = createTwoPlayerGameStartDelay();
                 delay.play();
             });
             return;
@@ -1562,10 +1537,12 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         }
         // Clear static board cells by resetting fills; keep grid nodes to preserve styling
         if (displayMatrix != null) {
-            for (int i = 0; i < displayMatrix.length; i++) {
-                for (int j = 0; j < displayMatrix[i].length; j++) {
-                    if (displayMatrix[i][j] != null) {
-                        displayMatrix[i][j].setFill(Color.TRANSPARENT);
+            for (Rectangle[] matrix : displayMatrix) {
+                if (matrix != null) {
+                    for (Rectangle rectangle : matrix) {
+                        if (rectangle != null) {
+                            rectangle.setFill(Color.TRANSPARENT);
+                        }
                     }
                 }
             }
@@ -1617,20 +1594,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         
         // Add small delay to ensure old Timeline instances are fully stopped
         // before creating new GameController (which will create new Timelines)
-        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(50));
-        delay.setOnFinished(e -> {
-            // Recreate controller which will read settings and build a new Board
-            new GameController(this);
-
-            // Reset Level Mode timer if needed
-            if (isLevelMode) {
-                com.comp2042.model.mode.LevelManager levelManager = com.comp2042.model.mode.LevelManager.getInstance();
-                com.comp2042.model.mode.LevelMode currentLevel = levelManager.getCurrentLevel();
-                if (currentLevel != null) {
-                    updateTime(currentLevel.getTimeLimitSeconds()); // Reset timer to full time limit
-                }
-            }
-        });
+        javafx.animation.PauseTransition delay = createGameControllerRebuildDelay();
         delay.play();
         // Re-assert grid lines visibility and style just in case
         if (gamePanel != null) {
@@ -1652,7 +1616,9 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             updateTimeLabel();
             startTimeTimer();
         }
+        if (gamePanel != null) {
         gamePanel.requestFocus();
+        }
     }
 
     /**
@@ -1666,36 +1632,10 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         // Play button click sound
         SoundManager.getInstance().playButtonClickSound();
         // Handle two-player mode
-        if (isTwoPlayerMode && eventListener instanceof TwoPlayerGameController) {
-            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+        if (isTwoPlayerMode && eventListener instanceof TwoPlayerGameController controller) {
             
             // Stop timelines before starting new game (to prevent blocks from falling during countdown)
-            try {
-                java.lang.reflect.Field player1TimelineField = TwoPlayerGameController.class.getDeclaredField("player1Timeline");
-                java.lang.reflect.Field player2TimelineField = TwoPlayerGameController.class.getDeclaredField("player2Timeline");
-                java.lang.reflect.Field statsUpdateTimelineField = TwoPlayerGameController.class.getDeclaredField("statsUpdateTimeline");
-                player1TimelineField.setAccessible(true);
-                player2TimelineField.setAccessible(true);
-                statsUpdateTimelineField.setAccessible(true);
-                
-                Timeline player1Timeline = (Timeline) player1TimelineField.get(controller);
-                Timeline player2Timeline = (Timeline) player2TimelineField.get(controller);
-                Timeline statsUpdateTimeline = (Timeline) statsUpdateTimelineField.get(controller);
-                
-                if (player1Timeline != null) {
-                    player1Timeline.stop();
-                }
-                if (player2Timeline != null) {
-                    player2Timeline.stop();
-                }
-                if (statsUpdateTimeline != null) {
-                    statsUpdateTimeline.stop();
-                }
-            } catch (Exception e) {
-                // If reflection fails, fall back to onNewGameEvent
-                // But we need to prevent it from starting timelines
-                System.err.println("Failed to stop timelines via reflection: " + e.getMessage());
-            }
+            controller.stopTimelines();
             
             // Clear all panels before starting new game
             clearPlayer1Panels();
@@ -2060,7 +2000,6 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
     }
 
     public void updateTime(int timeLimitSeconds) {
-        this.levelTimeLimitSeconds = timeLimitSeconds;
         this.levelTimeRemainingSeconds = timeLimitSeconds;
         startLevelTimer();
         updateTimeDisplay();
@@ -2104,10 +2043,6 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             uiManager.updateLevelTimer(levelTimeRemainingSeconds);
         }
     }
-
-    public int getTimeRemainingSeconds() {
-        return levelTimeRemainingSeconds;
-    }
     
     /**
      * Sets the board reference for Level Mode.
@@ -2122,7 +2057,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
     /**
      * Handles the event when level time reaches 0.
      * Triggers game over for Level Mode.
-     * 
+     * <p>
      * This method is called when the level timer reaches 0. It ensures that
      * the game over screen is shown when time runs out, in addition to the
      * checkTimeLimit() method in LevelGameModeImpl which also handles this case.
@@ -2291,25 +2226,6 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
     }
     
     /**
-     * Sets the drop speed for the game.
-     * 
-     * @param speed the new drop speed in milliseconds
-     */
-    public void setDropSpeed(int speed) {
-        this.currentDropSpeed = speed;
-        updateGameSpeed(speed);
-    }
-    
-    /**
-     * Sets the brick opacity for visual effects.
-     * 
-     * @param opacity the opacity value (0.0 to 1.0)
-     */
-    public void setBrickOpacity(double opacity) {
-        this.currentBrickOpacity = Math.max(0.0, Math.min(1.0, opacity));
-    }
-    
-    /**
      * Sets whether ghost piece should be displayed.
      * 
      * @param enabled true to show ghost piece, false to hide it
@@ -2367,7 +2283,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             "-fx-font-size: 48px; " +
             "-fx-font-weight: bold; " +
             "-fx-text-fill: #FFD700; " +
-            "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 15, 0, 0, 0);"
+            "-fx-effect: drop shadow(gaussian, rgba(255, 215, 0, 0.8), 15, 0, 0, 0);"
         );
         
         // Add to notification group
@@ -2582,18 +2498,50 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             settingsController.setupKeyboardHandling(settingsScene);
             
             // Apply settings CSS
-            settingsScene.getStylesheets().add(
-                getClass().getResource("/settings.css").toExternalForm()
-            );
+            URL settingsCssResource = getClass().getResource("/settings.css");
+            if (settingsCssResource != null) {
+                settingsScene.getStylesheets().add(settingsCssResource.toExternalForm());
+            } else {
+                logger.warning("Failed to load settings CSS resource: /settings.css");
+            }
             
             // Switch to settings scene
             stage.setScene(settingsScene);
             stage.setTitle("TETRIS - Settings");
             centerWindowOnScreen(stage, settingsWidth, settingsHeight);
         } catch (Exception e) {
-            System.err.println("Error loading settings page: " + e.getMessage());
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error loading settings page", e);
         }
+    }
+    
+    /**
+     * Creates a resume game Runnable that handles resuming the game after an overlay dialog is closed.
+     * The Runnable ensures it only runs once using a flag, and handles both countdown restart and game resume.
+     * 
+     * @param wasCountdownRunning whether the countdown was running when the dialog was opened
+     * @param savedCountdownCallback the callback to restart the countdown, or null if not applicable
+     * @param wasPaused whether the game was paused when the dialog was opened
+     * @return a Runnable that resumes the game or restarts the countdown
+     */
+    private Runnable createResumeGameRunnable(boolean wasCountdownRunning, Runnable savedCountdownCallback, boolean wasPaused) {
+        // Use a flag to prevent duplicate resume calls
+        final boolean[] hasResumed = {false};
+        
+        return () -> {
+            if (hasResumed[0]) {
+                return; // Already resumed, skip
+            }
+            hasResumed[0] = true;
+            
+            if (wasCountdownRunning && savedCountdownCallback != null) {
+                // Ensure game is not paused before restarting countdown
+                isPause.setValue(false);
+                // Restart countdown from beginning
+                showCountdown(savedCountdownCallback);
+            } else if (!wasPaused) {
+                resumeFromOverlay();
+            }
+        };
     }
     
     /**
@@ -2623,57 +2571,15 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             }
             
             // If countdown is running, ensure timelines are stopped (game hasn't started yet)
-            if (wasCountdownRunning && eventListener instanceof TwoPlayerGameController) {
-                TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
-                try {
-                    java.lang.reflect.Field player1TimelineField = TwoPlayerGameController.class.getDeclaredField("player1Timeline");
-                    java.lang.reflect.Field player2TimelineField = TwoPlayerGameController.class.getDeclaredField("player2Timeline");
-                    java.lang.reflect.Field statsUpdateTimelineField = TwoPlayerGameController.class.getDeclaredField("statsUpdateTimeline");
-                    player1TimelineField.setAccessible(true);
-                    player2TimelineField.setAccessible(true);
-                    statsUpdateTimelineField.setAccessible(true);
-                    
-                    Timeline player1Timeline = (Timeline) player1TimelineField.get(controller);
-                    Timeline player2Timeline = (Timeline) player2TimelineField.get(controller);
-                    Timeline statsUpdateTimeline = (Timeline) statsUpdateTimelineField.get(controller);
-                    
-                    if (player1Timeline != null) {
-                        player1Timeline.stop();
-                    }
-                    if (player2Timeline != null) {
-                        player2Timeline.stop();
-                    }
-                    if (statsUpdateTimeline != null) {
-                        statsUpdateTimeline.stop();
-                    }
-                } catch (Exception e) {
-                    System.err.println("Failed to stop timelines during countdown: " + e.getMessage());
-                }
+            if (wasCountdownRunning && eventListener instanceof TwoPlayerGameController controller) {
+                controller.stopTimelines();
             }
             
             // Use the same help dialog implementation as main menu for consistency
             javafx.stage.Stage helpStage = com.comp2042.controller.menu.MainMenuController.showHelpDialog();
             
             if (helpStage != null) {
-                // Use a flag to prevent duplicate resume calls
-                final boolean[] hasResumed = {false};
-                
-                // Create a reusable resume function that only runs once
-                Runnable resumeGame = () -> {
-                    if (hasResumed[0]) {
-                        return; // Already resumed, skip
-                    }
-                    hasResumed[0] = true;
-                    
-                    if (wasCountdownRunning && savedCountdownCallback != null) {
-                        // Ensure game is not paused before restarting countdown
-                        isPause.setValue(false);
-                        // Restart countdown from beginning
-                        showCountdown(savedCountdownCallback);
-                    } else if (!wasPaused) {
-                        resumeFromOverlay();
-                    }
-                };
+                Runnable resumeGame = createResumeGameRunnable(wasCountdownRunning, savedCountdownCallback, wasPaused);
                 
                 // Listen for when the dialog is actually closed (not just requested)
                 // This ensures resume logic runs whether closed via X button or Close button
@@ -2687,8 +2593,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             }
             
         } catch (Exception e) {
-            System.err.println("Error showing help dialog: " + e.getMessage());
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error showing help dialog", e);
         }
     }
     
@@ -2705,8 +2610,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             cleanupAllTimelines();
             
             // Stop any running timelines for two-player mode
-            if (eventListener instanceof TwoPlayerGameController) {
-                TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+            if (eventListener instanceof TwoPlayerGameController controller) {
                 controller.onQuitEvent(new MoveEvent(EventType.QUIT, EventSource.USER));
             }
             
@@ -2734,8 +2638,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             // Center window on primary screen to handle multi-monitor setups
             centerWindowOnScreen(stage, 900, 800);
         } catch (Exception e) {
-            System.err.println("Error loading main menu: " + e.getMessage());
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error loading main menu", e);
         }
     }
 
@@ -2782,8 +2685,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             stage.setTitle("Tetris - Level Selection");
             centerWindowOnScreen(stage, 900, 800);
         } catch (Exception e) {
-            System.err.println("Error returning to level selection: " + e.getMessage());
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error returning to level selection", e);
             returnToMenu();
         }
     }
@@ -2825,17 +2727,6 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         }
     }
     
-    
-    /**
-     * Shows the Endless Mode Game Over screen.
-     * Displays final score, leaderboard, and options to retry or return to menu.
-     * 
-     * @param finalScore the final score achieved
-     * @param linesCleared the number of lines cleared
-     * @param playTimeMs the play time in milliseconds
-     * @param isNewHighScore whether this is a new high score
-     * @param rank the player's rank (1-5), or 0 if not in top 5
-     */
     
     /**
      * Checks if the current game is in Endless Mode.
@@ -2956,8 +2847,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                     
                     new GameController(gameController);
                 } catch (Exception e) {
-                    System.err.println("Error starting new Endless Mode: " + e.getMessage());
-                    e.printStackTrace();
+                    logger.log(Level.SEVERE, "Error starting new Endless Mode", e);
                 }
             });
             controller.setOnResetLeaderboard(() -> {
@@ -2970,8 +2860,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                     // Refresh the leaderboard display by recreating the entries
                     controller.refreshLeaderboard();
                 } catch (Exception e) {
-                    System.err.println("Error clearing leaderboard: " + e.getMessage());
-                    e.printStackTrace();
+                    logger.log(Level.SEVERE, "Error clearing leaderboard", e);
                 }
             });
             controller.setOnBackToMenu(() -> {
@@ -2989,7 +2878,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                         System.err.println("Current stage is null, cannot switch to menu scene");
                     }
                 } catch (Exception e) {
-                    System.err.println("Error loading main menu: " + e.getMessage());
+                    logger.log(Level.SEVERE, "Error loading main menu", e);
                 }
             });
             
@@ -3001,16 +2890,18 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             
             // Load CSS stylesheet
             try {
-                String cssPath = getClass().getClassLoader().getResource("endlessGameOverStyle.css").toExternalForm();
-                if (cssPath != null) {
-                    gameOverScene.getStylesheets().add(cssPath);
+                URL cssResource = getClass().getClassLoader().getResource("endlessGameOverStyle.css");
+                if (cssResource != null) {
+                    gameOverScene.getStylesheets().add(cssResource.toExternalForm());
+                } else {
+                    logger.warning("Failed to load CSS resource: endlessGameOverStyle.css");
                 }
             } catch (Exception e) {
                 System.err.println("Error loading CSS: " + e.getMessage());
             }
             
             // Set up keyboard handling
-            gameOverScene.setOnKeyPressed(event -> controller.handleKeyPress(event));
+            gameOverScene.setOnKeyPressed(controller::handleKeyPress);
             
             // Get current stage and switch scene
             Stage stage = (Stage) gamePanel.getScene().getWindow();
@@ -3029,8 +2920,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             isPause.setValue(false);
             
         } catch (Exception e) {
-            System.err.println("Error loading Endless Game Over scene: " + e.getMessage());
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error loading Endless Game Over scene", e);
             // Fallback to regular game over
             gameOver();
         }
@@ -3099,7 +2989,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             int completionTimeSeconds = (int) (playTimeMs / 1000);
             boolean success = linesCleared >= targetLines;
             
-            // Level is already completed in PlayingState, which updates best stats and unlocks next level
+            // Level is already completed in PlayingState, which updates the best stats and unlocks next level
             final com.comp2042.model.mode.LevelMode finalCurrentLevel = levelManager.getCurrentLevel();
             
             int stars = finalCurrentLevel != null ? finalCurrentLevel.calculateStars(finalScore, linesCleared, completionTimeSeconds, success) : 0;
@@ -3142,15 +3032,22 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                     }
                     
                     // Then load the level
+                    if (finalCurrentLevel != null) {
                     levelSelectionController.handleLevelSelect(finalCurrentLevel);
+                    } else {
+                        logger.warning("Cannot restart level: finalCurrentLevel is null");
+                    }
                 } catch (Exception e) {
-                    System.err.println("Error restarting level: " + e.getMessage());
-                    e.printStackTrace();
+                    logger.log(Level.SEVERE, "Error restarting level", e);
                 }
             });
             
             controller.setOnNextLevel(() -> {
                 // Load next level if available
+                if (finalCurrentLevel == null) {
+                    logger.warning("Cannot load next level: finalCurrentLevel is null");
+                    return;
+                }
                 com.comp2042.model.mode.LevelMode nextLevel = levelManager.getLevel(finalCurrentLevel.getLevelId() + 1);
                 if (nextLevel != null && nextLevel.isUnlocked()) {
                     try {
@@ -3170,8 +3067,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                         // Then load the next level
                         levelSelectionController.handleLevelSelect(nextLevel);
                     } catch (Exception e) {
-                        System.err.println("Error loading next level: " + e.getMessage());
-                        e.printStackTrace();
+                        logger.log(Level.SEVERE, "Error loading next level", e);
                     }
                 } else {
                     // Next level not available or locked - return to level selection
@@ -3187,8 +3083,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                             stageForCallbacks.setTitle("Tetris - Level Selection");
                         }
                     } catch (Exception e) {
-                        System.err.println("Error loading level selection: " + e.getMessage());
-                        e.printStackTrace();
+                        logger.log(Level.SEVERE, "Error loading level selection", e);
                     }
                 }
             });
@@ -3213,8 +3108,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                         stageForCallbacks.setTitle("Tetris - Level Selection");
                     }
                 } catch (Exception e) {
-                    System.err.println("Error loading level selection: " + e.getMessage());
-                    e.printStackTrace();
+                    logger.log(Level.SEVERE, "Error loading level selection", e);
                 }
             });
             
@@ -3233,14 +3127,14 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                         centerWindowOnScreen(stageForCallbacks, 900, 800);
                     }
                 } catch (Exception e) {
-                    System.err.println("Error loading main menu: " + e.getMessage());
-                    e.printStackTrace();
+                    logger.log(Level.SEVERE, "Error loading main menu", e);
                 }
             });
             
             // Show the game over data
+            int levelId = finalCurrentLevel != null ? finalCurrentLevel.getLevelId() : -1;
             controller.showGameOver(finalScore, linesCleared, targetLines, playTimeMs,
-                    stars, success, finalCurrentLevel.getLevelId(),
+                    stars, success, levelId,
                     isNewBestScore, isNewBestTime);
             
             // Create new scene
@@ -3248,9 +3142,11 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             
             // Load CSS stylesheet
             try {
-                String cssPath = getClass().getClassLoader().getResource("levelGameOverStyle.css").toExternalForm();
-                if (cssPath != null) {
-                    gameOverScene.getStylesheets().add(cssPath);
+                URL cssResource = getClass().getClassLoader().getResource("levelGameOverStyle.css");
+                if (cssResource != null) {
+                    gameOverScene.getStylesheets().add(cssResource.toExternalForm());
+                } else {
+                    logger.warning("Failed to load CSS resource: levelGameOverStyle.css");
                 }
             } catch (Exception e) {
                 System.err.println("Error loading CSS: " + e.getMessage());
@@ -3274,8 +3170,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             isPause.setValue(false);
             
         } catch (Exception e) {
-            System.err.println("Error loading Level Game Over scene: " + e.getMessage());
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error loading Level Game Over scene", e);
             // Fallback to regular game over
             gameOver();
         }
@@ -3463,12 +3358,9 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         refreshPlayer1Brick(downData.getViewData());
         
         // Update board background
-        if (eventListener instanceof TwoPlayerGameController) {
-            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+        if (eventListener instanceof TwoPlayerGameController controller) {
             
-            boolean hasClear = downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0;
-            
-            if (hasClear) {
+            if (hasLinesCleared(downData)) {
                 // Animate row clearing then refresh
                 animationController.animateRowClear(twoPlayerPanelManager.getDisplayMatrix1(), downData.getClearRow().getClearedRows(), () -> {
                     // Force full refresh to reset visual properties
@@ -3500,9 +3392,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             // Single Player Handling
             refreshBrick(downData.getViewData()); // Using refreshBrick for Single Player compatibility
             
-            boolean hasClear = downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0;
-            
-            if (hasClear) {
+            if (hasLinesCleared(downData)) {
                 // Animate row clearing then refresh
                 animationController.animateRowClear(displayMatrix, downData.getClearRow().getClearedRows(), () -> {
                     // Force full refresh to reset visual properties
@@ -3524,18 +3414,12 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                     updateLines(endlessLinesClearedUI);
                     applyEndlessProgression();
                 }
-            } else {
-                // No clear, refresh immediately if needed (PlayingState might defer)
-                // PlayingState only defers if clearRow > 0.
-                // But if we are here, clearRow might be null or 0.
-                // If it's null, PlayingState already called refreshGameBackground.
-                // We don't need to double call unless we want to be safe.
             }
+            // No clear: PlayingState already handled background refresh if needed
         }
         
         // Check for game over (duplicate check removed/consolidated)
-        if (eventListener instanceof TwoPlayerGameController) {
-            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+        if (eventListener instanceof TwoPlayerGameController controller) {
             controller.checkGameOver();
         }
     }
@@ -3554,12 +3438,9 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         refreshPlayer2Brick(downData.getViewData());
         
         // Update board background
-        if (eventListener instanceof TwoPlayerGameController) {
-            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+        if (eventListener instanceof TwoPlayerGameController controller) {
             
-            boolean hasClear = downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0;
-            
-            if (hasClear) {
+            if (hasLinesCleared(downData)) {
                 // Animate row clearing then refresh
                 animationController.animateRowClear(twoPlayerPanelManager.getDisplayMatrix2(), downData.getClearRow().getClearedRows(), () -> {
                     // Force full refresh to reset visual properties
@@ -3589,8 +3470,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         }
         
         // Check for game over
-        if (eventListener instanceof TwoPlayerGameController) {
-            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
+        if (eventListener instanceof TwoPlayerGameController controller) {
             controller.checkGameOver();
         }
     }
@@ -3746,25 +3626,20 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         com.comp2042.model.mode.PlayerStats player1Stats = null;
         com.comp2042.model.mode.PlayerStats player2Stats = null;
         
-        if (eventListener instanceof TwoPlayerGameController) {
-            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
-            if (controller.getGameMode() instanceof com.comp2042.model.mode.TwoPlayerMode) {
-                com.comp2042.model.mode.TwoPlayerMode gameMode = 
-                    (com.comp2042.model.mode.TwoPlayerMode) controller.getGameMode();
+        if (eventListener instanceof TwoPlayerGameController controller) {
+            if (controller.getGameMode() instanceof com.comp2042.model.mode.TwoPlayerMode gameMode) {
                 player1Stats = gameMode.getPlayer1Stats();
                 player2Stats = gameMode.getPlayer2Stats();
             }
         }
         
         if (twoPlayerPanelManager != null) {
-            final com.comp2042.model.mode.PlayerStats finalPlayer1Stats = player1Stats;
-            final com.comp2042.model.mode.PlayerStats finalPlayer2Stats = player2Stats;
             twoPlayerPanelManager.showTwoPlayerGameOver(
                 winner,
                 player1Score,
                 player2Score,
-                finalPlayer1Stats,
-                finalPlayer2Stats,
+                player1Stats,
+                player2Stats,
                 () -> newGame(null),
                 this::returnToMenu
             );
@@ -3800,32 +3675,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
 
         // Stop timelines if eventListener is set (e.g., during new game)
         // Note: eventListener may be null during initial countdown, which is fine
-        if (eventListener instanceof TwoPlayerGameController) {
-            TwoPlayerGameController controller = (TwoPlayerGameController) eventListener;
-            try {
-                java.lang.reflect.Field player1TimelineField = TwoPlayerGameController.class.getDeclaredField("player1Timeline");
-                java.lang.reflect.Field player2TimelineField = TwoPlayerGameController.class.getDeclaredField("player2Timeline");
-                java.lang.reflect.Field statsUpdateTimelineField = TwoPlayerGameController.class.getDeclaredField("statsUpdateTimeline");
-                player1TimelineField.setAccessible(true);
-                player2TimelineField.setAccessible(true);
-                statsUpdateTimelineField.setAccessible(true);
-                
-                Timeline player1Timeline = (Timeline) player1TimelineField.get(controller);
-                Timeline player2Timeline = (Timeline) player2TimelineField.get(controller);
-                Timeline statsUpdateTimeline = (Timeline) statsUpdateTimelineField.get(controller);
-                
-                if (player1Timeline != null) {
-                    player1Timeline.stop();
-                }
-                if (player2Timeline != null) {
-                    player2Timeline.stop();
-                }
-                if (statsUpdateTimeline != null) {
-                    statsUpdateTimeline.stop();
-                }
-            } catch (Exception e) {
-                System.err.println("Failed to stop timelines during countdown: " + e.getMessage());
-            }
+        if (eventListener instanceof TwoPlayerGameController controller) {
+            controller.stopTimelines();
         }
         
         // Timeline KeyFrame already runs on JavaFX thread, but add error handling
@@ -3834,8 +3685,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             try {
                 onComplete.run();
             } catch (Exception e) {
-                System.err.println("[GuiController] Error executing countdown callback: " + e.getMessage());
-                e.printStackTrace();
+                logger.log(Level.SEVERE, "Error executing countdown callback", e);
             }
         } : null;
         
@@ -3847,32 +3697,6 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             boardBackground2,
             safeCallback
         );
-    }
-    
-    /**
-     * Checks if a key code is a numpad key.
-     * 
-     * @param code the key code to check
-     * @return true if the key is a numpad key, false otherwise
-     */
-    private boolean isNumpadKey(KeyCode code) {
-        return code == KeyCode.NUMPAD0 || code == KeyCode.NUMPAD1 || code == KeyCode.NUMPAD2 || 
-               code == KeyCode.NUMPAD3 || code == KeyCode.NUMPAD4 || code == KeyCode.NUMPAD5 || 
-               code == KeyCode.NUMPAD6 || code == KeyCode.NUMPAD7 || code == KeyCode.NUMPAD8 || 
-               code == KeyCode.NUMPAD9;
-    }
-    
-    /**
-     * Checks if a key code is a digit key.
-     * 
-     * @param code the key code to check
-     * @return true if the key is a digit key, false otherwise
-     */
-    private boolean isDigitKey(KeyCode code) {
-        return code == KeyCode.DIGIT0 || code == KeyCode.DIGIT1 || code == KeyCode.DIGIT2 || 
-               code == KeyCode.DIGIT3 || code == KeyCode.DIGIT4 || code == KeyCode.DIGIT5 || 
-               code == KeyCode.DIGIT6 || code == KeyCode.DIGIT7 || code == KeyCode.DIGIT8 || 
-               code == KeyCode.DIGIT9;
     }
     
     /**
