@@ -6,7 +6,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ChoiceBox;
@@ -15,11 +14,22 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 /**
- * Settings page controller managing audio, controls, and display options (MVC Pattern).
- * Provides comprehensive interface for volume control, key bindings, and visual settings.
- * Includes save/load functionality persisting to user directory.
+ * Settings page controller managing audio, controls, and display options.
  * 
- * @author Dong, Jia.
+ * <p>Implements the MVC pattern to provide a comprehensive interface for configuring
+ * game settings including volume control, key bindings, and visual preferences.
+ * All settings are persisted to the user directory and loaded on application startup.</p>
+ * 
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Manage audio volume settings (master, music, SFX)</li>
+ *   <li>Configure piece randomizer system (7-Bag vs Pure Random)</li>
+ *   <li>Handle game state preservation when opened from game</li>
+ *   <li>Provide save/load/reset functionality for settings</li>
+ *   <li>Navigate between settings, game, and main menu</li>
+ * </ul>
+ * 
+ * @author Dong, Jia
  */
 public class SettingsController {
     
@@ -74,8 +84,9 @@ public class SettingsController {
     private String originalRandomizer;
     
     /**
-     * Initializes the settings controller.
-     * Called automatically by JavaFX after FXML loading.
+     * Initializes the settings controller after FXML loading.
+     * Sets up volume sliders, randomizer choice box, and configures keyboard handling.
+     * Loads current settings from GameSettings and applies them to UI components.
      */
     @FXML
     public void initialize() {
@@ -165,12 +176,12 @@ public class SettingsController {
     }
     
     /**
-     * Sets up a volume slider with value change listener.
-     * Updates SoundManager in real-time as user drags the slider.
+     * Sets up a volume slider with real-time value change listener.
+     * Updates both the label display and SoundManager immediately as the user adjusts the slider.
      * 
-     * @param slider the slider to setup
-     * @param label the label to update with percentage
-     * @param initialValue the initial value (0-100)
+     * @param slider the volume slider to configure
+     * @param label the label to update with the percentage value
+     * @param initialValue the initial slider value, from 0 to 100
      */
     private void setupVolumeSlider(Slider slider, Label label, double initialValue) {
         slider.setValue(initialValue);
@@ -193,17 +204,17 @@ public class SettingsController {
     }
     
     /**
-     * Sets the stage for this controller (for main menu mode).
-     * 
-     * @param stage the JavaFX stage
+     * Sets the JavaFX stage reference for scene navigation.
+     *
+     * @param stage the primary stage for this application
      */
     public void setStage(Stage stage) {
         this.stage = stage;
     }
     
     /**
-     * Disables space key for all buttons to prevent accidental activation.
-     * CRITICAL FIX: Uses addEventFilter for CAPTURE phase to intercept events BEFORE button processes them.
+     * Disables the SPACE key for all buttons to prevent accidental activation during gameplay.
+     * Uses event filters at the capture phase to intercept events before button processing.
      */
     private void disableSpaceKeyForButtons() {
         // CRITICAL: Use addEventFilter (CAPTURE phase) instead of setOnKeyPressed (BUBBLING phase)
@@ -243,9 +254,9 @@ public class SettingsController {
     
     /**
      * Sets up keyboard event handling for the settings scene.
-     * CRITICAL FIX: Uses addEventFilter for CAPTURE phase at Scene level.
-     * 
-     * @param scene the settings scene
+     * Uses event filters at the scene level to prevent SPACE key from triggering button actions.
+     *
+     * @param scene the settings scene to configure
      */
     public void setupKeyboardHandling(Scene scene) {
         // CRITICAL: Use addEventFilter at Scene level for CAPTURE phase
@@ -257,11 +268,11 @@ public class SettingsController {
     }
     
     /**
-     * Sets the saved game scene for returning to game.
-     * If a game scene is provided, both "Back to Game" and "Back to Menu" buttons are shown.
-     * Otherwise, only "Back to Menu" button is shown.
-     * 
-     * @param gameScene the saved game scene, or null if opened from menu
+     * Sets the saved game scene reference for returning to the game.
+     * Controls button visibility: if a game scene is provided, both "Back to Game"
+     * and "Back to Menu" buttons are shown; otherwise, only "Back to Menu" is visible.
+     *
+     * @param gameScene the saved game scene to return to, or null if opened from main menu
      */
     public void setSavedGameScene(Scene gameScene) {
         this.savedGameScene = gameScene;
@@ -289,12 +300,14 @@ public class SettingsController {
     }
     
     /**
-     * Sets the GUI controller reference for game state management.
-     * 
-     * @param guiController the GUI controller managing the game
-     * @param wasAlreadyPaused whether the game was paused before opening settings
-     * @param wasCountdownRunning whether the countdown was running before opening settings
-     * @param countdownCallback the countdown callback to restart countdown if it was running
+     * Sets the GUI controller reference and game state information for proper state restoration.
+     * Tracks whether the game was paused or countdown was running before opening settings,
+     * allowing proper resumption when returning to the game.
+     *
+     * @param guiController the GUI controller managing the game instance
+     * @param wasAlreadyPaused true if the game was already paused before opening settings
+     * @param wasCountdownRunning true if the countdown timer was running before opening settings
+     * @param countdownCallback the callback to restart the countdown if it was previously running
      */
     public void setGameController(com.comp2042.controller.game.GuiController guiController, boolean wasAlreadyPaused, 
                                   boolean wasCountdownRunning, Runnable countdownCallback) {
@@ -305,7 +318,9 @@ public class SettingsController {
     }
     
     /**
-     * Saves all current settings.
+     * Saves all current settings to persistent storage.
+     * Updates GameSettings with current UI values, persists to file, and handles
+     * game restart if piece randomizer was changed. Shows status feedback to the user.
      */
     @FXML
     public void saveSettings() {
@@ -418,6 +433,8 @@ public class SettingsController {
     
     /**
      * Resets all settings to default values.
+     * Restores audio volumes to defaults and handles piece randomizer reset with user confirmation
+     * if changing from Pure Random to 7-Bag. Updates UI components and SoundManager immediately.
      */
     @FXML
     public void resetToDefault() {
@@ -530,8 +547,9 @@ public class SettingsController {
     }
     
     /**
-     * Returns to the game.
-     * Restores the saved game scene and resumes gameplay automatically.
+     * Returns to the game scene and resumes gameplay.
+     * Restores the saved game scene, resumes pause state if applicable, and restarts
+     * the countdown timer if it was running before opening settings.
      */
     @FXML
     public void backToGame() {
@@ -556,8 +574,9 @@ public class SettingsController {
     }
     
     /**
-     * Returns to main menu.
-     * Ends the current game and frees memory.
+     * Returns to the main menu scene.
+     * Loads the main menu FXML, creates a new scene, and navigates to it.
+     * Ends the current game session and releases related resources.
      */
     @FXML
     public void backToMenu() {
@@ -600,12 +619,13 @@ public class SettingsController {
     }
     
     /**
-     * Centers the window on the current screen (where the window is located).
-     * Handles multi-monitor setups and ensures window appears correctly on the current display.
-     * 
-     * @param stage the stage to center
-     * @param width the window width
-     * @param height the window height
+     * Centers the window on the current screen where it is located.
+     * Automatically handles multi-monitor setups by using JavaFX's built-in
+     * centerOnScreen() method which respects the current display configuration.
+     *
+     * @param stage the stage to center on its current screen
+     * @param width the window width (used for reference, not directly applied)
+     * @param height the window height (used for reference, not directly applied)
      */
     private void centerWindowOnScreen(javafx.stage.Stage stage, double width, double height) {
         // Use centerOnScreen which automatically centers on the current screen
@@ -614,10 +634,11 @@ public class SettingsController {
     }
     
     /**
-     * Shows a status message to the user.
-     * 
-     * @param message the message to display
-     * @param color the color of the message
+     * Displays a status message to the user in the status label.
+     * Updates the label text and color, and automatically clears the message after a delay.
+     *
+     * @param message the status message text to display
+     * @param color the hexadecimal color code for the message text (e.g., "#4DFFFF")
      */
     private void showStatus(String message, String color) {
         statusLabel.setText(message);

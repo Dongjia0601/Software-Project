@@ -8,9 +8,7 @@ import com.comp2042.service.gameloop.GameServiceImpl;
 import com.comp2042.service.audio.SoundManager;
 import com.comp2042.model.board.Board;
 import com.comp2042.model.board.SimpleBoard;
-import com.comp2042.controller.menu.LevelSelectionController;
-import com.comp2042.controller.menu.SettingsController;
-import com.comp2042.controller.game.TwoPlayerGameController;
+import com.comp2042.controller.game.twoplayer.TwoPlayerGameController;
 import com.comp2042.controller.game.GameController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,14 +16,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.effect.Blend;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -164,8 +158,8 @@ public class MainMenuController {
     }
     
     /**
-     * Enhances the Tetris title with clean neon glow effects.
-     * Simple and effective: bright magenta text with cyan outer glow.
+     * Applies a neon glow effect to the Tetris title text.
+     * Uses bright magenta text color with a cyan drop shadow for visual appeal.
      */
     private void enhanceTitleNeonEffect() {
         if (titleText != null) {
@@ -182,8 +176,9 @@ public class MainMenuController {
     }
     
     /**
-     * Sets the background image with centered cropping.
-     * This ensures the middle portion of the image is displayed when the image is wider than the window.
+     * Loads and sets the background image with intelligent centered cropping.
+     * Implements aspect-ratio-aware cropping to display the center portion of the image,
+     * maintaining visual quality while filling the window dimensions (900x800).
      */
     private void setCenteredBackground() {
         try {
@@ -209,7 +204,6 @@ public class MainMenuController {
                 // Image is wider than window - need to crop from sides to show center
                 // Scale to fit height (fill vertically), then crop width from center
                 double scaleFactor = windowHeight / imageHeight;
-                double scaledImageWidth = imageWidth * scaleFactor;
                 
                 // Calculate what portion of the original image to show
                 // We want to show a width that equals windowWidth when scaled
@@ -298,8 +292,9 @@ public class MainMenuController {
     }
 
     /**
-     * Starts the Level Mode game.
-     * Opens the level selection interface.
+     * Opens the level selection interface for Level Mode.
+     * Loads the level selection scene and navigates to it, allowing players to choose
+     * and play themed levels with unlock progression and star ratings.
      */
     @FXML
     private void startLevelMode() {
@@ -329,8 +324,9 @@ public class MainMenuController {
     }
 
     /**
-     * Starts the Two-Player Mode game.
-     * Creates separate game services for both players and launches VS mode.
+     * Starts the Two-Player Mode game with VS gameplay.
+     * Creates separate game services for both players, initializes dual game boards,
+     * and configures keyboard input handling for simultaneous play.
      */
     @FXML
     private void startTwoPlayerMode() {
@@ -421,10 +417,11 @@ public class MainMenuController {
 
 
     /**
-     * Loads the game scene with the specified GUI controller.
+     * Loads the game scene FXML and transitions to the game interface.
+     * Creates the game scene, sets up the stage, and initializes the game controller.
      * 
-     * @param guiController the GUI controller for the game
-     * @throws IOException if the FXML file cannot be loaded
+     * @param guiController the GUI controller instance for game rendering and interaction
+     * @throws IOException if the enhanced game layout FXML file cannot be loaded
      */
     private void loadGameScene(GuiController guiController) throws IOException {
         // Load the enhanced game layout FXML
@@ -455,8 +452,8 @@ public class MainMenuController {
     }
     
     /**
-     * Handles the settings button click.
-     * Opens the settings page.
+     * Handles the settings button click event.
+     * Opens the settings page for configuring audio, controls, and game options.
      */
     @FXML
     private void openSettings() {
@@ -493,8 +490,8 @@ public class MainMenuController {
     }
     
     /**
-     * Handles the help button click.
-     * Shows the help dialog with game mode descriptions.
+     * Handles the help button click event.
+     * Displays the comprehensive gameplay guide dialog with mode descriptions and controls.
      */
     @FXML
     private void showHelp() {

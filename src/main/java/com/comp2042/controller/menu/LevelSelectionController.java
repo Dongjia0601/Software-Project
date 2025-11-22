@@ -26,7 +26,21 @@ import java.util.Optional;
 
 /**
  * Controller for the level selection screen.
- * Displays all themed levels in a grid with unlock status and star ratings.
+ * 
+ * <p>Manages the level selection interface displaying all available themed levels
+ * in a grid layout. Shows unlock status, star ratings, best scores, completion times,
+ * and provides navigation to individual levels. Supports progress tracking and
+ * level unlocking based on completion status.</p>
+ * 
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Display all levels in a 3-column grid layout</li>
+ *   <li>Show unlock status and star ratings for each level</li>
+ *   <li>Display best scores and completion times</li>
+ *   <li>Handle level selection and game initialization</li>
+ *   <li>Apply theme backgrounds and colors to game scenes</li>
+ *   <li>Manage level progress reset functionality</li>
+ * </ul>
  */
 public class LevelSelectionController {
     
@@ -52,8 +66,8 @@ public class LevelSelectionController {
     private Stage stage;
     
     /**
-     * Initializes the controller.
-     * Called automatically by JavaFX after FXML loading.
+     * Initializes the controller after FXML loading.
+     * Sets up level data, applies visual styling, and configures keyboard handling.
      */
     @FXML
     public void initialize() {
@@ -67,8 +81,9 @@ public class LevelSelectionController {
     }
     
     /**
-     * Refreshes the level data and UI.
-     * Called when returning from game over screen to update stars and stats.
+     * Refreshes the level data and updates the UI display.
+     * Typically called when returning from a game over screen to reflect updated
+     * star ratings and completion statistics.
      */
     public void refreshData() {
         levelManager = LevelManager.getInstance();
@@ -79,7 +94,8 @@ public class LevelSelectionController {
     }
     
     /**
-     * Applies gradient fill to the title text.
+     * Applies a linear gradient fill to the header title text.
+     * Uses a pink-to-gold-to-cyan gradient for visual appeal.
      */
     private void applyTitleGradient() {
         if (headerTitleText != null) {
@@ -96,15 +112,16 @@ public class LevelSelectionController {
     }
     
     /**
-     * Sets the stage reference.
-     * @param stage the primary stage
+     * Sets the JavaFX stage reference for scene navigation.
+     *
+     * @param stage the primary stage for this application
      */
     public void setStage(Stage stage) {
         this.stage = stage;
     }
     
     /**
-     * Disables space key for all buttons to prevent accidental activation.
+     * Disables the SPACE key for all buttons to prevent accidental activation during gameplay.
      */
     private void disableSpaceKeyForButtons() {
         if (backButton != null) {
@@ -125,8 +142,9 @@ public class LevelSelectionController {
     }
     
     /**
-     * Refreshes the level display.
-     * Call this method when returning from a completed level to update UI.
+     * Refreshes the level grid display with updated data.
+     * Clears existing cards and repopulates the grid. Typically called when
+     * returning from a completed level to reflect updated statistics.
      */
     public void refresh() {
         levelManager = LevelManager.getInstance();
@@ -136,7 +154,8 @@ public class LevelSelectionController {
     }
     
     /**
-     * Handles back to main menu button click.
+     * Handles the back to main menu button click event.
+     * Loads the main menu scene and navigates to it.
      */
     @FXML
     private void handleBackToMenu() {
@@ -160,7 +179,9 @@ public class LevelSelectionController {
     }
     
     /**
-     * Populates the level grid with level cards.
+     * Populates the level grid with visual level cards.
+     * Arranges levels in a 3-column grid layout, displaying all available levels
+     * with their unlock status, star ratings, and statistics.
      */
     private void populateLevelGrid() {
         // Clear existing cards first
@@ -185,9 +206,12 @@ public class LevelSelectionController {
     }
     
     /**
-     * Creates a visual card for a level.
-     * @param level the level mode
-     * @return VBox containing the level card
+     * Creates a visual card component for a single level.
+     * Includes level number, name, theme preview, difficulty badge, star rating,
+     * best statistics, and play/locked button based on unlock status.
+     *
+     * @param level the level mode data to display
+     * @return a VBox containing the formatted level card
      */
     private VBox createLevelCard(LevelMode level) {
         VBox card = new VBox(10);
@@ -317,9 +341,10 @@ public class LevelSelectionController {
     }
     
     /**
-     * Creates a star rating display.
-     * @param stars number of stars (0-3)
-     * @return HBox with star shapes
+     * Creates a visual star rating display component.
+     *
+     * @param stars the number of stars earned, from 0 to 3
+     * @return an HBox containing three star shapes (filled or empty)
      */
     private HBox createStarRating(int stars) {
         HBox container = new HBox(8);
@@ -340,8 +365,9 @@ public class LevelSelectionController {
     }
     
     /**
-     * Creates a star-shaped polygon.
-     * @return Polygon shaped like a 5-pointed star
+     * Creates a 5-pointed star shape using polygon coordinates.
+     *
+     * @return a Polygon representing a star with outer and inner points
      */
     private Polygon createStarShape() {
         Polygon star = new Polygon();
@@ -365,7 +391,8 @@ public class LevelSelectionController {
     }
     
     /**
-     * Updates the statistics display.
+     * Updates the statistics display showing total stars and completed levels.
+     * Calculates and displays progress metrics at the top of the level selection screen.
      */
     private void updateStats() {
         int totalStars = levelManager.getTotalStars();
@@ -377,8 +404,11 @@ public class LevelSelectionController {
     }
     
     /**
-     * Handles level selection.
-     * @param level the selected level
+     * Handles level selection and initializes the game for the chosen level.
+     * Loads the game scene, applies theme styling, and starts gameplay.
+     * Only processes unlocked levels.
+     *
+     * @param level the level mode to start, must be unlocked
      */
     public void handleLevelSelect(LevelMode level) {
         if (!level.isUnlocked()) {
@@ -441,11 +471,12 @@ public class LevelSelectionController {
     }
     
     /**
-     * Applies the theme background and UI colors to the game scene.
-     * Adds darkening overlay for visual clarity.
+     * Applies the theme background image and UI colors to the game scene.
+     * Uses the level's theme to set background image with a darkening overlay
+     * for visual clarity. Falls back to gradient if image loading fails.
      * 
-     * @param root the root parent node
-     * @param level the level with theme info
+     * @param root the root parent node of the game scene
+     * @param level the level mode containing theme information
      */
     private void applyThemeBackground(Parent root, com.comp2042.model.mode.LevelMode level) {
         LevelTheme theme = level.getTheme();
@@ -503,7 +534,11 @@ public class LevelSelectionController {
     }
     
     /**
-     * Applies gradient fallback when background image fails to load.
+     * Applies a gradient fallback background when the theme background image fails to load.
+     * Uses the theme's primary and secondary colors to create a linear gradient.
+     *
+     * @param root the root parent node to apply the gradient to
+     * @param theme the level theme containing color information
      */
     private void applyGradientFallback(Parent root, LevelTheme theme) {
         String gradientStyle = String.format(
@@ -517,9 +552,11 @@ public class LevelSelectionController {
     }
     
     /**
-     * Applies theme colors to game UI elements.
-     * @param root the root parent node
-     * @param theme the level theme
+     * Applies theme colors to various game UI elements using CSS selectors.
+     * Uses Platform.runLater to ensure styles are applied after CSS loading.
+     *
+     * @param root the root parent node to search for UI elements
+     * @param theme the level theme containing color information
      */
     private void applyThemeColors(Parent root, LevelTheme theme) {
         // Use Platform.runLater to ensure styles are applied after CSS loading
@@ -539,14 +576,21 @@ public class LevelSelectionController {
     }
     
     /**
-     * Helper method to apply theme to specific element types.
+     * Helper method to apply theme styling to UI elements matching a CSS selector.
+     *
+     * @param root the root node to search from
+     * @param selector the CSS selector to match elements
+     * @param style the inline CSS style string to apply
      */
     private void applyThemeToElementType(Parent root, String selector, String style) {
         root.lookupAll(selector).forEach(node -> node.setStyle(style));
     }
     
     /**
-     * Creates side panel style.
+     * Creates CSS style string for side panel elements.
+     *
+     * @param theme the level theme containing accent color
+     * @return a CSS style string with semi-transparent background and themed border
      */
     private String createSidePanelStyle(LevelTheme theme) {
         return String.format(
@@ -559,7 +603,10 @@ public class LevelSelectionController {
     }
     
     /**
-     * Creates game board style.
+     * Creates CSS style string for the game board element.
+     *
+     * @param theme the level theme containing primary, secondary, and accent colors
+     * @return a CSS style string with gradient background and themed shadow effect
      */
     private String createGameBoardStyle(LevelTheme theme) {
         return String.format(
@@ -574,7 +621,10 @@ public class LevelSelectionController {
     }
     
     /**
-     * Creates info box style.
+     * Creates CSS style string for info box elements.
+     *
+     * @param theme the level theme containing accent and primary colors
+     * @return a CSS style string with dark background and themed border
      */
     private String createInfoBoxStyle(LevelTheme theme) {
         return String.format(
@@ -591,7 +641,10 @@ public class LevelSelectionController {
     }
     
     /**
-     * Creates section title style.
+     * Creates CSS style string for section title labels.
+     *
+     * @param theme the level theme containing accent color
+     * @return a CSS style string with themed text color and shadow effect
      */
     private String createSectionTitleStyle(LevelTheme theme) {
         return String.format(
@@ -604,7 +657,10 @@ public class LevelSelectionController {
     }
     
     /**
-     * Creates button style.
+     * Creates CSS style string for game buttons.
+     *
+     * @param theme the level theme containing primary, secondary, and accent colors
+     * @return a CSS style string with gradient background and themed border
      */
     private String createButtonStyle(LevelTheme theme) {
         return String.format(
@@ -646,17 +702,21 @@ public class LevelSelectionController {
     }
     
     /**
-     * Creates control hint style.
+     * Creates CSS style string for control hint labels.
+     *
+     * @return a CSS style string with white text, bold font, and standard size
      */
     private String createControlHintStyle() {
         return "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;";
     }
     
     /**
-     * Converts a hex color to rgba format with specified opacity.
-     * @param hexColor the hex color (e.g., "#FFD700")
-     * @param opacity the opacity (0.0 to 1.0)
-     * @return the rgba color string (e.g., "rgba(255, 215, 0, 0.3)")
+     * Converts a hexadecimal color code to RGBA format with specified opacity.
+     * Handles color parsing errors gracefully by falling back to white with opacity.
+     *
+     * @param hexColor the hexadecimal color code, with or without leading "#" (e.g., "#FFD700" or "FFD700")
+     * @param opacity the opacity value from 0.0 (transparent) to 1.0 (opaque)
+     * @return the RGBA color string (e.g., "rgba(255, 215, 0, 0.30)")
      */
     private String convertColorToRgba(String hexColor, double opacity) {
         try {
@@ -677,7 +737,9 @@ public class LevelSelectionController {
     }
     
     /**
-     * Handles reset progress button.
+     * Handles the reset progress button click event.
+     * Shows a confirmation dialog before resetting all level progress and stars.
+     * Refreshes the UI after successful reset.
      */
     @FXML
     private void handleResetProgress() {
@@ -755,8 +817,10 @@ public class LevelSelectionController {
     }
     
     /**
-     * Shows an error dialog.
-     * @param message the error message
+     * Displays an error dialog with the specified message.
+     * Configures the dialog to prevent text truncation and adds sound effects.
+     *
+     * @param message the error message to display
      */
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -787,8 +851,10 @@ public class LevelSelectionController {
     }
     
     /**
-     * Shows an info dialog.
-     * @param message the info message
+     * Displays an information dialog with the specified message.
+     * Configures the dialog to prevent text truncation and adds sound effects.
+     *
+     * @param message the information message to display
      */
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

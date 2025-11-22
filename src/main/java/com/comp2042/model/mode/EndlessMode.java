@@ -129,13 +129,6 @@ public class EndlessMode implements GameMode {
             guiController.updateNextDisplay(nextPieceData);
         }
     }
-    
-
-    @Override
-    public void render() {
-        // Rendering is handled by GuiController
-        // This method can be used for endless mode specific visual effects
-    }
 
     @Override
     public GameResult getResult() {

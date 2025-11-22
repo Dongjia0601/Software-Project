@@ -30,8 +30,6 @@ import javafx.scene.text.Font;
 import javafx.scene.Parent;
 import javafx.util.Duration;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import com.comp2042.config.GameSettings;
 import com.comp2042.view.manager.AnimationController;
@@ -72,7 +70,6 @@ import java.util.ResourceBundle;
  */
 public class GuiController implements Initializable, GameInputHandler.InputHandlerCallbacks {
 
-    private static final Logger logger = Logger.getLogger(GuiController.class.getName());
 
     // Extracted constants for better readability and maintainability
     private static final int BRICK_SIZE = 25; // Size of a single brick cell in pixels (enlarged for better visibility)
@@ -335,7 +332,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         if (fontResource != null) {
             Font.loadFont(fontResource.toExternalForm(), 38);
         } else {
-            logger.warning("Failed to load digital font resource: digital.ttf");
+            System.err.println("Failed to load digital font resource: digital.ttf");
         }
 
         // Set focus for keyboard input
@@ -616,7 +613,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             
             // MainMenuController is initialized automatically by FXMLLoader via FXML
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error loading main menu", e);
+            System.err.println("Error loading main menu: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -637,11 +635,12 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             if (styleResource != null) {
                 levelSelectionScene.getStylesheets().add(styleResource.toExternalForm());
             } else {
-                logger.warning("Failed to load style resource: /style.css");
+                System.err.println("Failed to load style resource: /style.css");
             }
             stage.setScene(levelSelectionScene);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error loading level selection", e);
+            System.err.println("Error loading level selection: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -2502,7 +2501,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             if (settingsCssResource != null) {
                 settingsScene.getStylesheets().add(settingsCssResource.toExternalForm());
             } else {
-                logger.warning("Failed to load settings CSS resource: /settings.css");
+                System.err.println("Failed to load settings CSS resource: /settings.css");
             }
             
             // Switch to settings scene
@@ -2510,7 +2509,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             stage.setTitle("TETRIS - Settings");
             centerWindowOnScreen(stage, settingsWidth, settingsHeight);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error loading settings page", e);
+            System.err.println("Error loading settings page: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -2593,7 +2593,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             }
             
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error showing help dialog", e);
+            System.err.println("Error showing help dialog: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -2638,7 +2639,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             // Center window on primary screen to handle multi-monitor setups
             centerWindowOnScreen(stage, 900, 800);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error loading main menu", e);
+            System.err.println("Error loading main menu: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -2685,7 +2687,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             stage.setTitle("Tetris - Level Selection");
             centerWindowOnScreen(stage, 900, 800);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error returning to level selection", e);
+            System.err.println("Error returning to level selection: " + e.getMessage());
+            e.printStackTrace();
             returnToMenu();
         }
     }
@@ -2847,7 +2850,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                     
                     new GameController(gameController);
                 } catch (Exception e) {
-                    logger.log(Level.SEVERE, "Error starting new Endless Mode", e);
+                    System.err.println("Error starting new Endless Mode: " + e.getMessage());
+                    e.printStackTrace();
                 }
             });
             controller.setOnResetLeaderboard(() -> {
@@ -2860,7 +2864,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                     // Refresh the leaderboard display by recreating the entries
                     controller.refreshLeaderboard();
                 } catch (Exception e) {
-                    logger.log(Level.SEVERE, "Error clearing leaderboard", e);
+                    System.err.println("Error clearing leaderboard: " + e.getMessage());
+                    e.printStackTrace();
                 }
             });
             controller.setOnBackToMenu(() -> {
@@ -2878,7 +2883,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                         System.err.println("Current stage is null, cannot switch to menu scene");
                     }
                 } catch (Exception e) {
-                    logger.log(Level.SEVERE, "Error loading main menu", e);
+                    System.err.println("Error loading main menu: " + e.getMessage());
+            e.printStackTrace();
                 }
             });
             
@@ -2894,7 +2900,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                 if (cssResource != null) {
                     gameOverScene.getStylesheets().add(cssResource.toExternalForm());
                 } else {
-                    logger.warning("Failed to load CSS resource: endlessGameOverStyle.css");
+                    System.err.println("Failed to load CSS resource: endlessGameOverStyle.css");
                 }
             } catch (Exception e) {
                 System.err.println("Error loading CSS: " + e.getMessage());
@@ -2920,7 +2926,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             isPause.setValue(false);
             
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error loading Endless Game Over scene", e);
+            System.err.println("Error loading Endless Game Over scene: " + e.getMessage());
+            e.printStackTrace();
             // Fallback to regular game over
             gameOver();
         }
@@ -3035,17 +3042,18 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                     if (finalCurrentLevel != null) {
                     levelSelectionController.handleLevelSelect(finalCurrentLevel);
                     } else {
-                        logger.warning("Cannot restart level: finalCurrentLevel is null");
+                        System.err.println("Cannot restart level: finalCurrentLevel is null");
                     }
                 } catch (Exception e) {
-                    logger.log(Level.SEVERE, "Error restarting level", e);
+                    System.err.println("Error restarting level: " + e.getMessage());
+                    e.printStackTrace();
                 }
             });
             
             controller.setOnNextLevel(() -> {
                 // Load next level if available
                 if (finalCurrentLevel == null) {
-                    logger.warning("Cannot load next level: finalCurrentLevel is null");
+                    System.err.println("Cannot load next level: finalCurrentLevel is null");
                     return;
                 }
                 com.comp2042.model.mode.LevelMode nextLevel = levelManager.getLevel(finalCurrentLevel.getLevelId() + 1);
@@ -3067,7 +3075,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                         // Then load the next level
                         levelSelectionController.handleLevelSelect(nextLevel);
                     } catch (Exception e) {
-                        logger.log(Level.SEVERE, "Error loading next level", e);
+                        System.err.println("Error loading next level: " + e.getMessage());
+                        e.printStackTrace();
                     }
                 } else {
                     // Next level not available or locked - return to level selection
@@ -3083,7 +3092,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                             stageForCallbacks.setTitle("Tetris - Level Selection");
                         }
                     } catch (Exception e) {
-                        logger.log(Level.SEVERE, "Error loading level selection", e);
+                        System.err.println("Error loading level selection: " + e.getMessage());
+            e.printStackTrace();
                     }
                 }
             });
@@ -3108,7 +3118,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                         stageForCallbacks.setTitle("Tetris - Level Selection");
                     }
                 } catch (Exception e) {
-                    logger.log(Level.SEVERE, "Error loading level selection", e);
+                    System.err.println("Error loading level selection: " + e.getMessage());
+            e.printStackTrace();
                 }
             });
             
@@ -3127,7 +3138,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                         centerWindowOnScreen(stageForCallbacks, 900, 800);
                     }
                 } catch (Exception e) {
-                    logger.log(Level.SEVERE, "Error loading main menu", e);
+                    System.err.println("Error loading main menu: " + e.getMessage());
+            e.printStackTrace();
                 }
             });
             
@@ -3146,7 +3158,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                 if (cssResource != null) {
                     gameOverScene.getStylesheets().add(cssResource.toExternalForm());
                 } else {
-                    logger.warning("Failed to load CSS resource: levelGameOverStyle.css");
+                    System.err.println("Failed to load CSS resource: levelGameOverStyle.css");
                 }
             } catch (Exception e) {
                 System.err.println("Error loading CSS: " + e.getMessage());
@@ -3170,7 +3182,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             isPause.setValue(false);
             
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error loading Level Game Over scene", e);
+            System.err.println("Error loading Level Game Over scene: " + e.getMessage());
+            e.printStackTrace();
             // Fallback to regular game over
             gameOver();
         }
@@ -3685,7 +3698,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             try {
                 onComplete.run();
             } catch (Exception e) {
-                logger.log(Level.SEVERE, "Error executing countdown callback", e);
+                System.err.println("Error executing countdown callback: " + e.getMessage());
+                e.printStackTrace();
             }
         } : null;
         

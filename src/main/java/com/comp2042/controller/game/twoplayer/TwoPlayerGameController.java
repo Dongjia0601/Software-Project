@@ -11,16 +11,12 @@ import com.comp2042.event.listener.InputEventListener;
 import com.comp2042.service.audio.SoundManager;
 import com.comp2042.controller.game.GuiController;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * Two-player mode controller coordinating dual boards and input routing.
  * Manages separate game services, timelines, rendering updates, and state transitions.
  */
 public class TwoPlayerGameController implements InputEventListener {
-    
-    private static final Logger logger = Logger.getLogger(TwoPlayerGameController.class.getName());
     
     private final TwoPlayerMode gameMode;
     private final GuiController guiController;
@@ -76,7 +72,8 @@ public class TwoPlayerGameController implements InputEventListener {
             try {
                 startGame();
             } catch (Exception e) {
-                logger.log(Level.SEVERE, "Error starting game", e);
+                System.err.println("Error starting game: " + e.getMessage());
+                e.printStackTrace();
             }
         });
     }
@@ -91,19 +88,19 @@ public class TwoPlayerGameController implements InputEventListener {
             gameMode.getPlayer1Stats().startGameTime();
             gameMode.getPlayer2Stats().startGameTime();
         } else {
-            logger.severe("gameMode is null");
+            System.err.println("gameMode is null");
         }
         
         if (guiController != null) {
             initializeTwoPlayerView();
         } else {
-            logger.severe("guiController is null");
+            System.err.println("guiController is null");
         }
         
         if (timelineScheduler != null) {
             timelineScheduler.start();
         } else {
-            logger.severe("timelineScheduler is null");
+            System.err.println("timelineScheduler is null");
         }
         
         if (guiController != null) {
@@ -121,10 +118,10 @@ public class TwoPlayerGameController implements InputEventListener {
         int[][] player1Board = player1Service.getBoard().getBoardMatrix();
         ViewData player1ViewData = player1Service.getBoard().getViewData();
         if (player1Board == null) {
-            logger.warning("player1Board is null");
+            System.err.println("player1Board is null");
         }
         if (player1ViewData == null) {
-            logger.warning("player1ViewData is null");
+            System.err.println("player1ViewData is null");
         }
         guiController.initPlayer1View(player1Board, player1ViewData);
         
@@ -132,10 +129,10 @@ public class TwoPlayerGameController implements InputEventListener {
         int[][] player2Board = player2Service.getBoard().getBoardMatrix();
         ViewData player2ViewData = player2Service.getBoard().getViewData();
         if (player2Board == null) {
-            logger.warning("player2Board is null");
+            System.err.println("player2Board is null");
         }
         if (player2ViewData == null) {
-            logger.warning("player2ViewData is null");
+            System.err.println("player2ViewData is null");
         }
         guiController.initPlayer2View(player2Board, player2ViewData);
         

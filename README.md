@@ -63,7 +63,12 @@ Each level features:
 - Unique themed visuals with custom background images and color schemes
 - Background music selected by level ID (Level135BGM.mp3 for levels 1,3,5; Level24BGM.mp3 for levels 2,4)
 - Time limits and score requirements
-- Star rating system (1-3 stars based on performance)
+- **Star Rating System**: A performance-based evaluation mechanism that assesses player achievement through a multi-tiered scoring system:
+  - **0 Stars**: Level completion failure (objective not met: target lines not reached or time limit exceeded)
+  - **1 Star**: Basic completion achieved (target lines cleared within time constraint and minimum score threshold satisfied)
+  - **2 Stars**: Enhanced performance (score exceeds the two-star threshold while maintaining one-star prerequisites)
+  - **3 Stars**: Optimal performance (score meets three-star threshold and completion time is within the three-star time constraint)
+  The evaluation algorithm considers three primary metrics: final score, lines cleared, and completion time, with each star tier requiring progressively stricter performance criteria.
 - Progressive unlocking mechanism
 
 ### 3. Two-Player Mode

@@ -17,13 +17,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.function.IntPredicate;
 
 /**
  * Controller for the Endless Mode Game Over screen.
@@ -98,8 +98,9 @@ public class EndlessGameOverController implements Initializable {
     }
     
     /**
-     * Sets the background image for the game over screen.
-     * Uses GameOver_bg.jpg as the background with centered cropping.
+     * Loads and sets the background image for the game over screen.
+     * Implements intelligent cropping to display the center portion of the image,
+     * maintaining aspect ratio while filling the window dimensions (900x800).
      */
     private void setGameOverBackground() {
         if (rootPane == null) {
@@ -108,7 +109,7 @@ public class EndlessGameOverController implements Initializable {
         
         try {
             // Load the game over background image
-            Image bgImage = new Image(getClass().getClassLoader().getResourceAsStream("images/backgrounds/GameOver_bg.jpg"));
+            Image bgImage = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("images/backgrounds/GameOver_bg.jpg")));
             
             // Window dimensions
             double windowWidth = 900.0;
@@ -129,7 +130,6 @@ public class EndlessGameOverController implements Initializable {
                 // Image is wider than window - need to crop from sides to show center
                 // Scale to fit height (fill vertically), then crop width from center
                 double scaleFactor = windowHeight / imageHeight;
-                double scaledImageWidth = imageWidth * scaleFactor;
                 
                 // Calculate what portion of the original image to show
                 double originalVisibleWidth = windowWidth / scaleFactor;
@@ -162,7 +162,7 @@ public class EndlessGameOverController implements Initializable {
             bgImageView.setId("gameOverBackground");
             
             // Add ImageView as the first child (background layer)
-            rootPane.getChildren().add(0, bgImageView);
+            rootPane.getChildren().addFirst(bgImageView);
             bgImageView.toBack();  // Ensure it's behind all other elements
             
         } catch (Exception e) {
@@ -172,14 +172,15 @@ public class EndlessGameOverController implements Initializable {
     }
     
     /**
-     * Displays the game over screen with the provided game data.
+     * Displays the game over screen with final game statistics and leaderboard.
+     * Updates all UI components and triggers celebration animation if a new high score was achieved.
      *
-     * @param finalScore the final score achieved
-     * @param linesCleared the number of lines cleared
-     * @param level the level reached
-     * @param playTimeMs the play time in milliseconds
-     * @param isNewHighScore whether this is a new high score
-     * @param rank the player's rank (1-5), or 0 if not in top 5
+     * @param finalScore the final score achieved in this game session
+     * @param linesCleared the total number of lines cleared during the game
+     * @param level the highest level reached before game over
+     * @param playTimeMs the total play time in milliseconds
+     * @param isNewHighScore true if this score qualifies as a new high score
+     * @param rank the player's rank in the leaderboard (1-5 if in top 5, 0 otherwise)
      */
     public void showGameOver(int finalScore, int linesCleared, int level, long playTimeMs,
                            boolean isNewHighScore, int rank) {
@@ -199,7 +200,8 @@ public class EndlessGameOverController implements Initializable {
     }
     
     /**
-     * Updates the UI with current game data.
+     * Updates all UI components with the current game statistics.
+     * Displays score, lines, level, time, rank, and builds the leaderboard.
      */
     private void updateUI() {
         // Update main title
@@ -247,9 +249,19 @@ public class EndlessGameOverController implements Initializable {
     }
     
     /**
-     * Builds and displays the leaderboard.
+     * Builds and displays the top 5 leaderboard entries.
+     * Highlights the current player's entry if they are in the top 5.
      */
     private void buildLeaderboard() {
+        buildLeaderboardInternal(i -> (i + 1 == rank));
+    }
+    
+    /**
+     * Internal method to build the leaderboard with customizable highlight logic.
+     * 
+     * @param shouldHighlight predicate that determines if the entry at index i should be highlighted
+     */
+    private void buildLeaderboardInternal(IntPredicate shouldHighlight) {
         leaderboardContainer.getChildren().clear();
         
         EndlessModeLeaderboard leaderboard = EndlessModeLeaderboard.getInstance();
@@ -259,8 +271,8 @@ public class EndlessGameOverController implements Initializable {
         int maxEntries = Math.min(entries.size(), 5);
         for (int i = 0; i < maxEntries; i++) {
             LeaderboardEntry entry = entries.get(i);
-            boolean isCurrentGame = (i + 1 == rank);
-            HBox entryBox = createLeaderboardEntry(i + 1, entry, isCurrentGame);
+            boolean highlight = shouldHighlight.test(i);
+            HBox entryBox = createLeaderboardEntry(i + 1, entry, highlight);
             leaderboardContainer.getChildren().add(entryBox);
         }
         
@@ -272,7 +284,12 @@ public class EndlessGameOverController implements Initializable {
     }
     
     /**
-     * Creates a leaderboard entry display.
+     * Creates a visual leaderboard entry component displaying rank, score, lines, and level.
+     *
+     * @param rank the rank position (1-5)
+     * @param entry the leaderboard entry data
+     * @param highlight true if this entry should be highlighted as the current player's entry
+     * @return an HBox containing the formatted leaderboard entry
      */
     private HBox createLeaderboardEntry(int rank, LeaderboardEntry entry, boolean highlight) {
         HBox box = new HBox(12); // Reduced spacing from 15 to 12 for more compact layout
@@ -315,7 +332,10 @@ public class EndlessGameOverController implements Initializable {
     }
     
     /**
-     * Creates an empty entry placeholder.
+     * Creates a placeholder entry for empty leaderboard positions.
+     *
+     * @param rank the rank position (1-5)
+     * @return an HBox containing the placeholder entry with reduced opacity
      */
     private HBox createEmptyEntry(int rank) {
         HBox box = new HBox(15);
@@ -341,7 +361,8 @@ public class EndlessGameOverController implements Initializable {
     
     
     /**
-     * Plays celebration animation for new high scores.
+     * Plays a celebration animation when a new high score is achieved.
+     * Applies a pulsing scale transition and glow effect to the main title.
      */
     private void playHighScoreCelebration() {
         // Pulse animation for title (reduced scale to avoid layout issues)
@@ -362,7 +383,10 @@ public class EndlessGameOverController implements Initializable {
     }
     
     /**
-     * Handles keyboard input for navigation.
+     * Handles keyboard input for screen navigation.
+     * Supports N (try again), ESCAPE (back to menu), ENTER (activate focused button), and TAB (cycle buttons).
+     *
+     * @param event the key event to process
      */
     public void handleKeyPress(KeyEvent event) {
         switch (event.getCode()) {
@@ -397,7 +421,8 @@ public class EndlessGameOverController implements Initializable {
     }
     
     /**
-     * Handles Try Again button click.
+     * Handles the Try Again button click event.
+     * Plays sound effect and executes the registered callback if available.
      */
     @FXML
     private void onTryAgain() {
@@ -409,7 +434,8 @@ public class EndlessGameOverController implements Initializable {
     }
     
     /**
-     * Handles Reset Leaderboard button click.
+     * Handles the Reset Leaderboard button click event.
+     * Plays sound effect and executes the registered callback if available.
      */
     @FXML
     private void onResetLeaderboard() {
@@ -421,7 +447,8 @@ public class EndlessGameOverController implements Initializable {
     }
     
     /**
-     * Handles Back to Menu button click.
+     * Handles the Back to Menu button click event.
+     * Plays sound effect and executes the registered callback if available.
      */
     @FXML
     private void onBackToMenu() {
@@ -433,47 +460,37 @@ public class EndlessGameOverController implements Initializable {
     }
     
     /**
-     * Sets the callback for Try Again action.
+     * Sets the callback executed when the Try Again button is clicked.
+     *
+     * @param callback the runnable to execute, may be null
      */
     public void setOnTryAgain(Runnable callback) {
         this.onTryAgain = callback;
     }
     
     /**
-     * Sets the callback for Reset Leaderboard action.
+     * Sets the callback executed when the Reset Leaderboard button is clicked.
+     *
+     * @param callback the runnable to execute, may be null
      */
     public void setOnResetLeaderboard(Runnable callback) {
         this.onResetLeaderboard = callback;
     }
     
     /**
-     * Sets the callback for Back to Menu action.
+     * Sets the callback executed when the Back to Menu button is clicked.
+     *
+     * @param callback the runnable to execute, may be null
      */
     public void setOnBackToMenu(Runnable callback) {
         this.onBackToMenu = callback;
     }
     
     /**
-     * Refreshes the leaderboard display after clearing.
+     * Refreshes the leaderboard display with updated data.
+     * Typically called after the leaderboard has been cleared or modified.
      */
     public void refreshLeaderboard() {
-        // Clear current leaderboard entries
-        leaderboardContainer.getChildren().clear();
-        
-        // Get fresh leaderboard data
-        List<LeaderboardEntry> entries = EndlessModeLeaderboard.getInstance().getTopEntries();
-        
-        // Rebuild leaderboard display
-        for (int i = 0; i < 5; i++) {
-            if (i < entries.size()) {
-                LeaderboardEntry entry = entries.get(i);
-                boolean isCurrentPlayer = (i == 0 && isNewHighScore); // Only highlight if it's a new high score
-                HBox entryBox = createLeaderboardEntry(i + 1, entry, isCurrentPlayer);
-                leaderboardContainer.getChildren().add(entryBox);
-            } else {
-                HBox emptyEntry = createEmptyEntry(i + 1);
-                leaderboardContainer.getChildren().add(emptyEntry);
-            }
-        }
+        buildLeaderboardInternal(i -> (i == 0 && isNewHighScore));
     }
 }

@@ -112,12 +112,6 @@ public class TwoPlayerMode implements GameMode {
     }
 
     @Override
-    public void render() {
-        // Rendering is handled by GuiController
-        // This method can be used for VS mode specific visual effects
-    }
-
-    @Override
     public GameResult getResult() {
         return gameResult;
     }
