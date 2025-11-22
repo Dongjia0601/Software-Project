@@ -12,9 +12,17 @@ import com.comp2042.event.MoveEvent;
 import com.comp2042.model.board.Board;
 
 /**
- * Concrete implementation of the GameMode interface for playing themed levels.
- * This mode uses a LevelMode object to define level-specific rules and objectives.
- * It delegates core game logic to GameService and UI updates to GuiController.
+ * Concrete implementation of GameMode for themed level gameplay.
+ * 
+ * <p>Manages level-specific state including time limits, target lines, completion status,
+ * and star rating evaluation. Uses a LevelMode configuration object to define
+ * level rules, objectives, and scoring thresholds.
+ * 
+ * <p>Delegates core game logic to GameService and UI synchronization to GuiController.
+ * Tracks level progress and automatically triggers completion or failure conditions
+ * based on time limits and target line requirements.
+ * 
+ * @author Dong, Jia.
  */
 public class LevelGameModeImpl implements GameMode {
 
@@ -22,19 +30,19 @@ public class LevelGameModeImpl implements GameMode {
     private final GuiController guiController;
     private final LevelManager levelManager;
 
-    private LevelMode currentLevelMode;
+    private final LevelMode currentLevelMode;
     private long levelStartTime;
     private int linesClearedInLevel;
     private boolean levelCompleted;
     private boolean levelFailed;
 
     /**
-     * Constructs a new LevelGameModeImpl.
+     * Constructs a new LevelGameModeImpl instance.
      *
-     * @param gameService The core game service.
-     * @param guiController The GUI controller for UI updates.
-     * @param levelManager The level manager for accessing level data and persistence.
-     * @param levelMode The specific LevelMode data object defining this level's rules.
+     * @param gameService the core game service handling game logic, must not be null
+     * @param guiController the GUI controller for UI updates, must not be null
+     * @param levelManager the level manager for accessing level data and persistence, must not be null
+     * @param levelMode the level configuration defining rules, objectives, and scoring thresholds, must not be null
      */
     public LevelGameModeImpl(GameService gameService, GuiController guiController, LevelManager levelManager, LevelMode levelMode) {
         this.gameService = gameService;
@@ -91,10 +99,6 @@ public class LevelGameModeImpl implements GameMode {
     }
 
     @Override
-    public void render() {
-    }
-
-    @Override
     public GameResult getResult() {
         long playTimeMillis = System.currentTimeMillis() - levelStartTime;
         int finalScore = gameService.getScore().getScore();
@@ -143,7 +147,7 @@ public class LevelGameModeImpl implements GameMode {
         }
 
         if (gameService.isGameOver()) {
-            failLevel("Game Over: Brick could not be placed");
+            failLevel();
         }
 
         return downData;
@@ -230,12 +234,13 @@ public class LevelGameModeImpl implements GameMode {
     }
 
     /**
-     * Checks if the level's time limit has been exceeded.
+     * Validates whether the level's time limit has been exceeded.
+     * Automatically triggers level failure if the time limit is reached.
      */
     private void checkTimeLimit() {
         long elapsedMillis = System.currentTimeMillis() - levelStartTime;
         if (elapsedMillis >= currentLevelMode.getTimeLimitMillis()) {
-            failLevel("Time limit exceeded");
+            failLevel();
         }
     }
 
@@ -259,7 +264,8 @@ public class LevelGameModeImpl implements GameMode {
     }
 
     /**
-     * Checks if the level's completion conditions (target lines) are met.
+     * Evaluates whether the level's completion conditions are satisfied.
+     * Triggers level completion when the target number of lines has been cleared.
      */
     private void checkLevelCompletion() {
         if (linesClearedInLevel >= currentLevelMode.getTargetLines()) {
@@ -268,7 +274,9 @@ public class LevelGameModeImpl implements GameMode {
     }
 
     /**
-     * Marks the level as completed successfully.
+     * Marks the level as successfully completed.
+     * Calculates performance metrics and reports completion to LevelManager
+     * for persistence, star rating evaluation, and next level unlocking.
      */
     private void completeLevel() {
         if (levelCompleted || levelFailed) return;
@@ -276,14 +284,6 @@ public class LevelGameModeImpl implements GameMode {
         levelCompleted = true;
         long completionTimeMillis = System.currentTimeMillis() - levelStartTime;
         int finalScore = gameService.getScore().getScore();
-
-        // Calculate stars based on the LevelMode's logic
-        int stars = currentLevelMode.calculateStars(
-                finalScore,
-                linesClearedInLevel,
-                (int) (completionTimeMillis / 1000),
-                true // success
-        );
 
         // Report completion to LevelManager for persistence and unlocking
         levelManager.completeLevel(
@@ -299,10 +299,10 @@ public class LevelGameModeImpl implements GameMode {
     }
 
     /**
-     * Marks the level as failed.
-     * @param reason The reason for failure (e.g., "Time limit exceeded", "Game Over").
+     * Marks the level as failed due to time limit exceeded or game over condition.
+     * Reports failure to LevelManager and triggers the game over screen display.
      */
-    private void failLevel(String reason) {
+    private void failLevel() {
         if (levelCompleted || levelFailed) return;
 
         levelFailed = true;
@@ -330,16 +330,6 @@ public class LevelGameModeImpl implements GameMode {
      */
     public Board getBoard() {
         return gameService.getBoard();
-    }
-
-    /**
-     * Gets the time remaining in seconds.
-     * @return Time remaining in seconds, or 0 if time is up/negative.
-     */
-    private int getTimeRemainingSeconds() {
-        long elapsedMillis = System.currentTimeMillis() - levelStartTime;
-        long remainingMillis = currentLevelMode.getTimeLimitMillis() - elapsedMillis;
-        return Math.max(0, (int) (remainingMillis / 1000));
     }
 
     /**

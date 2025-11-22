@@ -3,29 +3,34 @@ package com.comp2042.controller.factory;
 import com.comp2042.dto.DownData;
 import com.comp2042.dto.ViewData;
 import com.comp2042.model.mode.GameResult;
-import com.comp2042.model.board.Board;
 import com.comp2042.event.MoveEvent;
 
 /**
- * Strategy interface for game modes (Strategy Pattern).
- * Enables different gameplay variations (Endless, Level, Two Player VS) with consistent interface.
- * Handles mode-specific lifecycle, input events, and state management.
+ * Strategy interface defining the contract for game mode implementations.
+ * Enables polymorphic behavior across different gameplay variations (Endless, Level, Two-Player Mode)
+ * while maintaining a consistent interface for game lifecycle management.
+ * 
+ * <p>This interface encapsulates mode-specific logic including initialization, state updates,
+ * input event handling, and game state queries. Implementations delegate core game logic
+ * to GameService and UI updates to GuiController.
  * 
  * @author Dong, Jia.
  */
 public interface GameMode {
 
-    /** Initializes the game mode with required setup. */
+    /**
+     * Initializes the game mode with required setup.
+     * Configures game state, UI components, and mode-specific parameters.
+     * Must be called before starting gameplay.
+     */
     void initialize();
 
-    /** Updates the game state for the current frame. */
-    void update();
-
     /**
-     * Renders the current game state to the display.
-     * This method handles all visual updates.
+     * Updates the game state for the current frame.
+     * Performs mode-specific updates such as time limit checks, progress tracking,
+     * and UI synchronization. Called periodically during gameplay.
      */
-    void render();
+    void update();
 
     /**
      * Gets the result of the current game session.

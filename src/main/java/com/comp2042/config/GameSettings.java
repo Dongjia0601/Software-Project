@@ -4,11 +4,16 @@ import java.io.*;
 import java.util.Properties;
 
 /**
- * Game settings manager that handles all configurable game options.
- * Supports saving and loading settings from a properties file.
+ * Centralized configuration manager for game settings.
+ * Handles persistence of user preferences including audio volumes, difficulty,
+ * and piece randomization algorithm to a properties file in the user's home directory.
  * 
- * <p>This class follows the Singleton pattern to ensure only one
- * settings instance exists throughout the application.
+ * <p>Implements the Singleton pattern to provide a single, globally accessible
+ * settings instance throughout the application lifecycle. Settings are automatically
+ * loaded on initialization and can be persisted via {@link #saveSettings()}.
+ * 
+ * <p>Settings are stored in {@code ~/.tetris/tetris_settings.properties} for
+ * cross-platform compatibility.
  * 
  * @author Dong, Jia.
  */
@@ -19,16 +24,18 @@ public class GameSettings {
     private static final String SETTINGS_FILE_NAME = "tetris_settings.properties";
     
     /**
-     * Gets the settings file path in the user's home directory.
-     * Creates the .tetris directory if it doesn't exist.
+     * Retrieves the settings file path in the user's home directory.
+     * Automatically creates the {@code .tetris} directory if it does not exist.
      * 
-     * @return the settings file in ~/.tetris/
+     * @return the settings file located at {@code ~/.tetris/tetris_settings.properties}
      */
     private File getSettingsFile() {
         File dir = new File(SETTINGS_DIR);
         if (!dir.exists()) {
             // Best-effort directory creation for cross-platform user config storage
-            dir.mkdirs();
+            if (!dir.mkdirs()) {
+                System.err.println("Warning: Failed to create settings directory: " + SETTINGS_DIR);
+            }
         }
         return new File(dir, SETTINGS_FILE_NAME);
     }
@@ -53,8 +60,9 @@ public class GameSettings {
     private static final String DEFAULT_RANDOMIZER = "seven_bag";
     
     /**
-     * Private constructor for Singleton pattern.
-     * Initializes settings with defaults and attempts to load from file.
+     * Private constructor enforcing Singleton pattern.
+     * Initializes all settings to default values and attempts to load
+     * previously saved settings from the properties file.
      */
     private GameSettings() {
         resetToDefaults();

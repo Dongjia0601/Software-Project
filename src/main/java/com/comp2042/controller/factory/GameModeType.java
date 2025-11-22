@@ -1,47 +1,26 @@
 package com.comp2042.controller.factory;
 
 /**
- * Enum defining available game mode types for GameModeFactory.
- * Each type includes UI display name and description.
+ * Enumeration of available game mode types used by {@link GameModeFactory}
+ * to create appropriate game mode implementations.
+ * 
+ * <p>Each enum value represents a distinct gameplay experience:
+ * <ul>
+ *   <li>{@link #ENDLESS}: Continuous gameplay with progressive difficulty</li>
+ *   <li>{@link #LEVEL}: Structured progression through themed levels</li>
+ *   <li>{@link #TWO_PLAYER_VS}: Competitive split-screen multiplayer</li>
+ * </ul>
  * 
  * @author Dong, Jia.
  */
 public enum GameModeType {
 
     /** Endless mode - continuous gameplay with progressive difficulty. */
-    ENDLESS("Endless Mode", "Continuous gameplay with increasing difficulty"),
+    ENDLESS,
 
     /** Level mode - structured progression through themed levels. */
-    LEVEL("Level Mode", "Progressive levels with unique challenges"),
+    LEVEL,
 
-    /** Two player versus mode - competitive split-screen gameplay. */
-    TWO_PLAYER_VS("Two Player VS", "Human vs Human competitive mode");
-
-    private final String displayName;
-    private final String description;
-
-    /**
-     * Constructs a game mode type.
-     * @param displayName UI display name
-     * @param description Mode description
-     */
-    GameModeType(String displayName, String description) {
-        this.displayName = displayName;
-        this.description = description;
-    }
-
-    /** Gets the display name. */
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    /** Gets the description. */
-    public String getDescription() {
-        return description;
-    }
-
-    /** Gets the count of available game modes. */
-    public static int getModeCount() {
-        return values().length;
-    }
+    /** Two-Player Mode - competitive split-screen gameplay. */
+    TWO_PLAYER_VS
 }
