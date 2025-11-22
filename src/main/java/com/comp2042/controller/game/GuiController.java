@@ -1143,6 +1143,27 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             return;
         }
         
+        // Always update next and hold displays, regardless of pause state
+        // This ensures they are cleared when starting a new game
+        // Use brickRenderer if available, otherwise use direct methods
+        if (brickRenderer != null) {
+            // Use brickRenderer for consistent rendering
+            if (brick.getNextBrickData() != null) {
+                brickRenderer.updateNextDisplay(brick.getNextBrickData());
+            } else {
+                brickRenderer.updateNextDisplay(null);
+            }
+            brickRenderer.updateHoldDisplay(brick.getHoldBrickData());
+        } else {
+            // Fallback to direct methods if brickRenderer is not available
+            if (brick.getNextBrickData() != null) {
+                updateNextDisplay(brick.getNextBrickData());
+            } else {
+                updateNextDisplay(null);
+            }
+            updateHoldDisplay(brick.getHoldBrickData());
+        }
+        
         if (!isPause.getValue()) {
             brickPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getXPosition()));
             brickPanel.setLayoutY(calculateGridY(gamePanel, displayMatrix, brick.getYPosition()));
@@ -1150,11 +1171,6 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                 for (int j = 0; j < brick.getBrickData()[i].length; j++) {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
                 }
-            }
-            
-            // Update next piece display
-            if (brick.getNextBrickData() != null) {
-                updateNextDisplay(brick.getNextBrickData());
             }
             
             // Update ghost brick position
@@ -1736,8 +1752,14 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         gameOverPanel.setVisible(false);
         
         // Clear hold and next panels when starting new game
+        // Use brickRenderer if available, otherwise use direct methods
+        if (brickRenderer != null) {
+            brickRenderer.updateHoldDisplay(null);
+            brickRenderer.updateNextDisplay(null);
+        } else {
         updateHoldDisplay(null);
         updateNextDisplay(null);
+        }
         // Reset time for Endless Mode
         if (isEndlessMode) {
             gameStartTime = System.currentTimeMillis();
@@ -1761,6 +1783,18 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         }
         
         eventListener.onNewGameEvent(new MoveEvent(EventType.NEW_GAME, EventSource.USER));
+        
+        // Explicitly clear hold and next displays after new game event
+        // This ensures they are cleared even if refreshBrick doesn't update them
+        // Use brickRenderer if available, otherwise use direct methods
+        if (brickRenderer != null) {
+            brickRenderer.updateHoldDisplay(null);
+            brickRenderer.updateNextDisplay(null);
+        } else {
+            updateHoldDisplay(null);
+            updateNextDisplay(null);
+        }
+        
         gamePanel.requestFocus();
         
         // Restart timeline after state transition (assuming PlayingState starts the game loop)

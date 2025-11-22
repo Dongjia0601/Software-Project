@@ -109,6 +109,17 @@ public class BrickRenderer {
             return;
         }
         
+        // Always update next and hold displays, regardless of pause state
+        // This ensures they are cleared when starting a new game
+        if (brick.getNextBrickData() != null) {
+            updateNextDisplay(brick.getNextBrickData());
+        } else {
+            updateNextDisplay(null);
+        }
+        
+        // Always update hold display to ensure it's cleared on new game
+        updateHoldDisplay(brick.getHoldBrickData());
+        
         // Update brick position
         updateBrickPosition(brick);
         
