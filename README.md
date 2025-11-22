@@ -97,10 +97,10 @@ Competitive split-screen multiplayer featuring:
  ┃ ┃ ┃ ┃ ┣ 📂 game
  ┃ ┃ ┃ ┃ ┃ ┣ 📂 twoplayer
  ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📜 TwoPlayerCountdownManager.java
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ 📜 TwoPlayerGameController.java
  ┃ ┃ ┃ ┃ ┃ ┃ ┗ 📜 TwoPlayerTimelineScheduler.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 GameController.java
- ┃ ┃ ┃ ┃ ┃ ┣ 📜 GuiController.java
- ┃ ┃ ┃ ┃ ┃ ┗ 📜 TwoPlayerGameController.java
+ ┃ ┃ ┃ ┃ ┃ ┗ 📜 GuiController.java
  ┃ ┃ ┃ ┃ ┣ 📂 menu
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 EndlessGameOverController.java
  ┃ ┃ ┃ ┃ ┃ ┣ 📜 LevelGameOverController.java
@@ -1202,7 +1202,7 @@ This section details the features that have been successfully implemented in bot
       <ul>
         <li>Monolithic classes with multiple responsibilities.</li>
         <li>No reusable components.</li>
-        <li>GuiController was 4000+ lines.</li>
+        <li>GuiController was a large monolithic class handling everything.</li>
       </ul>
     </td>
     <td>
@@ -1389,12 +1389,14 @@ While the project has achieved comprehensive functionality, the following featur
 
 ## New Java Classes
 
-This section lists all newly created Java classes in the refactored implementation. The project evolved from 20 original classes to **159 new classes**, representing a comprehensive architectural overhaul.
+This section lists all newly created Java classes in the refactored implementation. The project evolved from 20 original classes to **98 classes** (78 new + 20 refactored), representing a comprehensive architectural overhaul.
 
 ### Stats Summary
-- **New Classes Added:** 159
+- **New Classes Added:** 78
+- **Refactored Classes:** 20
+- **Total Classes:** 98
 - **Lines of Code Added:** 30,000+
-- **Packages Created:** 24
+- **Packages Created:** 28
 - **Design Patterns Implemented:** 6 (State, Factory, Strategy, Memento, Singleton, MVC)
 - **Test Classes:** 44 test files with 450 comprehensive unit tests
 
@@ -1466,7 +1468,7 @@ This section lists all newly created Java classes in the refactored implementati
   <tr>
     <td><strong>TwoPlayerGameController</strong></td>
     <td>Specialized controller for two-player competitive mode, managing dual game boards, player synchronization, and attack mechanics.</td>
-    <td><code>src/main/java/com/comp2042/controller/game/TwoPlayerGameController.java</code></td>
+    <td><code>src/main/java/com/comp2042/controller/game/twoplayer/TwoPlayerGameController.java</code></td>
   </tr>
   <tr>
     <td><strong>TwoPlayerCountdownManager</strong></td>
@@ -2215,13 +2217,13 @@ com.comp2042/
 ```
 com.comp2042/
   ├── config/          (1 class)
-  ├── controller/      (16 classes in 3 sub-packages)
+  ├── controller/      (18 classes in 5 sub-packages)
   ├── dto/             (3 classes)
-  ├── event/           (6 classes)
-  ├── model/           (86 classes in 6 sub-packages)
-  ├── service/         (5 classes in 3 sub-packages)
+  ├── event/           (6 classes in 1 sub-package)
+  ├── model/           (38 classes in 6 sub-packages)
+  ├── service/         (6 classes in 4 sub-packages)
   ├── util/            (1 class)
-  ├── view/            (19 classes in 3 sub-packages)
+  ├── view/            (24 classes in 4 sub-packages)
   └── Main.java
 ```
 
@@ -2259,7 +2261,7 @@ com.comp2042/
 - **Original:** ~300 line monolithic class handling everything
 - **Modified:**
   - Renamed to `GuiController` for clarity
-  - Expanded to ~4000 lines with comprehensive features
+  - Expanded with comprehensive features
   - **Then refactored** into 10+ specialized managers:
     - `BrickRenderer`
     - `GameBoardRenderer`
@@ -2330,12 +2332,12 @@ com.comp2042/
   <tr>
     <td><strong>Package Organization</strong></td>
     <td>Flat structure (1-2 packages)</td>
-    <td>24 packages with logical grouping</td>
+    <td>28 packages with logical grouping</td>
   </tr>
   <tr>
     <td><strong>Class Count</strong></td>
     <td>20 classes</td>
-    <td>166 classes (146 new + 20 refactored)</td>
+    <td>98 classes (78 new + 20 refactored)</td>
   </tr>
   <tr>
     <td><strong>Code Documentation</strong></td>
@@ -2543,7 +2545,7 @@ The refactoring process involved relocating classes into proper package structur
       <strong>Comprehensive Refactoring:</strong>
       <ul>
         <li>Implemented MVC architecture with clear layer separation.</li>
-        <li>Refactored GuiController (300 lines) → GuiController (4000 lines) → 10+ specialized managers.</li>
+        <li>Refactored GuiController (300 lines) → GuiController → 10+ specialized managers.</li>
         <li>Each manager follows Single Responsibility Principle:
           <ul>
             <li>BrickRenderer: visual rendering only</li>
@@ -2834,7 +2836,7 @@ The refactoring process involved relocating classes into proper package structur
 
 This Tetris project represents a **complete professional-grade refactoring** of a basic game implementation, achieving:
 
--**Architecture:** Clean MVC with 24 packages and 166 well-organized classes<br>
+-**Architecture:** Clean MVC with 28 packages and 98 well-organized classes<br>
 -**Design Patterns:** 6 patterns (State, Factory, Strategy, Memento, Singleton, MVC)<br>
 -**Features:** 3 complete game modes with unique mechanics and themed UI<br>
 -**Quality:** 450 comprehensive unit tests (100% pass rate), 100% JavaDoc coverage, comprehensive error handling<br>
@@ -2842,12 +2844,5 @@ This Tetris project represents a **complete professional-grade refactoring** of 
 -**Documentation:** Detailed README, in-code comments, and clear commit history<br>
 
 **Total Impact:** 193 files changed, 30,000+ lines added
-
-**Recent Architecture Improvements:**
-- Refactored Theme classes from Model layer (`model/mode/themes`) to View layer (`view/theme`) following MVC principles
-- Theme classes now only contain visual presentation data (images, colors), properly belonging to View layer
-- Removed unused methods from Theme interface (getBackgroundMusic, getSoundEffects, getGradientColors, getTextColor, getThemeId)
-- Cleaned up code by removing 6 unused methods, keeping only actively used visual asset methods
-- Improved separation of concerns: Model layer no longer contains presentation-related code
 
 The project demonstrates mastery of software maintenance, design patterns, testing, documentation, and modern development practices while delivering a polished, enjoyable gaming experience.
