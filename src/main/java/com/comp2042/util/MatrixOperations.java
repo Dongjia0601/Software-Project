@@ -167,7 +167,8 @@ public class MatrixOperations {
                 clearedMatrix[i] = row; // Place the row in the new matrix
             } else {
                 // If no more rows to keep, fill the remaining top rows with zeros
-                break;
+                // Explicitly initialize to ensure all cells are zero
+                clearedMatrix[i] = new int[matrix[0].length];
             }
         }
 
@@ -175,7 +176,7 @@ public class MatrixOperations {
         int scoreBonus = calculateLineClearScore(clearedRows.size());
 
         // Return the results encapsulated in a ClearRow object
-        return new ClearRow(clearedRows.size(), clearedMatrix, scoreBonus);
+        return new ClearRow(clearedRows.size(), clearedMatrix, scoreBonus, clearedRows);
     }
 
     // Tetris scoring constants (standard scoring system)

@@ -216,7 +216,7 @@ Competitive split-screen multiplayer featuring:
  ┃ ┃   ┣ 📜 settings.css
  ┃ ┃   ┣ 📜 twoPlayerGameLayout.fxml
  ┃ ┃   ┗ 📜 twoPlayerGameStyle.css
- ┃ ┗ 📂 test/java/com/comp2042 (43 test files, 441 tests)
+ ┃ ┗ 📂 test/java/com/comp2042 (44 test files, 450 tests)
  ┣ 📜 pom.xml
  ┗ 📜 README.md
 ```
@@ -392,6 +392,7 @@ This section details the features that have been successfully implemented in bot
     <td>
       - Unique UI design (main menu, settings, help, level selection, Game Over interface for each mode, etc.)<br>
       - Smooth animations for brick movements and rotations.<br>
+      - **Row clear animation**: Professional two-phase animation (flash + fade) when rows are eliminated. Blocks briefly scale up (1.2x) then fade out and shrink, providing clear visual feedback. Optimized using ParallelTransition for smooth performance even when clearing multiple rows simultaneously.<br>
       - Visual effects: screen shake, particle effects, attack animations, etc.<br>
       - Ghost brick display showing landing position.<br>
       - Color-coded brick types with distinct styling.<br>
@@ -1234,6 +1235,7 @@ This section details the features that have been successfully implemented in bot
       <strong>AnimationController:</strong>
       <ul>
         <li>Manages all animations and transitions.</li>
+        <li>Handles row clear animations with flash and fade effects.</li>
         <li>Handles particle effects, screen shake.</li>
       </ul>
       <strong>DialogManager:</strong>
@@ -1265,7 +1267,7 @@ This section details the features that have been successfully implemented in bot
 
 ## Implemented but Not Working Properly
 
-*All implemented features are working properly.* There are no known bugs or incomplete features in the current implementation. The game has been thoroughly tested with 441 comprehensive unit tests covering core logic, design patterns, refactoring improvements, game modes, service layer, and UI components.
+*All implemented features are working properly.* There are no known bugs or incomplete features in the current implementation. The game has been thoroughly tested with 450 comprehensive unit tests covering core logic, design patterns, refactoring improvements, game modes, service layer, and UI components.
 
 ## Features Not Implemented
 
@@ -1389,7 +1391,7 @@ This section lists all newly created Java classes in the refactored implementati
 - **Lines of Code Added:** 30,000+
 - **Packages Created:** 24
 - **Design Patterns Implemented:** 6 (State, Factory, Strategy, Memento, Singleton, MVC)
-- **Test Classes:** 43 test files with 441 comprehensive unit tests (100% pass rate)
+- **Test Classes:** 44 test files with 450 comprehensive unit tests
 
 ### Configuration Package (`com.comp2042.config`)
 
@@ -1955,7 +1957,7 @@ This section lists all newly created Java classes in the refactored implementati
   </tr>
   <tr>
     <td><strong>AnimationController</strong></td>
-    <td>Manages all animations and visual effects: screen shake, particle systems, attack animations, fade transitions, brick drop effects.</td>
+    <td>Manages all animations and visual effects: row clear animations (flash + fade effect), screen shake, particle systems, attack animations, fade transitions, brick drop effects. Uses optimized ParallelTransition for efficient multi-row clearing animations.</td>
     <td><code>src/main/java/com/comp2042/view/manager/AnimationController.java</code></td>
   </tr>
   <tr>
@@ -2193,7 +2195,7 @@ While only 4 files show as "modified" in git statistics, the reality is that **t
 2. **Refactored** with design patterns (State, Factory, Strategy, Memento, Singleton)
 3. **Enhanced** with extensive new functionality
 4. **Documented** with comprehensive JavaDocs
-5. **Tested** with 441 comprehensive unit tests (100% pass rate)
+5. **Tested** with 450 comprehensive unit tests (100% pass rate)
 
 #### Package Restructuring
 
@@ -2338,7 +2340,7 @@ com.comp2042/
   <tr>
     <td><strong>Testing</strong></td>
     <td>No tests</td>
-    <td>441 comprehensive unit tests (100% pass rate)</td>
+    <td>450 comprehensive unit tests (100% pass rate)</td>
   </tr>
   <tr>
     <td><strong>Game Modes</strong></td>
@@ -2578,7 +2580,7 @@ The refactoring process involved relocating classes into proper package structur
         <li>Thoroughly analyzed and fixed coordinate mapping in <code>MatrixOperations</code>.</li>
         <li>Corrected row/column index calculations ensuring consistency.</li>
         <li>Fixed brick spawn position to row 0 with proper bounds checking.</li>
-        <li>Added comprehensive unit tests (441 tests total) covering:
+        <li>Added comprehensive unit tests (450 tests total) covering:
           <ul>
             <li>Matrix operations with edge cases</li>
             <li>Brick placement at boundaries</li>
@@ -2711,7 +2713,7 @@ The refactoring process involved relocating classes into proper package structur
       </ul>
       <strong>Test Coverage:</strong>
       <ul>
-        <li><strong>441 comprehensive unit tests</strong> covering:
+        <li><strong>450 comprehensive unit tests</strong> covering:
           <ul>
             <li>Core game logic (MatrixOperations, SimpleBoard, Board components): 30+ tests</li>
             <li>Design patterns (State, Factory, Strategy, Memento, Singleton): 20+ tests</li>
@@ -2737,11 +2739,18 @@ The refactoring process involved relocating classes into proper package structur
               </ul>
             </li>
             <li>Configuration and settings: 18 tests (GameSettingsTest)</li>
-            <li>UI components and managers: 60+ tests</li>
+            <li>UI components and managers: 70+ tests
+              <ul>
+                <li>AnimationControllerTest: 9 tests (row clear animation)</li>
+                <li>GameBoardRendererTest: 7 tests</li>
+                <li>UIHelperTest: 26 tests</li>
+                <li>Other UI manager tests: 30+ tests</li>
+              </ul>
+            </li>
             <li>Controller and strategy patterns: 30+ tests</li>
           </ul>
         </li>
-        <li><strong>All tests passing:</strong> 441/441 (100% pass rate)</li>
+        <li><strong>All tests passing:</strong> 450/450 (100% pass rate)</li>
         <li><strong>Test quality improvements:</strong>
           <ul>
             <li>Removed unprofessional comments and workaround explanations</li>
@@ -2823,7 +2832,7 @@ This Tetris project represents a **complete professional-grade refactoring** of 
 -**Architecture:** Clean MVC with 24 packages and 166 well-organized classes<br>
 -**Design Patterns:** 6 patterns (State, Factory, Strategy, Memento, Singleton, MVC)<br>
 -**Features:** 3 complete game modes with unique mechanics and themed UI<br>
--**Quality:** 441 comprehensive unit tests (100% pass rate), 100% JavaDoc coverage, comprehensive error handling<br>
+-**Quality:** 450 comprehensive unit tests (100% pass rate), 100% JavaDoc coverage, comprehensive error handling<br>
 -**User Experience:** Professional UI/UX with 23 audio files and smooth animations<br>
 -**Documentation:** Detailed README, in-code comments, and clear commit history<br>
 

@@ -1,5 +1,8 @@
 package com.comp2042.view.manager;
 
+import java.util.List;
+import java.util.Collections;
+import java.util.ArrayList;
 import com.comp2042.service.audio.SoundManager;
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -582,6 +585,77 @@ public class AnimationController {
         SequentialTransition sequence = new SequentialTransition(appear, fadeOut);
         sequence.setOnFinished(e -> rootPane.getChildren().remove(comboOverlay));
         sequence.play();
+    }
+
+    /**
+     * Animates row clearing with a smooth fade-out effect.
+     * Uses a single ParallelTransition for all cleared rows to ensure optimal performance.
+     * Performance optimized: Uses simple FadeTransition instead of complex nested transitions
+     * to avoid creating too many animation objects (which caused lag with multiple rows).
+     *
+     * @param displayMatrix The grid of Rectangles representing the board
+     * @param clearedRows List of row indices to clear (before clearing, so these are the actual row indices)
+     * @param onComplete Callback to run when animation finishes
+     */
+    public void animateRowClear(Rectangle[][] displayMatrix, List<Integer> clearedRows, Runnable onComplete) {
+        if (displayMatrix == null || clearedRows == null || clearedRows.isEmpty()) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+
+        // Collect all rectangles in cleared rows
+        List<Rectangle> rectanglesToAnimate = new ArrayList<>();
+                for (int row : clearedRows) {
+                    if (row >= 0 && row < displayMatrix.length) {
+                for (int col = 0; col < displayMatrix[row].length; col++) {
+                    Rectangle rect = displayMatrix[row][col];
+                    if (rect != null && rect.getFill() != Color.TRANSPARENT) {
+                        rectanglesToAnimate.add(rect);
+                    }
+                }
+            }
+        }
+
+        if (rectanglesToAnimate.isEmpty()) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+
+        // Use single FadeTransition for all rectangles - much better performance
+        // Create one transition that animates all rectangles together
+        List<FadeTransition> fadeTransitions = new ArrayList<>();
+        
+        for (Rectangle rect : rectanglesToAnimate) {
+            // Reset any previous animation state
+            rect.setOpacity(1.0);
+            rect.setScaleX(1.0);
+            rect.setScaleY(1.0);
+            
+            // Simple fade-out transition - lightweight and smooth
+            FadeTransition fade = new FadeTransition(Duration.millis(150), rect);
+            fade.setFromValue(1.0);
+            fade.setToValue(0.0);
+            fadeTransitions.add(fade);
+        }
+
+        // Use ParallelTransition to animate all rectangles simultaneously
+        ParallelTransition parallelTransition = new ParallelTransition();
+        parallelTransition.getChildren().addAll(fadeTransitions);
+        
+        // When animation completes, reset all rectangles and call callback
+        parallelTransition.setOnFinished(e -> {
+            // Reset all rectangles to ensure clean state
+            for (Rectangle rect : rectanglesToAnimate) {
+                if (rect != null) {
+                    rect.setOpacity(1.0);
+                    rect.setScaleX(1.0);
+                    rect.setScaleY(1.0);
+                }
+            }
+            if (onComplete != null) onComplete.run();
+        });
+        
+        parallelTransition.play();
     }
 }
 
