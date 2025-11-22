@@ -2,6 +2,9 @@ package com.comp2042.dto;
 
 import com.comp2042.util.MatrixOperations;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Immutable DTO containing row-clearing operation results.
  * Encapsulates lines removed, updated board matrix, and score bonus.
@@ -11,6 +14,7 @@ public final class ClearRow {
     private final int linesRemoved; // Number of lines that were cleared
     private final int[][] newMatrix; // The board matrix after lines have been removed
     private final int scoreBonus; // The score bonus earned from clearing the lines
+    private final List<Integer> clearedRows; // Indices of the rows that were cleared
 
     /**
      * Constructs a ClearRow with operation results.
@@ -20,9 +24,22 @@ public final class ClearRow {
      * @param scoreBonus   Score bonus earned
      */
     public ClearRow(int linesRemoved, int[][] newMatrix, int scoreBonus) {
+        this(linesRemoved, newMatrix, scoreBonus, Collections.emptyList());
+    }
+
+    /**
+     * Constructs a ClearRow with operation results including cleared row indices.
+     *
+     * @param linesRemoved Number of lines cleared
+     * @param newMatrix    Updated board matrix
+     * @param scoreBonus   Score bonus earned
+     * @param clearedRows  List of indices of the cleared rows
+     */
+    public ClearRow(int linesRemoved, int[][] newMatrix, int scoreBonus, List<Integer> clearedRows) {
         this.linesRemoved = linesRemoved;
         this.newMatrix = newMatrix;
         this.scoreBonus = scoreBonus;
+        this.clearedRows = (clearedRows != null) ? List.copyOf(clearedRows) : Collections.emptyList();
     }
 
     /**
@@ -32,6 +49,15 @@ public final class ClearRow {
      */
     public int getLinesRemoved() {
         return linesRemoved;
+    }
+
+    /**
+     * Gets the list of indices of the cleared rows.
+     *
+     * @return List of cleared row indices
+     */
+    public List<Integer> getClearedRows() {
+        return clearedRows;
     }
 
     /**

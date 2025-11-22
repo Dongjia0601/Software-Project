@@ -728,6 +728,38 @@ public class TwoPlayerPanelManager {
         }
     }
 
+    /**
+     * Gets the display matrix for player 1.
+     *
+     * @return The display matrix for player 1
+     */
+    public Rectangle[][] getDisplayMatrix1() {
+        return displayMatrix1;
+    }
+
+    /**
+     * Gets the display matrix for player 2.
+     *
+     * @return The display matrix for player 2
+     */
+    public Rectangle[][] getDisplayMatrix2() {
+        return displayMatrix2;
+    }
+
+    /**
+     * Resets the cache for player 1 to force a full refresh on next update.
+     */
+    public void resetCache1() {
+        cachedBoardMatrix1 = null;
+    }
+
+    /**
+     * Resets the cache for player 2 to force a full refresh on next update.
+     */
+    public void resetCache2() {
+        cachedBoardMatrix2 = null;
+    }
+
 
 
     public void updatePlayer1NextDisplay(int[][] nextBrickData) {

@@ -588,10 +588,8 @@ public class AnimationController {
     }
 
     /**
-     * Animates row clearing with a smooth fade-out effect.
-     * Uses a single ParallelTransition for all cleared rows to ensure optimal performance.
-     * Performance optimized: Uses simple FadeTransition instead of complex nested transitions
-     * to avoid creating too many animation objects (which caused lag with multiple rows).
+     * Animates row clearing with a more visible effect combining flash, scale, and fade.
+     * Uses a single ParallelTransition for all cleared rows to ensure good performance.
      *
      * @param displayMatrix The grid of Rectangles representing the board
      * @param clearedRows List of row indices to clear (before clearing, so these are the actual row indices)
@@ -621,9 +619,8 @@ public class AnimationController {
             return;
         }
 
-        // Use single FadeTransition for all rectangles - much better performance
-        // Create one transition that animates all rectangles together
-        List<FadeTransition> fadeTransitions = new ArrayList<>();
+        // Create combined animations for all rectangles
+        List<Transition> allTransitions = new ArrayList<>();
         
         for (Rectangle rect : rectanglesToAnimate) {
             // Reset any previous animation state
@@ -631,16 +628,41 @@ public class AnimationController {
             rect.setScaleX(1.0);
             rect.setScaleY(1.0);
             
-            // Simple fade-out transition - lightweight and smooth
-            FadeTransition fade = new FadeTransition(Duration.millis(150), rect);
-            fade.setFromValue(1.0);
-            fade.setToValue(0.0);
-            fadeTransitions.add(fade);
+            // Step 1: Flash effect - quickly brighten (scale up slightly and increase opacity)
+            ScaleTransition flashScale = new ScaleTransition(Duration.millis(70), rect);
+            flashScale.setFromX(1.0);
+            flashScale.setFromY(1.0);
+            flashScale.setToX(1.2);
+            flashScale.setToY(1.2);
+            
+            FadeTransition flashBright = new FadeTransition(Duration.millis(70), rect);
+            flashBright.setFromValue(1.0);
+            flashBright.setToValue(1.0); // Keep full opacity during flash
+            
+            // Step 2: Fade out and scale down
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(140), rect);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setDelay(Duration.millis(70)); // Start after flash
+            
+            ScaleTransition scaleDown = new ScaleTransition(Duration.millis(140), rect);
+            scaleDown.setFromX(1.2);
+            scaleDown.setFromY(1.2);
+            scaleDown.setToX(0.0);
+            scaleDown.setToY(0.0);
+            scaleDown.setDelay(Duration.millis(70)); // Start after flash
+            
+            // Combine flash and fade/scale for this rectangle
+            ParallelTransition flashPhase = new ParallelTransition(flashScale, flashBright);
+            ParallelTransition fadePhase = new ParallelTransition(fadeOut, scaleDown);
+            SequentialTransition rectAnimation = new SequentialTransition(flashPhase, fadePhase);
+            
+            allTransitions.add(rectAnimation);
         }
 
         // Use ParallelTransition to animate all rectangles simultaneously
         ParallelTransition parallelTransition = new ParallelTransition();
-        parallelTransition.getChildren().addAll(fadeTransitions);
+        parallelTransition.getChildren().addAll(allTransitions);
         
         // When animation completes, reset all rectangles and call callback
         parallelTransition.setOnFinished(e -> {
