@@ -232,7 +232,7 @@
                        styleClass="game-button"
                        onAction="#newGame"/>
                 <Button fx:id="muteButton" 
-                       text="MUTE (M)" 
+                       text="Mute (M)" 
                        styleClass="game-button"
                        onAction="#toggleMute"/>
                 <Button fx:id="pauseButton" 

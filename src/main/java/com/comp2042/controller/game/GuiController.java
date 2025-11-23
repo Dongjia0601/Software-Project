@@ -142,6 +142,9 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
     private javafx.scene.control.Button muteButton;
 
     @FXML
+    private Button pauseButton;
+
+    @FXML
     private Button backToSelectionButton;
     @FXML
     private VBox leftObjectiveBox;
@@ -325,6 +328,13 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         // Initialize audio volume manager
         audioVolumeManager = new AudioVolumeManager(settings, SoundManager.getInstance());
         audioVolumeManager.bindMuteButton(muteButton);
+        
+        // Initialize pause button label and add listener for state changes
+        if (pauseButton != null) {
+            updatePauseButtonLabel();
+            // Add listener to update button text when pause state changes (e.g., via keyboard)
+            isPause.addListener((observable, oldValue, newValue) -> updatePauseButtonLabel());
+        }
         
         // Load the digital font for UI elements
         URL fontResource = getClass().getClassLoader().getResource("digital.ttf");
@@ -712,8 +722,82 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         // This ensures P key always works, even before game controller is initialized
         if (eventListener instanceof GameController) {
             ((GameController) eventListener).requestPause();
+            // Toggle pause state and handle timer accordingly (same as pauseGame method)
+            boolean newPauseState = !isPause.getValue();
+            isPause.setValue(newPauseState);
+            
+            if (newPauseState) {
+                // Game is now paused - pause the timer
+                if (lastPauseStartMillis == 0L) {
+                    lastPauseStartMillis = System.currentTimeMillis();
+                }
+                if (timeTimer != null) {
+                    timeTimer.pause();
+                }
+                if (levelTimer != null && isLevelMode) {
+                    levelTimer.pause();
+                }
+                if (timeLine != null) {
+                    timeLine.pause();
+                }
+            } else {
+                // Game is now resumed - resume the timer
+                if (lastPauseStartMillis > 0L) {
+                    totalPausedMillis += System.currentTimeMillis() - lastPauseStartMillis;
+                    lastPauseStartMillis = 0L;
+                }
+                if (timeTimer != null) {
+                    timeTimer.play();
+                }
+                if (levelTimer != null && isLevelMode) {
+                    levelTimer.play();
+                }
+                if (timeLine != null) {
+                    timeLine.play();
+                }
+            }
+            
+            // Play pause/resume sound
+            SoundManager.getInstance().playPauseResumeSound();
         } else if (eventListener instanceof TwoPlayerGameController) {
             ((TwoPlayerGameController) eventListener).requestPause();
+            // Toggle pause state and handle timer accordingly (same as pauseGame method)
+            boolean newPauseState = !isPause.getValue();
+            isPause.setValue(newPauseState);
+            
+            if (newPauseState) {
+                // Game is now paused - pause the timer
+                if (lastPauseStartMillis == 0L) {
+                    lastPauseStartMillis = System.currentTimeMillis();
+                }
+                if (timeTimer != null) {
+                    timeTimer.pause();
+                }
+                if (levelTimer != null && isLevelMode) {
+                    levelTimer.pause();
+                }
+                if (timeLine != null) {
+                    timeLine.pause();
+                }
+            } else {
+                // Game is now resumed - resume the timer
+                if (lastPauseStartMillis > 0L) {
+                    totalPausedMillis += System.currentTimeMillis() - lastPauseStartMillis;
+                    lastPauseStartMillis = 0L;
+                }
+                if (timeTimer != null) {
+                    timeTimer.play();
+                }
+                if (levelTimer != null && isLevelMode) {
+                    levelTimer.play();
+                }
+                if (timeLine != null) {
+                    timeLine.play();
+                }
+            }
+            
+            // Play pause/resume sound
+            SoundManager.getInstance().playPauseResumeSound();
         } else {
             // Fallback: Toggle pause state directly when eventListener is null
             // This handles edge cases like countdown period or initialization phase
@@ -1791,6 +1875,9 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             }
         }
         
+        // Update pause button label to reflect current state
+        updatePauseButtonLabel();
+        
         // Request focus for keyboard input
         if (isTwoPlayerMode && rootPane != null) {
             rootPane.requestFocus();
@@ -2426,6 +2513,18 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         if (audioVolumeManager != null) {
             audioVolumeManager.syncFromSettings();
         }
+    }
+    
+    /**
+     * Updates the Pause button label based on current pause state.
+     * When paused, shows "Resume (P)"; when not paused, shows "Pause (P)".
+     * This matches the behavior of the Mute/Unmute button.
+     */
+    private void updatePauseButtonLabel() {
+        if (pauseButton == null) {
+            return;
+        }
+        pauseButton.setText(isPause.getValue() ? "Resume (P)" : "Pause (P)");
     }
     
     /**

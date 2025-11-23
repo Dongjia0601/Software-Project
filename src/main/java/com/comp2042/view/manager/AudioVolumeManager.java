@@ -67,7 +67,7 @@ public class AudioVolumeManager {
         if (muteButton == null) {
             return;
         }
-        muteButton.setText(muted ? "UNMUTE (M)" : "MUTE (M)");
+        muteButton.setText(muted ? "Unmute (M)" : "Mute (M)");
     }
 }
 
