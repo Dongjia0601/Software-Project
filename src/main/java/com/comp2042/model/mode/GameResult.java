@@ -101,7 +101,8 @@ public class GameResult {
      * Gets the level reached in this game session.
      * 
      * @return the level number (0 for endless mode)
-     * @apiNote Reserved for future use - not currently invoked. Level information
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked. Level information
      *          is available through other means in the current implementation.
      */
     public int getLevelReached() {

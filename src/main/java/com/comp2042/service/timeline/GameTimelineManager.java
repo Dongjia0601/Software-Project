@@ -27,6 +27,8 @@ public class GameTimelineManager {
     }
 
     /**
+     * Constructs a GameTimelineManager with custom callbacks.
+     * 
      * @param moveDownCallback game loop callback
      * @param timeUpdateCallback elapsed time callback
      * @param levelTickCallback level countdown callback
@@ -76,7 +78,7 @@ public class GameTimelineManager {
     /**
      * Starts the game loop with specified speed.
      * @param speed drop speed in milliseconds (must be positive)
-     * @throws IllegalArgumentException if speed <= 0
+     * @throws IllegalArgumentException if speed &lt;= 0
      * @throws IllegalStateException if gameTimeline or moveDownCallback is null
      */
     public void startGameLoop(int speed) {
@@ -125,7 +127,7 @@ public class GameTimelineManager {
     /**
      * Updates game loop speed without stopping if running.
      * @param newSpeed new drop speed in milliseconds (must be positive)
-     * @throws IllegalArgumentException if newSpeed <= 0
+     * @throws IllegalArgumentException if newSpeed &lt;= 0
      * @throws IllegalStateException if gameTimeline or moveDownCallback is null
      */
     public void updateGameLoopSpeed(int newSpeed) {
@@ -179,7 +181,7 @@ public class GameTimelineManager {
     /**
      * Starts level countdown timer. Auto-stops at 0.
      * @param remainingSeconds initial remaining seconds (must be non-negative)
-     * @throws IllegalArgumentException if remainingSeconds < 0
+     * @throws IllegalArgumentException if remainingSeconds &lt; 0
      * @throws IllegalStateException if levelTimer or levelTickCallback is null
      */
     public void startLevelCountdown(int remainingSeconds) {

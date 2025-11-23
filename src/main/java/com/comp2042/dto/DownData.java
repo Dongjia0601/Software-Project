@@ -6,6 +6,10 @@ import java.util.Objects;
  * Immutable DTO containing complete results of a downward brick movement.
  * Encapsulates visual state, line clearing information, landing status, and score bonus.
  *
+ * @param clearRow line clearing information, may be null if no lines were cleared
+ * @param viewData updated visual state after the move
+ * @param brickLanded whether the brick has landed on the board
+ * @param scoreBonus additional score points earned from this move
  * @author Dong, Jia.
  */
 public record DownData(ClearRow clearRow, ViewData viewData, boolean brickLanded, int scoreBonus) {

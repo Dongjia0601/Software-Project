@@ -41,7 +41,7 @@ public class NotificationPanel extends BorderPane {
      * Starts the fade-out and upward movement animation for this panel.
      * When the animation finishes, this panel is automatically removed from the provided list.
      *
-     * @param list The ObservableList<Node> from which this panel should be removed after the animation.
+     * @param list The ObservableList&lt;Node&gt; from which this panel should be removed after the animation.
      */
     public void showScore(ObservableList<Node> list) {
         FadeTransition ft = new FadeTransition(Duration.millis(2000), this);

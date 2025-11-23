@@ -150,7 +150,8 @@ public class SoundManager {
      * Plays a line clear sound effect (default - single line).
      * Maintains backward compatibility.
      * 
-     * @apiNote Reserved for backward compatibility - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for backward compatibility - not currently invoked
      */
     public void playLineClearSound() {
         playLineClearSound(1);
@@ -160,7 +161,8 @@ public class SoundManager {
      * Plays a combo sound effect.
      * 
      * @param comboCount the combo count
-     * @apiNote Parameter reserved for future use - currently plays same sound for all combos
+     * 
+     * <p><b>Note:</b> Parameter reserved for future use - currently plays same sound for all combos
      */
     public void playComboSound(@SuppressWarnings("unused") int comboCount) {
         playSound("audio/CLear4SFX.mp3");
@@ -413,12 +415,11 @@ public class SoundManager {
      * Starts playing level background music in a loop based on level number.
      * Used when entering level mode.
      * 
-     * <p>Music mapping:
+     * <p>Music mapping:</p>
      * <ul>
-     *   <li>Level 1, 3 & 5: Level135BGM.mp3</li>
-     *   <li>Level 2 & 4: Level24BGM.mp3</li>
+     *   <li>Level 1, 3 &amp; 5: Level135BGM.mp3</li>
+     *   <li>Level 2 &amp; 4: Level24BGM.mp3</li>
      * </ul>
-     * </p>
      * 
      * @param levelId the level ID (1-5)
      */
@@ -438,7 +439,8 @@ public class SoundManager {
      * Starts playing level background music in a loop.
      * Defaults to Level135BGM (level 1 music) for backward compatibility.
      * 
-     * @apiNote Reserved for backward compatibility - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for backward compatibility - not currently invoked
      */
     public void playLevelBackgroundMusic() {
         playLevelBackgroundMusic(1);
@@ -460,7 +462,8 @@ public class SoundManager {
     /**
      * Pauses the background music.
      * 
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     public void pauseBackgroundMusic() {
         Platform.runLater(() -> {
@@ -485,7 +488,8 @@ public class SoundManager {
      * Sets whether sounds are enabled.
      * 
      * @param enabled true to enable sounds, false to disable
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     public void setSoundEnabled(boolean enabled) {
         this.soundEnabled = enabled;
@@ -502,7 +506,8 @@ public class SoundManager {
      * Gets whether sounds are enabled.
      * 
      * @return true if sounds are enabled, false otherwise
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     public boolean isSoundEnabled() {
         return soundEnabled;
@@ -525,7 +530,8 @@ public class SoundManager {
      * Gets the master volume level.
      * 
      * @return master volume level (0.0 to 1.0)
-     * @apiNote Reserved for future use - not currently invoked.
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked.
      *          Application uses GameSettings.getMasterVolume() as the source of truth.
      */
     public double getMasterVolume() {
@@ -546,7 +552,8 @@ public class SoundManager {
      * Gets the volume level for sound effects (before master volume).
      * 
      * @return sound effects volume level (0.0 to 1.0)
-     * @apiNote Reserved for future use - not currently invoked. 
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked. 
      *          Application uses GameSettings.getSfxVolume() as the source of truth.
      */
     public double getSfxVolume() {
@@ -569,7 +576,8 @@ public class SoundManager {
      * Gets the volume level for background music (before master volume).
      * 
      * @return music volume level (0.0 to 1.0)
-     * @apiNote Reserved for future use - not currently invoked.
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked.
      *          Application uses GameSettings.getMusicVolume() as the source of truth.
      */
     public double getMusicVolume() {

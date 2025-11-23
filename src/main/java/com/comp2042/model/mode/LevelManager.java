@@ -242,7 +242,8 @@ public class LevelManager {
      * unit tests to set up test scenarios.</p>
      *
      * @param levelId the level ID to unlock (1-based)
-     * @apiNote This method is part of the testing API and should not be used in production code.
+     * 
+     * <p><b>Note:</b> This method is part of the testing API and should not be used in production code.
      *          Use {@link #completeLevel(int, int, int, long, boolean)} for normal level progression.
      */
     public void unlockLevel(int levelId) {

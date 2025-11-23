@@ -16,7 +16,8 @@ import com.comp2042.view.manager.CommonUIManager;
  * and may be integrated in future refactoring.
  * 
  * @author Dong, Jia
- * @apiNote Reserved for Strategy Pattern completeness - not currently instantiated
+ * 
+ * <p><b>Note:</b> Reserved for Strategy Pattern completeness - not currently instantiated
  */
 @SuppressWarnings("unused")
 public class TwoPlayerModeUIStrategy implements GameModeUIStrategy {

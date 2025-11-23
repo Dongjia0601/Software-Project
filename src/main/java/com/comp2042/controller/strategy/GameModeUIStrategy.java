@@ -41,7 +41,8 @@ public interface GameModeUIStrategy {
      * Currently, brick display updates are handled directly by GuiController.
      * 
      * @param brick the view data containing brick information
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     default void updateBrickDisplay(ViewData brick) {
     }
@@ -69,7 +70,8 @@ public interface GameModeUIStrategy {
      * <p><b>Note:</b> This method is reserved for future extensions.
      * Currently, pause logic is handled directly by GameTimelineManager and GuiController.
      * 
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     default void onPause() {
     }
@@ -81,7 +83,8 @@ public interface GameModeUIStrategy {
      * <p><b>Note:</b> This method is reserved for future extensions.
      * Currently, resume logic is handled directly by GameTimelineManager and GuiController.
      * 
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     default void onResume() {
     }
@@ -93,7 +96,8 @@ public interface GameModeUIStrategy {
      * <p><b>Note:</b> This method is reserved for future extensions.
      * Currently, game over logic is handled directly by GuiController.
      * 
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     default void onGameOver() {
     }

@@ -98,7 +98,8 @@ public final class GameStateMemento {
      * Gets the current brick's shape matrix.
      * 
      * @return a deep copy of the current brick shape matrix
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     public int[][] getCurrentBrickShape() {
         return deepCopyMatrix(currentBrickShape);
@@ -132,7 +133,8 @@ public final class GameStateMemento {
      * Gets the held brick's shape matrix.
      * 
      * @return a deep copy of the held brick shape matrix, or null if none
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     public int[][] getHeldBrickShape() {
         return heldBrickShape != null ? deepCopyMatrix(heldBrickShape) : null;
@@ -146,7 +148,8 @@ public final class GameStateMemento {
      * Gets the next brick's shape matrix.
      * 
      * @return a deep copy of the next brick shape matrix, or null if none
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     public int[][] getNextBrickShape() {
         return nextBrickShape != null ? deepCopyMatrix(nextBrickShape) : null;
@@ -164,7 +167,8 @@ public final class GameStateMemento {
      * Gets the type of brick generator used.
      * 
      * @return the generator type ("seven_bag" or "pure_random")
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     public String getBrickGeneratorType() {
         return brickGeneratorType;

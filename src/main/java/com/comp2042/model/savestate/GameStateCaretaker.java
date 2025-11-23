@@ -11,7 +11,8 @@ import java.util.Stack;
  * It is retained for Memento Pattern completeness and potential future undo/redo functionality.
  * 
  * @author Dong, Jia.
- * @apiNote Reserved for Memento Pattern completeness - currently only used in tests
+ * 
+ * <p><b>Note:</b> Reserved for Memento Pattern completeness - currently only used in tests
  */
 @SuppressWarnings("unused")
 public class GameStateCaretaker {
@@ -59,7 +60,8 @@ public class GameStateCaretaker {
      * Retrieves the most recent game state memento without removing it.
      * 
      * @return the most recent memento, or null if history is empty
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     public GameStateMemento peekMemento() {
         if (mementoHistory.isEmpty()) {
@@ -81,7 +83,8 @@ public class GameStateCaretaker {
      * Gets the number of saved mementos in history.
      * 
      * @return the number of mementos
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     public int getHistorySize() {
         return mementoHistory.size();
@@ -90,7 +93,8 @@ public class GameStateCaretaker {
     /**
      * Clears all saved mementos from history.
      * 
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     public void clearHistory() {
         mementoHistory.clear();
@@ -100,7 +104,8 @@ public class GameStateCaretaker {
      * Gets the maximum history size.
      * 
      * @return the maximum number of mementos that can be stored
-     * @apiNote Reserved for future use - not currently invoked
+     * 
+     * <p><b>Note:</b> Reserved for future use - not currently invoked
      */
     public int getMaxHistorySize() {
         return MAX_HISTORY_SIZE;
