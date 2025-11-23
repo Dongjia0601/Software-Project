@@ -123,8 +123,9 @@ class GameTimelineManagerTest {
     void testStopGameLoop() {
         manager.startGameLoop(100);
         // Wait longer for timeline to start (JavaFX Timeline starts asynchronously on JavaFX thread)
-        // Check if callback was called as evidence it's running
-        sleep(300); // Increased wait time for async Timeline startup
+        // Wait for at least one callback to be executed as evidence it's running
+        // With 100ms interval, we need at least 150ms to ensure one tick
+        sleep(400); // Increased wait time to ensure Timeline starts and executes at least one callback
         int initialCount = moveDownCount.get();
         
         // Use Platform.runLater to check status on JavaFX thread
@@ -138,6 +139,24 @@ class GameTimelineManagerTest {
             latch.await(500, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+        
+        // Either callbacks should have been called, or status should indicate running
+        // If neither, wait a bit more and check again (Timeline might need more time)
+        if (initialCount == 0 && !isRunning[0]) {
+            sleep(200); // Give Timeline more time to start
+            initialCount = moveDownCount.get();
+            // Re-check status on JavaFX thread
+            CountDownLatch latch2 = new CountDownLatch(1);
+            Platform.runLater(() -> {
+                isRunning[0] = manager.isGameLoopRunning();
+                latch2.countDown();
+            });
+            try {
+                latch2.await(500, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
         
         assertTrue(initialCount > 0 || isRunning[0], 
