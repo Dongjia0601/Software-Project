@@ -56,11 +56,11 @@ class AudioVolumeManagerTest {
     @Test
     void toggleMuteSwitchesStates() {
         audioVolumeManager.toggleMute();
-        assertEquals("UNMUTE (M)", muteButton.getText());
+        assertEquals("Unmute (M)", muteButton.getText());
         assertEquals(0.0, settings.getMasterVolume(), 1e-6);
 
         audioVolumeManager.toggleMute();
-        assertEquals("MUTE (M)", muteButton.getText());
+        assertEquals("Mute (M)", muteButton.getText());
         assertTrue(settings.getMasterVolume() > 0.0);
     }
 
@@ -68,11 +68,11 @@ class AudioVolumeManagerTest {
     void syncFromSettingsReflectsVolume() {
         settings.setMasterVolume(0.0);
         audioVolumeManager.syncFromSettings();
-        assertEquals("UNMUTE (M)", muteButton.getText());
+        assertEquals("Unmute (M)", muteButton.getText());
 
         settings.setMasterVolume(0.4);
         audioVolumeManager.syncFromSettings();
-        assertEquals("MUTE (M)", muteButton.getText());
+        assertEquals("Mute (M)", muteButton.getText());
     }
 }
 
