@@ -247,10 +247,9 @@ public class EndlessMode implements GameMode {
         // Check if this is a new high score BEFORE adding to leaderboard
         this.isNewHighScore = leaderboard.isNewHighScore(finalScore);
         
-        // Add entry to leaderboard (rank is not stored, only used for sound effects in UI)
-        leaderboard.addEntry(finalScore, linesCleared, playTime, this.currentLevel);
-        
-        // Update high score from leaderboard
+        // Note: Entry is added to leaderboard in GuiController.showEndlessGameOverScene()
+        // to avoid duplicate entries. High score is updated there as well.
+        // Update high score from leaderboard (in case it was updated by another game)
         this.highScore = leaderboard.getHighScore();
         
         // Create game result

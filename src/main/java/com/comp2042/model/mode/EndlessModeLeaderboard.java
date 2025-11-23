@@ -79,6 +79,19 @@ public class EndlessModeLeaderboard {
             return 0;
         }
         
+        // Check for duplicate entries (same score, lines, and play time within 1 second)
+        // This prevents the same game result from being added multiple times
+        for (LeaderboardEntry existing : entries) {
+            if (existing.getScore() == score && 
+                existing.getLinesCleared() == linesCleared &&
+                existing.getLevel() == level &&
+                Math.abs(existing.getPlayTimeMs() - playTimeMs) < 1000) {
+                // Duplicate entry found, return existing rank
+                int rank = entries.indexOf(existing) + 1;
+                return rank <= MAX_ENTRIES ? rank : 0;
+            }
+        }
+        
         LeaderboardEntry newEntry = new LeaderboardEntry(score, linesCleared, playTimeMs, level);
         
         // Add the new entry
@@ -99,6 +112,11 @@ public class EndlessModeLeaderboard {
         // Keep only top 5 entries
         if (entries.size() > MAX_ENTRIES) {
             entries.subList(MAX_ENTRIES, entries.size()).clear();
+            // Recalculate rank after trimming
+            rank = entries.indexOf(newEntry) + 1;
+            if (rank > MAX_ENTRIES) {
+                rank = 0; // Entry was removed, not in top 5
+            }
         }
         
         // Save to file
