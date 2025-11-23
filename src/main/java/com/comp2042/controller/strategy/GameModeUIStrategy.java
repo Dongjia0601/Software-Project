@@ -11,37 +11,90 @@ import com.comp2042.view.manager.CommonUIManager;
  */
 public interface GameModeUIStrategy {
 
-    /** Initializes UI for this game mode. Called once when mode is activated. */
+    /**
+     * Initializes UI components for this game mode.
+     * Called once when the mode is activated.
+     * 
+     * @param commonUI the common UI manager for shared components
+     */
     void initialize(CommonUIManager commonUI);
 
-    /** Called when a new game starts. */
+    /**
+     * Called when a new game starts.
+     * Performs mode-specific initialization for the new game session.
+     */
     void onGameStart();
 
-    /** Called on each game loop tick. Default: no-op. */
+    /**
+     * Called on each game loop tick.
+     * Default implementation does nothing.
+     */
     default void onGameTick() {
 
     }
 
-    /** Updates brick display when piece changes. Default: handled by GuiController. */
+    /**
+     * Updates brick display when the current piece changes.
+     * Default implementation does nothing (handled by GuiController).
+     * 
+     * <p><b>Note:</b> This method is reserved for future extensions.
+     * Currently, brick display updates are handled directly by GuiController.
+     * 
+     * @param brick the view data containing brick information
+     * @apiNote Reserved for future use - not currently invoked
+     */
     default void updateBrickDisplay(ViewData brick) {
     }
 
-    /** Updates score display. Default: no-op. */
+    /**
+     * Updates the score display.
+     * Default implementation does nothing.
+     * 
+     * @param score the current score value
+     */
     default void updateScore(int score) {
     }
 
-    /** Updates lines cleared display. */
+    /**
+     * Updates the lines cleared display.
+     * 
+     * @param lines the number of lines cleared
+     */
     void updateLines(int lines);
 
-    /** Called when game is paused. Default: no-op (handled by GameTimelineManager). */
+    /**
+     * Called when the game is paused.
+     * Default implementation does nothing (handled by GameTimelineManager).
+     * 
+     * <p><b>Note:</b> This method is reserved for future extensions.
+     * Currently, pause logic is handled directly by GameTimelineManager and GuiController.
+     * 
+     * @apiNote Reserved for future use - not currently invoked
+     */
     default void onPause() {
     }
 
-    /** Called when game is resumed. Default: no-op (handled by GameTimelineManager). */
+    /**
+     * Called when the game is resumed from pause.
+     * Default implementation does nothing (handled by GameTimelineManager).
+     * 
+     * <p><b>Note:</b> This method is reserved for future extensions.
+     * Currently, resume logic is handled directly by GameTimelineManager and GuiController.
+     * 
+     * @apiNote Reserved for future use - not currently invoked
+     */
     default void onResume() {
     }
 
-    /** Called when game ends. Default: no-op (handled by GuiController). */
+    /**
+     * Called when the game ends.
+     * Default implementation does nothing (handled by GuiController).
+     * 
+     * <p><b>Note:</b> This method is reserved for future extensions.
+     * Currently, game over logic is handled directly by GuiController.
+     * 
+     * @apiNote Reserved for future use - not currently invoked
+     */
     default void onGameOver() {
     }
 }

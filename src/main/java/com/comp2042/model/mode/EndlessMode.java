@@ -3,12 +3,10 @@ package com.comp2042.model.mode;
 import com.comp2042.controller.factory.GameMode;
 import com.comp2042.controller.factory.GameModeType;
 import com.comp2042.controller.game.GuiController;
-import com.comp2042.*;
 import com.comp2042.dto.DownData;
 import com.comp2042.dto.ViewData;
 import com.comp2042.event.MoveEvent;
 import com.comp2042.service.gameloop.GameService;
-import javafx.application.Platform;
 
 /**
  * Endless gameplay mode with unlimited play until game over (Strategy Pattern).
@@ -26,7 +24,6 @@ public class EndlessMode implements GameMode {
     private boolean gameOver;
     private boolean paused;
     private GameResult gameResult;
-    private int currentRank;
     private boolean isNewHighScore;
     private int currentLevel;
     
@@ -46,7 +43,6 @@ public class EndlessMode implements GameMode {
         this.currentLevel = 1;
         this.paused = false;
         this.gameResult = null;
-        this.currentRank = 0;
         this.isNewHighScore = false;
     }
     
@@ -57,7 +53,6 @@ public class EndlessMode implements GameMode {
         this.gameOver = false;
         this.paused = false;
         this.gameResult = null;
-        this.currentRank = 0;
         this.isNewHighScore = false;
         
         // Load current high score from leaderboard
@@ -252,8 +247,8 @@ public class EndlessMode implements GameMode {
         // Check if this is a new high score BEFORE adding to leaderboard
         this.isNewHighScore = leaderboard.isNewHighScore(finalScore);
         
-        // Add entry to leaderboard and get rank (0 if not in top 5)
-        this.currentRank = leaderboard.addEntry(finalScore, linesCleared, playTime, this.currentLevel);
+        // Add entry to leaderboard (rank is not stored, only used for sound effects in UI)
+        leaderboard.addEntry(finalScore, linesCleared, playTime, this.currentLevel);
         
         // Update high score from leaderboard
         this.highScore = leaderboard.getHighScore();

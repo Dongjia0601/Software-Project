@@ -1,11 +1,9 @@
 package com.comp2042.controller.strategy;
 
-import com.comp2042.dto.ViewData;
 import com.comp2042.model.mode.LevelMode;
 import com.comp2042.view.manager.CommonUIManager;
 import com.comp2042.view.manager.HudManager;
 import com.comp2042.view.manager.LevelModeUIManager;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
 /**
@@ -20,7 +18,6 @@ public class LevelModeUIStrategy implements GameModeUIStrategy {
     private final HudManager hudManager;
     private LevelMode currentLevel;
     private int targetLines;
-    private int currentLines;
 
     public LevelModeUIStrategy(LevelModeUIManager levelUI, HudManager hudManager, LevelMode level) {
         this.levelUI = levelUI;
@@ -47,7 +44,6 @@ public class LevelModeUIStrategy implements GameModeUIStrategy {
 
     @Override
     public void onGameStart() {
-        currentLines = 0;
         hudManager.updateProgress(0, targetLines);
     }
 
@@ -55,7 +51,6 @@ public class LevelModeUIStrategy implements GameModeUIStrategy {
 
     @Override
     public void updateLines(int lines) {
-        currentLines = lines;
         hudManager.updateProgress(lines, targetLines);
 
         int stars = calculateStars(lines, targetLines);

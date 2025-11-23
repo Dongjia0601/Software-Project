@@ -3,7 +3,6 @@ package com.comp2042.model.mode;
 import com.comp2042.controller.factory.GameMode;
 import com.comp2042.controller.factory.GameModeType;
 import com.comp2042.controller.game.GuiController;
-import com.comp2042.*;
 import com.comp2042.service.gameloop.GameService;
 import com.comp2042.dto.DownData;
 import com.comp2042.dto.ViewData;
@@ -30,13 +29,9 @@ public class TwoPlayerMode implements GameMode {
     private boolean gameOver;
     private boolean paused;
     private GameResult gameResult;
-    private int winner; // 1 for player1, 2 for player2, 0 for no winner yet
-    
-    // Statistics tracking
+    private int winner;
     private final PlayerStats player1Stats;
     private final PlayerStats player2Stats;
-    
-    // Game Mechanics (SRP: Logic delegated to mechanics class)
     private final TwoPlayerModeMechanics mechanics;
     
     /**
@@ -64,7 +59,7 @@ public class TwoPlayerMode implements GameMode {
     
     @Override
     public void initialize() {
-        // Initialize VS mode state
+        // Initialize Two-player mode state
         this.gameStartTime = System.currentTimeMillis();
         this.gameOver = false;
         this.paused = false;
@@ -92,7 +87,7 @@ public class TwoPlayerMode implements GameMode {
 
     @Override
     public void update() {
-        // Update VS mode logic
+        // Update Two-player mode logic
         if (!gameOver && !paused) {
             // Check if either player is game over
             boolean player1GameOver = player1Service.isGameOver();
@@ -137,8 +132,8 @@ public class TwoPlayerMode implements GameMode {
         DownData downData = targetService.processDownEvent(event);
         
         // Handle line clearing, attacks, and statistics
-        if (downData != null && downData.isBrickLanded() && downData.getClearRow() != null) {
-            int linesCleared = downData.getClearRow().getLinesRemoved();
+        if (downData != null && downData.brickLanded() && downData.clearRow() != null) {
+            int linesCleared = downData.clearRow().getLinesRemoved();
             if (linesCleared > 0) {
                 // Determine which player cleared lines
                 boolean isPlayer1 = (targetService == player1Service);
@@ -225,7 +220,7 @@ public class TwoPlayerMode implements GameMode {
         }
         
         // Handle soft drop scoring and statistics (only when brick hasn't landed)
-        if (downData != null && !downData.isBrickLanded() && event != null) {
+        if (downData != null && !downData.brickLanded()) {
             EventSource source = event.getEventSource();
             EventType type = event.getEventType();
             
@@ -242,7 +237,7 @@ public class TwoPlayerMode implements GameMode {
         }
         
         // Handle hard drop (always lands, so check separately)
-        if (downData != null && event != null && event.getEventType() == EventType.HARD_DROP) {
+        if (downData != null && event.getEventType() == EventType.HARD_DROP) {
             boolean isPlayer1 = (targetService == player1Service);
             PlayerStats stats = isPlayer1 ? player1Stats : player2Stats;
             stats.recordHardDrop();
@@ -317,7 +312,7 @@ public class TwoPlayerMode implements GameMode {
 
     @Override
     public void startNewGame() {
-        // Reset VS mode state
+        // Reset Two-player mode state
         this.gameStartTime = System.currentTimeMillis();
         this.gameOver = false;
         this.paused = false;
@@ -423,12 +418,9 @@ public class TwoPlayerMode implements GameMode {
             GameModeType.TWO_PLAYER_VS,
             playTime,
             getTotalLinesCleared(),
-            0, // No level concept in VS mode
+            0, // No level concept in Two-player mode
             winner > 0 // Completed if someone won
         );
-        
-        String winnerText = winner == 0 ? "Tie Game" : 
-                           winner == 1 ? "Player 1 Wins!" : "Player 2 Wins!";
     }
     
     /**
@@ -502,32 +494,6 @@ public class TwoPlayerMode implements GameMode {
         return player2Stats;
     }
     
-    /**
-     * Gets the game start time in milliseconds.
-     * 
-     * @return the game start time
-     */
-    public long getGameStartTime() {
-        return gameStartTime;
-    }
-    
-    /**
-     * Gets player 1's high score.
-     * 
-     * @return player 1's high score
-     */
-    public int getPlayer1HighScore() {
-        return player1HighScore;
-    }
-    
-    /**
-     * Gets player 2's high score.
-     * 
-     * @return player 2's high score
-     */
-    public int getPlayer2HighScore() {
-        return player2HighScore;
-    }
     
     /**
      * Checks if the game is currently paused.

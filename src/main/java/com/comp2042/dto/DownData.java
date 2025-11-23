@@ -1,18 +1,14 @@
 package com.comp2042.dto;
 
-import com.comp2042.dto.ClearRow;
-import com.comp2042.dto.ViewData;
+import java.util.Objects;
 
 /**
  * Immutable DTO containing complete results of a downward brick movement.
  * Encapsulates visual state, line clearing information, landing status, and score bonus.
+ *
+ * @author Dong, Jia.
  */
-public final class DownData {
-    private final ClearRow clearRow;
-    private final ViewData viewData;
-    private final boolean brickLanded;
-    private final int scoreBonus;
-
+public record DownData(ClearRow clearRow, ViewData viewData, boolean brickLanded, int scoreBonus) {
     /**
      * Constructs a DownData with basic components.
      *
@@ -31,11 +27,7 @@ public final class DownData {
      * @param brickLanded Whether the brick has landed
      * @param scoreBonus  Additional score points earned
      */
-    public DownData(ClearRow clearRow, ViewData viewData, boolean brickLanded, int scoreBonus) {
-        this.clearRow = clearRow;
-        this.viewData = viewData;
-        this.brickLanded = brickLanded;
-        this.scoreBonus = scoreBonus;
+    public DownData {
     }
 
     /**
@@ -43,7 +35,8 @@ public final class DownData {
      *
      * @return ClearRow with clearing details
      */
-    public ClearRow getClearRow() {
+    @Override
+    public ClearRow clearRow() {
         return clearRow;
     }
 
@@ -52,7 +45,8 @@ public final class DownData {
      *
      * @return ViewData with current game state
      */
-    public ViewData getViewData() {
+    @Override
+    public ViewData viewData() {
         return viewData;
     }
 
@@ -61,7 +55,8 @@ public final class DownData {
      *
      * @return true if landed, false otherwise
      */
-    public boolean isBrickLanded() {
+    @Override
+    public boolean brickLanded() {
         return brickLanded;
     }
 
@@ -70,7 +65,8 @@ public final class DownData {
      *
      * @return Score bonus points
      */
-    public int getScoreBonus() {
+    @Override
+    public int scoreBonus() {
         return scoreBonus;
     }
 
@@ -103,9 +99,9 @@ public final class DownData {
      */
     @Override
     public String toString() {
-        return String.format("DownData{landed=%b, scoreBonus=%d, linesCleared=%d, totalScore=%d}", 
-                           brickLanded, scoreBonus, 
-                           clearRow != null ? clearRow.getLinesRemoved() : 0, getTotalScore());
+        return String.format("DownData{landed=%b, scoreBonus=%d, linesCleared=%d, totalScore=%d}",
+                brickLanded, scoreBonus,
+                clearRow != null ? clearRow.getLinesRemoved() : 0, getTotalScore());
     }
 
     /**
@@ -118,25 +114,12 @@ public final class DownData {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        
+
         DownData downData = (DownData) obj;
         return brickLanded == downData.brickLanded &&
-               scoreBonus == downData.scoreBonus &&
-               (clearRow != null ? clearRow.equals(downData.clearRow) : downData.clearRow == null) &&
-               (viewData != null ? viewData.equals(downData.viewData) : downData.viewData == null);
+                scoreBonus == downData.scoreBonus &&
+                (Objects.equals(clearRow, downData.clearRow)) &&
+                (Objects.equals(viewData, downData.viewData));
     }
 
-    /**
-     * Returns hash code for this DownData.
-     *
-     * @return Hash code value
-     */
-    @Override
-    public int hashCode() {
-        int result = clearRow != null ? clearRow.hashCode() : 0;
-        result = 31 * result + (viewData != null ? viewData.hashCode() : 0);
-        result = 31 * result + (brickLanded ? 1 : 0);
-        result = 31 * result + scoreBonus;
-        return result;
-    }
 }

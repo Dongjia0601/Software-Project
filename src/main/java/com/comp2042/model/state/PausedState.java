@@ -8,104 +8,128 @@ import com.comp2042.dto.ViewData;
 
 /**
  * Paused state ignoring gameplay input while preserving game state (State Pattern).
- * Handles pause/unpause toggle and new game requests. Game can be resumed seamlessly.
+ * 
+ * <p>This state is entered when the player pauses the game. In this state, all gameplay
+ * input events are ignored, but the current game state (board, score, current brick)
+ * is fully preserved. The game can be seamlessly resumed by handling a pause request,
+ * which transitions back to PlayingState.
+ * 
+ * <p><b>State Behavior:</b>
+ * <ul>
+ *   <li>All movement/rotation events return current view data without processing</li>
+ *   <li>Pause requests transition back to PlayingState (unpause)</li>
+ *   <li>New game requests transition to PlayingState and initialize a new game</li>
+ * </ul>
  * 
  * @author Dong, Jia.
  */
 public class PausedState implements GameState {
-    private final Board board; // Reference to the main game board logic to get current state
-    private final GuiController guiController; // Reference to update UI (e.g., show pause screen)
+    private final Board board;
+    private final GuiController guiController;
     private final GameStateContext stateContext;
 
     /**
-     * Constructs a PausedState.
-     * @param board Game board
-     * @param guiController GUI controller
+     * Constructs a PausedState without state context.
+     * 
+     * @param board the game board instance, must not be null
+     * @param guiController the GUI controller for UI updates, must not be null
      */
     public PausedState(Board board, GuiController guiController) {
         this(board, guiController, null);
     }
 
+    /**
+     * Constructs a PausedState with state context.
+     * 
+     * @param board the game board instance, must not be null
+     * @param guiController the GUI controller for UI updates, must not be null
+     * @param stateContext the state context for state transitions, may be null
+     */
     public PausedState(Board board, GuiController guiController, GameStateContext stateContext) {
         this.board = board;
         this.guiController = guiController;
         this.stateContext = stateContext;
     }
 
-    @Override
     /**
-     * Handles the DOWN event. Does nothing during pause.
-     * @param event The MoveEvent containing event type and source.
-     * @return DownData containing the current view data and no row clearing information.
+     * Handles the DOWN event during pause.
+     * Ignores the event and returns current view data without processing.
+     * 
+     * @param event the move event (ignored)
+     * @return DownData with null clear row and current view data
      */
+    @Override
     public DownData onDownEvent(MoveEvent event) {
-        // Do nothing during pause, return current view data
         return new DownData(null, board.getViewData());
     }
 
-    @Override
     /**
-     * Handles the LEFT event. Does nothing during pause.
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the current brick position and shape.
+     * Handles the LEFT event during pause.
+     * Ignores the event and returns current view data.
+     * 
+     * @param event the move event (ignored)
+     * @return ViewData containing the current board state
      */
+    @Override
     public ViewData onLeftEvent(MoveEvent event) {
-        // Do nothing during pause
         return board.getViewData();
     }
 
-    @Override
     /**
-     * Handles the RIGHT event. Does nothing during pause.
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the current brick position and shape.
+     * Handles the RIGHT event during pause.
+     * Ignores the event and returns current view data.
+     * 
+     * @param event the move event (ignored)
+     * @return ViewData containing the current board state
      */
+    @Override
     public ViewData onRightEvent(MoveEvent event) {
-        // Do nothing during pause
         return board.getViewData();
     }
 
-    @Override
     /**
-     * Handles the ROTATE event. Does nothing during pause.
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the current brick position and shape.
+     * Handles the ROTATE event during pause.
+     * Ignores the event and returns current view data.
+     * 
+     * @param event the move event (ignored)
+     * @return ViewData containing the current board state
      */
+    @Override
     public ViewData onRotateEvent(MoveEvent event) {
-        // Do nothing during pause
         return board.getViewData();
     }
 
-    @Override
     /**
-     * Handles the ROTATE_CCW event. Does nothing during pause.
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the current brick position and shape.
+     * Handles the ROTATE_CCW (counterclockwise) event during pause.
+     * Ignores the event and returns current view data.
+     * 
+     * @param event the move event (ignored)
+     * @return ViewData containing the current board state
      */
+    @Override
     public ViewData onRotateCCWEvent(MoveEvent event) {
-        // Do nothing during pause
         return board.getViewData();
     }
 
-    @Override
     /**
-     * Handles a request to pause or unpause the game. Unpauses the game.
-     * @return A new PlayingState instance.
+     * Handles a request to unpause the game.
+     * Transitions back to PlayingState, resuming the game from where it was paused.
+     * 
+     * @return the PlayingState instance for resuming the game
      */
+    @Override
     public GameState handlePauseRequest() {
-        // Unpause: return a new PlayingState instance
-        return new PlayingState(board, guiController, stateContext); // Preserve context for transitions
+        return new PlayingState(board, guiController, stateContext);
     }
 
-    @Override
     /**
-     * Handles a request to start a new game. Delegates to PlayingState.
-     * @return The state representing the start of a new game (e.g., PlayingState).
+     * Handles a request to start a new game.
+     * Transitions to PlayingState and initializes a new game.
+     * 
+     * @return the PlayingState instance for the new game
      */
+    @Override
     public GameState handleNewGameRequest() {
-        // Start new game: delegate to PlayingState (which needs GameController ref for transitions)
-        // This creates a temporary PlayingState just to call handleNewGameRequest, which returns a new PlayingState.
-        // This new PlayingState will be the one set by GameController.
         return new PlayingState(board, guiController, stateContext).handleNewGameRequest();
     }
 }

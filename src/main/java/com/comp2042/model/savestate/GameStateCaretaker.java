@@ -7,14 +7,21 @@ import java.util.Stack;
  * Stores and restores snapshots without accessing their internal state.
  * Maintains limited history stack (max 10) for undo operations.
  * 
+ * <p><b>Note:</b> This class is currently only used in tests.
+ * It is retained for Memento Pattern completeness and potential future undo/redo functionality.
+ * 
  * @author Dong, Jia.
+ * @apiNote Reserved for Memento Pattern completeness - currently only used in tests
  */
+@SuppressWarnings("unused")
 public class GameStateCaretaker {
     
     private final Stack<GameStateMemento> mementoHistory;
-    private static final int MAX_HISTORY_SIZE = 10; // Limit history to prevent memory issues
+    private static final int MAX_HISTORY_SIZE = 10;
     
-    /** Constructs a GameStateCaretaker with empty history. */
+    /**
+     * Constructs a GameStateCaretaker with empty history.
+     */
     public GameStateCaretaker() {
         this.mementoHistory = new Stack<>();
     }
@@ -31,9 +38,8 @@ public class GameStateCaretaker {
         
         mementoHistory.push(memento);
         
-        // Limit history size to prevent memory issues
         if (mementoHistory.size() > MAX_HISTORY_SIZE) {
-            mementoHistory.remove(0); // Remove oldest
+            mementoHistory.removeFirst();
         }
     }
     
@@ -53,6 +59,7 @@ public class GameStateCaretaker {
      * Retrieves the most recent game state memento without removing it.
      * 
      * @return the most recent memento, or null if history is empty
+     * @apiNote Reserved for future use - not currently invoked
      */
     public GameStateMemento peekMemento() {
         if (mementoHistory.isEmpty()) {
@@ -74,6 +81,7 @@ public class GameStateCaretaker {
      * Gets the number of saved mementos in history.
      * 
      * @return the number of mementos
+     * @apiNote Reserved for future use - not currently invoked
      */
     public int getHistorySize() {
         return mementoHistory.size();
@@ -81,6 +89,8 @@ public class GameStateCaretaker {
     
     /**
      * Clears all saved mementos from history.
+     * 
+     * @apiNote Reserved for future use - not currently invoked
      */
     public void clearHistory() {
         mementoHistory.clear();
@@ -90,6 +100,7 @@ public class GameStateCaretaker {
      * Gets the maximum history size.
      * 
      * @return the maximum number of mementos that can be stored
+     * @apiNote Reserved for future use - not currently invoked
      */
     public int getMaxHistorySize() {
         return MAX_HISTORY_SIZE;

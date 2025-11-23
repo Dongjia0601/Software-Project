@@ -245,8 +245,13 @@ public class LevelSelectionController {
             if (bgImagePath != null && !bgImagePath.isEmpty()) {
                 // Remove leading slash if present for getResourceAsStream
                 String resourcePath = bgImagePath.startsWith("/") ? bgImagePath.substring(1) : bgImagePath;
-                Image themeImage = new Image(getClass().getClassLoader().getResourceAsStream(resourcePath));
-                themePreview.setImage(themeImage);
+                java.io.InputStream imageStream = getClass().getClassLoader().getResourceAsStream(resourcePath);
+                if (imageStream != null) {
+                    Image themeImage = new Image(imageStream);
+                    themePreview.setImage(themeImage);
+                } else {
+                    System.err.println("Warning: Failed to load theme image: " + resourcePath);
+                }
                 themePreview.setFitWidth(220);
                 themePreview.setFitHeight(130);
                 themePreview.setPreserveRatio(true);

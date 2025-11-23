@@ -1,8 +1,10 @@
 package com.comp2042.model.mode;
 
 /**
- * Player statistics tracker for two-player VS mode.
+ * Player statistics tracker for two-player mode.
  * Tracks lines cleared, attacks sent/received, combos, and detailed gameplay metrics.
+ * 
+ * @author Dong, Jia.
  */
 public class PlayerStats {
     
@@ -17,7 +19,10 @@ public class PlayerStats {
     private int hardDrops = 0;         // Number of hard drops performed
     private int softDrops = 0;         // Number of soft drops performed
     
-    /** Constructs PlayerStats with initial values. */
+    /**
+     * Constructs a PlayerStats instance with initial values.
+     * All statistics are reset to zero.
+     */
     public PlayerStats() {
         reset();
     }
@@ -39,7 +44,10 @@ public class PlayerStats {
         softDrops = 0;
     }
     
-    /** Starts the game timer after countdown completes. */
+    /**
+     * Starts the game timer after countdown completes.
+     * Records the current system time as the game start time.
+     */
     public void startGameTime() {
         gameStartTime = System.currentTimeMillis();
     }

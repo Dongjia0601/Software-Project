@@ -5,6 +5,8 @@ import com.comp2042.controller.factory.GameModeType;
 /**
  * Immutable game session result with score, statistics, and completion status.
  * Supports all game modes with mode-specific metrics.
+ * 
+ * @author Dong, Jia.
  */
 public class GameResult {
 
@@ -41,47 +43,85 @@ public class GameResult {
         this.completed = completed;
     }
 
-    /** Gets final score. */
+    /**
+     * Gets the final score achieved in this game session.
+     * 
+     * @return the final score value
+     */
     public int getFinalScore() {
         return finalScore;
     }
 
-    /** Gets high score for this mode. */
+    /**
+     * Gets the high score for this game mode.
+     * 
+     * @return the high score value
+     */
     public int getHighScore() {
         return highScore;
     }
 
-    /** Checks if new high score. */
+    /**
+     * Checks if this game session achieved a new high score.
+     * 
+     * @return true if this is a new high score, false otherwise
+     */
     public boolean isNewHighScore() {
         return isNewHighScore;
     }
 
-    /** Gets game mode. */
+    /**
+     * Gets the game mode that was played.
+     * 
+     * @return the game mode type
+     */
     public GameModeType getGameMode() {
         return gameMode;
     }
 
-    /** Gets play time in milliseconds. */
+    /**
+     * Gets the total play time in milliseconds.
+     * 
+     * @return play time in milliseconds
+     */
     public long getPlayTime() {
         return playTime;
     }
 
-    /** Gets lines cleared count. */
+    /**
+     * Gets the total number of lines cleared in this game session.
+     * 
+     * @return the lines cleared count
+     */
     public int getLinesCleared() {
         return linesCleared;
     }
 
-    /** Gets level reached (0 for endless). */
+    /**
+     * Gets the level reached in this game session.
+     * 
+     * @return the level number (0 for endless mode)
+     * @apiNote Reserved for future use - not currently invoked. Level information
+     *          is available through other means in the current implementation.
+     */
     public int getLevelReached() {
         return levelReached;
     }
 
-    /** Checks if completed successfully. */
+    /**
+     * Checks if the game was completed successfully.
+     * 
+     * @return true if completed, false if game over
+     */
     public boolean isCompleted() {
         return completed;
     }
 
-    /** Gets formatted play time as MM:SS. */
+    /**
+     * Gets formatted play time as MM:SS.
+     * 
+     * @return formatted time string (e.g., "05:23")
+     */
     public String getFormattedPlayTime() {
         long seconds = playTime / 1000;
         long minutes = seconds / 60;

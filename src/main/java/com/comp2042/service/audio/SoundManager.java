@@ -22,11 +22,10 @@ public class SoundManager {
     private double sfxVolume = 0.8;
     private double musicVolume = 0.5;
     
-    private Map<String, Media> mediaCache = new HashMap<>();
+    private final Map<String, Media> mediaCache = new HashMap<>();
     private MediaPlayer backgroundMusicPlayer;
     private MediaPlayer countdownSoundPlayer;
-    private boolean isCountdownSoundPlaying = false;
-    private AtomicLong lastMoveSoundTime = new AtomicLong(0);
+    private final AtomicLong lastMoveSoundTime = new AtomicLong(0);
     private static final long MOVE_SOUND_THROTTLE_MS = 120;
     
     private SoundManager() {
@@ -56,7 +55,12 @@ public class SoundManager {
         }
         
         try {
-            URI uri = getClass().getResource("/" + resourcePath).toURI();
+            java.net.URL resource = getClass().getResource("/" + resourcePath);
+            if (resource == null) {
+                System.err.println("Audio resource not found: " + resourcePath);
+                return null;
+            }
+            URI uri = resource.toURI();
             Media media = new Media(uri.toString());
             mediaCache.put(resourcePath, media);
             return media;
@@ -69,7 +73,7 @@ public class SoundManager {
     private void playSound(String resourcePath) {
         if (!soundEnabled) return;
         
-            Media media = loadMedia(resourcePath);
+        Media media = loadMedia(resourcePath);
         if (media == null) return;
         
         if (Platform.isFxApplicationThread()) {
@@ -84,7 +88,7 @@ public class SoundManager {
             MediaPlayer player = new MediaPlayer(media);
             player.setVolume(masterVolume * sfxVolume);
             
-            player.setOnEndOfMedia(() -> player.dispose());
+            player.setOnEndOfMedia(player::dispose);
             player.setOnError(() -> {
                 System.err.println("MediaPlayer error: " + player.getError());
                 player.dispose();
@@ -96,13 +100,13 @@ public class SoundManager {
         }
     }
     
-    private void playSoundThrottled(String resourcePath, long throttleMs) {
+    private void playSoundThrottled(String resourcePath) {
         if (!soundEnabled) return;
         
         long currentTime = System.currentTimeMillis();
         long lastTime = lastMoveSoundTime.get();
         
-        if (currentTime - lastTime < throttleMs) {
+        if (currentTime - lastTime < MOVE_SOUND_THROTTLE_MS) {
             return;
         }
         
@@ -132,30 +136,21 @@ public class SoundManager {
      * @param linesCleared the number of lines cleared (1-4)
      */
     public void playLineClearSound(int linesCleared) {
-        String soundFile;
-        switch (linesCleared) {
-            case 1:
-                soundFile = "audio/CLear1SFX.mp3";
-                break;
-            case 2:
-                soundFile = "audio/Clear2SFX.mp3";
-                break;
-            case 3:
-                soundFile = "audio/CLear3SFX.mp3";
-                break;
-            case 4:
-                soundFile = "audio/CLear4SFX.mp3";
-                break;
-            default:
-                soundFile = "audio/CLear1SFX.mp3";
-                break;
-        }
+        String soundFile = switch (linesCleared) {
+            case 1 -> "audio/CLear1SFX.mp3";
+            case 2 -> "audio/Clear2SFX.mp3";
+            case 3 -> "audio/CLear3SFX.mp3";
+            case 4 -> "audio/CLear4SFX.mp3";
+            default -> "audio/CLear1SFX.mp3";
+        };
         playSound(soundFile);
     }
     
     /**
      * Plays a line clear sound effect (default - single line).
      * Maintains backward compatibility.
+     * 
+     * @apiNote Reserved for backward compatibility - not currently invoked
      */
     public void playLineClearSound() {
         playLineClearSound(1);
@@ -165,8 +160,9 @@ public class SoundManager {
      * Plays a combo sound effect.
      * 
      * @param comboCount the combo count
+     * @apiNote Parameter reserved for future use - currently plays same sound for all combos
      */
-    public void playComboSound(int comboCount) {
+    public void playComboSound(@SuppressWarnings("unused") int comboCount) {
         playSound("audio/CLear4SFX.mp3");
     }
     
@@ -183,11 +179,8 @@ public class SoundManager {
             countdownSoundPlayer = null;
         }
         
-        isCountdownSoundPlaying = false;
         Media media = loadMedia("audio/RaceCountdownSFX.mp3");
         if (media == null) return;
-        
-        isCountdownSoundPlaying = true;
         
         if (Platform.isFxApplicationThread()) {
             playCountdownSoundOnFxThread(media);
@@ -206,7 +199,6 @@ public class SoundManager {
                     countdownSoundPlayer.dispose();
                     countdownSoundPlayer = null;
                 }
-                isCountdownSoundPlaying = false;
             });
             
             countdownSoundPlayer.setOnError(() -> {
@@ -215,7 +207,6 @@ public class SoundManager {
                     countdownSoundPlayer.dispose();
                     countdownSoundPlayer = null;
                 }
-                isCountdownSoundPlaying = false;
             });
             
             countdownSoundPlayer.play();
@@ -225,7 +216,6 @@ public class SoundManager {
                 countdownSoundPlayer.dispose();
                 countdownSoundPlayer = null;
             }
-            isCountdownSoundPlaying = false;
         }
     }
     
@@ -238,7 +228,6 @@ public class SoundManager {
             countdownSoundPlayer.dispose();
             countdownSoundPlayer = null;
         }
-        isCountdownSoundPlaying = false;
     }
     
     /**
@@ -253,7 +242,7 @@ public class SoundManager {
      * Uses throttling to prevent too frequent playback during rapid soft drops.
      */
     public void playSoftDropSound() {
-        playSoundThrottled("audio/SoftDropSFX.mp3", MOVE_SOUND_THROTTLE_MS);
+        playSoundThrottled("audio/SoftDropSFX.mp3");
     }
     
     /**
@@ -275,7 +264,7 @@ public class SoundManager {
      * Uses throttling to prevent too frequent playback during rapid movements.
      */
     public void playMoveSound() {
-        playSoundThrottled("audio/MoveBrickSFX.mp3", MOVE_SOUND_THROTTLE_MS);
+        playSoundThrottled("audio/MoveBrickSFX.mp3");
     }
     
     /**
@@ -283,7 +272,7 @@ public class SoundManager {
      * Uses throttling to prevent too frequent playback during rapid rotations.
      */
     public void playRotateSound() {
-        playSoundThrottled("audio/RotateSFX.mp3", MOVE_SOUND_THROTTLE_MS);
+        playSoundThrottled("audio/RotateSFX.mp3");
     }
     
     /**
@@ -294,7 +283,7 @@ public class SoundManager {
     }
     
     /**
-     * Plays a garbage lines sound effect (for Two-Player Mode).
+     * Plays garbage lines sound effect (for Two-Player Mode).
      */
     public void playGarbageLinesSound() {
         playSound("audio/GarbageLinesSFX.mp3");
@@ -410,9 +399,8 @@ public class SoundManager {
                 backgroundMusicPlayer.setVolume(masterVolume * musicVolume);
                 backgroundMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
                 
-                backgroundMusicPlayer.setOnError(() -> {
-                    System.err.println("Background music error: " + backgroundMusicPlayer.getError());
-                });
+                backgroundMusicPlayer.setOnError(() -> 
+                    System.err.println("Background music error: " + backgroundMusicPlayer.getError()));
                 
                 backgroundMusicPlayer.play();
             } catch (Exception e) {
@@ -449,6 +437,8 @@ public class SoundManager {
     /**
      * Starts playing level background music in a loop.
      * Defaults to Level135BGM (level 1 music) for backward compatibility.
+     * 
+     * @apiNote Reserved for backward compatibility - not currently invoked
      */
     public void playLevelBackgroundMusic() {
         playLevelBackgroundMusic(1);
@@ -469,6 +459,8 @@ public class SoundManager {
     
     /**
      * Pauses the background music.
+     * 
+     * @apiNote Reserved for future use - not currently invoked
      */
     public void pauseBackgroundMusic() {
         Platform.runLater(() -> {
@@ -493,6 +485,7 @@ public class SoundManager {
      * Sets whether sounds are enabled.
      * 
      * @param enabled true to enable sounds, false to disable
+     * @apiNote Reserved for future use - not currently invoked
      */
     public void setSoundEnabled(boolean enabled) {
         this.soundEnabled = enabled;
@@ -509,6 +502,7 @@ public class SoundManager {
      * Gets whether sounds are enabled.
      * 
      * @return true if sounds are enabled, false otherwise
+     * @apiNote Reserved for future use - not currently invoked
      */
     public boolean isSoundEnabled() {
         return soundEnabled;
@@ -531,6 +525,8 @@ public class SoundManager {
      * Gets the master volume level.
      * 
      * @return master volume level (0.0 to 1.0)
+     * @apiNote Reserved for future use - not currently invoked.
+     *          Application uses GameSettings.getMasterVolume() as the source of truth.
      */
     public double getMasterVolume() {
         return masterVolume;
@@ -550,6 +546,8 @@ public class SoundManager {
      * Gets the volume level for sound effects (before master volume).
      * 
      * @return sound effects volume level (0.0 to 1.0)
+     * @apiNote Reserved for future use - not currently invoked. 
+     *          Application uses GameSettings.getSfxVolume() as the source of truth.
      */
     public double getSfxVolume() {
         return sfxVolume;
@@ -571,6 +569,8 @@ public class SoundManager {
      * Gets the volume level for background music (before master volume).
      * 
      * @return music volume level (0.0 to 1.0)
+     * @apiNote Reserved for future use - not currently invoked.
+     *          Application uses GameSettings.getMusicVolume() as the source of truth.
      */
     public double getMusicVolume() {
         return musicVolume;

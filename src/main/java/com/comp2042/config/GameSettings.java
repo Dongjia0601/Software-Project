@@ -1,6 +1,9 @@
 package com.comp2042.config;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -20,8 +23,23 @@ import java.util.Properties;
 public class GameSettings {
     
     private static GameSettings instance;
-    private static final String SETTINGS_DIR = System.getProperty("user.home") + File.separator + ".tetris";
+    private static final String SETTINGS_DIR = getSettingsDirectory();
     private static final String SETTINGS_FILE_NAME = "tetris_settings.properties";
+    
+    /**
+     * Gets the settings directory path, with fallback if user.home is not available.
+     * 
+     * @return the settings directory path
+     */
+    private static String getSettingsDirectory() {
+        String userHome = System.getProperty("user.home");
+        if (userHome == null || userHome.isEmpty()) {
+            // Fallback to current directory if user.home is not available
+            System.err.println("Warning: user.home system property not available, using current directory for settings");
+            return "." + File.separator + ".tetris";
+        }
+        return userHome + File.separator + ".tetris";
+    }
     
     /**
      * Retrieves the settings file path in the user's home directory.
@@ -52,7 +70,6 @@ public class GameSettings {
     /** Piece randomization algorithm: "seven_bag" or "pure_random" */
     private String pieceRandomizer;
     
-    // Default values
     private static final double DEFAULT_MASTER_VOLUME = 0.7;
     private static final double DEFAULT_MUSIC_VOLUME = 0.5;
     private static final double DEFAULT_SFX_VOLUME = 0.8;

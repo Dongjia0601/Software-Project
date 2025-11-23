@@ -6,7 +6,6 @@ import com.comp2042.event.EventSource;
 import com.comp2042.event.listener.InputEventListener;
 import com.comp2042.dto.ViewData;
 import com.comp2042.dto.DownData;
-import com.comp2042.*;
 import javafx.beans.property.BooleanProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -179,12 +178,10 @@ public class GameInputHandler {
      * @param keyEvent the KeyEvent containing information about the key press
      */
     public void handleKeyPressEvent(KeyEvent keyEvent) {
-        // Handle global controls (pause, new game, mute)
         if (handleGlobalControls(keyEvent)) {
             return;
         }
         
-        // Only handle game controls if not paused or game over
         if (!isPause.getValue() && !isGameOver.getValue()) {
             if (isTwoPlayerMode) {
                 handleTwoPlayerControls(keyEvent);
@@ -201,7 +198,6 @@ public class GameInputHandler {
      * @return true if the event was handled, false otherwise
      */
     private boolean handleGlobalControls(KeyEvent keyEvent) {
-        // Pause/Unpause (P key)
         if (keyEvent.getCode() == KeyCode.P) {
             if (callbacks != null) {
                 callbacks.onPauseRequested();
@@ -210,7 +206,6 @@ public class GameInputHandler {
             return true;
         }
         
-        // New game (N key)
         if (keyEvent.getCode() == KeyCode.N) {
             if (callbacks != null) {
                 callbacks.onNewGameRequested();
@@ -219,7 +214,6 @@ public class GameInputHandler {
             return true;
         }
         
-        // Toggle mute (M key)
         if (keyEvent.getCode() == KeyCode.M) {
             if (callbacks != null) {
                 callbacks.onMuteToggleRequested();
@@ -304,13 +298,11 @@ public class GameInputHandler {
     private void handleTwoPlayerControls(KeyEvent keyEvent) {
         KeyCode code = keyEvent.getCode();
         
-        // Check if eventListener is null (e.g., during countdown)
         if (eventListener == null || callbacks == null) {
             keyEvent.consume();
             return;
         }
         
-        // === Player 1 Controls (WASD Keys) ===
         if (code == KeyCode.A) {
             ViewData result = eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_1));
             if (result != null) callbacks.onRefreshPlayer1Brick(result);
@@ -347,14 +339,11 @@ public class GameInputHandler {
             keyEvent.consume();
         }
         
-        // === Player 2 Numpad Controls (CHECK FIRST before arrow keys) ===
-        // Check by name as well to catch all variations
         String codeName = code.name();
         boolean isNumpad0 = code == KeyCode.DIGIT0 || code == KeyCode.NUMPAD0 || codeName.equals("NUMPAD0") || codeName.equals("DIGIT0");
         boolean isNumpad2 = code == KeyCode.DIGIT2 || code == KeyCode.NUMPAD2 || codeName.equals("NUMPAD2") || codeName.equals("DIGIT2");
         boolean isNumpad3 = code == KeyCode.DIGIT3 || code == KeyCode.NUMPAD3 || codeName.equals("NUMPAD3") || codeName.equals("DIGIT3");
         
-        // 0: Hard Drop
         if (isNumpad0) {
             DownData downData = eventListener.onDownEvent(new MoveEvent(EventType.HARD_DROP, EventSource.KEYBOARD_PLAYER_2));
             if (downData != null) {
@@ -362,7 +351,6 @@ public class GameInputHandler {
             }
             keyEvent.consume();
         }
-        // 2: Rotate CCW (Counter-Clockwise)
         else if (isNumpad2) {
             ViewData result = eventListener.onRotateCCWEvent(new MoveEvent(EventType.ROTATE_CCW, EventSource.KEYBOARD_PLAYER_2));
             if (result != null) {
@@ -370,7 +358,6 @@ public class GameInputHandler {
             }
             keyEvent.consume();
         }
-        // 3: Hold
         else if (isNumpad3) {
             ViewData result = eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.KEYBOARD_PLAYER_2));
             if (result != null) {
@@ -378,11 +365,9 @@ public class GameInputHandler {
             }
             keyEvent.consume();
         }
-        // 1: No function assigned (consumed to prevent other handlers)
         else if (code == KeyCode.DIGIT1 || code == KeyCode.NUMPAD1) {
             keyEvent.consume();
         }
-        // === Player 2 Controls (Arrow Keys) ===
         else if (code == KeyCode.LEFT) {
             ViewData result = eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.KEYBOARD_PLAYER_2));
             if (result != null) callbacks.onRefreshPlayer2Brick(result);

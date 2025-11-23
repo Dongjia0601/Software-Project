@@ -1,9 +1,7 @@
 package com.comp2042.model.state;
 
-import com.comp2042.*;
 import com.comp2042.model.board.Board;
 import com.comp2042.controller.game.GuiController;
-import com.comp2042.model.state.GameStateContext;
 import com.comp2042.dto.DownData;
 import com.comp2042.dto.ViewData;
 import com.comp2042.dto.ClearRow;
@@ -14,20 +12,35 @@ import com.comp2042.service.audio.SoundManager;
 
 /**
  * Active playing state implementing core gameplay logic (State Pattern).
- * Processes player input, manages brick movement, handles row clearing, and detects game over.
+ * 
+ * <p>This is the primary game state where all gameplay occurs. In this state, the game
+ * processes player input, manages brick movement and rotation, handles row clearing,
+ * updates scores, and detects game over conditions. The state handles transitions to
+ * PausedState (when pause is requested) and GameOverState (when game ends).
+ * 
+ * <p><b>State Behavior:</b>
+ * <ul>
+ *   <li>Processes all movement/rotation events and updates board state</li>
+ *   <li>Handles hard drop and soft drop with scoring</li>
+ *   <li>Manages row clearing, score updates, and sound effects</li>
+ *   <li>Detects game over conditions and level completion</li>
+ *   <li>Pause requests transition to PausedState</li>
+ *   <li>New game requests reset the board and return to PlayingState</li>
+ * </ul>
  * 
  * @author Dong, Jia.
  */
 public class PlayingState implements GameState {
-    private final Board board; // Reference to the main game board logic
-    private final GuiController guiController; // Reference to update UI (e.g., show game over)
-    private final GameStateContext stateContext; // For state transitions
+    private final Board board;
+    private final GuiController guiController;
+    private final GameStateContext stateContext;
 
     /**
      * Constructs a PlayingState instance.
-     * @param board The game board instance.
-     * @param guiController The GUI controller instance.
-     * @param gameController The main game controller instance for state transitions.
+     * 
+     * @param board the game board instance
+     * @param guiController the GUI controller for UI updates
+     * @param stateContext the state context for state transitions
      */
     public PlayingState(Board board, GuiController guiController, GameStateContext stateContext) {
         this.board = board;
@@ -35,41 +48,43 @@ public class PlayingState implements GameState {
         this.stateContext = stateContext;
     }
 
-    @Override
     /**
      * Handles the DOWN event (both user-initiated and automatic descent).
-     * Implements the core game logic: move brick down, land if collision,
-     * merge to background, clear rows, update score, check for game over.
-     * @param event The MoveEvent containing event type and source.
-     * @return DownData containing view and row-clearing information.
+     * 
+     * <p>Implements the core game logic for downward movement:
+     * <ul>
+     *   <li>Hard drop: Instantly drops brick to bottom, adds score (2 points per row)</li>
+     *   <li>Soft drop: Moves brick down one row, adds score (1 point per move)</li>
+     *   <li>On landing: Merges brick to background, clears completed rows, updates score</li>
+     *   <li>After clearing: Creates new brick, checks for game over</li>
+     *   <li>Level mode: Checks for level completion and updates progress</li>
+     * </ul>
+     * 
+     * @param event the move event containing event type (DOWN, HARD_DROP) and source
+     * @return DownData containing view data and row-clearing information (null if no rows cleared)
      */
+    @Override
     public DownData onDownEvent(MoveEvent event) {
         boolean canMove;
         ClearRow clearRow = null;
         
         if (event.getEventType() == EventType.HARD_DROP) {
-            // Hard drop: instantly drop to bottom
             int dropDistance = board.hardDropBrick();
             if (dropDistance > 0) {
-                // Add score for hard drop (2 points per row dropped)
                 board.getScore().add(dropDistance * 2);
-                // Update score display immediately for hard drop with current high score
                 int currentHighScore = getCurrentHighScore();
                 guiController.updateScore(board.getScore().getScore(), currentHighScore);
-                // Play hard drop sound effect
                 SoundManager.getInstance().playHardDropSound();
             }
-            canMove = false; // Hard drop always lands the brick
+            canMove = false;
         } else {
-            // Normal soft drop: move down one position
             canMove = board.moveBrickDown();
         }
         
-        if (!canMove) { // Brick landed
+        if (!canMove) {
             board.mergeBrickToBackground();
             clearRow = board.clearRows();
             if (clearRow.getLinesRemoved() > 0) {
-                // Play line clear sound effect based on number of lines cleared
                 SoundManager.getInstance().playLineClearSound(clearRow.getLinesRemoved());
               
                 // Update lines display in GUI
@@ -94,13 +109,13 @@ public class PlayingState implements GameState {
                         // Check if level completion condition is met (target lines reached)
                         if (linesClearedInLevel >= currentLevel.getTargetLines()) {
                             // Level completed - complete the level in LevelManager first
-                            // This will update best stats and unlock next level
+                            // This will update the best stats and unlock next level
                             long playTimeMs = System.currentTimeMillis() - guiController.getLevelStartTime();
                             if (playTimeMs <= 0) {
                                 playTimeMs = 1; // Ensure positive time
                             }
                             
-                            // Complete the level in LevelManager to update best stats and unlock next level
+                            // Complete the level in LevelManager to update the best stats and unlock next level
                             boolean[] newRecords = levelManager.completeLevel(
                                 currentLevel.getLevelId(),
                                 board.getScore().getScore(),
@@ -117,7 +132,7 @@ public class PlayingState implements GameState {
                 }
             }
             if (board.createNewBrick()) { // Check for game over after landing/creating new brick
-                // Check if we're in Endless Mode and show appropriate game over screen
+
                 if (guiController.isEndlessMode()) {
                     guiController.showEndlessGameOverScene(board);
                 } else if (guiController.isLevelMode()) {
@@ -146,12 +161,14 @@ public class PlayingState implements GameState {
         return new DownData(clearRow, board.getViewData());
     }
 
-    @Override
     /**
      * Handles the LEFT event by attempting to move the brick left.
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
+     * Plays move sound effect if the movement is successful.
+     * 
+     * @param event the move event (ignored, but required by interface)
+     * @return ViewData containing the updated brick position and shape
      */
+    @Override
     public ViewData onLeftEvent(MoveEvent event) {
         boolean success = board.moveBrickLeft();
         if (success) {
@@ -161,12 +178,14 @@ public class PlayingState implements GameState {
         return board.getViewData();
     }
 
-    @Override
     /**
      * Handles the RIGHT event by attempting to move the brick right.
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
+     * Plays move sound effect if the movement is successful.
+     * 
+     * @param event the move event (ignored, but required by interface)
+     * @return ViewData containing the updated brick position and shape
      */
+    @Override
     public ViewData onRightEvent(MoveEvent event) {
         boolean success = board.moveBrickRight();
         if (success) {
@@ -176,12 +195,14 @@ public class PlayingState implements GameState {
         return board.getViewData();
     }
 
-    @Override
     /**
-     * Handles the ROTATE event by attempting to rotate the brick.
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
+     * Handles the ROTATE event by attempting to rotate the brick clockwise.
+     * Plays rotate sound effect if the rotation is successful.
+     * 
+     * @param event the move event (ignored, but required by interface)
+     * @return ViewData containing the updated brick position and shape
      */
+    @Override
     public ViewData onRotateEvent(MoveEvent event) {
         boolean success = board.rotateLeftBrick();
         if (success) {
@@ -191,12 +212,14 @@ public class PlayingState implements GameState {
         return board.getViewData();
     }
 
-    @Override
     /**
      * Handles the ROTATE_CCW event by attempting to rotate the brick counterclockwise.
-     * @param event The MoveEvent containing event type and source.
-     * @return ViewData containing the updated brick position and shape.
+     * Plays rotate sound effect if the rotation is successful.
+     * 
+     * @param event the move event (ignored, but required by interface)
+     * @return ViewData containing the updated brick position and shape
      */
+    @Override
     public ViewData onRotateCCWEvent(MoveEvent event) {
         boolean success = board.rotateRightBrick();
         if (success) {
@@ -206,27 +229,31 @@ public class PlayingState implements GameState {
         return board.getViewData();
     }
 
-    @Override
     /**
      * Handles a request to pause the game.
-     * @return A new PausedState instance.
+     * Transitions to PausedState, preserving the current game state.
+     * 
+     * @return the PausedState instance for the paused game
      */
+    @Override
     public GameState handlePauseRequest() {
         return new PausedState(board, guiController, stateContext);
     }
 
-    @Override
     /**
      * Handles a request to start a new game.
-     * Resets the board state and refreshes the background view.
-     * @return A new PlayingState instance initialized for a new game.
+     * 
+     * <p>Resets the board state, refreshes the UI (background, active brick, score, lines),
+     * and initializes game mode-specific displays (e.g., level progress for Level Mode).
+     * 
+     * @return a new PlayingState instance initialized for a new game
      */
+    @Override
     public GameState handleNewGameRequest() {
         board.newGame();
 
         guiController.refreshGameBackground(board.getBoardMatrix());
         guiController.refreshActiveBrick(board.getViewData());
-        // Update lines display - different for Endless vs Level Mode
         if (guiController.isEndlessMode()) {
             guiController.updateLines(0);
         } else if (guiController.isLevelMode()) {
@@ -239,16 +266,18 @@ public class PlayingState implements GameState {
         } else {
             guiController.updateLines(0);
         }
-        // Update score with current high score for new game
         int currentHighScore = getCurrentHighScore();
         guiController.updateScore(0, currentHighScore);
-        return new PlayingState(board, guiController, stateContext); // Return new PlayingState instance
+        return new PlayingState(board, guiController, stateContext);
     }
     
     /**
      * Gets the current high score from the leaderboard if in Endless Mode.
      * 
-     * @return the current high score, or 0 if not in Endless Mode
+     * <p>This method retrieves the highest score from the Endless Mode leaderboard
+     * for display purposes. Returns 0 if not in Endless Mode or if an error occurs.
+     * 
+     * @return the current high score from leaderboard, or 0 if not in Endless Mode or on error
      */
     private int getCurrentHighScore() {
         if (guiController != null && guiController.isEndlessMode()) {

@@ -16,7 +16,6 @@ public class BrickFactory {
     private static final Map<String, Class<? extends Brick>> BRICK_TYPES = new HashMap<>();
     
     static {
-        // Initialize brick type mappings
         BRICK_TYPES.put("I", IBrick.class);
         BRICK_TYPES.put("J", JBrick.class);
         BRICK_TYPES.put("L", LBrick.class);
@@ -101,25 +100,4 @@ public class BrickFactory {
         return BRICK_TYPES.containsKey(brickType.toUpperCase());
     }
     
-    /**
-     * Gets the number of available brick types.
-     * 
-     * @return Number of supported types (always 7)
-     */
-    public static int getBrickTypeCount() {
-        return BRICK_TYPES.size();
-    }
-    
-    /**
-     * Creates a brick with a specific color value (future extension point).
-     * Currently returns a standard brick; color customization not yet implemented.
-     * 
-     * @param brickType Type to create
-     * @param colorValue Color value (currently unused)
-     * @return New Brick instance
-     */
-    public static Brick createColoredBrick(String brickType, int colorValue) {
-        // Returns a standard brick; color customization can be added in the future
-        return createBrick(brickType);
-    }
 }

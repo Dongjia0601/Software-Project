@@ -1,6 +1,5 @@
 package com.comp2042.controller.factory;
 
-import com.comp2042.*;
 import com.comp2042.controller.game.GuiController;
 import com.comp2042.service.gameloop.GameService;
 import com.comp2042.model.mode.GameResult;
@@ -127,8 +126,8 @@ public class LevelGameModeImpl implements GameMode {
     public DownData onDownEvent(MoveEvent event) {
         DownData downData = gameService.processDownEvent(event);
 
-        if (downData != null && downData.getClearRow() != null) {
-            int linesCleared = downData.getClearRow().getLinesRemoved();
+        if (downData != null && downData.clearRow() != null) {
+            int linesCleared = downData.clearRow().getLinesRemoved();
             if (linesCleared > 0) {
                 this.linesClearedInLevel += linesCleared;
                 

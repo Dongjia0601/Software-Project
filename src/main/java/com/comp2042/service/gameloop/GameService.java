@@ -15,62 +15,100 @@ import com.comp2042.event.MoveEvent;
  */
 public interface GameService {
 
-    /** Gets the game board. */
+    /**
+     * Gets the game board instance.
+     * 
+     * @return the game board
+     */
     Board getBoard();
 
-    /** Gets the score tracker. */
+    /**
+     * Gets the score tracker instance.
+     * 
+     * @return the score tracker
+     */
     Score getScore();
 
-    /** Processes DOWN event. */
+    /**
+     * Processes a DOWN movement event.
+     * Moves the falling brick down one position and handles landing logic.
+     * 
+     * @param event the move event containing type and source
+     * @return down data containing view information and row-clearing results
+     */
     DownData processDownEvent(MoveEvent event);
 
-    /** Processes LEFT event. */
+    /**
+     * Processes a LEFT movement event.
+     * Moves the falling brick one position to the left.
+     * 
+     * @param event the move event containing type and source
+     * @return view data containing updated brick position and shape
+     */
     ViewData processLeftEvent(MoveEvent event);
 
-    /** Processes RIGHT event. */
+    /**
+     * Processes a RIGHT movement event.
+     * Moves the falling brick one position to the right.
+     * 
+     * @param event the move event containing type and source
+     * @return view data containing updated brick position and shape
+     */
     ViewData processRightEvent(MoveEvent event);
 
     /**
      * Processes a clockwise rotation event.
-     * @param event the move event
-     * @return the view data result
+     * Rotates the falling brick 90 degrees clockwise.
+     * 
+     * @param event the move event containing type and source
+     * @return view data containing updated brick position and rotated shape
      */
     ViewData processRotateEvent(MoveEvent event);
 
     /**
      * Processes a counterclockwise rotation event.
-     * @param event the move event
-     * @return the view data result
+     * Rotates the falling brick 90 degrees counterclockwise.
+     * 
+     * @param event the move event containing type and source
+     * @return view data containing updated brick position and rotated shape
      */
     ViewData processRotateCCWEvent(MoveEvent event);
 
     /**
-     * Sets the drop speed for the game.
-     * @param speed the new drop speed in milliseconds
+     * Sets the drop speed for automatic brick falling.
+     * Lower values result in faster falling.
+     * 
+     * @param speed the new drop speed in milliseconds between automatic drops
      */
     void setDropSpeed(int speed);
 
     /**
-     * Starts a new game.
+     * Starts a new game session.
+     * Resets the board, score, and spawns the first brick.
      */
     void startNewGame();
 
     /**
-     * Checks if the game is over.
+     * Checks if the game has ended.
+     * Game over occurs when a new brick cannot be spawned.
+     * 
      * @return true if the game is over, false otherwise
      */
     boolean isGameOver();
     
     /**
      * Processes a hold event.
-     * @param event the move event
-     * @return the view data result
+     * Swaps the current brick with the held brick, or stores the current brick if none is held.
+     * 
+     * @param event the move event containing type and source
+     * @return view data containing updated brick position and hold state
      */
     ViewData processHoldEvent(MoveEvent event);
     
     /**
-     * Gets the next brick shape data.
-     * @return the next brick shape matrix
+     * Gets the next brick shape data for preview display.
+     * 
+     * @return the next brick shape matrix, or null if unavailable
      */
     int[][] getNextBrick();
 }

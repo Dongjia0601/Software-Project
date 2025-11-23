@@ -1,6 +1,5 @@
 package com.comp2042.controller.strategy;
 
-import com.comp2042.dto.ViewData;
 import com.comp2042.model.mode.EndlessModeLeaderboard;
 import com.comp2042.view.manager.CommonUIManager;
 import com.comp2042.view.manager.EndlessModeUIManager;

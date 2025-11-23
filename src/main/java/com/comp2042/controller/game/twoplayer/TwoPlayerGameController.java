@@ -270,7 +270,7 @@ public class TwoPlayerGameController implements InputEventListener {
             return null;
         }
         DownData downData = onDownEvent(new MoveEvent(EventType.HARD_DROP, event.getEventSource()));
-        return downData != null ? downData.getViewData() : null;
+        return downData != null ? downData.viewData() : null;
     }
     
     @Override
@@ -280,10 +280,10 @@ public class TwoPlayerGameController implements InputEventListener {
         }
         DownData downData = onDownEvent(new MoveEvent(EventType.DOWN, event.getEventSource()));
         if (downData != null) {
-            if (!downData.isBrickLanded()) {
+            if (!downData.brickLanded()) {
                 updatePlayerScores();
             }
-            return downData.getViewData();
+            return downData.viewData();
         }
         return null;
     }

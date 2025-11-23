@@ -10,31 +10,27 @@ import com.comp2042.service.gameloop.GameService;
  */
 public class TwoPlayerModeMechanics {
 
-    // Attack power constants for VS mode (garbage lines sent to opponent)
-    private static final int SINGLE_LINE_ATTACK = 0;     // No attack for single line
-    private static final int DOUBLE_LINE_ATTACK = 1;     // 1 garbage line
-    private static final int TRIPLE_LINE_ATTACK = 2;     // 2 garbage lines
-    private static final int TETRIS_ATTACK = 4;          // 4 garbage lines (powerful!)
+    private static final int SINGLE_LINE_ATTACK = 0;
+    private static final int DOUBLE_LINE_ATTACK = 1;
+    private static final int TRIPLE_LINE_ATTACK = 2;
+    private static final int TETRIS_ATTACK = 4;
     private static final int NO_ATTACK = 0;
-    
-    // Combo defense constant
-    private static final int COMBO_DEFENSE_MULTIPLIER = 2;  // Lines eliminated per combo level
+    private static final int COMBO_DEFENSE_MULTIPLIER = 2;
     
     /**
      * Calculates attack power (1 line=0, 2=1, 3=2, 4=4 attacks).
-     * Uses named constants for better game balance tuning.
      * 
      * @param linesCleared Lines cleared
      * @return Attack power (garbage lines sent to opponent)
      */
     public int calculateAttackPower(int linesCleared) {
-        switch (linesCleared) {
-            case 1: return SINGLE_LINE_ATTACK;
-            case 2: return DOUBLE_LINE_ATTACK;
-            case 3: return TRIPLE_LINE_ATTACK;
-            case 4: return TETRIS_ATTACK;
-            default: return NO_ATTACK;
-        }
+        return switch (linesCleared) {
+            case 1 -> SINGLE_LINE_ATTACK;
+            case 2 -> DOUBLE_LINE_ATTACK;
+            case 3 -> TRIPLE_LINE_ATTACK;
+            case 4 -> TETRIS_ATTACK;
+            default -> NO_ATTACK;
+        };
     }
 
     /**
@@ -64,7 +60,6 @@ public class TwoPlayerModeMechanics {
 
     /**
      * Eliminates garbage lines from a player's board based on combo count.
-     * Uses COMBO_DEFENSE_MULTIPLIER for game balance.
      * 
      * @param targetService the game service of the player
      * @param comboCount the current combo count

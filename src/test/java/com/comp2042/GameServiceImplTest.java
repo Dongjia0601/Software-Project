@@ -65,7 +65,7 @@ class GameServiceImplTest {
         MoveEvent event = new MoveEvent(EventType.DOWN, EventSource.USER);
         DownData result = gameService.processDownEvent(event);
         assertNotNull(result);
-        assertNotNull(result.getViewData());
+        assertNotNull(result.viewData());
     }
 
     @Test
@@ -75,7 +75,7 @@ class GameServiceImplTest {
         MoveEvent event = new MoveEvent(EventType.HARD_DROP, EventSource.USER);
         DownData result = gameService.processDownEvent(event);
         assertNotNull(result);
-        assertTrue(result.isBrickLanded());
+        assertTrue(result.brickLanded());
     }
 
     @Test

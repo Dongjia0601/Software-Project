@@ -12,22 +12,17 @@ public class LevelMode {
     private final String levelName;
     private final LevelTheme theme;
 
-    // Difficulty parameters
-    private final int fallSpeed;          // ms per row drop
-    private final int targetLines;        // lines to clear for completion
-    private final int timeLimitSeconds;   // time limit in seconds
-
-    // Scoring parameters
-    private final int baseTargetScore;    // minimum score needed for 1 star
-    private final int threeStarTime;      // seconds needed for 3 stars (time-based)
-    private final int threeStarScore;     // score needed for 3 stars (score-based)
-    private final int twoStarScore;       // score needed for 2 stars
-
-    // Player progress (persistent state)
+    private final int fallSpeed;
+    private final int targetLines;
+    private final int timeLimitSeconds;
+    private final int baseTargetScore;
+    private final int threeStarTime;
+    private final int threeStarScore;
+    private final int twoStarScore;
     private boolean unlocked;
     private int bestStars;
     private int bestScore;
-    private long bestTime;                // best completion time in milliseconds
+    private long bestTime;
 
     /**
      * Constructs a LevelMode configuration.
@@ -57,15 +52,11 @@ public class LevelMode {
         this.twoStarScore = twoStarScore;
         this.threeStarScore = threeStarScore;
         this.threeStarTime = threeStarTime;
-
-        // Default state
-        this.unlocked = (levelId == 1); // Level 1 is always unlocked
+        this.unlocked = (levelId == 1);
         this.bestStars = 0;
         this.bestScore = 0;
-        this.bestTime = Long.MAX_VALUE; // Represents no time recorded
+        this.bestTime = Long.MAX_VALUE;
     }
-
-    // Getters
 
     /**
      * Gets the unique level identifier.
@@ -230,7 +221,6 @@ public class LevelMode {
             this.bestScore = score;
             isNewBestScore = true;
         }
-        // Update best time only if it's faster (smaller) and valid
         if (timeMillis < this.bestTime && timeMillis > 0) {
             this.bestTime = timeMillis;
             isNewBestTime = true;
@@ -260,22 +250,18 @@ public class LevelMode {
      * @return number of stars (0-3)
      */
     public int calculateStars(int score, int linesCleared, int completionTimeSeconds, boolean success) {
-        // Failed to complete basic objective
         if (!success || linesCleared < targetLines) {
             return 0;
         }
 
         int starsEarned = 0;
 
-        // 1 star: completed within time limit and reached target lines
         if (score >= baseTargetScore) {
             starsEarned = 1;
 
-            // Check for 2 stars: good score
             if (score >= twoStarScore) {
                 starsEarned = 2;
 
-                // Check for 3 stars: high score AND fast completion
                 if (score >= threeStarScore && completionTimeSeconds <= threeStarTime) {
                     starsEarned = 3;
                 }

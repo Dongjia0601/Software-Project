@@ -1,9 +1,10 @@
-// File: src/main/java/com/comp2042/game/LevelManager.java
 package com.comp2042.model.mode;
 
 import com.comp2042.view.theme.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 /**
@@ -230,16 +231,48 @@ public class LevelManager {
     }
 
     /**
-     * Manually unlocks a level (for testing/debugging).
+     * Manually unlocks a level.
+     * 
+     * <p><strong>WARNING: This method is intended for testing and debugging purposes only.</strong>
+     * It bypasses the normal level progression system and should not be called from production code.
+     * All calls to this method are logged for security auditing purposes.</p>
+     * 
+     * <p><strong>Security Note:</strong> This method is not accessible through the user interface
+     * and has no keyboard shortcuts or other user-accessible entry points. It is only used by
+     * unit tests to set up test scenarios.</p>
      *
-     * @param levelId the level ID to unlock
+     * @param levelId the level ID to unlock (1-based)
+     * @apiNote This method is part of the testing API and should not be used in production code.
+     *          Use {@link #completeLevel(int, int, int, long, boolean)} for normal level progression.
      */
     public void unlockLevel(int levelId) {
+        // Log access for security auditing
+        System.err.println("[LevelManager] SECURITY AUDIT: unlockLevel() called for level " + levelId + 
+                          " - Stack trace: " + getCallerInfo());
+        
         LevelMode level = getLevel(levelId);
         if (level != null) {
             level.unlock();
             saveProgress(); // Save after manual unlock
+            System.err.println("[LevelManager] Level " + levelId + " manually unlocked and progress saved");
+        } else {
+            System.err.println("[LevelManager] WARNING: Attempted to unlock invalid level ID: " + levelId);
         }
+    }
+    
+    /**
+     * Gets caller information for security logging.
+     * 
+     * @return a string containing the caller's class and method name
+     */
+    private String getCallerInfo() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        // Skip Thread.getStackTrace() and getCallerInfo() itself, get the actual caller
+        if (stackTrace.length > 3) {
+            StackTraceElement caller = stackTrace[3];
+            return caller.getClassName() + "." + caller.getMethodName() + ":" + caller.getLineNumber();
+        }
+        return "unknown";
     }
 
     /**
@@ -326,10 +359,11 @@ public class LevelManager {
 
             // Clear preferences
             prefs.clear(); // Clear all preferences under this node
-            prefs.flush(); // Force write to backing store
+            prefs.flush(); // Force write to back store
         } catch (Exception e) {
-            System.err.println("Failed to clear level progress  " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Failed to clear level progress: " + e.getMessage());
+            // Log full stack trace for debugging
+            System.err.println("Stack trace: " + java.util.Arrays.toString(e.getStackTrace()));
         }
     }
 
@@ -352,7 +386,8 @@ public class LevelManager {
             prefs.flush(); // Ensure data is written to persistent storage
         } catch (Exception e) {
             System.err.println("Failed to save level progress: " + e.getMessage());
-            e.printStackTrace();
+            // Log full stack trace for debugging
+            System.err.println("Stack trace: " + java.util.Arrays.toString(e.getStackTrace()));
         }
     }
 
@@ -362,7 +397,6 @@ public class LevelManager {
      */
     private void loadProgress() {
         try {
-            boolean anyProgressFound = false;
             for (LevelMode level : levels) {
                 int levelId = level.getLevelId();
                 String keyPrefix = PROGRESS_KEY_PREFIX + levelId + "_";
@@ -371,10 +405,6 @@ public class LevelManager {
                 int bestStars = prefs.getInt(keyPrefix + "bestStars", 0);
                 int bestScore = prefs.getInt(keyPrefix + "bestScore", 0);
                 long bestTime = prefs.getLong(keyPrefix + "bestTime", Long.MAX_VALUE);
-
-                if (unlocked || bestStars > 0 || bestScore > 0 || bestTime != Long.MAX_VALUE) {
-                    anyProgressFound = true;
-                }
 
                 // Apply loaded state
                 if (unlocked) {

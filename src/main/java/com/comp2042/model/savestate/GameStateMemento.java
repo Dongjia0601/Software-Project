@@ -1,7 +1,5 @@
 package com.comp2042.model.savestate;
 
-import java.awt.Point;
-
 /**
  * Memento storing complete game state snapshot (Memento Pattern).
  * Captures board matrix, brick state, score, hold/next bricks, and generator state.
@@ -11,31 +9,22 @@ import java.awt.Point;
  */
 public final class GameStateMemento {
     
-    // Board state
     private final int[][] boardMatrix;
     private final int boardWidth;
     private final int boardHeight;
-    
-    // Current brick state
     private final int[][] currentBrickShape;
     private final int currentBrickX;
     private final int currentBrickY;
     private final int currentShapeIndex;
-    private final String currentBrickType; // I, J, L, O, S, T, Z
-    
-    // Game statistics
+    private final String currentBrickType;
     private final int score;
     private final int totalLinesCleared;
-    
-    // Hold and next brick
     private final int[][] heldBrickShape;
     private final String heldBrickType;
     private final int[][] nextBrickShape;
     private final String nextBrickType;
     private final boolean canHold;
-    
-    // Brick generator state (for SevenBagBrickGenerator)
-    private final String brickGeneratorType; // "seven_bag" or "pure_random"
+    private final String brickGeneratorType;
     
     /**
      * Constructs a GameStateMemento with all game state information.
@@ -75,33 +64,23 @@ public final class GameStateMemento {
             boolean canHold,
             String brickGeneratorType) {
         
-        // Deep copy board matrix
         this.boardMatrix = deepCopyMatrix(boardMatrix);
         this.boardWidth = boardWidth;
         this.boardHeight = boardHeight;
-        
-        // Deep copy current brick shape
         this.currentBrickShape = deepCopyMatrix(currentBrickShape);
         this.currentBrickX = currentBrickX;
         this.currentBrickY = currentBrickY;
         this.currentShapeIndex = currentShapeIndex;
         this.currentBrickType = currentBrickType;
-        
-        // Game statistics
         this.score = score;
         this.totalLinesCleared = totalLinesCleared;
-        
-        // Hold and next brick (may be null)
         this.heldBrickShape = heldBrickShape != null ? deepCopyMatrix(heldBrickShape) : null;
         this.heldBrickType = heldBrickType;
         this.nextBrickShape = nextBrickShape != null ? deepCopyMatrix(nextBrickShape) : null;
         this.nextBrickType = nextBrickType;
         this.canHold = canHold;
-        
         this.brickGeneratorType = brickGeneratorType;
     }
-    
-    // Getters for all state information
     
     public int[][] getBoardMatrix() {
         return deepCopyMatrix(boardMatrix);
@@ -115,6 +94,12 @@ public final class GameStateMemento {
         return boardHeight;
     }
     
+    /**
+     * Gets the current brick's shape matrix.
+     * 
+     * @return a deep copy of the current brick shape matrix
+     * @apiNote Reserved for future use - not currently invoked
+     */
     public int[][] getCurrentBrickShape() {
         return deepCopyMatrix(currentBrickShape);
     }
@@ -143,6 +128,12 @@ public final class GameStateMemento {
         return totalLinesCleared;
     }
     
+    /**
+     * Gets the held brick's shape matrix.
+     * 
+     * @return a deep copy of the held brick shape matrix, or null if none
+     * @apiNote Reserved for future use - not currently invoked
+     */
     public int[][] getHeldBrickShape() {
         return heldBrickShape != null ? deepCopyMatrix(heldBrickShape) : null;
     }
@@ -151,6 +142,12 @@ public final class GameStateMemento {
         return heldBrickType;
     }
     
+    /**
+     * Gets the next brick's shape matrix.
+     * 
+     * @return a deep copy of the next brick shape matrix, or null if none
+     * @apiNote Reserved for future use - not currently invoked
+     */
     public int[][] getNextBrickShape() {
         return nextBrickShape != null ? deepCopyMatrix(nextBrickShape) : null;
     }
@@ -163,6 +160,12 @@ public final class GameStateMemento {
         return canHold;
     }
     
+    /**
+     * Gets the type of brick generator used.
+     * 
+     * @return the generator type ("seven_bag" or "pure_random")
+     * @apiNote Reserved for future use - not currently invoked
+     */
     public String getBrickGeneratorType() {
         return brickGeneratorType;
     }

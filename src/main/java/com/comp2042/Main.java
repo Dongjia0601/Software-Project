@@ -7,7 +7,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.util.ResourceBundle;
 
 /**
  * Main entry point for the Tetris application.
@@ -28,8 +27,10 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         // Load the main menu FXML file from the classpath
         URL location = getClass().getClassLoader().getResource("mainMenu.fxml");
-        ResourceBundle resources = null; // No internationalization needed for this project
-        FXMLLoader fxmlLoader = new FXMLLoader(location, resources);
+        if (location == null) {
+            throw new IllegalStateException("Cannot find mainMenu.fxml resource. Application cannot start.");
+        }
+        FXMLLoader fxmlLoader = new FXMLLoader(location);
         Parent root = fxmlLoader.load();
 
         // Configure the primary stage

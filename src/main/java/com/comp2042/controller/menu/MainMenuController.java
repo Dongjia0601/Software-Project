@@ -183,7 +183,12 @@ public class MainMenuController {
     private void setCenteredBackground() {
         try {
             // Load the background image
-            Image bgImage = new Image(getClass().getClassLoader().getResourceAsStream("images/backgrounds/main_menu_bg1.jpg"));
+            java.io.InputStream imageStream = getClass().getClassLoader().getResourceAsStream("images/backgrounds/main_menu_bg1.jpg");
+            if (imageStream == null) {
+                System.err.println("Warning: Failed to load main menu background image");
+                return;
+            }
+            Image bgImage = new Image(imageStream);
             
             // Window dimensions
             double windowWidth = 900.0;
@@ -334,7 +339,12 @@ public class MainMenuController {
         SoundManager.getInstance().playButtonClickSound();
         try {
             // Load the two-player game layout FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("twoPlayerGameLayout.fxml"));
+            java.net.URL fxmlResource = getClass().getClassLoader().getResource("twoPlayerGameLayout.fxml");
+            if (fxmlResource == null) {
+                System.err.println("Error: Cannot find twoPlayerGameLayout.fxml resource");
+                return;
+            }
+            FXMLLoader loader = new FXMLLoader(fxmlResource);
             Parent root = loader.load();
             
             // Get the GUI controller from the loaded FXML
@@ -349,7 +359,7 @@ public class MainMenuController {
             // Play two-player mode background music
             SoundManager.getInstance().playTwoPlayerBackgroundMusic();
             
-            // Create VS mode (it will create its own game services)
+            // Create Two-Player Mode (it will create its own game services)
             var gameMode = GameModeFactory.createGameMode(GameModeType.TWO_PLAYER_VS, null, guiController);
             
             // Create two-player game controller to manage both players
@@ -425,7 +435,11 @@ public class MainMenuController {
      */
     private void loadGameScene(GuiController guiController) throws IOException {
         // Load the enhanced game layout FXML
-        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("enhancedGameLayout.fxml"));
+        java.net.URL fxmlResource = getClass().getClassLoader().getResource("enhancedGameLayout.fxml");
+        if (fxmlResource == null) {
+            throw new IOException("Cannot find enhancedGameLayout.fxml resource");
+        }
+        FXMLLoader loader = new FXMLLoader(fxmlResource);
         Parent root = loader.load();
         
         // Set the controller
@@ -473,9 +487,12 @@ public class MainMenuController {
             settingsController.setupKeyboardHandling(settingsScene);
             
             // Apply the settings CSS
-            settingsScene.getStylesheets().add(
-                getClass().getResource("/settings.css").toExternalForm()
-            );
+            URL cssResource = getClass().getResource("/settings.css");
+            if (cssResource != null) {
+                settingsScene.getStylesheets().add(cssResource.toExternalForm());
+            } else {
+                System.err.println("Warning: Failed to load settings.css resource");
+            }
             
             // Switch to settings scene
             Stage stage = (Stage) endlessModeBtn.getScene().getWindow();
@@ -909,9 +926,12 @@ public class MainMenuController {
             // Create scene and show
             javafx.scene.Scene helpScene = new javafx.scene.Scene(scrollPane, 720, 560);
             // Load settings.css for shared styles including scrollbar
-            helpScene.getStylesheets().add(
-                MainMenuController.class.getResource("/settings.css").toExternalForm()
-            );
+            URL cssResource = MainMenuController.class.getResource("/settings.css");
+            if (cssResource != null) {
+                helpScene.getStylesheets().add(cssResource.toExternalForm());
+            } else {
+                System.err.println("Warning: Failed to load settings.css resource for help dialog");
+            }
             helpStage.setScene(helpScene);
             helpStage.show();
             

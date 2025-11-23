@@ -1,11 +1,12 @@
 package com.comp2042.model.board;
 
 import com.comp2042.model.brick.Brick;
-import com.comp2042.model.board.BrickRotator;
 
 /**
  * Manages the hold/swap mechanic for storing and swapping the current brick.
  * Enforces one hold per piece placement to prevent abuse.
+ * 
+ * @author Dong, Jia.
  */
 class HoldManager {
 
@@ -41,29 +42,49 @@ class HoldManager {
         return true;
     }
 
-    /** Gets the currently held brick. */
+    /**
+     * Gets the currently held brick.
+     * 
+     * @return the held brick, or null if no brick is held
+     */
     Brick getHeldBrick() {
         return heldBrick;
     }
 
-    /** Re-enables hold for the next brick. */
+    /**
+     * Re-enables hold functionality for the next brick.
+     * Called when a brick is placed to allow holding the next piece.
+     */
     void enableHold() {
         canHold = true;
     }
 
-    /** Resets hold state (clears held brick and re-enables). */
+    /**
+     * Resets hold state completely.
+     * Clears the held brick and re-enables hold functionality.
+     */
     void reset() {
         heldBrick = null;
         canHold = true;
     }
 
-    /** Restores hold state from memento. */
+    /**
+     * Restores hold state from a memento.
+     * Used for game state restoration (Memento Pattern).
+     * 
+     * @param heldBrick the brick to restore as held
+     * @param canHold whether hold is currently available
+     */
     void restoreState(Brick heldBrick, boolean canHold) {
         this.heldBrick = heldBrick;
         this.canHold = canHold;
     }
 
-    /** Checks if hold is currently available. */
+    /**
+     * Checks if hold functionality is currently available.
+     * 
+     * @return true if hold can be used, false if already used for current piece
+     */
     boolean canHold() {
         return canHold;
     }

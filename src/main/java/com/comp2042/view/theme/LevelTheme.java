@@ -6,13 +6,23 @@ package com.comp2042.view.theme;
  * 
  * <p>This interface belongs to the View layer as it only contains presentation-related
  * data (images, colors) and does not affect game logic or physics.
+ * 
+ * @author Dong, Jia.
  */
 public interface LevelTheme {
 
-    /** Gets the display name for UI. */
+    /**
+     * Gets the display name for this theme in the UI.
+     * 
+     * @return the theme name (e.g., "Ancient Temple")
+     */
     String getThemeName();
 
-    /** Gets the background image resource path. */
+    /**
+     * Gets the background image resource path.
+     * 
+     * @return the path to the background image resource
+     */
     String getBackgroundImage();
 
     /**

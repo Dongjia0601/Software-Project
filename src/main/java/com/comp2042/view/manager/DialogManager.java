@@ -95,7 +95,12 @@ public class DialogManager {
     public void showSettings(boolean isTwoPlayerMode) {
         try {
             // Load Settings FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Settings.fxml"));
+            java.net.URL fxmlResource = getClass().getResource("/Settings.fxml");
+            if (fxmlResource == null) {
+                System.err.println("Error: Cannot find Settings.fxml resource");
+                return;
+            }
+            FXMLLoader loader = new FXMLLoader(fxmlResource);
             Parent settingsRoot = loader.load();
             
             // Get the controller
@@ -118,7 +123,12 @@ public class DialogManager {
             double settingsWidth = isTwoPlayerMode ? 1400 : 900;
             double settingsHeight = isTwoPlayerMode ? 900 : 800;
             Scene settingsScene = new Scene(settingsRoot, settingsWidth, settingsHeight);
-            settingsScene.getStylesheets().add(getClass().getResource("/settingsStyle.css").toExternalForm());
+            java.net.URL cssResource = getClass().getResource("/settingsStyle.css");
+            if (cssResource != null) {
+                settingsScene.getStylesheets().add(cssResource.toExternalForm());
+            } else {
+                System.err.println("Warning: Failed to load settingsStyle.css resource");
+            }
             
             // Pass stage and previous scene to settings controller
             // Note: SettingsController handles stage and scene internally

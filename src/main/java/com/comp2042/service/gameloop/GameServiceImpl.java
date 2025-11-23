@@ -1,6 +1,5 @@
 package com.comp2042.service.gameloop;
 
-import com.comp2042.*;
 import com.comp2042.dto.DownData;
 import com.comp2042.dto.ViewData;
 import com.comp2042.dto.ClearRow;
@@ -30,8 +29,8 @@ import com.comp2042.model.score.Score;
 public class GameServiceImpl implements GameService {
     
     private final Board board;
-    private int dropSpeed = 400; // Default drop speed in milliseconds
-    private boolean gameOver = false; // Track game over state
+    private int dropSpeed = 400;
+    private boolean gameOver = false;
     
     /**
      * Constructs a GameServiceImpl with the specified board.
@@ -75,30 +74,23 @@ public class GameServiceImpl implements GameService {
         }
         
         boolean canMove;
-        // Support hard drop (instant drop to bottom)
         if (event != null && event.getEventType() == EventType.HARD_DROP) {
             int dropDistance = board.hardDropBrick();
             if (dropDistance > 0) {
-                // Match endless mode: 2 points per row hard-dropped
                 board.getScore().add(dropDistance * 2);
             }
-            // Force landing path below
             canMove = false;
         } else {
-            // Soft drop: move down one cell
             canMove = board.moveBrickDown();
         }
         ClearRow clearRow = null;
         
         if (!canMove) {
-            // Brick landed, merge to background and clear rows
             board.mergeBrickToBackground();
             clearRow = board.clearRows();
             
-            // Create new brick - this returns true if game over (collision at spawn)
             boolean newBrickGameOver = board.createNewBrick();
             if (newBrickGameOver) {
-                // Game over - player reached the top
                 gameOver = true;
                 return new DownData(clearRow, board.getViewData(), true, 0);
             }
@@ -133,12 +125,12 @@ public class GameServiceImpl implements GameService {
     
     @Override
     public void setDropSpeed(int speed) {
-        this.dropSpeed = Math.max(50, Math.min(2000, speed)); // Clamp between 50ms and 2000ms
+        this.dropSpeed = Math.max(50, Math.min(2000, speed));
     }
     
     @Override
     public void startNewGame() {
-        gameOver = false; // Reset game over state
+        gameOver = false;
         board.newGame();
     }
     
@@ -155,9 +147,6 @@ public class GameServiceImpl implements GameService {
     
     @Override
     public int[][] getNextBrick() {
-        // Get next brick from the board's brick generator
-        // Note: This method requires SimpleBoard-specific functionality
-        // For better DIP compliance, consider adding this to Board interface
         if (board instanceof SimpleBoard) {
             return ((SimpleBoard) board).getNextBrick();
         }
@@ -197,7 +186,6 @@ public class GameServiceImpl implements GameService {
      * @return true if the brick can move down, false otherwise
      */
     public boolean canMoveDown() {
-        // Movement validation is handled at the board level
         return true;
     }
     

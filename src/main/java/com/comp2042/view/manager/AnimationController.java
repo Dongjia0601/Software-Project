@@ -4,7 +4,15 @@ import java.util.List;
 import java.util.Collections;
 import java.util.ArrayList;
 import com.comp2042.service.audio.SoundManager;
-import javafx.animation.*;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
+import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -46,20 +54,16 @@ import javafx.util.Duration;
  */
 public class AnimationController {
     
-    // Timeline constants
     private static final int DEFAULT_DROP_DURATION_MS = 400;
     
-    // Timeline references
-    private Timeline gameLoopTimeline; // Main game loop for brick dropping
-    private Timeline timerTimeline; // Timer for elapsed time display
-    private Timeline levelTimeline; // Timer for level mode time limits
-    private Timeline countdownTimeline; // Countdown before game start
+    private Timeline gameLoopTimeline;
+    private Timeline timerTimeline;
+    private Timeline levelTimeline;
+    private Timeline countdownTimeline;
     
-    // UI component references for animations
-    private Group notificationGroup; // Group to hold notification panels
-    private BorderPane rootPane; // Root pane for overlay animations
+    private Group notificationGroup;
+    private BorderPane rootPane;
     
-    // Countdown state
     private StackPane countdownOverlay1;
     private StackPane countdownOverlay2;
     private Pane countdownParent1;

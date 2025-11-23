@@ -49,7 +49,6 @@ import com.comp2042.controller.menu.LevelGameOverController;
 import com.comp2042.view.panel.TwoPlayerGameOverPanel;
 import com.comp2042.controller.game.twoplayer.TwoPlayerGameController;
 import com.comp2042.model.board.*;
-import com.comp2042.model.mode.*;
 import com.comp2042.service.audio.*;
 import com.comp2042.dto.*;
 import com.comp2042.event.*;
@@ -454,8 +453,8 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
      */
     private boolean hasLinesCleared(DownData downData) {
         return downData != null && 
-               downData.getClearRow() != null && 
-               downData.getClearRow().getLinesRemoved() > 0;
+               downData.clearRow() != null &&
+               downData.clearRow().getLinesRemoved() > 0;
     }
     
     /**
@@ -1367,15 +1366,15 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                     // Pause game loop for animation
                     if (timeLine != null) timeLine.pause();
 
-                    NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
+                    NotificationPanel notificationPanel = new NotificationPanel("+" + downData.clearRow().getScoreBonus());
                     groupNotification.getChildren().add(notificationPanel);
                     notificationPanel.showScore(groupNotification.getChildren());
                     
                     // Animate row clearing
-                    animationController.animateRowClear(displayMatrix, downData.getClearRow().getClearedRows(), () -> {
+                    animationController.animateRowClear(displayMatrix, downData.clearRow().getClearedRows(), () -> {
                         // Force full refresh to reset visual properties (scale/opacity) modified by animation
                         cachedBoardMatrix = null;
-                        refreshGameBackground(downData.getClearRow().getNewMatrix());
+                        refreshGameBackground(downData.clearRow().getNewMatrix());
                         // Resume game loop if not paused or game over
                         if (timeLine != null && !isPause.getValue() && !isGameOver.getValue()) {
                             timeLine.play();
@@ -1384,14 +1383,14 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
 
                     // Endless progression: update on clear
                     if (isEndlessMode) {
-                        int removedLines = downData.getClearRow().getLinesRemoved();
+                        int removedLines = downData.clearRow().getLinesRemoved();
                         endlessLinesClearedUI += removedLines;
                         updateLines(endlessLinesClearedUI);
                         
                         applyEndlessProgression();
                     }
                 }
-                refreshBrick(downData.getViewData());
+                refreshBrick(downData.viewData());
             }
         }
         if (gamePanel != null) {
@@ -3368,23 +3367,23 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             return;
         }
         
-        refreshPlayer1Brick(downData.getViewData());
+        refreshPlayer1Brick(downData.viewData());
         
         // Update board background
         if (eventListener instanceof TwoPlayerGameController controller) {
             
             if (hasLinesCleared(downData)) {
                 // Animate row clearing then refresh
-                animationController.animateRowClear(twoPlayerPanelManager.getDisplayMatrix1(), downData.getClearRow().getClearedRows(), () -> {
+                animationController.animateRowClear(twoPlayerPanelManager.getDisplayMatrix1(), downData.clearRow().getClearedRows(), () -> {
                     // Force full refresh to reset visual properties
                     if (twoPlayerPanelManager != null) {
                         twoPlayerPanelManager.resetCache1();
                     }
-                    refreshGameBackground1(downData.getClearRow().getNewMatrix());
+                    refreshGameBackground1(downData.clearRow().getNewMatrix());
                 });
                 
                 // Notification
-                NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
+                NotificationPanel notificationPanel = new NotificationPanel("+" + downData.clearRow().getScoreBonus());
                 if (groupNotification1 != null) {
                     groupNotification1.getChildren().add(notificationPanel);
                     notificationPanel.showScore(groupNotification1.getChildren());
@@ -3398,23 +3397,23 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             updatePlayerScores(controller);
             
             // Check for game over - if brick landed and game is over
-            if (downData.isBrickLanded() && controller.getPlayer1Service().isGameOver()) {
+            if (downData.brickLanded() && controller.getPlayer1Service().isGameOver()) {
                 controller.checkGameOver();
             }
         } else {
             // Single Player Handling
-            refreshBrick(downData.getViewData()); // Using refreshBrick for Single Player compatibility
+            refreshBrick(downData.viewData()); // Using refreshBrick for Single Player compatibility
             
             if (hasLinesCleared(downData)) {
                 // Animate row clearing then refresh
-                animationController.animateRowClear(displayMatrix, downData.getClearRow().getClearedRows(), () -> {
+                animationController.animateRowClear(displayMatrix, downData.clearRow().getClearedRows(), () -> {
                     // Force full refresh to reset visual properties
                     cachedBoardMatrix = null;
-                    refreshGameBackground(downData.getClearRow().getNewMatrix());
+                    refreshGameBackground(downData.clearRow().getNewMatrix());
                 });
                 
                 // Notification
-                NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
+                NotificationPanel notificationPanel = new NotificationPanel("+" + downData.clearRow().getScoreBonus());
                 if (groupNotification != null) {
                     groupNotification.getChildren().add(notificationPanel);
                     notificationPanel.showScore(groupNotification.getChildren());
@@ -3422,7 +3421,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                 
                 // Endless progression: update on clear
                 if (isEndlessMode) {
-                    int removedLines = downData.getClearRow().getLinesRemoved();
+                    int removedLines = downData.clearRow().getLinesRemoved();
                     endlessLinesClearedUI += removedLines;
                     updateLines(endlessLinesClearedUI);
                     applyEndlessProgression();
@@ -3448,23 +3447,23 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             return;
         }
         
-        refreshPlayer2Brick(downData.getViewData());
+        refreshPlayer2Brick(downData.viewData());
         
         // Update board background
         if (eventListener instanceof TwoPlayerGameController controller) {
             
             if (hasLinesCleared(downData)) {
                 // Animate row clearing then refresh
-                animationController.animateRowClear(twoPlayerPanelManager.getDisplayMatrix2(), downData.getClearRow().getClearedRows(), () -> {
+                animationController.animateRowClear(twoPlayerPanelManager.getDisplayMatrix2(), downData.clearRow().getClearedRows(), () -> {
                     // Force full refresh to reset visual properties
                     if (twoPlayerPanelManager != null) {
                         twoPlayerPanelManager.resetCache2();
                     }
-                    refreshGameBackground2(downData.getClearRow().getNewMatrix());
+                    refreshGameBackground2(downData.clearRow().getNewMatrix());
                 });
                 
                 // Notification
-                NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
+                NotificationPanel notificationPanel = new NotificationPanel("+" + downData.clearRow().getScoreBonus());
                 if (groupNotification2 != null) {
                     groupNotification2.getChildren().add(notificationPanel);
                     notificationPanel.showScore(groupNotification2.getChildren());
@@ -3477,7 +3476,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             updatePlayerScores(controller);
             
             // Check for game over - if brick landed and game is over
-            if (downData.isBrickLanded() && controller.getPlayer2Service().isGameOver()) {
+            if (downData.brickLanded() && controller.getPlayer2Service().isGameOver()) {
                 controller.checkGameOver();
             }
         }

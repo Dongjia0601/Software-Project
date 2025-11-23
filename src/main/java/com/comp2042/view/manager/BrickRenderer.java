@@ -15,26 +15,22 @@ import javafx.scene.shape.Rectangle;
  */
 public class BrickRenderer {
     
-    // Constants
-    private static final int BRICK_SIZE = 25; // Size of a single brick cell in main game area
-    private static final int PREVIEW_BRICK_SIZE = 20; // Size of a single brick cell in preview panels
+    private static final int BRICK_SIZE = 25;
+    private static final int PREVIEW_BRICK_SIZE = 20;
     
-    // Rendering components
-    private final Pane brickPanel; // Pane for the currently falling brick
-    private final Pane ghostPanel; // Pane for the ghost piece display
-    private final GridPane holdPanel; // Grid for hold piece display
-    private final GridPane nextBrickPanel; // Grid for next piece display
-    private final GameBoardRenderer boardRenderer; // For position calculations
+    private final Pane brickPanel;
+    private final Pane ghostPanel;
+    private final GridPane holdPanel;
+    private final GridPane nextBrickPanel;
+    private final GameBoardRenderer boardRenderer;
     
-    // Display matrices
-    private Rectangle[][] rectangles; // Current falling brick rectangles
-    private Rectangle[][] ghostRectangles; // Ghost brick rectangles
-    private Rectangle[][] holdDisplayMatrix; // Hold display rectangles (4x4)
-    private Rectangle[][] nextDisplayMatrix; // Next display rectangles (4x4)
+    private Rectangle[][] rectangles;
+    private Rectangle[][] ghostRectangles;
+    private Rectangle[][] holdDisplayMatrix;
+    private Rectangle[][] nextDisplayMatrix;
     
-    // State
-    private boolean ghostEnabled = true; // Whether ghost piece should be displayed
-    private double currentBrickOpacity = 1.0; // Current brick opacity
+    private boolean ghostEnabled = true;
+    private double currentBrickOpacity = 1.0;
     
     /**
      * Constructs a BrickRenderer with the specified UI components.
@@ -95,7 +91,6 @@ public class BrickRenderer {
             }
         }
         
-        // Set initial position
         updateBrickPosition(brick);
     }
     
@@ -109,28 +104,22 @@ public class BrickRenderer {
             return;
         }
         
-        // Always update next and hold displays, regardless of pause state
-        // This ensures they are cleared when starting a new game
         if (brick.getNextBrickData() != null) {
             updateNextDisplay(brick.getNextBrickData());
         } else {
             updateNextDisplay(null);
         }
         
-        // Always update hold display to ensure it's cleared on new game
         updateHoldDisplay(brick.getHoldBrickData());
         
-        // Update brick position
         updateBrickPosition(brick);
         
-        // Update brick appearance
         for (int i = 0; i < brick.getBrickData().length && i < rectangles.length; i++) {
             for (int j = 0; j < brick.getBrickData()[i].length && j < rectangles[i].length; j++) {
                 setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
             }
         }
         
-        // Update ghost brick
         updateGhostBrick(brick);
     }
     
@@ -167,12 +156,10 @@ public class BrickRenderer {
         
         int ghostY = brick.getGhostYPosition();
         if (ghostY < 0 || ghostY == brick.getYPosition()) {
-            // Ghost position not calculated or same as current position, hide ghost
             ghostPanel.setVisible(false);
             return;
         }
         
-        // Position ghost panel
         if (boardRenderer != null) {
             ghostPanel.setLayoutX(boardRenderer.calculateGridX(brick.getXPosition()));
             ghostPanel.setLayoutY(boardRenderer.calculateGridY(ghostY));
@@ -184,15 +171,11 @@ public class BrickRenderer {
             for (int j = 0; j < brickData[i].length && j < ghostRectangles[i].length; j++) {
                 Rectangle ghostRect = ghostRectangles[i][j];
                 if (brickData[i][j] != 0) {
-                    // Show ghost rectangle for non-empty cells
                     ghostRect.setVisible(true);
-                    // Enhanced ghost brick appearance: semi-transparent fill with border
                     Paint brickColor = getFillColor(brickData[i][j]);
                     if (brickColor instanceof Color) {
                         Color color = (Color) brickColor;
-                        // Use semi-transparent fill (0.2 opacity for subtle effect)
                         ghostRect.setFill(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.2));
-                        // Add semi-transparent border with same color (0.6 opacity for visibility)
                         ghostRect.setStroke(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.6));
                         ghostRect.setStrokeWidth(2.0);
                     } else {
@@ -217,7 +200,6 @@ public class BrickRenderer {
             return;
         }
         
-        // Initialize next display matrix if not already done
         if (nextDisplayMatrix == null) {
             nextDisplayMatrix = new Rectangle[4][4];
             for (int i = 0; i < 4; i++) {
@@ -261,7 +243,6 @@ public class BrickRenderer {
             return;
         }
         
-        // Initialize hold display matrix if not already done
         if (holdDisplayMatrix == null) {
             holdDisplayMatrix = new Rectangle[4][4];
             for (int i = 0; i < 4; i++) {
@@ -283,7 +264,6 @@ public class BrickRenderer {
             }
         }
         
-        // Display the brick if data is provided
         if (holdBrickData != null) {
             for (int i = 0; i < holdBrickData.length && i < 4; i++) {
                 for (int j = 0; j < holdBrickData[i].length && j < 4; j++) {

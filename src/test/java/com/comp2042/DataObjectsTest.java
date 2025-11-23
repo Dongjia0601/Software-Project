@@ -210,10 +210,10 @@ class DataObjectsTest {
         
         DownData downData = new DownData(clearRow, viewData);
         
-        assertEquals(clearRow, downData.getClearRow());
-        assertEquals(viewData, downData.getViewData());
-        assertFalse(downData.isBrickLanded());
-        assertEquals(0, downData.getScoreBonus());
+        assertEquals(clearRow, downData.clearRow());
+        assertEquals(viewData, downData.viewData());
+        assertFalse(downData.brickLanded());
+        assertEquals(0, downData.scoreBonus());
     }
 
     @Test
@@ -224,8 +224,8 @@ class DataObjectsTest {
         
         DownData downData = new DownData(clearRow, viewData, true, 50);
         
-        assertTrue(downData.isBrickLanded());
-        assertEquals(50, downData.getScoreBonus());
+        assertTrue(downData.brickLanded());
+        assertEquals(50, downData.scoreBonus());
     }
 
     @Test

@@ -93,7 +93,7 @@ class SinglePlayerGameSessionTest {
         DownData result = session.handleDown(event);
         
         assertNotNull(result, "DownData should be returned");
-        assertNotNull(result.getViewData(), "ViewData should be included");
+        assertNotNull(result.viewData(), "ViewData should be included");
     }
 
     @Test

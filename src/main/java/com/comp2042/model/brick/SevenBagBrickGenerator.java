@@ -21,9 +21,7 @@ public class SevenBagBrickGenerator implements BrickGenerator {
      * Constructs a SevenBagBrickGenerator with an initial shuffled bag.
      */
     public SevenBagBrickGenerator() {
-        // Prime the queue with an initial bag so that getNextBrick() works
         refillIfNeeded();
-        // Ensure there is always at least one lookahead item as existing code expects
         if (queue.size() == 1) {
             refillIfNeeded();
         }
@@ -56,7 +54,6 @@ public class SevenBagBrickGenerator implements BrickGenerator {
      */
     private void refillIfNeeded() {
         if (queue.isEmpty()) {
-            // Build a fresh bag with one of each tetromino
             List<Brick> bag = new ArrayList<>(7);
             bag.add(new IBrick());
             bag.add(new JBrick());
@@ -65,12 +62,8 @@ public class SevenBagBrickGenerator implements BrickGenerator {
             bag.add(new SBrick());
             bag.add(new TBrick());
             bag.add(new ZBrick());
-            // Shuffle in-place to randomize order
             Collections.shuffle(bag);
-            // Append all to the queue
             queue.addAll(bag);
         }
     }
 }
-
-

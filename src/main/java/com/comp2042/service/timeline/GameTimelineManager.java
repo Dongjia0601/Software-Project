@@ -19,7 +19,9 @@ public class GameTimelineManager {
     private Runnable timeUpdateCallback;
     private java.util.function.IntConsumer levelTickCallback;
 
-    /** Constructs a manager without callbacks. Use setCallbacks() before starting timelines. */
+    /**
+     * Constructs a manager without callbacks. Use setCallbacks() before starting timelines.
+     */
     public GameTimelineManager() {
         initializeTimelines();
     }
@@ -63,9 +65,8 @@ public class GameTimelineManager {
         this.timeUpdateCallback = timeUpdateCallback;
         this.levelTickCallback = levelTickCallback;
 
-        // Reconfigure elapsed time timer with new callback
         if (elapsedTimeTimer != null) {
-        elapsedTimeTimer.getKeyFrames().clear();
+            elapsedTimeTimer.getKeyFrames().clear();
         if (timeUpdateCallback != null) {
             elapsedTimeTimer.getKeyFrames().add(new KeyFrame(Duration.seconds(1), e -> timeUpdateCallback.run()));
         }
@@ -85,7 +86,6 @@ public class GameTimelineManager {
         if (moveDownCallback == null) {
             throw new IllegalStateException("GameTimelineManager: moveDownCallback is null, set callbacks before starting");
         }
-        // If gameTimeline is null, reinitialize it
         if (gameTimeline == null) {
             if (Platform.isFxApplicationThread()) {
                 initializeTimelines();
@@ -93,7 +93,6 @@ public class GameTimelineManager {
                 throw new IllegalStateException("GameTimelineManager: gameTimeline is null and not on FX thread, cannot start game loop");
             }
         }
-        // Ensure we're on JavaFX thread before manipulating Timeline
         if (Platform.isFxApplicationThread()) {
             startGameLoopInternal(speed);
         } else {
@@ -113,7 +112,10 @@ public class GameTimelineManager {
         }
     }
 
-    /** Stops the game loop. */
+    /**
+     * Stops the game loop timeline.
+     * Prevents automatic brick falling until restarted.
+     */
     public void stopGameLoop() {
         if (gameTimeline != null) {
             gameTimeline.stop();
@@ -136,12 +138,12 @@ public class GameTimelineManager {
         if (moveDownCallback == null) {
             throw new IllegalStateException("GameTimelineManager: moveDownCallback is null, set callbacks first");
         }
-            boolean wasRunning = gameTimeline.getStatus() == javafx.animation.Animation.Status.RUNNING;
-            gameTimeline.stop();
-            gameTimeline.getKeyFrames().clear();
-            gameTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(newSpeed), e -> moveDownCallback.run()));
-            if (wasRunning) {
-                gameTimeline.play();
+        boolean wasRunning = gameTimeline.getStatus() == javafx.animation.Animation.Status.RUNNING;
+        gameTimeline.stop();
+        gameTimeline.getKeyFrames().clear();
+        gameTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(newSpeed), e -> moveDownCallback.run()));
+        if (wasRunning) {
+            gameTimeline.play();
         }
     }
 
@@ -157,12 +159,15 @@ public class GameTimelineManager {
         if (timeUpdateCallback == null) {
             throw new IllegalStateException("GameTimelineManager: timeUpdateCallback is null, set callbacks before starting");
         }
-            elapsedTimeTimer.getKeyFrames().clear();
-            elapsedTimeTimer.getKeyFrames().add(new KeyFrame(Duration.seconds(1), e -> timeUpdateCallback.run()));
-            elapsedTimeTimer.play();
+        elapsedTimeTimer.getKeyFrames().clear();
+        elapsedTimeTimer.getKeyFrames().add(new KeyFrame(Duration.seconds(1), e -> timeUpdateCallback.run()));
+        elapsedTimeTimer.play();
     }
 
-    /** Stops the elapsed time timer. */
+    /**
+     * Stops the elapsed time timer.
+     * Prevents further time updates until restarted.
+     */
     public void stopElapsedTimer() {
         if (elapsedTimeTimer != null) {
             elapsedTimeTimer.stop();
@@ -187,27 +192,33 @@ public class GameTimelineManager {
         if (levelTickCallback == null) {
             throw new IllegalStateException("GameTimelineManager: levelTickCallback is null, set callbacks before starting");
         }
-            currentCountdownSeconds = remainingSeconds;
-            levelTimer.stop();
-            levelTimer.getKeyFrames().clear();
-            levelTimer.getKeyFrames().add(new KeyFrame(Duration.seconds(1), e -> {
-                currentCountdownSeconds--;
-                levelTickCallback.accept(currentCountdownSeconds);
-                if (currentCountdownSeconds <= 0) {
-                    levelTimer.stop();
-                }
-            }));
-            levelTimer.play();
+        currentCountdownSeconds = remainingSeconds;
+        levelTimer.stop();
+        levelTimer.getKeyFrames().clear();
+        levelTimer.getKeyFrames().add(new KeyFrame(Duration.seconds(1), e -> {
+            currentCountdownSeconds--;
+            levelTickCallback.accept(currentCountdownSeconds);
+            if (currentCountdownSeconds <= 0) {
+                levelTimer.stop();
+            }
+        }));
+        levelTimer.play();
     }
 
-    /** Stops the level countdown timer. */
+    /**
+     * Stops the level countdown timer.
+     * Prevents further countdown updates until restarted.
+     */
     public void stopLevelTimer() {
         if (levelTimer != null) {
             levelTimer.stop();
         }
     }
 
-    /** Pauses all running timelines. */
+    /**
+     * Pauses all running timelines (game loop, elapsed time, level countdown).
+     * Game state is preserved and can be resumed.
+     */
     public void pauseAll() {
         if (gameTimeline != null) {
             gameTimeline.pause();
@@ -220,7 +231,10 @@ public class GameTimelineManager {
     }
     }
 
-    /** Resumes all paused timelines. */
+    /**
+     * Resumes all paused timelines (game loop, elapsed time, level countdown).
+     * Restores gameplay from paused state.
+     */
     public void resumeAll() {
         if (gameTimeline != null) {
             gameTimeline.play();
@@ -233,9 +247,10 @@ public class GameTimelineManager {
     }
     }
 
-    /** Stops all timelines completely. Must be called on JavaFX Application Thread. */
+    /**
+     * Stops all timelines completely. Must be called on JavaFX Application Thread.
+     */
     public void stopAll() {
-        // Ensure we're on JavaFX thread
         if (Platform.isFxApplicationThread()) {
             stopAllInternal();
         } else {
@@ -244,7 +259,6 @@ public class GameTimelineManager {
     }
     
     private void stopAllInternal() {
-        // Just stop and set to null immediately, let JavaFX handle cleanup
         if (gameTimeline != null) {
             try {
                 gameTimeline.stop();
@@ -271,32 +285,24 @@ public class GameTimelineManager {
         }
     }
     
-    /** Reinitializes all timelines. Call this after stopAll() to create fresh Timeline instances. 
-     * Must be called on JavaFX Application Thread. 
-     * 
-     * CRITICAL: This method stops old Timeline instances and immediately creates new ones.
-     * The old Timeline references are set to null, but the actual Timeline objects remain
-     * in memory until JavaFX animation system fully stops them. This is safe because:
-     * 1. We stop the Timeline before setting reference to null
-     * 2. We create new Timeline instances immediately
-     * 3. JavaFX will handle cleanup of stopped Timeline objects
-     * 
-     * The caller should use a PauseTransition delay before starting new game to ensure
-     * old Timeline instances are fully stopped. */
+    /**
+     * Reinitializes all timelines. Call this after stopAll() to create fresh Timeline instances.
+     * Must be called on JavaFX Application Thread.
+     */
     public void reinitializeTimelines() {
         if (!Platform.isFxApplicationThread()) {
             throw new IllegalStateException("reinitializeTimelines() must be called on JavaFX Application Thread");
         }
         
-        // Stop all timelines first (this is asynchronous, but we set references to null)
         stopAllInternal();
-        
-        // Immediately create new Timeline instances
-        // The old Timeline objects will be GC'd after JavaFX fully stops them
         initializeTimelines();
     }
 
-    /** @return true if game loop is running */
+    /**
+     * Checks if the game loop timeline is currently running.
+     * 
+     * @return true if the game loop is running, false otherwise
+     */
     public boolean isGameLoopRunning() {
         return gameTimeline != null && gameTimeline.getStatus() == javafx.animation.Animation.Status.RUNNING;
     }

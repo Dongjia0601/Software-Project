@@ -16,6 +16,10 @@ public final class LBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();
 
+    /**
+     * Constructs an L-shaped tetromino.
+     * Initializes the four rotational states.
+     */
     public LBrick() {
         brickMatrix.add(new int[][]{
                 {0, 3, 3, 3},
@@ -43,13 +47,23 @@ public final class LBrick implements Brick {
         });
     }
 
+    /**
+     * Gets a defensive copy of the shape matrix containing all rotational states.
+     * 
+     * @return a deep copy of the brick's shape matrix
+     */
     @Override
     public List<int[][]> getShapeMatrix() {
         return MatrixOperations.deepCopyList(brickMatrix);
     }
 
+    /**
+     * Gets the color for rendering this brick.
+     * 
+     * @return light green color matching standard Tetris L-piece
+     */
     @Override
     public Paint getColor() {
-        return Color.LIGHTGREEN;  // Green color for L-piece
+        return Color.LIGHTGREEN;
     }
 }

@@ -2,10 +2,7 @@ package com.comp2042.util;
 
 import com.comp2042.dto.ClearRow;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -31,46 +28,43 @@ public class MatrixOperations {
      * @return true if collision detected, false otherwise
      */
     public static boolean intersect(final int[][] matrix, final int[][] brick, int x, int y) {
-        // Iterate through the rows of the brick matrix
+        // Null and empty matrix checks
+        if (matrix == null || matrix.length == 0) {
+            return false; // Empty board, no collision
+        }
+        if (brick == null || brick.length == 0) {
+            return false; // Empty brick, no collision
+        }
+        
         int matrixHeight = matrix.length;
-        int matrixWidth = matrixHeight > 0 ? matrix[0].length : 0;
+        int matrixWidth = (matrixHeight > 0 && matrix[0] != null) ? matrix[0].length : 0;
 
         for (int i = 0; i < brick.length; i++) {
-            // Iterate through the columns of the brick matrix for the current row
             for (int j = 0; j < brick[i].length; j++) {
-                // Calculate the target coordinates on the main board matrix.
-                // The brick's top-left corner is at (x, y).
-                // So, the brick element at (i, j) maps to the board element at (y+i, x+j).
-                int targetY = y + i; // Target row on the board
-                int targetX = x + j; // Target column on the board
+                // Calculate target coordinates: brick element (i, j) maps to board (y+i, x+j)
+                int targetY = y + i;
+                int targetX = x + j;
 
-                // Check if the current brick cell is non-zero (part of the brick shape)
-                // and if placing it at (targetX, targetY) would cause a collision.
-                // Collision occurs if the target position is out of bounds or already occupied.
                 if (brick[i][j] != 0) {
-                    // Horizontal out-of-bounds: treat as collision
                     if (targetX < 0 || targetX >= matrixWidth) {
                         return true;
                     }
 
-                    // Below the board: treat as collision
                     if (targetY >= matrixHeight) {
                         return true;
                     }
 
-                    // Above the board: allow spawn buffer (no collision)
                     if (targetY < 0) {
                         continue;
                     }
 
-                    // Occupied cell: collision
                     if (matrix[targetY][targetX] != 0) {
                         return true;
                     }
                 }
             }
         }
-        return false; // No intersection found
+        return false;
     }
 
     /**
@@ -80,12 +74,23 @@ public class MatrixOperations {
      * @return A new matrix with copied values
      */
     public static int[][] copy(int[][] original) {
+        if (original == null) {
+            return null;
+        }
+        if (original.length == 0) {
+            return new int[0][];
+        }
+        
         int[][] copy = new int[original.length][];
         for (int i = 0; i < original.length; i++) {
             int[] originalRow = original[i];
-            int rowLength = originalRow.length;
-            copy[i] = new int[rowLength];
-            System.arraycopy(originalRow, 0, copy[i], 0, rowLength);
+            if (originalRow == null) {
+                copy[i] = null;
+            } else {
+                int rowLength = originalRow.length;
+                copy[i] = new int[rowLength];
+                System.arraycopy(originalRow, 0, copy[i], 0, rowLength);
+            }
         }
         return copy;
     }
@@ -101,29 +106,30 @@ public class MatrixOperations {
      * @return New board matrix with the brick merged
      */
     public static int[][] merge(int[][] filledFields, int[][] brick, int x, int y) {
-        int[][] newMatrix = copy(filledFields); // Start with a copy of the current board
+        if (filledFields == null) {
+            throw new IllegalArgumentException("filledFields cannot be null");
+        }
+        if (brick == null) {
+            return copy(filledFields); // No brick to merge
+        }
+        
+        int[][] newMatrix = copy(filledFields);
 
-        // Iterate through the rows of the brick matrix
         for (int i = 0; i < brick.length; i++) {
-            // Iterate through the columns of the brick matrix for the current row
             for (int j = 0; j < brick[i].length; j++) {
-                // Calculate the target coordinates on the main board matrix.
-                // The brick's top-left corner is at (x, y).
-                // So, the brick element at (i, j) maps to the board element at (y+i, x+j).
-                int targetY = y + i; // Target row on the board
-                int targetX = x + j; // Target column on the board
+                // Calculate target coordinates: brick element (i, j) maps to board (y+i, x+j)
+                int targetY = y + i;
+                int targetX = x + j;
 
-                // Check if the current brick cell is non-zero (part of the brick shape)
                 if (brick[i][j] != 0) {
-                    // Place the brick's color value onto the board matrix at the calculated position.
-                    // Add a bounds check to prevent ArrayIndexOutOfBoundsException if placement is somehow invalid.
+                    // Bounds check to prevent ArrayIndexOutOfBoundsException
                     if (targetY >= 0 && targetY < newMatrix.length && targetX >= 0 && targetX < newMatrix[targetY].length) {
                         newMatrix[targetY][targetX] = brick[i][j];
                     }
                 }
             }
         }
-        return newMatrix; // Return the updated board matrix
+        return newMatrix;
     }
 
     /**
@@ -133,53 +139,45 @@ public class MatrixOperations {
      * @return ClearRow object with lines cleared, new matrix, and score bonus
      */
     public static ClearRow clearCompletedRows(final int[][] matrix) {
-        // Temporary matrix to hold the new state after rows are cleared
+        if (matrix == null || matrix.length == 0) {
+            return new ClearRow(0, new int[0][], 0, new ArrayList<>());
+        }
+        if (matrix[0] == null || matrix[0].length == 0) {
+            return new ClearRow(0, new int[matrix.length][], 0, new ArrayList<>());
+        }
+        
         int[][] clearedMatrix = new int[matrix.length][matrix[0].length];
-        // Deque to efficiently add rows that are not cleared
         Deque<int[]> newRows = new ArrayDeque<>();
-        // List to store the indices of rows that were cleared
         List<Integer> clearedRows = new ArrayList<>();
 
-        // Scan the matrix from top to bottom
         for (int i = 0; i < matrix.length; i++) {
             int[] currentRow = new int[matrix[i].length];
-            boolean rowToClear = true; // Assume the row is full initially
+            boolean rowToClear = true;
 
-            // Check each cell in the current row
             for (int j = 0; j < matrix[0].length; j++) {
                 if (matrix[i][j] == 0) {
-                    rowToClear = false; // Found an empty cell, row is not full
+                    rowToClear = false;
                 }
-                currentRow[j] = matrix[i][j]; // Copy the cell value
+                currentRow[j] = matrix[i][j];
             }
 
             if (rowToClear) {
-                clearedRows.add(i); // Mark this row for removal
+                clearedRows.add(i);
             } else {
-                newRows.add(currentRow); // Keep this row
+                newRows.add(currentRow);
             }
         }
 
-        // Reconstruct the new matrix, placing the kept rows from bottom to top
+        // Reconstruct matrix by placing kept rows from bottom to top
         for (int i = matrix.length - 1; i >= 0; i--) {
-            int[] row = newRows.pollLast(); // Get the next row to place (from the end of the deque)
-            if (row != null) {
-                clearedMatrix[i] = row; // Place the row in the new matrix
-            } else {
-                // If no more rows to keep, fill the remaining top rows with zeros
-                // Explicitly initialize to ensure all cells are zero
-                clearedMatrix[i] = new int[matrix[0].length];
-            }
+            int[] row = newRows.pollLast();
+            clearedMatrix[i] = Objects.requireNonNullElseGet(row, () -> new int[matrix[0].length]);
         }
 
-        // Calculate score bonus based on the number of lines cleared (Tetris scoring rule)
         int scoreBonus = calculateLineClearScore(clearedRows.size());
-
-        // Return the results encapsulated in a ClearRow object
         return new ClearRow(clearedRows.size(), clearedMatrix, scoreBonus, clearedRows);
     }
 
-    // Tetris scoring constants (standard scoring system)
     private static final int SINGLE_LINE_SCORE = 100;
     private static final int DOUBLE_LINE_SCORE = 300;
     private static final int TRIPLE_LINE_SCORE = 500;
@@ -194,13 +192,13 @@ public class MatrixOperations {
      * @return Score bonus points
      */
     private static int calculateLineClearScore(int linesCleared) {
-        switch (linesCleared) {
-            case 1: return SINGLE_LINE_SCORE;
-            case 2: return DOUBLE_LINE_SCORE;
-            case 3: return TRIPLE_LINE_SCORE;
-            case 4: return TETRIS_SCORE;
-            default: return NO_LINES_SCORE;
-        }
+        return switch (linesCleared) {
+            case 1 -> SINGLE_LINE_SCORE;
+            case 2 -> DOUBLE_LINE_SCORE;
+            case 3 -> TRIPLE_LINE_SCORE;
+            case 4 -> TETRIS_SCORE;
+            default -> NO_LINES_SCORE;
+        };
     }
 
     /**

@@ -11,6 +11,8 @@ import java.awt.Point;
 /**
  * Adapter for board state serialization/deserialization (Memento Pattern).
  * Keeps snapshot operations cohesive and separates concern from SimpleBoard.
+ * 
+ * @author Dong, Jia.
  */
 class BoardMementoAdapter {
 
@@ -46,7 +48,7 @@ class BoardMementoAdapter {
 
         Brick held = holdManager.getHeldBrick();
         int[][] heldShape = (held != null && held.getShapeMatrix() != null && !held.getShapeMatrix().isEmpty())
-                ? held.getShapeMatrix().get(0) : null;
+                ? held.getShapeMatrix().getFirst() : null;
         String heldType = held != null ? getBrickType(held) : null;
 
         int[][] nextBrickShape = null;
@@ -54,7 +56,7 @@ class BoardMementoAdapter {
         try {
             Brick nextBrick = brickGenerator.getNextBrick();
             if (nextBrick != null && nextBrick.getShapeMatrix() != null && !nextBrick.getShapeMatrix().isEmpty()) {
-                nextBrickShape = nextBrick.getShapeMatrix().get(0);
+                nextBrickShape = nextBrick.getShapeMatrix().getFirst();
                 nextBrickType = getBrickType(nextBrick);
             }
         } catch (Exception ignored) {

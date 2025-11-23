@@ -16,6 +16,10 @@ public final class ZBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();
 
+    /**
+     * Constructs a Z-shaped tetromino.
+     * Initializes the two rotational states.
+     */
     public ZBrick() {
         brickMatrix.add(new int[][]{
                 {7, 7, 0, 0},
@@ -31,13 +35,23 @@ public final class ZBrick implements Brick {
         });
     }
 
+    /**
+     * Gets a defensive copy of the shape matrix containing all rotational states.
+     * 
+     * @return a deep copy of the brick's shape matrix
+     */
     @Override
     public List<int[][]> getShapeMatrix() {
         return MatrixOperations.deepCopyList(brickMatrix);
     }
 
+    /**
+     * Gets the color for rendering this brick.
+     * 
+     * @return burlywood color matching standard Tetris Z-piece
+     */
     @Override
     public Paint getColor() {
-        return Color.BURLYWOOD;  // Burlywood color for Z-piece
+        return Color.BURLYWOOD;
     }
 }

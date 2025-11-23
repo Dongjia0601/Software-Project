@@ -8,13 +8,15 @@ import java.util.List;
 /**
  * Immutable DTO containing row-clearing operation results.
  * Encapsulates lines removed, updated board matrix, and score bonus.
+ * 
+ * @author Dong, Jia.
  */
 public final class ClearRow {
 
-    private final int linesRemoved; // Number of lines that were cleared
-    private final int[][] newMatrix; // The board matrix after lines have been removed
-    private final int scoreBonus; // The score bonus earned from clearing the lines
-    private final List<Integer> clearedRows; // Indices of the rows that were cleared
+    private final int linesRemoved;
+    private final int[][] newMatrix;
+    private final int scoreBonus;
+    private final List<Integer> clearedRows;
 
     /**
      * Constructs a ClearRow with operation results.

@@ -10,6 +10,4 @@ import com.comp2042.event.MoveEvent;
  * @author Dong, Jia.
  */
 public interface InputEventListener extends BrickMovementListener, GameControlListener {
-    // This interface now extends the segregated interfaces
-    // All methods are inherited from BrickMovementListener and GameControlListener
 }

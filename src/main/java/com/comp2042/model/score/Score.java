@@ -11,7 +11,7 @@ import javafx.beans.property.SimpleIntegerProperty;
  */
 public final class Score {
 
-    private final IntegerProperty score = new SimpleIntegerProperty(0); // The current score property
+    private final IntegerProperty score = new SimpleIntegerProperty(0);
 
     /**
      * Gets the score property for GUI binding.

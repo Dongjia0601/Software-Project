@@ -9,10 +9,10 @@
 <?import javafx.geometry.Insets?>
 <?import java.net.URL?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" 
+<BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:id="rootPane"
             fx:controller="com.comp2042.controller.game.GuiController"
-            prefWidth="1400" 
+            prefWidth="1400"
             prefHeight="900"
             styleClass="root-pane">
     

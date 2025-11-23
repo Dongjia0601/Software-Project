@@ -27,7 +27,10 @@ public class GameModeUIManager {
     // Timing information
     private long levelStartTime = 0;
     
-    /** Constructs a GameModeUIManager. Components set via setters. */
+    /**
+     * Constructs a GameModeUIManager with default state.
+     * UI components must be set via setter methods before use.
+     */
     public GameModeUIManager() {
     }
     

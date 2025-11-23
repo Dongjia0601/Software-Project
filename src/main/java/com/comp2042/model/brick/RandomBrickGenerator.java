@@ -15,9 +15,8 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class RandomBrickGenerator implements BrickGenerator {
 
-    private final List<Brick> brickList; // List of all possible brick types
-
-    private final Deque<Brick> nextBricks = new ArrayDeque<>(); // Queue holding the current and next bricks
+    private final List<Brick> brickList;
+    private final Deque<Brick> nextBricks = new ArrayDeque<>();
 
     /**
      * Constructs a RandomBrickGenerator with an initial lookahead queue.
@@ -31,7 +30,6 @@ public class RandomBrickGenerator implements BrickGenerator {
         brickList.add(new SBrick());
         brickList.add(new TBrick());
         brickList.add(new ZBrick());
-        // Add two initial random bricks to the queue
         nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
         nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
     }
@@ -47,7 +45,7 @@ public class RandomBrickGenerator implements BrickGenerator {
         if (nextBricks.size() <= 1) {
             nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
         }
-        return nextBricks.poll(); // Remove and return the first brick
+        return nextBricks.poll();
     }
 
     /**
@@ -57,6 +55,6 @@ public class RandomBrickGenerator implements BrickGenerator {
      */
     @Override
     public Brick getNextBrick() {
-        return nextBricks.peek(); // Return the first brick without removing it
+        return nextBricks.peek();
     }
 }

@@ -2,6 +2,8 @@ package com.comp2042.dto;
 
 import com.comp2042.util.MatrixOperations;
 
+import java.util.Arrays;
+
 /**
  * Immutable DTO containing rendering data for the current game state.
  * Includes current brick, next brick, hold brick, and ghost piece positions.
@@ -10,12 +12,12 @@ import com.comp2042.util.MatrixOperations;
  */
 public final class ViewData {
 
-    private final int[][] brickData; // The shape matrix of the currently falling brick
-    private final int xPosition;     // The x-coordinate (column) of the currently falling brick
-    private final int yPosition;     // The y-coordinate (row) of the currently falling brick
-    private final int ghostYPosition; // The y-coordinate (row) where the ghost brick would land (-1 if not calculated)
-    private final int[][] nextBrickData; // The shape matrix of the next brick to be generated
-    private final int[][] holdBrickData; // The shape matrix of the held brick (null if no brick is held)
+    private final int[][] brickData;
+    private final int xPosition;
+    private final int yPosition;
+    private final int ghostYPosition;
+    private final int[][] nextBrickData;
+    private final int[][] holdBrickData;
 
     /**
      * Constructs a ViewData with all rendering information.
@@ -50,12 +52,12 @@ public final class ViewData {
 
     /**
      * Gets the current brick shape matrix.
-     * Returns a defensive copy.
+     * Returns a defensive copy to prevent external modification.
      *
      * @return Copy of brick shape matrix
      */
     public int[][] getBrickData() {
-        return MatrixOperations.copy(brickData); // Return a copy
+        return MatrixOperations.copy(brickData);
     }
 
     /**
@@ -87,12 +89,12 @@ public final class ViewData {
 
     /**
      * Gets the next brick shape matrix.
-     * Returns a defensive copy.
+     * Returns a defensive copy to prevent external modification.
      *
      * @return Copy of next brick shape matrix
      */
     public int[][] getNextBrickData() {
-        return MatrixOperations.copy(nextBrickData); // Return a copy
+        return MatrixOperations.copy(nextBrickData);
     }
 
     /**
@@ -137,9 +139,9 @@ public final class ViewData {
         return xPosition == viewData.xPosition &&
                yPosition == viewData.yPosition &&
                ghostYPosition == viewData.ghostYPosition &&
-               java.util.Arrays.deepEquals(brickData, viewData.brickData) &&
-               java.util.Arrays.deepEquals(nextBrickData, viewData.nextBrickData) &&
-               java.util.Arrays.deepEquals(holdBrickData, viewData.holdBrickData);
+               Arrays.deepEquals(brickData, viewData.brickData) &&
+               Arrays.deepEquals(nextBrickData, viewData.nextBrickData) &&
+               Arrays.deepEquals(holdBrickData, viewData.holdBrickData);
     }
 
     /**
@@ -152,9 +154,9 @@ public final class ViewData {
         int result = xPosition;
         result = 31 * result + yPosition;
         result = 31 * result + ghostYPosition;
-        result = 31 * result + java.util.Arrays.deepHashCode(brickData);
-        result = 31 * result + java.util.Arrays.deepHashCode(nextBrickData);
-        result = 31 * result + java.util.Arrays.deepHashCode(holdBrickData);
+        result = 31 * result + Arrays.deepHashCode(brickData);
+        result = 31 * result + Arrays.deepHashCode(nextBrickData);
+        result = 31 * result + Arrays.deepHashCode(holdBrickData);
         return result;
     }
 }

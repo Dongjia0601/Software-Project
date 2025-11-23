@@ -7,39 +7,39 @@ package com.comp2042.event;
  * @author Dong, Jia.
  */
 public enum EventType {
-    /** Move brick down one position */
+    /** Moves the falling brick down one position. */
     DOWN,
     
-    /** Move brick left one position */
+    /** Moves the falling brick one position to the left. */
     LEFT,
     
-    /** Move brick right one position */
+    /** Moves the falling brick one position to the right. */
     RIGHT,
     
-    /** Rotate brick clockwise */
+    /** Rotates the falling brick 90 degrees clockwise. */
     ROTATE,
     
-    /** Rotate brick counterclockwise */
+    /** Rotates the falling brick 90 degrees counterclockwise. */
     ROTATE_CCW,
     
-    /** Hard drop - instantly drop brick to bottom */
+    /** Hard drop - instantly drops the brick to the bottom of the board. */
     HARD_DROP,
     
-    /** Hold current brick for later use */
+    /** Holds the current brick for later use (swaps with held brick if one exists). */
     HOLD,
     
-    /** Soft drop - faster downward movement */
+    /** Soft drop - moves the brick down faster than normal speed. */
     SOFT_DROP,
     
-    /** Pause the game */
+    /** Pauses the game, freezing all timers and gameplay. */
     PAUSE,
     
-    /** Resume the game */
+    /** Resumes the game from a paused state. */
     RESUME,
     
-    /** Start a new game */
+    /** Starts a new game session, resetting the board and score. */
     NEW_GAME,
     
-    /** Quit the current game */
+    /** Quits the current game and exits the application. */
     QUIT
 }

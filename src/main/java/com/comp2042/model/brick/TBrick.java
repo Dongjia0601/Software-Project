@@ -16,6 +16,10 @@ public final class TBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();
 
+    /**
+     * Constructs a T-shaped tetromino.
+     * Initializes the four rotational states.
+     */
     public TBrick() {
         brickMatrix.add(new int[][]{
                 {6, 6, 6, 0},
@@ -43,13 +47,23 @@ public final class TBrick implements Brick {
         });
     }
 
+    /**
+     * Gets a defensive copy of the shape matrix containing all rotational states.
+     * 
+     * @return a deep copy of the brick's shape matrix
+     */
     @Override
     public List<int[][]> getShapeMatrix() {
         return MatrixOperations.deepCopyList(brickMatrix);
     }
 
+    /**
+     * Gets the color for rendering this brick.
+     * 
+     * @return beige color matching standard Tetris T-piece
+     */
     @Override
     public Paint getColor() {
-        return Color.BEIGE;  // Beige color for T-piece
+        return Color.BEIGE;
     }
 }

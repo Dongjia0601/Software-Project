@@ -120,8 +120,8 @@ public class HelpDialogBuilder {
         }
 
         // Set up close button event handlers
-        HBox buttonContainer = (HBox) mainContainer.getChildren().get(mainContainer.getChildren().size() - 1);
-        Button closeButton = (Button) buttonContainer.getChildren().get(0);
+        HBox buttonContainer = (HBox) mainContainer.getChildren().getLast();
+        Button closeButton = (Button) buttonContainer.getChildren().getFirst();
 
         closeButton.setOnAction(e -> {
             SoundManager.getInstance().playButtonClickSound();

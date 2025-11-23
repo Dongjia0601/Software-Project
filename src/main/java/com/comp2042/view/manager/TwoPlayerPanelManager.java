@@ -4,7 +4,13 @@ import com.comp2042.dto.ViewData;
 import com.comp2042.service.audio.SoundManager;
 import com.comp2042.view.panel.GameOverPanel;
 import com.comp2042.view.panel.TwoPlayerGameOverPanel;
-import javafx.animation.*;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
@@ -30,7 +36,6 @@ import java.util.function.BooleanSupplier;
  */
 public class TwoPlayerPanelManager {
 
-    // Animation duration constants (in milliseconds)
     private static final int GAME_OVER_FADE_DURATION = 500;
     private static final int COMBO_SCALE_DURATION = 300;
     private static final int COMBO_FADE_DURATION = 300;

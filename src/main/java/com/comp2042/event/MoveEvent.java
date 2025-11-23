@@ -1,8 +1,5 @@
 package com.comp2042.event;
 
-import com.comp2042.event.EventType;
-import com.comp2042.event.EventSource;
-
 /**
  * Immutable event object representing game actions with metadata.
  * Primary communication mechanism between game system components.
@@ -164,7 +161,7 @@ public final class MoveEvent {
     public int hashCode() {
         int result = eventType.hashCode();
         result = 31 * result + eventSource.hashCode();
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + Long.hashCode(timestamp);
         result = 31 * result + (additionalData != null ? additionalData.hashCode() : 0);
         return result;
     }

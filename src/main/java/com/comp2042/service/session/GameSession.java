@@ -10,6 +10,8 @@ import javafx.beans.property.IntegerProperty;
  * Service interface abstracting a playable game session (Service Layer Pattern).
  * Encapsulates board/state management, allowing controllers to focus on UI interactions.
  * Extends GameStateContext for state transition management.
+ * 
+ * @author Dong, Jia.
  */
 public interface GameSession extends GameStateContext {
 

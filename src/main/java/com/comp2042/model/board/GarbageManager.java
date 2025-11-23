@@ -7,6 +7,8 @@ import com.comp2042.util.MatrixOperations;
 /**
  * Manages garbage line mechanics for two-player versus mode.
  * Handles insertion of penalty rows with random holes.
+ * 
+ * @author Dong, Jia.
  */
 class GarbageManager {
 
@@ -19,12 +21,10 @@ class GarbageManager {
     }
 
     boolean addGarbageLine(int[][] matrix, BrickRotator brickRotator, Point currentOffset) {
-        // Shift all rows up by one
         for (int i = 0; i < height - 1; i++) {
             matrix[i] = matrix[i + 1].clone();
         }
 
-        // Create a garbage line with one random hole
         int[] garbageLine = new int[width];
         int holePosition = (int) (Math.random() * width);
         for (int j = 0; j < width; j++) {

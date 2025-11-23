@@ -10,8 +10,8 @@ import com.comp2042.model.brick.Brick;
  */
 public class BrickRotator {
 
-    private Brick brick; // The brick whose rotation state is being managed
-    private int currentShape = 0; // The index of the current shape in the brick's shape list
+    private Brick brick;
+    private int currentShape = 0;
 
     /**
      * Calculates next shape for clockwise rotation without applying it.
@@ -19,9 +19,9 @@ public class BrickRotator {
      *
      * @return NextShapeInfo with potential shape and index
      */
-    public NextShapeInfo calculateNextShapeInfo() { // Assuming renamed method
+    public NextShapeInfo calculateNextShapeInfo() {
         int nextShape = currentShape;
-        nextShape = (++nextShape) % brick.getShapeMatrix().size(); // Increment and wrap around
+        nextShape = (++nextShape) % brick.getShapeMatrix().size();
         return new NextShapeInfo(brick.getShapeMatrix().get(nextShape), nextShape);
     }
 
@@ -33,7 +33,7 @@ public class BrickRotator {
      */
     public NextShapeInfo calculatePreviousShapeInfo() {
         int prevShape = currentShape;
-        prevShape = (--prevShape + brick.getShapeMatrix().size()) % brick.getShapeMatrix().size(); // Decrement and wrap around
+        prevShape = (--prevShape + brick.getShapeMatrix().size()) % brick.getShapeMatrix().size();
         return new NextShapeInfo(brick.getShapeMatrix().get(prevShape), prevShape);
     }
 
@@ -62,7 +62,7 @@ public class BrickRotator {
      */
     public void setBrick(Brick brick) {
         this.brick = brick;
-        currentShape = 0; // Reset to the first shape of the new brick
+        currentShape = 0;
     }
     
     /**

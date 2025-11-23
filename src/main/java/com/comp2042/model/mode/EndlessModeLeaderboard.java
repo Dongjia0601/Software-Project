@@ -1,9 +1,14 @@
 package com.comp2042.model.mode;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Endless Mode leaderboard managing top 5 scores with CSV persistence (Singleton Pattern).
@@ -19,13 +24,22 @@ public class EndlessModeLeaderboard {
     private final List<LeaderboardEntry> entries;
     private final Path leaderboardPath;
     
-    /** Private constructor (Singleton). Initializes and loads leaderboard. */
+    /**
+     * Private constructor enforcing Singleton pattern.
+     * Initializes the leaderboard and loads existing entries from file.
+     */
     private EndlessModeLeaderboard() {
         this.entries = new ArrayList<>();
         
         // Store leaderboard in user's home directory
         String userHome = System.getProperty("user.home");
-        this.leaderboardPath = Paths.get(userHome, ".tetris", LEADERBOARD_FILE);
+        if (userHome == null || userHome.isEmpty()) {
+            // Fallback to current directory if user.home is not available
+            System.err.println("Warning: user.home system property not available, using current directory for leaderboard");
+            this.leaderboardPath = Paths.get(".tetris", LEADERBOARD_FILE);
+        } else {
+            this.leaderboardPath = Paths.get(userHome, ".tetris", LEADERBOARD_FILE);
+        }
         
         // Create directory if it doesn't exist
         try {
@@ -104,6 +118,10 @@ public class EndlessModeLeaderboard {
         if (entries.size() < MAX_ENTRIES) {
             return true; // Always qualifies if not full
         }
+        // Safety check: ensure we have enough entries before accessing
+        if (entries.isEmpty() || entries.size() < MAX_ENTRIES) {
+            return true;
+        }
         return score > entries.get(MAX_ENTRIES - 1).getScore();
     }
     
@@ -114,7 +132,7 @@ public class EndlessModeLeaderboard {
      * @return true if this would be the highest score
      */
     public synchronized boolean isNewHighScore(int score) {
-        return entries.isEmpty() || score > entries.get(0).getScore();
+        return entries.isEmpty() || score > entries.getFirst().getScore();
     }
     
     /**
@@ -123,7 +141,7 @@ public class EndlessModeLeaderboard {
      * @return the highest score, or 0 if no entries
      */
     public synchronized int getHighScore() {
-        return entries.isEmpty() ? 0 : entries.get(0).getScore();
+        return entries.isEmpty() ? 0 : entries.getFirst().getScore();
     }
     
     /**

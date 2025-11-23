@@ -16,6 +16,10 @@ public final class JBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();
 
+    /**
+     * Constructs a J-shaped tetromino.
+     * Initializes the four rotational states.
+     */
     public JBrick() {
         brickMatrix.add(new int[][]{
                 {2, 2, 2, 0},
@@ -43,13 +47,23 @@ public final class JBrick implements Brick {
         });
     }
 
+    /**
+     * Gets a defensive copy of the shape matrix containing all rotational states.
+     * 
+     * @return a deep copy of the brick's shape matrix
+     */
     @Override
     public List<int[][]> getShapeMatrix() {
         return MatrixOperations.deepCopyList(brickMatrix);
     }
 
+    /**
+     * Gets the color for rendering this brick.
+     * 
+     * @return light salmon color matching standard Tetris J-piece
+     */
     @Override
     public Paint getColor() {
-        return Color.LIGHTSALMON;  // Salmon color for J-piece
+        return Color.LIGHTSALMON;
     }
 }

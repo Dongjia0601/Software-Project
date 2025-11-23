@@ -13,6 +13,8 @@ import javafx.beans.property.IntegerProperty;
 /**
  * Single-player session encapsulating board lifecycle and state transitions (Service Layer).
  * Keeps GameController focused on UI/input delegation.
+ * 
+ * @author Dong, Jia.
  */
 public class SinglePlayerGameSession implements GameSession {
 
@@ -60,13 +62,13 @@ public class SinglePlayerGameSession implements GameSession {
     @Override
     public ViewData handleHardDrop(MoveEvent event) {
         DownData downData = currentState.onDownEvent(event);
-        return downData != null ? downData.getViewData() : null;
+        return downData != null ? downData.viewData() : null;
     }
 
     @Override
     public ViewData handleSoftDrop(MoveEvent event) {
         DownData downData = currentState.onDownEvent(event);
-        return downData != null ? downData.getViewData() : null;
+        return downData != null ? downData.viewData() : null;
     }
 
     @Override
