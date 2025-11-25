@@ -2881,6 +2881,14 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             return; 
         }
         
+        // Prevent duplicate calls - if already game over, return early
+        if (isGameOver.getValue()) {
+            return;
+        }
+        
+        // Set game over flag early to prevent duplicate calls and sound effects
+        isGameOver.setValue(true);
+        
         try {
             // Get final game data from board
             int finalScore = board.getScore().getScore();
@@ -2900,6 +2908,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             int rank = leaderboard.addEntry(finalScore, linesCleared, playTimeMs, getCurrentLevel());
             
             // Play appropriate sound effect based on whether entry is in top 5
+            // Note: Sound effect is played only once here to avoid duplicate playback
             if (rank > 0 && rank <= 5) {
                 SoundManager.getInstance().playEndlessNewRecordSound();
             } else {
@@ -3034,7 +3043,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             if (timeLine != null) {
                 timeLine.stop();
             }
-            isGameOver.setValue(true);
+            // Note: isGameOver flag was already set at the beginning of this method
             isPause.setValue(false);
             
         } catch (Exception e) {

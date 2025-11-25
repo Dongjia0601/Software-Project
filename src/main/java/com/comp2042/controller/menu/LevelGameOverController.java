@@ -233,12 +233,8 @@ public class LevelGameOverController implements Initializable {
         this.isNewBestScore = isNewBestScore;
         this.isNewBestTime = isNewBestTime;
         
-        // Play level win/fail sound effect
-        if (success) {
-            SoundManager.getInstance().playLevelWinSound();
-        } else {
-            SoundManager.getInstance().playLevelFailedSound();
-        }
+        // Note: Sound effect is already played in GuiController.showLevelGameOverScene()
+        // to avoid duplicate playback
         
         // Update title - show "Win the Level X!" if successful, "Level X Failed!" if failed
         if (mainTitleLabel != null) {
