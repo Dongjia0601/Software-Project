@@ -48,10 +48,10 @@ public class Main extends Application {
 
     /**
      * Application entry point that launches the JavaFX runtime.
-     * 
+     * <p>
      * Note: When running from IDE, ensure VM options are configured with:
      * --module-path [JavaFX jars path] --add-modules javafx.controls,javafx.fxml,javafx.media
-     * 
+     * <p>
      * Alternatively, use Maven command: mvn javafx:run
      * 
      * @param args Command line arguments (currently unused)
