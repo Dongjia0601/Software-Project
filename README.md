@@ -1,10 +1,14 @@
-# COMP2042 Coursework: Tetris 
+# COMP2042 Coursework: Tetris
 
+[![Java Version](https://img.shields.io/badge/Java-21-orange)](https://openjdk.java.net/)
+[![JavaFX](https://img.shields.io/badge/JavaFX-21.0.6-blue)](https://openjfx.io/)
+[![JUnit](https://img.shields.io/badge/JUnit-5.12.1-green)](https://junit.org/)
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]()
+[![Test Coverage](https://img.shields.io/badge/Tests-450%20passed-brightgreen)]()
 # Table of Contents
 
 - [GitHub Repository](#github-repository)
 - [Introduction](#introduction)
-  - [Project Goals](#project-goals)
   - [Game Modes](#game-modes)
   - [Project Structure](#project-structure)
 - [Compilation Instructions](#compilation-instructions)
@@ -20,6 +24,7 @@
 - [Modified Java Classes](#modified-java-classes)
 - [Deleted Java Classes](#deleted-java-classes)
 - [Unexpected Problems](#unexpected-problems)
+- [Summary](#summary)
 
 # GitHub Repository
 
@@ -33,13 +38,6 @@ This implementation features three distinct game modes: **Endless Mode**, **Leve
 
 For the best experience, it is recommended to view this `README.md` file on the [GitHub website](https://github.com/Dongjia0601/CW2025). Navigation links have been embedded throughout the document to facilitate easy access to different sections.
 
-## Project Goals
-
-- **Professional Architecture**: Implement industry-standard design patterns (MVC, State, Factory, Strategy, Memento, Singleton) to create maintainable and scalable code.
-- **Enhanced Gaming Experience**: Provide multiple game modes with beautiful UI, smooth animations, and immersive audio.
-- **Code Quality**: Achieve comprehensive JavaDoc documentation, thorough unit testing, and adherence to SOLID principles.
-- **User-Friendly Design**: Create intuitive controls, helpful tutorials, and accessible settings management.
-
 ## Game Modes
 
 This Tetris implementation includes three distinct game modes:
@@ -49,7 +47,6 @@ A classic Tetris experience where players aim for the highest score possible. Fe
 - Progressive difficulty increase with dynamic speed scaling
 - Leaderboard system with persistent high scores (top 5 scores)
 - Real-time statistics (lines cleared, level, elapsed time)
-- Two randomizer algorithms: 7-Bag and Pure Random (switchable in settings)
 
 ### 2. Level Mode  
 A structured gameplay experience with five uniquely themed levels, each with custom visual aesthetics and background music:
@@ -361,7 +358,6 @@ This section details the features that have been successfully implemented in bot
         <li>Progressive difficulty scaling.</li>
         <li>Persistent leaderboard with top 5 scores.</li>
         <li>Real-time statistics (lines, level, time).</li>
-        <li>Two randomizer algorithms (7-Bag/Pure Random).</li>
       </ul>
       <strong>Level Mode:</strong>
       <ul>
@@ -515,7 +511,7 @@ This section details the features that have been successfully implemented in bot
     <td>
       - Comprehensive settings dialog accessible from main menu and pause menu during gameplay.<br>
       - Audio controls: Independent volume sliders for Master (0-100%), Music (0-100%), and SFX (0-100%).<br>
-      - Gameplay settings: Piece randomizer selection (7-Bag/Pure Random) with immediate effect.<br>
+      - Gameplay settings: Piece randomizer selection (7-Bag/Pure Random) available in all game modes with step-by-step window prompts. Saving settings automatically starts a new game to apply changes immediately.<br>
       - Reset to defaults option restoring factory settings.<br>
       - Real-time preview of changes without needing to restart game.<br>
       - All settings automatically saved to user directory and persist across sessions.
@@ -1680,7 +1676,7 @@ This section lists all newly created Java classes in the refactored implementati
   </tr>
   <tr>
     <td><strong>SettingsController</strong></td>
-    <td>Manages settings dialog with audio controls (Master, Music, SFX volumes), piece randomizer selection, and reset functionality. Persists changes via GameSettings.</td>
+    <td>Manages settings dialog with audio controls (Master, Music, SFX volumes), piece randomizer selection (7-Bag/Pure Random) available in all game modes with step-by-step window prompts, and reset functionality. Saving randomizer settings automatically starts a new game to apply changes immediately. Persists changes via GameSettings.</td>
     <td><code>src/main/java/com/comp2042/controller/menu/SettingsController.java</code></td>
   </tr>
   <tr>
@@ -2382,87 +2378,261 @@ com.comp2042/
 
 #### Key Refactoring Examples
 
-**MatrixOperations:**
-- **Original:** Basic matrix operations with bugs in `intersect` and `merge` methods
-- **Modified:** 
-  - Fixed `ArrayIndexOutOfBoundsException` in coordinate mapping
-  - Renamed `checkRemoving` → `clearCompletedRows` for clarity
-  - Added comprehensive JavaDocs
-  - Improved scoring algorithm
-  - Extracted constants (e.g., `SCORE_BONUS_BASE`)
-
-**SimpleBoard:**
-- **Original:** Monolithic board class with mixed responsibilities
-- **Modified:**
-  - Implements `Board` interface for abstraction
-  - Separated concerns into helper classes: `HoldManager`, `GarbageManager`
-  - Added Memento support via `BoardMementoAdapter`
-  - Enhanced collision detection
-  - Improved line clearing logic with combo system
-  - Comprehensive JavaDocs
-
-**GameController:**
-- **Original:** Basic controller with flag-based state management
-- **Modified:**
-  - Implements State Pattern with `GameState` interface
-  - Clean state transitions (Playing → Paused → GameOver)
-  - Separated business logic from UI
-  - Event-driven architecture
-  - Service layer integration
-
-**GuiController → GameViewController:**
-- **Original:** ~300 line monolithic class handling everything
-- **Modified:**
-  - Renamed to `GuiController` for clarity
-  - Expanded with comprehensive features
-  - **Then refactored** into 10+ specialized managers:
-    - `BrickRenderer`
-    - `GameBoardRenderer`
-    - `HudManager`
-    - `GameInputHandler`
-    - `AnimationController`
-    - `DialogManager`
-    - `GameModeUIManager`
-    - etc.
-  - Each manager has single responsibility
-  - Coordinator pattern for manager orchestration
-
-**Brick Classes (I, J, L, O, S, T, Z):**
-- **Original:** In `logic.bricks` package, basic implementations
-- **Modified:**
-  - Relocated to `model.brick` package
-  - Enhanced with rotation states
-  - Color coding improvements
-  - Factory Pattern integration
-  - Strategy Pattern for generation (7-Bag vs Pure Random)
-  - Comprehensive JavaDocs
-
-**Event System Classes:**
-- **Original:** Basic event handling with minimal abstraction
-- **Modified:**
-  - Complete event-driven architecture
-  - `MoveEvent` encapsulates all input
-  - `EventType` enum for type safety
-  - `EventSource` for origin tracking
-  - Listener interfaces for Observer Pattern
-  - Supports future features (replay, AI, network)
-
-**DTO Classes (ViewData, DownData, ClearRow):**
-- **Original:** Direct exposure of internal model
-- **Modified:**
-  - Immutable Data Transfer Objects
-  - Clean layer separation
-  - Comprehensive data encapsulation
-  - Enhanced with additional fields (hold, next queue, combos)
-
-**NotificationPanel:**
-- **Original:** Simple game over display
-- **Modified:**
-  - Moved to `view.panel` package
-  - Toast-style notifications
-  - Auto-dismiss functionality
-  - Multiple notification types
-  - Animation effects
+<table style="width:100%">
+  <tr>
+    <th>Class/Component</th>
+    <th>Original State</th>
+    <th>Refactored State</th>
+    <th>Key Improvements</th>
+    <th>Design Pattern/Principle</th>
+  </tr>
+  <tr>
+    <td><strong>MatrixOperations</strong></td>
+    <td>Basic matrix operations with bugs in `intersect` and `merge` methods</td>
+    <td>Robust matrix operations with comprehensive error handling</td>
+    <td>
+      - Fixed `ArrayIndexOutOfBoundsException` in coordinate mapping<br>
+      - Renamed `checkRemoving` → `clearCompletedRows` for clarity<br>
+      - Extracted magic numbers to named constants (e.g., `SINGLE_LINE_SCORE`, `TETRIS_SCORE`)<br>
+      - Improved scoring algorithm<br>
+      - Added comprehensive JavaDocs
+    </td>
+    <td>Extract Method, Extract Constant</td>
+  </tr>
+  <tr>
+    <td><strong>SimpleBoard</strong></td>
+    <td>Monolithic board class with mixed responsibilities</td>
+    <td>Modular board with separated concerns</td>
+    <td>
+      - Implements `Board` interface for abstraction<br>
+      - Separated concerns into helper classes: `HoldManager`, `GarbageManager`<br>
+      - Added Memento support via `BoardMementoAdapter`<br>
+      - Enhanced collision detection<br>
+      - Improved line clearing logic with combo system<br>
+      - Comprehensive JavaDocs
+    </td>
+    <td>Interface Segregation, Single Responsibility Principle, Memento Pattern</td>
+  </tr>
+  <tr>
+    <td><strong>GameController</strong></td>
+    <td>Basic controller with flag-based state management</td>
+    <td>State-driven controller with clean transitions</td>
+    <td>
+      - Implements State Pattern with `GameState` interface<br>
+      - Clean state transitions (Playing → Paused → GameOver)<br>
+      - Separated business logic from UI<br>
+      - Event-driven architecture<br>
+      - Service layer integration
+    </td>
+    <td>State Pattern, Event-Driven Architecture</td>
+  </tr>
+  <tr>
+    <td><strong>GuiController → GameViewController</strong></td>
+    <td>monolithic class handling everything (God Class)</td>
+    <td>Coordinator pattern with specialized managers</td>
+    <td>
+      - Refactored into specialized managers:<br>
+        • `BrickRenderer` - Brick rendering<br>
+        • `GameBoardRenderer` - Board background<br>
+        • `HudManager` - HUD updates<br>
+        • `GameInputHandler` - Keyboard input<br>
+        • `AnimationController` - Animations<br>
+        • `DialogManager` - Dialogs<br>
+        • `GameModeUIManager` - Mode-specific UI<br>
+      - Each manager has single responsibility<br>
+      - Coordinator pattern for orchestration<br>
+      - Callback interfaces for decoupling
+    </td>
+    <td>Facade Pattern, Mediator Pattern, Coordinator Pattern, Single Responsibility Principle</td>
+  </tr>
+  <tr>
+    <td><strong>Brick Classes (I, J, L, O, S, T, Z)</strong></td>
+    <td>In `logic.bricks` package, basic implementations with switch-based color mapping</td>
+    <td>Polymorphic brick classes with self-contained color logic</td>
+    <td>
+      - Relocated to `model.brick` package<br>
+      - Enhanced with rotation states<br>
+      - Replaced 4 switch statements with polymorphic `getColor()` method<br>
+      - Created `BrickColorMapper` for centralized delegation<br>
+      - Factory Pattern integration<br>
+      - Strategy Pattern for generation (7-Bag vs Pure Random)<br>
+      - Comprehensive JavaDocs
+    </td>
+    <td>Strategy Pattern, Factory Pattern, Replace Type Code with Polymorphism</td>
+  </tr>
+  <tr>
+    <td><strong>Event System Classes</strong></td>
+    <td>Basic event handling with minimal abstraction</td>
+    <td>Complete event-driven architecture</td>
+    <td>
+      - `MoveEvent` encapsulates all input<br>
+      - `EventType` enum for type safety<br>
+      - `EventSource` for origin tracking<br>
+      - Listener interfaces for Observer Pattern<br>
+      - Supports future features (replay, AI, network)
+    </td>
+    <td>Observer Pattern, Event-Driven Architecture</td>
+  </tr>
+  <tr>
+    <td><strong>DTO Classes (ViewData, DownData, ClearRow)</strong></td>
+    <td>Direct exposure of internal model</td>
+    <td>Immutable Data Transfer Objects</td>
+    <td>
+      - Immutable Data Transfer Objects<br>
+      - Clean layer separation<br>
+      - Comprehensive data encapsulation<br>
+      - Enhanced with additional fields (hold, next queue, combos)<br>
+      - Fixed naming conventions (`getxPosition()` → `getXPosition()`)
+    </td>
+    <td>Data Transfer Object Pattern, Immutability</td>
+  </tr>
+  <tr>
+    <td><strong>NotificationPanel</strong></td>
+    <td>Simple game over display</td>
+    <td>Professional toast-style notification system</td>
+    <td>
+      - Moved to `view.panel` package<br>
+      - Toast-style notifications<br>
+      - Auto-dismiss functionality<br>
+      - Multiple notification types<br>
+      - Animation effects
+    </td>
+    <td>Single Responsibility Principle</td>
+  </tr>
+  <tr>
+    <td><strong>UIHelper</strong></td>
+    <td>Code duplication across multiple UI managers (HudManager, GameModeUIManager)</td>
+    <td>Centralized utility class for null-safe UI operations</td>
+    <td>
+      - Created `UIHelper` utility class<br>
+      - Eliminated code duplication in text setting and visibility control<br>
+      - Null-safe UI operations<br>
+      - Comprehensive unit tests<br>
+      - Simplified JavaDoc comments
+    </td>
+    <td>Extract Class, DRY Principle</td>
+  </tr>
+  <tr>
+    <td><strong>Theme Classes (LevelTheme, AncientTempleTheme, etc.)</strong></td>
+    <td>Located in `model/mode/themes` package (violates MVC)</td>
+    <td>Moved to `view/theme` package (proper MVC separation)</td>
+    <td>
+      - Moved 5 Theme implementations from Model to View layer<br>
+      - Theme classes now properly belong to View layer (visual presentation data)<br>
+      - Removed 6 unused methods from `LevelTheme` interface<br>
+      - Kept only actively used visual asset methods<br>
+      - Improved MVC separation
+    </td>
+    <td>MVC Pattern, Single Responsibility Principle</td>
+  </tr>
+  <tr>
+    <td><strong>Magic Numbers</strong></td>
+    <td>Hardcoded values scattered throughout codebase</td>
+    <td>Named constants for all magic numbers</td>
+    <td>
+      - `MatrixOperations`: Score constants (SINGLE_LINE_SCORE, TETRIS_SCORE, etc.)<br>
+      - `TwoPlayerModeMechanics`: Attack power & combo constants<br>
+      - `TwoPlayerPanelManager`: Animation duration constants<br>
+      - Self-documenting code<br>
+      - Easy configuration points for game balance
+    </td>
+    <td>Extract Constant, Self-Documenting Code</td>
+  </tr>
+  <tr>
+    <td><strong>Variable & Method Naming</strong></td>
+    <td>Unclear names (`c`, `temp`, `tmp`, `p`) and naming convention violations</td>
+    <td>Self-documenting names following Java conventions</td>
+    <td>
+      - `GameController`: Parameter `c` → `viewController`<br>
+      - `HoldManager`: Variable `temp` → `swappedBrick`<br>
+      - `MatrixOperations`: `tmp` → `clearedMatrix`, `tmpRow` → `currentRow`<br>
+      - `SimpleBoard`: Variable `p` → `newPosition`<br>
+      - `ViewData`: `getxPosition()` → `getXPosition()` (Java convention)
+    </td>
+    <td>Self-Documenting Code, Java Naming Conventions</td>
+  </tr>
+  <tr>
+    <td><strong>GameController (Session Isolation)</strong></td>
+    <td>Controller directly owned board and GameState lifecycle</td>
+    <td>Controller routes UI/input, session owns gameplay</td>
+    <td>
+      - Introduced `GameSession` abstraction<br>
+      - Created `SinglePlayerGameSession` to own board + GameState lifecycle<br>
+      - Added `GameStateContext` to decouple states from controller<br>
+      - `PlayingState`/`PausedState`/`GameOverState` now accept context<br>
+      - GameController delegates all gameplay calls to session<br>
+      - Improved separation of concerns
+    </td>
+    <td>Dependency Injection, Separation of Concerns, Abstraction</td>
+  </tr>
+  <tr>
+    <td><strong>TwoPlayerGameController</strong></td>
+    <td>Monolithic controller handling countdown, timelines, and game logic</td>
+    <td>Delegates to specialized managers for countdown and scheduling</td>
+    <td>
+      - Extracted `TwoPlayerCountdownManager` for pre-game UX<br>
+      - Extracted `TwoPlayerTimelineScheduler` for auto-drop/stat timelines<br>
+      - Controller delegates pause/resume/stop to scheduler<br>
+      - No longer owns Timeline fields directly<br>
+      - Improved SRP and readability
+    </td>
+    <td>Single Responsibility Principle, Extract Class</td>
+  </tr>
+  <tr>
+    <td><strong>TwoPlayerMode</strong></td>
+    <td>Monolithic mode class with mixed responsibilities</td>
+    <td>Delegates game rules to dedicated mechanics class</td>
+    <td>
+      - Extracted `TwoPlayerModeMechanics` for game rules logic<br>
+      - `Board` interface adds `addGarbageLine`/`removeGarbageLines` methods<br>
+      - `SimpleBoard` exposes garbage handling without reflection<br>
+      - TwoPlayerMode delegates rules to mechanics class<br>
+      - Improved SRP compliance
+    </td>
+    <td>Single Responsibility Principle, Extract Class, Interface Segregation</td>
+  </tr>
+  <tr>
+    <td><strong>GameServiceImpl</strong></td>
+    <td>Directly instantiated `SimpleBoard` (violates DIP)</td>
+    <td>Dependency injection through constructor (Board interface)</td>
+    <td>
+      - Removed parameterless constructor<br>
+      - Enforced dependency injection through constructor (Board interface)<br>
+      - Added `createDefault()` factory method for convenience<br>
+      - Added null validation in constructor<br>
+      - GameServiceImpl now depends on Board abstraction, not concrete class<br>
+      - Resolved Dependency Inversion Principle violation
+    </td>
+    <td>Dependency Inversion Principle, Dependency Injection</td>
+  </tr>
+  <tr>
+    <td><strong>InputEventListener</strong></td>
+    <td>Fat interface with 13 methods (violates ISP)</td>
+    <td>Split into focused interfaces: BrickMovementListener and GameControlListener</td>
+    <td>
+      - Split into `BrickMovementListener` and `GameControlListener`<br>
+      - `InputEventListener` extends both for backward compatibility<br>
+      - Resolved fat interface code smell (13 methods → 2 focused interfaces)<br>
+      - Clients can implement only what they need<br>
+      - Maintained full backward compatibility
+    </td>
+    <td>Interface Segregation Principle, Extract Interface</td>
+  </tr>
+  <tr>
+    <td><strong>GameViewController (Further Modularization)</strong></td>
+    <td>Still contained HUD, audio, countdown, and two-player UI logic</td>
+    <td>Delegates to additional specialized managers</td>
+    <td>
+      - Extracted `AudioVolumeManager` for audio mute persistence<br>
+      - Extracted `CountdownManager` for countdown logic<br>
+      - Extracted `TwoPlayerPanelManager` for two-player UI<br>
+      - GameViewController delegates to new managers<br>
+      - Added comprehensive unit tests for new managers<br>
+      - Further improved SRP compliance
+    </td>
+    <td>Single Responsibility Principle, Extract Class, Facade Pattern</td>
+  </tr>
+</table>
 
 ### Comparison: Before vs After
 
@@ -2993,9 +3163,9 @@ This Tetris project represents a **complete professional-grade refactoring** of 
 - **Design Patterns:** 6 design patterns professionally implemented (State, Factory, Strategy, Memento, Singleton, MVC)
 - **Features:** 3 complete game modes with unique mechanics, themed UI, and comprehensive controls
 - **Quality:** 450 comprehensive unit tests (100% pass rate across 44 test files), 100% JavaDoc coverage, robust error handling
-- **User Experience:** Professional UI/UX with 23 audio files, 5 themed levels, and smooth 60 FPS animations
-- **Documentation:** Comprehensive README, detailed in-code JavaDocs, and well-structured commit history
-- **Development Process:** Over 335 commits demonstrating iterative development and continuous improvement
+- **User Experience:** Professional UI/UX with 23 audio files (BGM + SFX), 5 themed levels, and smooth 60 FPS animations
+- **Documentation:** Comprehensive README, detailed in-code JavaDocs, and well-structured descriptive commit history
+- **Development Process:** 200+ commits demonstrating iterative development and continuous improvement
 
 **Total Project Impact:** 
 - **200+ commits** with meaningful commit messages following conventional commit format
