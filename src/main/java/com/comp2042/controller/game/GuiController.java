@@ -2368,7 +2368,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             "-fx-font-size: 48px; " +
             "-fx-font-weight: bold; " +
             "-fx-text-fill: #FFD700; " +
-            "-fx-effect: drop shadow(gaussian, rgba(255, 215, 0, 0.8), 15, 0, 0, 0);"
+            "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 15, 0, 0, 0);"
         );
         
         // Add to notification group
@@ -2916,7 +2916,17 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             // Get the controller and set up callbacks
             EndlessGameOverController controller = loader.getController();
             // Capture current stage for reliable scene switching across retries
+            if (gamePanel == null || gamePanel.getScene() == null) {
+                System.err.println("Game panel or scene is null, cannot switch to endless game over scene");
+                gameOver(); // Fallback to regular game over
+                return;
+            }
             final Stage stageForCallbacks = (Stage) gamePanel.getScene().getWindow();
+            if (stageForCallbacks == null) {
+                System.err.println("Stage is null, cannot switch to endless game over scene");
+                gameOver(); // Fallback to regular game over
+                return;
+            }
             controller.setOnTryAgain(() -> {
                 // Start a new Endless Mode game (same as clicking Endless Mode button)
                 try {
@@ -3008,12 +3018,16 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             gameOverScene.setOnKeyPressed(controller::handleKeyPress);
             
             // Get current stage and switch scene
-            Stage stage = (Stage) gamePanel.getScene().getWindow();
-            if (stage != null) {
-                stage.setScene(gameOverScene);
-                stage.setTitle("Tetris - Game Over");
+            if (gamePanel != null && gamePanel.getScene() != null) {
+                Stage stage = (Stage) gamePanel.getScene().getWindow();
+                if (stage != null) {
+                    stage.setScene(gameOverScene);
+                    stage.setTitle("Tetris - Game Over");
+                } else {
+                    System.err.println("Stage is null, cannot switch to game over scene");
+                }
             } else {
-                System.err.println("Stage is null, cannot switch to game over scene");
+                System.err.println("Game panel or scene is null, cannot switch to game over scene");
             }
             
             // Stop the game timeline
@@ -3118,7 +3132,17 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             
             // Get the controller and set up callbacks
             LevelGameOverController controller = loader.getController();
+            if (gamePanel == null || gamePanel.getScene() == null) {
+                System.err.println("Game panel or scene is null, cannot switch to level game over scene");
+                gameOver(); // Fallback to regular game over
+                return;
+            }
             final Stage stageForCallbacks = (Stage) gamePanel.getScene().getWindow();
+            if (stageForCallbacks == null) {
+                System.err.println("Stage is null, cannot switch to level game over scene");
+                gameOver(); // Fallback to regular game over
+                return;
+            }
             
             controller.setOnTryAgain(() -> {
                 // Reload the same level
@@ -3263,10 +3287,16 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
             }
             
             // Get current stage and switch scene
-            Stage stage = (Stage) gamePanel.getScene().getWindow();
-            if (stage != null) {
-                stage.setScene(gameOverScene);
-                stage.setTitle("Tetris - Level Complete");
+            if (gamePanel != null && gamePanel.getScene() != null) {
+                Stage stage = (Stage) gamePanel.getScene().getWindow();
+                if (stage != null) {
+                    stage.setScene(gameOverScene);
+                    stage.setTitle("Tetris - Level Complete");
+                } else {
+                    System.err.println("Stage is null, cannot switch to level game over scene");
+                }
+            } else {
+                System.err.println("Game panel or scene is null, cannot switch to level game over scene");
             }
             
             // Stop the game timeline

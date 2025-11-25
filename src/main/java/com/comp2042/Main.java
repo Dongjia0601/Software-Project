@@ -49,9 +49,28 @@ public class Main extends Application {
     /**
      * Application entry point that launches the JavaFX runtime.
      * 
+     * Note: When running from IDE, ensure VM options are configured with:
+     * --module-path [JavaFX jars path] --add-modules javafx.controls,javafx.fxml,javafx.media
+     * 
+     * Alternatively, use Maven command: mvn javafx:run
+     * 
      * @param args Command line arguments (currently unused)
      */
     public static void main(String[] args) {
-        launch(args);
+        try {
+            launch(args);
+        } catch (Exception e) {
+            if (e.getMessage() != null && e.getMessage().contains("JavaFX runtime components are missing")) {
+                System.err.println("================================================");
+                System.err.println("Error: JavaFX runtime components are missing");
+                System.err.println("================================================");
+                System.err.println("Solutions:");
+                System.err.println("1. Configure VM options in IDE");
+                System.err.println("2. Use Maven command: mvn javafx:run");
+                System.err.println("3. Use run script: runGame.bat");
+                System.err.println("================================================");
+            }
+            throw e;
+        }
     }
 }
