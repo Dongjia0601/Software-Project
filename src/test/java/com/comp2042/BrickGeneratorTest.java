@@ -66,5 +66,46 @@ class BrickGeneratorTest {
         assertNotNull(randomGen.getBrick());
         assertNotNull(bagGen.getBrick());
     }
+
+    @Test
+    @DisplayName("SevenBagBrickGenerator: reset() ensures fresh 7-bag")
+    void testSevenBagBrickGeneratorReset() {
+        SevenBagBrickGenerator generator = new SevenBagBrickGenerator();
+        
+        // Consume some bricks from first bag
+        generator.getBrick();
+        generator.getBrick();
+        generator.getBrick();
+        
+        // Reset should clear queue and start fresh
+        generator.reset();
+        
+        // After reset, next 7 bricks should contain all 7 types
+        java.util.Set<Class<?>> brickTypes = new java.util.HashSet<>();
+        for (int i = 0; i < 7; i++) {
+            Brick brick = generator.getBrick();
+            brickTypes.add(brick.getClass());
+        }
+        
+        assertEquals(7, brickTypes.size(), "After reset, 7-bag should contain all 7 brick types");
+    }
+
+    @Test
+    @DisplayName("RandomBrickGenerator: reset() reinitializes lookahead queue")
+    void testRandomBrickGeneratorReset() {
+        RandomBrickGenerator generator = new RandomBrickGenerator();
+        
+        // Consume some bricks
+        generator.getBrick();
+        generator.getBrick();
+        
+        // Reset should reinitialize
+        generator.reset();
+        
+        // After reset, should still be able to get bricks
+        Brick brick = generator.getBrick();
+        assertNotNull(brick);
+        assertNotNull(brick.getShapeMatrix());
+    }
 }
 

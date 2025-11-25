@@ -383,7 +383,8 @@ public class SimpleBoard implements Board {
 
     /**
      * Resets the board state for a new game.
-     * Clears the board matrix, resets the score, and creates the first new brick.
+     * Clears the board matrix, resets the score, resets the brick generator,
+     * and creates the first new brick.
      */
     @Override
     public void newGame() {
@@ -391,6 +392,7 @@ public class SimpleBoard implements Board {
         score.reset(); // Reset the score
         totalLinesCleared = 0; // Reset lines cleared counter
         holdManager.reset();
+        brickGenerator.reset(); // Reset brick generator to ensure fresh 7-bag
         createNewBrick(); // Start the game by creating the first brick
     }
     

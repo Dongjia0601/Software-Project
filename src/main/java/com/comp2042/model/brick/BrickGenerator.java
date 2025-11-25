@@ -22,4 +22,11 @@ public interface BrickGenerator {
      * @return Next Brick instance
      */
     Brick getNextBrick();
+
+    /**
+     * Resets the generator to its initial state.
+     * Clears any internal state and prepares a fresh sequence.
+     * Should be called when starting a new game to ensure fair distribution.
+     */
+    void reset();
 }

@@ -57,4 +57,15 @@ public class RandomBrickGenerator implements BrickGenerator {
     public Brick getNextBrick() {
         return nextBricks.peek();
     }
+
+    /**
+     * Resets the generator to its initial state.
+     * Clears the lookahead queue and reinitializes it with two random bricks.
+     */
+    @Override
+    public void reset() {
+        nextBricks.clear();
+        nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
+        nextBricks.add(brickList.get(ThreadLocalRandom.current().nextInt(brickList.size())));
+    }
 }

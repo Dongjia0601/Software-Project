@@ -22,9 +22,6 @@ public class SevenBagBrickGenerator implements BrickGenerator {
      */
     public SevenBagBrickGenerator() {
         refillIfNeeded();
-        if (queue.size() == 1) {
-            refillIfNeeded();
-        }
     }
 
     /**
@@ -65,5 +62,16 @@ public class SevenBagBrickGenerator implements BrickGenerator {
             Collections.shuffle(bag);
             queue.addAll(bag);
         }
+    }
+
+    /**
+     * Resets the generator to its initial state.
+     * Clears the queue and fills it with a fresh shuffled bag.
+     * Ensures each new game starts with a complete 7-bag.
+     */
+    @Override
+    public void reset() {
+        queue.clear();
+        refillIfNeeded();
     }
 }
