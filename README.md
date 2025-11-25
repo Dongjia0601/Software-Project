@@ -42,44 +42,38 @@ For the best experience, it is recommended to view this `README.md` file on the 
 
 This Tetris implementation includes three distinct game modes:
 
-### 1. Endless Mode
-A classic Tetris experience where players aim for the highest score possible. Features include:
-- Progressive difficulty increase with dynamic speed scaling
-- Leaderboard system with persistent high scores (top 5 scores)
-- Real-time statistics (lines cleared, level, elapsed time)
+<table style="width:100%">
+  <tr>
+    <th style="width:25%">Game Mode</th>
+    <th style="width:75%">Description</th>
+  </tr>
+  <tr>
+    <td><strong>Endless Mode</strong></td>
+    <td>A classic Tetris experience where players aim for the highest score possible. Features leaderboard system with persistent high scores (top 5 scores), real-time statistics tracking (score, lines cleared, level, speed, elapsed time, high score), and comprehensive keyboard bindings and in-game control buttons (Pause/Resume(P), Mute/Unmute(M), New Game(N), Settings, Help, Back to Menu).</td>
+  </tr>
+  <tr>
+    <td><strong>Level Mode</strong></td>
+    <td>A structured gameplay experience with five uniquely themed levels, each with custom visual aesthetics and background music. Features include unique themed visuals (5 distinct themes), dedicated background music, progressive difficulty increase with dynamic speed scaling and different time limits, star rating system (0-3 stars), progressive unlocking mechanism, real-time statistics tracking, and comprehensive keyboard bindings and in-game control buttons.</td>
+  </tr>
+  <tr>
+    <td><strong>Two-Player Mode</strong></td>
+    <td>Competitive split-screen multiplayer featuring simultaneous gameplay with dual independent game boards. Features attack mechanism (clearing lines sends garbage to opponent), independent controls for both players, real-time statistics tracking (score, lines, attacks, defense, max combo, Tetris count), countdown system with synchronized start, special attack animations, visual warning indicators, and comprehensive game over screen with winner announcement.</td>
+  </tr>
+</table>
 
-### 2. Level Mode  
-A structured gameplay experience with five uniquely themed levels, each with custom visual aesthetics and background music:
-- **Level 1: Ancient Temple** (Easy) - Mystical ancient ruins with archaeological atmosphere and warm earth tones
-- **Level 2: Magic Castle** (Easy-Medium) - Fantasy medieval castle with magical blue-purple color scheme
-- **Level 3: Sunset City** (Medium) - Urban twilight cityscape with warm orange-red sunset gradient
-- **Level 4: Future Warfare** (Medium-Hard) - Sci-fi battlefield theme with futuristic cyan-teal aesthetics
-- **Level 5: Interstellar Odyssey** (Hard) - Deep space exploration with cosmic deep-blue color palette
+**Star Rating System:**
+- **0 Stars:** Level completion failure (objective not met: target lines not reached or time limit exceeded)
+- **1 Star:** Basic completion achieved (target lines cleared within time constraint and minimum score threshold satisfied)
+- **2 Stars:** Enhanced performance (score exceeds the two-star threshold while maintaining one-star prerequisites)
+- **3 Stars:** Optimal performance (score meets three-star threshold and completion time is within the three-star time constraint)
 
-Each level features:
-- Unique themed visuals with custom background images and color schemes (5 distinct themes)
-- Dedicated background music selected by level ID (Level135BGM.mp3 for levels 1,3,5; Level24BGM.mp3 for levels 2,4) for immersive audio experience
-- Progressive time limits (decreasing from Level 1 to Level 5) and increasing score requirements
-- **Star Rating System**: A comprehensive performance-based evaluation mechanism that assesses player achievement through a multi-tiered scoring system:
-  - **0 Stars**: Level completion failure (objective not met: target lines not reached or time limit exceeded)
-  - **1 Star**: Basic completion achieved (target lines cleared within time constraint and minimum score threshold satisfied)
-  - **2 Stars**: Enhanced performance (score exceeds the two-star threshold while maintaining one-star prerequisites)
-  - **3 Stars**: Optimal performance (score meets three-star threshold and completion time is within the three-star time constraint)
-  The evaluation algorithm considers three primary metrics: final score, lines cleared, and completion time, with each star tier requiring progressively stricter performance criteria.
-- Progressive unlocking mechanism
+The evaluation algorithm considers three primary metrics: final score, lines cleared, and completion time, with each star tier requiring progressively stricter performance criteria.
 
-### 3. Two-Player Mode
-Competitive split-screen multiplayer featuring:
-- Simultaneous gameplay with dual independent game boards
-- Attack mechanism: clearing lines sends garbage lines to opponent's board
-- Independent controls:
-  - Player 1: WASD + Q/E (rotation) + Shift (hold) + Space (hard drop)
-  - Player 2: Arrow Keys + Numpad 1/2 (rotation) + Numpad 3 (hold) + Numpad 0 (hard drop)
-- Real-time statistics tracking (score, lines, attacks, defense, max combo, Tetris count)
-- Countdown system with synchronized start (3-2-1-Start)
-- Special attack animations with screen shake, shockwave, and particle effects
-- Visual warning indicators when receiving garbage lines
-- Comprehensive game over screen with winner announcement and detailed statistics comparison
+### Additional Features Across All Modes
+- **Settings Page**: Accessible from the main menu, organized into three main sections: (1) **Controls** - displays keyboard bindings for Single Player & Player 1 Controls (A/D for move, W/F for rotation, S for soft drop, Space for hard drop, Shift for hold), Two-Player Controls (Player 2 uses Arrow Keys and Numpad), and Actions (Pause/Resume(P), Mute/Unmute(M), New Game(N)); (2) **Piece Randomizer** - selection between 7-Bag and Pure Random systems; (3) **Audio** - three-tier volume control system (Master, Music, SFX volumes with 0-100% range). Reset functionality restores all settings to defaults (Master Volume: 70%, Music Volume: 50%, SFX Volume: 80%, Piece Randomizer: 7-Bag). Changes only take effect after clicking the Save button. Settings are saved and persist across sessions.
+- **Help Interface**: Comprehensive help dialog accessible from the main menu and each game mode, featuring sections for Game Modes, Gameplay Basics, Side Panels & Actions, Piece Randomizer Systems, Scoring System, Ghost Brick System, Endless Mode Rules, Level Mode Rules and Two-player Mode Rules. The dialog includes scrollable content - users can scroll down to read the entire Gameplay Guide. The dialog can be closed by clicking the Close button at the bottom or the X button in the top-right corner of the window.
+- **Brick System**: Seven classic Tetris pieces (I, O, T, S, Z, J, L) with color-coded styling and distinct visual representation. Supports hold mechanism, ghost brick preview, and next piece preview.
+- **Audio System**: Comprehensive audio system with 23 audio files including background music (BGM) and sound effects (SFX). Three-tier volume control system (Master, BGM, SFX) with persistent settings. Unique background music for each game mode and level theme.
 
 ## Project Structure
 
@@ -355,20 +349,23 @@ This section details the features that have been successfully implemented in bot
     <td>
       <strong>Endless Mode:</strong>
       <ul>
-        <li>Progressive difficulty scaling.</li>
         <li>Persistent leaderboard with top 5 scores.</li>
-        <li>Real-time statistics (lines, level, time).</li>
+        <li>Real-time statistics (score, lines, level, speed, time, high score).</li>
+        <li>Comprehensive keyboard bindings and in-game control buttons.</li>
       </ul>
       <strong>Level Mode:</strong>
       <ul>
         <li>5 themed levels with unique visual themes (background images and color schemes).</li>
         <li>Background music selected by level ID for immersive audio experience.</li>
+        <li>Progressive difficulty increase with dynamic speed scaling and different time limits per level.</li>
         <li>Time limits and score requirements per level.</li>
         <li>Star rating system (1-3 stars).</li>
         <li>Progressive level unlocking.</li>
         <li>Dynamic difficulty progression with balanced fall speeds (700ms to 280ms).</li>
         <li>Enhanced progress tracking with accurate level completion display.</li>
         <li>Level-specific timeline speed synchronization for smooth gameplay.</li>
+        <li>Real-time statistics (score, lines cleared, level progress, time remaining, speed).</li>
+        <li>Comprehensive keyboard bindings and in-game control buttons.</li>
       </ul>
       <strong>Two-Player Mode:</strong>
       <ul>
