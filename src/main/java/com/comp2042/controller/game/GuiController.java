@@ -3073,6 +3073,14 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         if (!isLevelMode) {
             return;
         }
+
+        // Prevent duplicate calls - if level game over has already been handled, return early
+        if (isGameOver.getValue()) {
+            return;
+        }
+
+        // Set game over flag early to prevent duplicate calls and sound effects
+        isGameOver.setValue(true);
         
         // Play appropriate sound effect based on success/failure
             com.comp2042.model.mode.LevelManager levelManager = com.comp2042.model.mode.LevelManager.getInstance();
