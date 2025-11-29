@@ -1146,17 +1146,27 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         }
 
         // Initialize the rectangles for the current falling brick
-        rectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
-        for (int i = 0; i < brick.getBrickData().length; i++) {
-            for (int j = 0; j < brick.getBrickData()[i].length; j++) {
-                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                rectangle.setFill(getFillColor(brick.getBrickData()[i][j]));
-                // Set position for each rectangle within the brick panel
-                rectangle.setLayoutX(j * (BRICK_SIZE + 1)); // +1 for gap
-                rectangle.setLayoutY(i * (BRICK_SIZE + 1)); // +1 for gap
-                rectangles[i][j] = rectangle;
-                brickPanel.getChildren().add(rectangle);
+        // Check if brickPanel is available (may be null in test environments)
+        if (brickPanel != null) {
+            rectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
+            for (int i = 0; i < brick.getBrickData().length; i++) {
+                for (int j = 0; j < brick.getBrickData()[i].length; j++) {
+                    Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                    rectangle.setFill(getFillColor(brick.getBrickData()[i][j]));
+                    // Set position for each rectangle within the brick panel
+                    rectangle.setLayoutX(j * (BRICK_SIZE + 1)); // +1 for gap
+                    rectangle.setLayoutY(i * (BRICK_SIZE + 1)); // +1 for gap
+                    rectangles[i][j] = rectangle;
+                    brickPanel.getChildren().add(rectangle);
+                }
             }
+            
+            brickPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getXPosition()));
+            brickPanel.setLayoutY(calculateGridY(gamePanel, displayMatrix, brick.getYPosition()));
+        } else {
+            // In test environments, brickPanel may be null
+            // Initialize rectangles array but skip UI operations
+            rectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
         }
         
         // Initialize the rectangles for the ghost brick
@@ -1171,30 +1181,30 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
                 }
             }
         }
-
-        brickPanel.setLayoutX(calculateGridX(gamePanel, displayMatrix, brick.getXPosition()));
-        brickPanel.setLayoutY(calculateGridY(gamePanel, displayMatrix, brick.getYPosition()));
         
         // Update ghost brick position
         updateGhostBrick(brick);
 
         // Initialize the timeline for automatic brick movement
-        // Use level-specific speed for Level Mode, default speed for Endless Mode
-        int timelineSpeed = TIMELINE_DURATION_MS; // Default 400ms
-        if (isLevelMode) {
-            com.comp2042.model.mode.LevelManager levelManager = com.comp2042.model.mode.LevelManager.getInstance();
-            com.comp2042.model.mode.LevelMode currentLevel = levelManager.getCurrentLevel();
-            if (currentLevel != null) {
-                timelineSpeed = currentLevel.getFallSpeed();
+        // Only create timeline if UI components are available (skip in test environments)
+        if (brickPanel != null && gamePanel != null) {
+            // Use level-specific speed for Level Mode, default speed for Endless Mode
+            int timelineSpeed = TIMELINE_DURATION_MS; // Default 400ms
+            if (isLevelMode) {
+                com.comp2042.model.mode.LevelManager levelManager = com.comp2042.model.mode.LevelManager.getInstance();
+                com.comp2042.model.mode.LevelMode currentLevel = levelManager.getCurrentLevel();
+                if (currentLevel != null) {
+                    timelineSpeed = currentLevel.getFallSpeed();
+                }
             }
-        }
 
-        timeLine = new Timeline(new KeyFrame(
-                Duration.millis(timelineSpeed),
-                ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
-        ));
-        timeLine.setCycleCount(Timeline.INDEFINITE);
-        timeLine.play();
+            timeLine = new Timeline(new KeyFrame(
+                    Duration.millis(timelineSpeed),
+                    ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
+            ));
+            timeLine.setCycleCount(Timeline.INDEFINITE);
+            timeLine.play();
+        }
 
         // Start time tracking for Endless Mode
         if (isEndlessMode) {
