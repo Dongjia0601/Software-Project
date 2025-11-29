@@ -4,7 +4,7 @@
 [![JavaFX](https://img.shields.io/badge/JavaFX-21.0.6-blue)](https://openjfx.io/)
 [![JUnit](https://img.shields.io/badge/JUnit-5.12.1-green)](https://junit.org/)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]()
-[![Test Coverage](https://img.shields.io/badge/Tests-450%20passed-brightgreen)]()
+[![Test Coverage](https://img.shields.io/badge/Tests-452%20passed-brightgreen)]()
 # Table of Contents
 
 - [GitHub Repository](#github-repository)
@@ -217,7 +217,7 @@ The evaluation algorithm considers three primary metrics: final score, lines cle
  ┃ ┃   ┣ 📜 settings.css
  ┃ ┃   ┣ 📜 twoPlayerGameLayout.fxml
  ┃ ┃   ┗ 📜 twoPlayerGameStyle.css
- ┃ ┗ 📂 test/java/com/comp2042 (44 test files, 450 tests)
+ ┃ ┗ 📂 test/java/com/comp2042 (44 test files, 452 tests)
  ┣ 📜 pom.xml
  ┗ 📜 README.md
 ```
@@ -296,7 +296,7 @@ mvn test
 ```
 Or use the Maven tool window: **Lifecycle > test**
 
-This will execute all 450 unit tests across 44 test files. Expected result: **450 tests passed, 0 failures**.
+This will execute all 452 unit tests across 44 test files. Expected result: **452 tests passed, 0 failures**.
 
 ## Implemented and Working Properly
 
@@ -1281,7 +1281,7 @@ This section details the features that have been successfully implemented in bot
 
 ## Implemented but Not Working Properly
 
-*All implemented features are working properly.* There are no known bugs or incomplete features in the current implementation. The game has been thoroughly tested with **450 comprehensive unit tests (100% pass rate)** across 44 test files covering:
+*All implemented features are working properly.* There are no known bugs or incomplete features in the current implementation. The game has been thoroughly tested with **452 comprehensive unit tests (100% pass rate)** across 44 test files covering:
 - Core game logic (MatrixOperations, SimpleBoard, collision detection)
 - Design patterns (State, Factory, Strategy, Memento, Singleton)
 - Brick implementations and generation algorithms
@@ -1544,7 +1544,7 @@ This section lists all newly created Java classes in the refactored implementati
 - **Lines of Code Added:** 30,000+
 - **Packages Created:** 28
 - **Design Patterns Implemented:** 6 (State, Factory, Strategy, Memento, Singleton, MVC)
-- **Test Classes:** 44 test files with 450 comprehensive unit tests (100% pass rate)
+- **Test Classes:** 44 test files with 452 comprehensive unit tests (100% pass rate)
 
 ### Configuration Package (`com.comp2042.config`)
 
@@ -2348,7 +2348,7 @@ While only 4 files show as "modified" in git statistics, the reality is that **t
 2. **Refactored** with design patterns (State, Factory, Strategy, Memento, Singleton)
 3. **Enhanced** with extensive new functionality
 4. **Documented** with comprehensive JavaDocs
-5. **Tested** with 450 comprehensive unit tests (100% pass rate)
+5. **Tested** with 452 comprehensive unit tests (100% pass rate)
 
 #### Package Restructuring
 
@@ -2667,7 +2667,7 @@ com.comp2042/
   <tr>
     <td><strong>Testing</strong></td>
     <td>No tests</td>
-    <td>450 comprehensive unit tests (100% pass rate)</td>
+    <td>452 comprehensive unit tests (100% pass rate)</td>
   </tr>
   <tr>
     <td><strong>Game Modes</strong></td>
@@ -2907,7 +2907,7 @@ The refactoring process involved relocating classes into proper package structur
         <li>Thoroughly analyzed and fixed coordinate mapping in <code>MatrixOperations</code>.</li>
         <li>Corrected row/column index calculations ensuring consistency.</li>
         <li>Fixed brick spawn position to row 0 with proper bounds checking.</li>
-        <li>Added comprehensive unit tests (450 tests total) covering:
+        <li>Added comprehensive unit tests (452 tests total) covering:
           <ul>
             <li>Matrix operations with edge cases</li>
             <li>Brick placement at boundaries</li>
@@ -3040,7 +3040,7 @@ The refactoring process involved relocating classes into proper package structur
       </ul>
       <strong>Test Coverage:</strong>
       <ul>
-        <li><strong>450 comprehensive unit tests</strong> covering:
+        <li><strong>452 comprehensive unit tests</strong> covering:
           <ul>
             <li>Core game logic (MatrixOperations, SimpleBoard, Board components): 30+ tests</li>
             <li>Design patterns (State, Factory, Strategy, Memento, Singleton): 20+ tests</li>
@@ -3077,7 +3077,7 @@ The refactoring process involved relocating classes into proper package structur
             <li>Controller and strategy patterns: 30+ tests</li>
           </ul>
         </li>
-        <li><strong>All tests passing:</strong> 450/450 (100% pass rate)</li>
+        <li><strong>All tests passing:</strong> 452/452 (100% pass rate)</li>
         <li><strong>Test quality improvements:</strong>
           <ul>
             <li>Removed unprofessional comments and workaround explanations</li>
@@ -3159,7 +3159,7 @@ This Tetris project represents a **complete professional-grade refactoring** of 
 - **Architecture:** Clean MVC architecture with 28 packages and 97 well-organized classes
 - **Design Patterns:** 6 design patterns professionally implemented (State, Factory, Strategy, Memento, Singleton, MVC)
 - **Features:** 3 complete game modes with unique mechanics, themed UI, and comprehensive controls
-- **Quality:** 450 comprehensive unit tests (100% pass rate across 44 test files), 100% JavaDoc coverage, robust error handling
+- **Quality:** 452 comprehensive unit tests (100% pass rate across 44 test files), 100% JavaDoc coverage, robust error handling
 - **User Experience:** Professional UI/UX with 23 audio files (BGM + SFX), 5 themed levels, and smooth 60 FPS animations
 - **Documentation:** Comprehensive README, detailed in-code JavaDocs, and well-structured descriptive commit history
 - **Development Process:** 200+ commits demonstrating iterative development and continuous improvement
@@ -3168,6 +3168,6 @@ This Tetris project represents a **complete professional-grade refactoring** of 
 - **200+ commits** with meaningful commit messages following conventional commit format
 - **193 files changed** (97 production classes + 44 test classes + 52 resource files)
 - **30,000+ lines of code** added (production code + tests + documentation)
-- **100% test pass rate** (450/450 tests passing)
+- **100% test pass rate** (452/452 tests passing)
 
 The project demonstrates mastery of software maintenance principles, professional design pattern implementation, comprehensive testing methodologies, detailed documentation practices, and modern Java/JavaFX development while delivering a polished, enjoyable, and highly playable gaming experience.
