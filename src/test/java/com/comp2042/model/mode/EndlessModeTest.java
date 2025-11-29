@@ -127,9 +127,13 @@ class EndlessModeTest {
     void testOnDownEventGameOver() {
         endlessMode.initialize();
         
-        // Force game over
-        for (int i = 0; i < 20; i++) {
-            board.addGarbageLine();
+        // Force game over by directly filling board matrix
+        // EndlessMode doesn't use garbage lines
+        int[][] matrix = board.getBoardMatrix();
+        for (int i = 0; i < 19; i++) {
+            for (int j = 0; j < 10; j++) {
+                matrix[i][j] = 1; // Fill with blocks
+            }
         }
         board.createNewBrick();
         gameService.processDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD));
@@ -208,9 +212,13 @@ class EndlessModeTest {
     void testPauseGameOver() {
         endlessMode.initialize();
         
-        // Force game over
-        for (int i = 0; i < 20; i++) {
-            board.addGarbageLine();
+        // Force game over by directly filling board matrix
+        // EndlessMode doesn't use garbage lines
+        int[][] matrix = board.getBoardMatrix();
+        for (int i = 0; i < 19; i++) {
+            for (int j = 0; j < 10; j++) {
+                matrix[i][j] = 1; // Fill with blocks
+            }
         }
         board.createNewBrick();
         gameService.processDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD));
@@ -263,9 +271,13 @@ class EndlessModeTest {
         DownData pausedResult = endlessMode.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.KEYBOARD_PLAYER_1));
         assertNull(pausedResult, "Input should be blocked when paused");
         
-        // Force game over by filling board completely
-        for (int i = 0; i < 20; i++) {
-            board.addGarbageLine();
+        // Force game over by directly filling board matrix
+        // EndlessMode doesn't use garbage lines
+        int[][] matrix = board.getBoardMatrix();
+        for (int i = 0; i < 19; i++) {
+            for (int j = 0; j < 10; j++) {
+                matrix[i][j] = 1; // Fill with blocks
+            }
         }
         // Create a new brick to trigger game over
         board.createNewBrick(); // This should fail
@@ -297,9 +309,13 @@ class EndlessModeTest {
     void testUpdateGameOver() {
         endlessMode.initialize();
         
-        // Fill board to cause game over
-        for (int i = 0; i < 20; i++) {
-            board.addGarbageLine();
+        // Fill board to cause game over by directly setting board matrix
+        // EndlessMode doesn't use garbage lines
+        int[][] matrix = board.getBoardMatrix();
+        for (int i = 0; i < 19; i++) {
+            for (int j = 0; j < 10; j++) {
+                matrix[i][j] = 1; // Fill with blocks
+            }
         }
         board.createNewBrick();
         gameService.processDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD));
@@ -349,24 +365,27 @@ class EndlessModeTest {
     void testGetResultAfterGameOver() {
         endlessMode.initialize();
         
-        // Fill board to cause game over
-        for (int i = 0; i < 20; i++) {
+        // Fill board with garbage lines to cause game over
+        // Add 19 garbage lines (same approach as TwoPlayerModeTest)
+        for (int i = 0; i < 19; i++) {
             board.addGarbageLine();
         }
         
-        // Create a brick first, then trigger down event to cause game over
+        // Create a brick, then trigger down event to cause game over
         board.createNewBrick();
         gameService.processDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD));
         
-        // Update multiple times to ensure game over is detected
+        // Verify gameService detects game over
+        assertTrue(gameService.isGameOver(), "GameService should detect game over after collision");
+        
+        // Update EndlessMode to detect game over from GameService
         endlessMode.update();
-        if (!endlessMode.isGameOver()) {
-            endlessMode.update();
-        }
         
-        // Verify game is over before checking result
-        assertTrue(endlessMode.isGameOver(), "Game should be over after filling board");
+        // Verify EndlessMode also detects game over
+        assertTrue(endlessMode.isGameOver(), 
+            "EndlessMode should detect game over after update");
         
+        // Verify result is set after game over
         assertNotNull(endlessMode.getResult(), "Result should be set after game over");
         assertEquals(GameModeType.ENDLESS, endlessMode.getResult().getGameMode());
     }
