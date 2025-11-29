@@ -1250,7 +1250,7 @@ public class GuiController implements Initializable, GameInputHandler.InputHandl
         }
         
         if (brickPanel == null) {
-            System.err.println("[GuiController] ERROR: brickPanel is null in single-player mode!");
+            // brickPanel may be null in test environments where FXML is not fully loaded
             return;
         }
         

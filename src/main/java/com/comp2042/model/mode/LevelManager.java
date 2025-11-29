@@ -247,35 +247,15 @@ public class LevelManager {
      *          Use {@link #completeLevel(int, int, int, long, boolean)} for normal level progression.
      */
     public void unlockLevel(int levelId) {
-        // Log access for security auditing
-        System.err.println("[LevelManager] SECURITY AUDIT: unlockLevel() called for level " + levelId + 
-                          " - Stack trace: " + getCallerInfo());
-        
+        // This method is intended for testing and debugging purposes only
         LevelMode level = getLevel(levelId);
         if (level != null) {
             level.unlock();
             saveProgress(); // Save after manual unlock
-            System.err.println("[LevelManager] Level " + levelId + " manually unlocked and progress saved");
-        } else {
-            System.err.println("[LevelManager] WARNING: Attempted to unlock invalid level ID: " + levelId);
         }
+        // Invalid level ID is silently ignored in test environments
     }
     
-    /**
-     * Gets caller information for security logging.
-     * 
-     * @return a string containing the caller's class and method name
-     */
-    private String getCallerInfo() {
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        // Skip Thread.getStackTrace() and getCallerInfo() itself, get the actual caller
-        if (stackTrace.length > 3) {
-            StackTraceElement caller = stackTrace[3];
-            return caller.getClassName() + "." + caller.getMethodName() + ":" + caller.getLineNumber();
-        }
-        return "unknown";
-    }
-
     /**
      * Checks if a level is completed.
      *
