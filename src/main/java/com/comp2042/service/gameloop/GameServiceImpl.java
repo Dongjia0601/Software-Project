@@ -8,6 +8,7 @@ import com.comp2042.event.EventType;
 import com.comp2042.model.board.Board;
 import com.comp2042.model.board.SimpleBoard;
 import com.comp2042.model.score.Score;
+import com.comp2042.util.MatrixOperations;
 
 /**
  * Implementation of the GameService interface.
@@ -71,6 +72,19 @@ public class GameServiceImpl implements GameService {
     public DownData processDownEvent(MoveEvent event) {
         if (gameOver) {
             return null;
+        }
+
+        // If external actions (like garbage lines) have pushed blocks into the spawn area,
+        // treat it as an immediate game over before processing movement.
+        ViewData currentView = board.getViewData();
+        if (MatrixOperations.intersect(
+            board.getBoardMatrix(),
+            currentView.getBrickData(),
+            currentView.getXPosition(),
+            currentView.getYPosition()
+        )) {
+            gameOver = true;
+            return new DownData(null, currentView, true, 0);
         }
         
         boolean canMove;
