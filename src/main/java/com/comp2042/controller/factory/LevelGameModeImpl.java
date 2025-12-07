@@ -99,7 +99,8 @@ public class LevelGameModeImpl implements GameMode {
 
     @Override
     public GameResult getResult() {
-        long playTimeMillis = System.currentTimeMillis() - levelStartTime;
+        // Clamp to at least 1ms to avoid zero-duration edge cases in fast tests
+        long playTimeMillis = Math.max(1, System.currentTimeMillis() - levelStartTime);
         int finalScore = gameService.getScore().getScore();
         int highScoreForLevel = currentLevelMode.getBestScore();
         boolean isNewHighScore = finalScore > highScoreForLevel;
