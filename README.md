@@ -400,7 +400,7 @@ This section details the features that have been successfully implemented in bot
     <td>
       - Unique UI design (main menu, settings, help, level selection, Game Over interface for each mode, etc.)<br>
       - Smooth animations for brick movements and rotations.<br>
-      - **Row clear animation**: Professional two-phase animation (flash + fade) when rows are eliminated. Cleared blocks briefly flash and scale up (1.2x) then fade out and shrink simultaneously, providing clear visual feedback. Optimized using JavaFX ParallelTransition for smooth 60 FPS performance even when clearing multiple rows (Tetris) simultaneously.<br>
+      - Row clear animation: Professional two-phase animation (flash + fade) when rows are eliminated. Cleared blocks briefly flash and scale up (1.2x) then fade out and shrink simultaneously, providing clear visual feedback. Optimized using JavaFX ParallelTransition for smooth 60 FPS performance even when clearing multiple rows (Tetris) simultaneously.<br>
       - Visual effects: screen shake, particle effects, attack animations, etc.<br>
       - Ghost brick display showing landing position.<br>
       - Color-coded brick types with distinct styling.<br>
@@ -460,26 +460,26 @@ This section details the features that have been successfully implemented in bot
     <td>
       <strong>Single Player Controls:</strong>
       <ul>
-        <li>Movement: A (Left), D (Right), S (Down)</li>
-        <li>Rotation: E (Clockwise), Q (Counter-Clockwise)</li>
+        <li>Movement: A (Left), D (Right)</li>
+        <li>Rotation: W (Clockwise), Q (Counter-Clockwise)</li>
+        <li>Soft Drop: S (accelerated downward movement)</li>
         <li>Hard Drop: Space (instant drop to bottom)</li>
         <li>Hold: Shift (swap current with held piece)</li>
-        <li>Soft Drop: S (accelerated downward movement)</li>
         <li>Pause: P (pause/resume game)</li>
         <li>Mute: M (toggle audio on/off)</li>
       </ul>
       <strong>Two-Player Controls:</strong>
       <ul>
-        <li><strong>Player 1:</strong> WASD (movement) + E (CW rotation) + Q (CCW rotation) + Shift (hold) + Space (hard drop)</li>
-        <li><strong>Player 2:</strong> Arrow Keys (movement) + Numpad 1 (CW rotation) + Numpad 2 (CCW rotation) + Numpad 3 (hold) + Numpad 0 (hard drop)</li>
-        <li><strong>Important:</strong> For Player 2, ensure Num Lock is enabled when using numpad keys (0, 1, 2, 3).</li>
+        <li><strong>Player 1:</strong> WASD (movement, CW rotation, soft drop) + Q (CCW rotation) + Shift (hold) + Space (hard drop)</li>
+        <li><strong>Player 2:</strong> Arrow Keys (movement, CW rotation, soft drop) + Numpad 2 (CCW rotation) + Numpad 3 (hold) + Numpad 0 (hard drop)</li>
+        <li><strong>Important:</strong> For Player 2, ensure Num Lock is enabled when using numpad keys (0, 2, 3).</li>
       </ul>
       <strong>Advanced Features:</strong>
       <ul>
         <li><strong>Hold Mechanism:</strong> Swap current piece with held piece (once per lock).</li>
         <li><strong>Hard Drop:</strong> Instant drop to bottom with immediate lock.</li>
         <li><strong>Soft Drop:</strong> Accelerated downward movement for faster placement.</li>
-        <li><strong>Dual Rotation:</strong> Clockwise (E/Numpad1) and counter-clockwise (Q/Numpad2) rotation for optimal placement strategies.</li>
+        <li><strong>Dual Rotation:</strong> Counter-clockwise (Q/Numpad2) rotation for optimal placement strategies.</li>
         <li><strong>Ghost Brick:</strong> Semi-transparent preview showing exact landing position.</li>
         <li><strong>Next Piece Queue:</strong> Preview of upcoming pieces for strategic planning.</li>
       </ul>

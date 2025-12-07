@@ -7,6 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for {@link BrickFactory}: verifies creation of every brick type,
+ * factory error handling for bad input, and generators (pure random + 7-bag).
+ */
 @DisplayName("BrickFactory Tests")
 class BrickFactoryTest {
 

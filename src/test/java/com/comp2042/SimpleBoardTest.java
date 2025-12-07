@@ -7,6 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * JUnit tests for {@link SimpleBoard} core board behaviour:
+ * construction, validation, brick creation, and default matrix state.
+ * Keeps assertions focused on pure model logic.
+ */
 class SimpleBoardTest {
 
     private SimpleBoard board;

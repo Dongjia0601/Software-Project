@@ -47,16 +47,16 @@ class GameStatePatternTest {
         board = new SimpleBoard(10, 20);
         board.createNewBrick(); // Ensure brick exists
         
-        // Create a stub GuiController
+        // Create a stub GuiController to isolate state logic from UI side effects
         guiController = new GuiController() {
             @Override
             public void updateScore(int score, int highScore) {
-                // No-op
+                // UI not needed in this unit test
             }
             
             @Override
             public void updateLines(int lines) {
-                // No-op
+                // UI not needed in this unit test
             }
             
             @Override
@@ -71,17 +71,17 @@ class GameStatePatternTest {
             
             @Override
             public void refreshGameBackground(int[][] matrix) {
-                // No-op
+                // UI not needed in this unit test
             }
             
             @Override
             public void refreshActiveBrick(ViewData data) {
-                // No-op
+                // UI not needed in this unit test
             }
 
             @Override
             public void gameOver() {
-                // No-op
+                // UI not needed in this unit test
             }
         };
         
@@ -97,7 +97,7 @@ class GameStatePatternTest {
     @Test
     @DisplayName("PlayingState: Handles DOWN event")
     void testPlayingStateOnDownEvent() {
-        // Run on FX thread to avoid concurrency issues with SoundManager
+        // Run on FX thread to avoid concurrency issues with SoundManager and UI stubs
         Platform.runLater(() -> {
             PlayingState state = new PlayingState(board, guiController, stateContext);
             MoveEvent event = new MoveEvent(EventType.DOWN, EventSource.USER);
@@ -105,6 +105,7 @@ class GameStatePatternTest {
             assertNotNull(result);
         });
         try {
+            // Allow FX thread to flush runLater before assertions finish
             Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -114,6 +115,7 @@ class GameStatePatternTest {
     @Test
     @DisplayName("State Pattern: State transitions are correct")
     void testStatePatternTransitions() {
+        // Verify pause/resume returns the correct state type without mutating context
         PlayingState playing = new PlayingState(board, guiController, stateContext);
         GameState paused = playing.handlePauseRequest();
         assertTrue(paused instanceof PausedState);
