@@ -578,6 +578,7 @@ This section details the features that have been successfully implemented in bot
         <li>Time bonus calculation.</li>
         <li>Next level unlock notification.</li>
         <li>Options: Retry Level, Next Level, Level Selection, Main Menu.</li>
+        <li>Keyboard shortcuts: N (Retry), S (Level Selection), ENTER (Next Level when unlocked after a win), ESC (Main Menu). On failure the ENTER hint is hidden and the key is ignored.</li>
       </ul>
       <strong>Two-Player Game Over:</strong>
       <ul>
