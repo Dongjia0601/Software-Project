@@ -570,15 +570,16 @@ This section details the features that have been successfully implemented in bot
         <li>Shows leaderboard position if score qualifies.</li>
         <li>"New Record!" celebration for high scores.</li>
         <li>Options: Play Again, Main Menu, Reset the Leaderboard.</li>
+        <li>Keyboard shortcuts: N (Play Again), ESC (Main Menu).</li>
       </ul>
       <strong>Level Mode Game Over:</strong>
       <ul>
+        <li><strong>Keyboard shortcuts:</strong> N (Retry), S (Level Selection), ENTER (Next Level when unlocked after a win), ESC (Main Menu). On failure the ENTER hint is hidden and the key is ignored.</li>
         <li>Shows level completion status.</li>
         <li>Star rating based on performance (1-3 stars).</li>
         <li>Time bonus calculation.</li>
-        <li>Next level unlock notification.</li>
+        <li>Next level unlock notification (Next Level button and ENTER only appear when the next level is unlocked and the current level is won).</li>
         <li>Options: Retry Level, Next Level, Level Selection, Main Menu.</li>
-        <li>Keyboard shortcuts: N (Retry), S (Level Selection), ENTER (Next Level when unlocked after a win), ESC (Main Menu). On failure the ENTER hint is hidden and the key is ignored.</li>
       </ul>
       <strong>Two-Player Game Over:</strong>
       <ul>
@@ -595,6 +596,7 @@ This section details the features that have been successfully implemented in bot
         </ul>
         <li>Color-coded display: Player 1 (cyan), Player 2 (red), Statistics headers (gold).</li>
         <li>Options: New Game (rematch), Back to Menu.</li>
+        <li>Keyboard shortcuts: N (New Game), ESC (Main Menu) in the game over panel.</li>
       </ul>
     </td>
   </tr>
