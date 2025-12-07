@@ -4,6 +4,7 @@ import com.comp2042.service.audio.SoundManager;
 import com.comp2042.model.mode.LevelManager;
 import com.comp2042.model.mode.LevelMode;
 import javafx.animation.*;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -51,6 +52,7 @@ public class LevelGameOverController implements Initializable {
     @FXML private VBox bestStatsSection;
     @FXML private Label bestScoreLabel;
     @FXML private Label bestTimeLabel;
+    @FXML private Label shortcutHintLabel;
     @FXML private Button tryAgainButton;
     @FXML private Button nextLevelButton;
     @FXML private Button backToSelectionButton;
@@ -103,20 +105,24 @@ public class LevelGameOverController implements Initializable {
      */
     private void setupKeyboardNavigation() {
         if (rootPane != null) {
-            rootPane.setOnKeyPressed(e -> {
+            rootPane.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
                 if (e.getCode() == KeyCode.N && onTryAgain != null) {
                     onTryAgain.run();
+                    e.consume();
                 } else if (e.getCode() == KeyCode.ESCAPE && onBackToMenu != null) {
                     onBackToMenu.run();
+                    e.consume();
                 } else if (e.getCode() == KeyCode.S && onBackToSelection != null) {
                     onBackToSelection.run();
+                    e.consume();
                 } else if (e.getCode() == KeyCode.ENTER && nextLevelButton.isVisible() && onNextLevel != null) {
                     onNextLevel.run();
+                    e.consume();
                 }
             });
-            
+
             rootPane.setFocusTraversable(true);
-            rootPane.requestFocus();
+            Platform.runLater(() -> rootPane.requestFocus());
         }
     }
     
@@ -303,6 +309,21 @@ public class LevelGameOverController implements Initializable {
             boolean showNextLevel = success && nextLevel != null && nextLevel.isUnlocked();
             nextLevelButton.setVisible(showNextLevel);
             nextLevelButton.setManaged(showNextLevel);
+        }
+
+        // Update shortcut hint to remove ENTER when the next level is unavailable
+        if (shortcutHintLabel != null) {
+            LevelMode nextLevel = levelManager.getLevel(levelId + 1);
+            boolean showNextLevel = success && nextLevel != null && nextLevel.isUnlocked();
+            if (showNextLevel) {
+                shortcutHintLabel.setText("Shortcuts: N (Try Again) | S (Back to Selection) | ENTER (Next Level) | ESC (Back to Menu)");
+            } else {
+                shortcutHintLabel.setText("Shortcuts: N (Try Again) | S (Back to Selection) | ESC (Back to Menu)");
+            }
+        }
+
+        if (rootPane != null) {
+            Platform.runLater(() -> rootPane.requestFocus());
         }
         
         // Show subtitle for new best score/time

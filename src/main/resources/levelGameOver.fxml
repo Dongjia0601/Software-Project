@@ -148,7 +148,8 @@
             </HBox>
             
             <!-- Additional Info -->
-            <Label text="Shortcuts: N (Try Again) | S (Back to Selection) | ENTER (Next Level) | ESC (Back to Menu)" 
+            <Label fx:id="shortcutHintLabel"
+                   text="Shortcuts: N (Try Again) | S (Back to Selection) | ESC (Back to Menu)"
                    styleClass="hint-text"/>
         </VBox>
     </bottom>
