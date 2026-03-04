@@ -1,6 +1,6 @@
-# COMP2042 Coursework: Tetris
+# Tetris Game
 
-[![Java Version](https://img.shields.io/badge/Java-21-orange)](https://openjdk.java.net/)
+[![Java Version](https://img.shields.ibadge/Java-21-orange)](https://openjdk.java.net/)
 [![JavaFX](https://img.shields.io/badge/JavaFX-21.0.6-blue)](https://openjfx.io/)
 [![JUnit](https://img.shields.io/badge/JUnit-5.12.1-green)](https://junit.org/)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]()
@@ -32,7 +32,7 @@
 
 # Introduction
 
-Welcome to my Developing Maintenance Software coursework project. I am **Dong, Jia (Student ID: 20705878)**, and this project focuses on maintaining and extending a re-implementation of the classic retro game **Tetris**. 
+Welcome to my Developing Maintenance Software project. I am **Dong, Jia**, and this project focuses on maintaining and extending a re-implementation of the classic retro game **Tetris**. 
 
 This implementation features three distinct game modes: **Endless Mode**, **Level Mode**, and **Two-Player Mode**, providing a comprehensive Tetris gaming experience with modern design patterns, professional UI/UX, and extensive audio-visual enhancements.
 
