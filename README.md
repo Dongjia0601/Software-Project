@@ -1,6 +1,6 @@
 # Tetris Game
 
-[![Java Version](https://img.shields.ibadge/Java-21-orange)](https://openjdk.java.net/)
+[![Java Version](https://img.shields.i0/badge/Java-21-orange)](https://openjdk.java.net/)
 [![JavaFX](https://img.shields.io/badge/JavaFX-21.0.6-blue)](https://openjfx.io/)
 [![JUnit](https://img.shields.io/badge/JUnit-5.12.1-green)](https://junit.org/)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]()
